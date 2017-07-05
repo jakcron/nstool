@@ -45,6 +45,7 @@ public:
 private:
 	const std::string kModuleName = "NCA_HEADER";
 	const std::string kNcaSig = "NCA2";
+	static const size_t kDefaultBlockSize = 0x200;
 	static const size_t kSectionNum = 4;
 	static const size_t kAesKeyNum = 4;
 
@@ -108,15 +109,15 @@ private:
 #pragma pack (pop)
 
 	// binary
-	fnd::MemoryBlob binary_blob_;
+	fnd::MemoryBlob mBinaryBlob;
 
 	// data
-	u16 block_size_;
-	u64 nca_size_;
-	u64 program_id_;
-	u32 unk0_;
-	std::vector<sSection> sections_;
-	std::vector<crypto::aes::sAes128Key> aes_keys_;
+	u16 mBlockSize;
+	u64 mNcaSize;
+	u64 mProgramId;
+	u32 mUnk0;
+	std::vector<sSection> mSections;
+	std::vector<crypto::aes::sAes128Key> mAesKeys;
 
 	void clearVariables();
 	u64 blockNumToSize(u32 block_num) const;

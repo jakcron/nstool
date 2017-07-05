@@ -3,27 +3,52 @@
 
 void NcaHeader::exportBinary()
 {
-	// TODO: implement export
+	mBinaryBlob.alloc(sizeof(sNcaHeader));
+	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.data();
+
+	hdr->set_signature(kNcaSig.c_str());
+	hdr->set_block_size(kDefaultBlockSize);
+	hdr->set_nca_size(mNcaSize);
+	hdr->set_program_id(mProgramId);
+	hdr->set_unk0(mUnk0);
+
+	// TODO: properly reconstruct NCA layout? atm in hands of user
+
+	for (size_t i = 0; i < mSections.size(); i++)
+	{
+		// determine section index
+		u8 section = mSections.size() - 1 - i;
+
+		hdr->section(section).set_start(mSections[i].start_blk);
+		hdr->section(section).set_end(mSections[i].end_blk);
+		hdr->section(section).set_key_type(mSections[i].key_type);
+		hdr->section_hash(section) = mSections[i].hash;
+	}
+
+	for (size_t i = 0; i < kAesKeyNum; i++)
+	{
+		hdr->aes_key(i) = mAesKeys[i];
+	}
 }
 
 void NcaHeader::importBinary(const u8 * bytes)
 {
 	clearVariables();
 	
-	binary_blob_.alloc(sizeof(sNcaHeader));
-	memcpy(binary_blob_.data(), bytes, sizeof(sNcaHeader));
+	mBinaryBlob.alloc(sizeof(sNcaHeader));
+	memcpy(mBinaryBlob.data(), bytes, sizeof(sNcaHeader));
 
-	sNcaHeader* hdr = (sNcaHeader*)binary_blob_.data();
+	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.data();
 
 	if (memcmp(hdr->signature(), kNcaSig.c_str(), 4) != 0)
 	{
 		throw fnd::Exception(kModuleName, "NCA header corrupt");
 	}
 	
-	block_size_ = hdr->block_size();
-	nca_size_ = hdr->nca_size();
-	program_id_ = hdr->program_id();
-	unk0_ = hdr->unk0();
+	mBlockSize = hdr->block_size();
+	mNcaSize = hdr->nca_size();
+	mProgramId = hdr->program_id();
+	mUnk0 = hdr->unk0();
 
 	for (size_t i = 0; i < kSectionNum; i++)
 	{
@@ -34,87 +59,87 @@ void NcaHeader::importBinary(const u8 * bytes)
 		if (hdr->section(section).start() == 0 && hdr->section(section).end() == 0) continue;
 		
 		// add high level struct
-		sections_.push_back({ hdr->section(section).start(), hdr->section(section).end(), blockNumToSize(hdr->section(section).start()), blockNumToSize(hdr->section(section).end()- hdr->section(section).start()), hdr->section(section).key_type(), hdr->section_hash(section) });
+		mSections.push_back({ hdr->section(section).start(), hdr->section(section).end(), blockNumToSize(hdr->section(section).start()), blockNumToSize(hdr->section(section).end()- hdr->section(section).start()), hdr->section(section).key_type(), hdr->section_hash(section) });
 	}
 
 	for (size_t i = 0; i < kAesKeyNum; i++)
 	{
-		aes_keys_.push_back(hdr->aes_key(i));
+		mAesKeys.push_back(hdr->aes_key(i));
 	}
 }
 
 u64 NcaHeader::getNcaSize() const
 {
-	return nca_size_;
+	return mNcaSize;
 }
 
 void NcaHeader::setNcaSize(u64 size)
 {
-	nca_size_ = size;
+	mNcaSize = size;
 }
 
 u64 NcaHeader::getProgramId() const
 {
-	return program_id_;
+	return mProgramId;
 }
 
 void NcaHeader::setProgramId(u64 program_id)
 {
-	program_id_ = program_id;
+	mProgramId = program_id;
 }
 
 u32 NcaHeader::getUnk() const
 {
-	return unk0_;
+	return mUnk0;
 }
 
 const std::vector<NcaHeader::sSection>& NcaHeader::getSections() const
 {
-	return sections_;
+	return mSections;
 }
 
 void NcaHeader::addSection(const sSection & section)
 {
-	if (sections_.size() >= kSectionNum)
+	if (mSections.size() >= kSectionNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many NCA sections");
 	}
-	sections_.push_back(section);
+	mSections.push_back(section);
 }
 
 const std::vector<crypto::aes::sAes128Key>& NcaHeader::getAesKeys() const
 {
-	return aes_keys_;
+	return mAesKeys;
 }
 
 void NcaHeader::addKey(const crypto::aes::sAes128Key & key)
 {
-	if (aes_keys_.size() >= kAesKeyNum)
+	if (mAesKeys.size() >= kAesKeyNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many NCA aes keys");
 	}
 
-	aes_keys_.push_back(key);
+	mAesKeys.push_back(key);
 }
 
 void NcaHeader::clearVariables()
 {
-	block_size_ = 0;
-	nca_size_ = 0;
-	program_id_ = 0;
-	unk0_ = 0;
-	sections_.clear();
-	aes_keys_.clear();
+	mBlockSize = 0;
+	mNcaSize = 0;
+	mProgramId = 0;
+	mUnk0 = 0;
+	mSections.clear();
+	mAesKeys.clear();
 }
 
 u64 NcaHeader::blockNumToSize(u32 block_num) const
 {
-	return block_num*block_size_;
+	return block_num*mBlockSize;
 }
 
 u32 NcaHeader::sizeToBlockNum(u64 real_size) const
 {
-	return align(real_size, block_size_)/block_size_;
+	return align(real_size, mBlockSize)/mBlockSize;
 }
 
 NcaHeader::NcaHeader()
@@ -134,10 +159,10 @@ NcaHeader::NcaHeader(const u8 * bytes)
 
 const u8 * NcaHeader::getBytes() const
 {
-	return binary_blob_.data();
+	return mBinaryBlob.data();
 }
 
 size_t NcaHeader::getSize() const
 {
-	return binary_blob_.size();
+	return mBinaryBlob.size();
 }
