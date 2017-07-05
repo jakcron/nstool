@@ -18,7 +18,13 @@
     <ClInclude Include="aes_ctr_stream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="crypto.h">
+    <ClInclude Include="aes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sha.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rsa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -26,7 +32,13 @@
     <ClCompile Include="aes_ctr_stream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="crypto.cpp">
+    <ClCompile Include="aes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rsa.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

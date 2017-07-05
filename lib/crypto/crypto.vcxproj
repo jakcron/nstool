@@ -112,12 +112,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="aes.h" />
     <ClInclude Include="aes_ctr_stream.h" />
-    <ClInclude Include="crypto.h" />
+    <ClInclude Include="rsa.h" />
+    <ClInclude Include="sha.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="aes.cpp" />
     <ClCompile Include="aes_ctr_stream.cpp" />
-    <ClCompile Include="crypto.cpp" />
+    <ClCompile Include="rsa.cpp" />
+    <ClCompile Include="sha.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />

@@ -1,6 +1,6 @@
 #include "aes_ctr_stream.h"
 
-using namespace crypto;
+using namespace crypto::aes;
 
 AesCtrStream::AesCtrStream()
 {
@@ -73,7 +73,7 @@ void AesCtrStream::write(size_t offset, size_t size, const uint8_t * in)
 	write(size, in);
 }
 
-void AesCtrStream::AddRegion(size_t start, size_t end, const uint8_t aes_key[crypto::kAes128KeySize], const uint8_t aes_ctr[crypto::kAesBlockSize])
+void AesCtrStream::AddRegion(size_t start, size_t end, const uint8_t aes_key[kAes128KeySize], const uint8_t aes_ctr[kAesBlockSize])
 {
 	if (start >= end)
 	{
