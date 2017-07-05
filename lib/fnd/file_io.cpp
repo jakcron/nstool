@@ -40,7 +40,7 @@ void FileIO::ReadFile(const std::string& path, MemoryBlob & blob)
 
 void FileIO::WriteFile(const std::string& path, const MemoryBlob & blob)
 {
-	WriteFile(blob.data(), blob.size());
+	WriteFile(path, blob.data(), blob.size());
 }
 
 void fnd::FileIO::WriteFile(const std::string & path, const u8 * data, size_t len)
@@ -63,7 +63,7 @@ void fnd::FileIO::WriteFile(const std::string & path, const u8 * data, size_t le
 
 	if (filesz)
 	{
-		fwrite(blob.data() + filepos, 1, filesz, fp);
+		fwrite(data + filepos, 1, filesz, fp);
 	}
 
 	fclose(fp);
