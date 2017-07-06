@@ -1,9 +1,10 @@
 #pragma once
+#include <string>
 #include <fnd/types.h>
 #include <fnd/memory_blob.h>
-#include <string>
+#include <nx/ISerialiseableBinary.h>
 
-class AciHeader
+class AciHeader : public ISerialiseableBinary
 {
 public:
 	enum AciType
@@ -18,6 +19,13 @@ public:
 		size_t size;
 	};
 
+	AciHeader();
+	AciHeader(const AciHeader& other);
+	AciHeader(const u8* bytes);
+
+	bool operator==(const AciHeader& other);
+	void operator=(const AciHeader& other);
+
 	// to be used after export
 	const u8* getBytes() const;
 	size_t getSize() const;
@@ -25,6 +33,7 @@ public:
 	// export/import binary
 	void exportBinary();
 	void importBinary(const u8* bytes);
+	void importBinary(const u8* bytes, size_t len);
 
 	// variables
 	AciType getAciType() const;
@@ -56,13 +65,13 @@ private:
 		{
 		private:
 			u32 offset_; // aligned by 0x10 from the last one
-			u32 size_;
+			u32 mSize;
 		public:
 			u32 offset() const { return le_word(offset_); }
 			void set_offset(u32 offset) { offset_ = le_word(offset); }
 
-			u32 size() const { return le_word(size_); }
-			void set_size(u32 size) { size_ = le_word(size); }
+			u32 size() const { return le_word(mSize); }
+			void set_size(u32 size) { mSize = le_word(size); }
 		} fac_, sac_, kc_;
 		u8 reserved_3[8];
 	public:

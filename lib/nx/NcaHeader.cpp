@@ -4,7 +4,7 @@
 void NcaHeader::exportBinary()
 {
 	mBinaryBlob.alloc(sizeof(sNcaHeader));
-	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.data();
+	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
 	hdr->set_signature(kNcaSig.c_str());
 	hdr->set_block_size(kDefaultBlockSize);
@@ -36,9 +36,9 @@ void NcaHeader::importBinary(const u8 * bytes)
 	clearVariables();
 	
 	mBinaryBlob.alloc(sizeof(sNcaHeader));
-	memcpy(mBinaryBlob.data(), bytes, sizeof(sNcaHeader));
+	memcpy(mBinaryBlob.getBytes(), bytes, sizeof(sNcaHeader));
 
-	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.data();
+	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
 	if (memcmp(hdr->signature(), kNcaSig.c_str(), 4) != 0)
 	{
@@ -66,6 +66,15 @@ void NcaHeader::importBinary(const u8 * bytes)
 	{
 		mAesKeys.push_back(hdr->aes_key(i));
 	}
+}
+
+void NcaHeader::importBinary(const u8 * bytes, size_t len)
+{
+	if (len < sizeof(sNcaHeader))
+	{
+		throw fnd::Exception(kModuleName, "NCA header size is too small");
+	}
+	importBinary(bytes);
 }
 
 u64 NcaHeader::getNcaSize() const
@@ -157,12 +166,22 @@ NcaHeader::NcaHeader(const u8 * bytes)
 	importBinary(bytes);
 }
 
+bool NcaHeader::operator==(const NcaHeader & other)
+{
+	return memcmp(this->getBytes(), other.getBytes(), this->getSize()) == 0;
+}
+
+void NcaHeader::operator=(const NcaHeader & other)
+{
+	this->importBinary(other.getBytes(), other.getSize());
+}
+
 const u8 * NcaHeader::getBytes() const
 {
-	return mBinaryBlob.data();
+	return mBinaryBlob.getBytes();
 }
 
 size_t NcaHeader::getSize() const
 {
-	return mBinaryBlob.size();
+	return mBinaryBlob.getSize();
 }

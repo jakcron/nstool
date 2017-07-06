@@ -1,12 +1,13 @@
 #pragma once
+#include <vector>
+#include <string>
 #include <fnd/types.h>
 #include <fnd/memory_blob.h>
 #include <crypto/aes.h>
 #include <crypto/sha.h>
-#include <vector>
-#include <string>
+#include <nx/ISerialiseableBinary.h>
 
-class NcaHeader
+class NcaHeader : public ISerialiseableBinary
 {
 public:
 	struct sSection
@@ -19,9 +20,14 @@ public:
 		crypto::sha::sSha256Hash hash;
 	};
 
+	static const size_t kDefaultBlockSize = 0x200;
+
 	NcaHeader();
 	NcaHeader(const NcaHeader& other);
 	NcaHeader(const u8* bytes);
+
+	bool operator==(const NcaHeader& other);
+	void operator=(const NcaHeader& other);
 
 	// to be used after export
 	const u8* getBytes() const;
@@ -30,6 +36,7 @@ public:
 	// export/import binary
 	void exportBinary();
 	void importBinary(const u8* bytes);
+	void importBinary(const u8* bytes, size_t len);
 
 	// variables
 	u64 getNcaSize() const;
@@ -45,7 +52,6 @@ public:
 private:
 	const std::string kModuleName = "NCA_HEADER";
 	const std::string kNcaSig = "NCA2";
-	static const size_t kDefaultBlockSize = 0x200;
 	static const size_t kSectionNum = 4;
 	static const size_t kAesKeyNum = 4;
 

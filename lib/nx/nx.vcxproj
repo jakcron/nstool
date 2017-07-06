@@ -20,12 +20,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AciHeader.h" />
+    <ClInclude Include="ISerialiseableBinary.h" />
     <ClInclude Include="NcaHeader.h" />
     <ClInclude Include="NXCrypto.h" />
+    <ClInclude Include="SacEntry.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AciHeader.cpp" />
     <ClCompile Include="NcaHeader.cpp" />
+    <ClCompile Include="SacEntry.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

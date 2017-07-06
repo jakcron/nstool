@@ -24,12 +24,21 @@
     <ClInclude Include="AciHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SacEntry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ISerialiseableBinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NcaHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AciHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SacEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

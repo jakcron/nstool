@@ -19,20 +19,45 @@ void AciHeader::calculateSectionOffsets()
 	mKc.offset = mSac.offset + align(mSac.size, kAciAlignSize);
 }
 
+AciHeader::AciHeader()
+{
+	clearVariables();
+}
+
+AciHeader::AciHeader(const AciHeader & other)
+{
+	importBinary(other.getBytes(), other.getSize());
+}
+
+AciHeader::AciHeader(const u8 * bytes)
+{
+	importBinary(bytes);
+}
+
+bool AciHeader::operator==(const AciHeader & other)
+{
+	return memcmp(this->getBytes(), other.getBytes(), this->getSize());
+}
+
+void AciHeader::operator=(const AciHeader & other)
+{
+	this->importBinary(other.getBytes(), other.getSize());
+}
+
 const u8 * AciHeader::getBytes() const
 {
-	return mBinaryBlob.data();
+	return mBinaryBlob.getBytes();
 }
 
 size_t AciHeader::getSize() const
 {
-	return mBinaryBlob.size();
+	return mBinaryBlob.getSize();
 }
 
 void AciHeader::exportBinary()
 {
 	mBinaryBlob.alloc(sizeof(sAciHeader));
-	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.data();
+	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.getBytes();
 
 	// set type
 	switch (mType)
@@ -65,9 +90,9 @@ void AciHeader::importBinary(const u8 * bytes)
 	clearVariables();
 
 	mBinaryBlob.alloc(sizeof(sAciHeader));
-	memcpy(mBinaryBlob.data(), bytes, sizeof(sAciHeader));
+	memcpy(mBinaryBlob.getBytes(), bytes, sizeof(sAciHeader));
 
-	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.data();
+	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.getBytes();
 
 	if (memcmp(hdr->signature(), kAciStructSig.c_str(), 4) == 0)
 	{
@@ -89,6 +114,15 @@ void AciHeader::importBinary(const u8 * bytes)
 	mSac.size = hdr->sac().size();
 	mKc.offset = hdr->kc().offset();
 	mKc.size = hdr->kc().size();
+}
+
+void AciHeader::importBinary(const u8 * bytes, size_t len)
+{
+	if (len < sizeof(sAciHeader))
+	{
+		throw fnd::Exception(kModuleName, "ACI header too small");
+	}
+	importBinary(bytes);
 }
 
 AciHeader::AciType AciHeader::getAciType() const
