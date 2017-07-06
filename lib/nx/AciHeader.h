@@ -19,6 +19,23 @@ namespace nx
 		{
 			size_t offset;
 			size_t size;
+
+			void operator=(const sSection& other)
+			{
+				offset = other.offset;
+				size = other.size;
+			}
+
+			bool operator==(const sSection& other) const
+			{
+				return (offset == other.offset) \
+					&& (size == other.size);
+			}
+
+			bool operator!=(const sSection& other) const
+			{
+				return !operator==(other);
+			}
 		};
 
 		AciHeader();
@@ -61,25 +78,29 @@ namespace nx
 		{
 		private:
 			u8 signature_[4];
-			u8 reserved_1[12];
-			u64 program_id_;
+			u32 size_; // includes prefacing signature, set only in ACID since it is signed
+			u8 reserved_1[8];
+			u64 program_id_; // set only in ACI0 (since ACID is generic)
 			u8 reserved_2[8];
 			struct sAciSection
 			{
 			private:
 				u32 offset_; // aligned by 0x10 from the last one
-				u32 mSize;
+				u32 size_;
 			public:
 				u32 offset() const { return le_word(offset_); }
 				void set_offset(u32 offset) { offset_ = le_word(offset); }
 
-				u32 size() const { return le_word(mSize); }
-				void set_size(u32 size) { mSize = le_word(size); }
+				u32 size() const { return le_word(size_); }
+				void set_size(u32 size) { size_ = le_word(size); }
 			} fac_, sac_, kc_;
 			u8 reserved_3[8];
 		public:
 			const char* signature() const { return (const char*)signature_; }
 			void set_signature(const char* signature) { memcpy(signature_, signature, 4); }
+
+			u32 size() const { return le_word(size_); }
+			void set_size(u32 size) { size_ = le_word(size); }
 
 			u64 program_id() const { return le_dword(program_id_); }
 			void set_program_id(u64 program_id) { program_id_ = le_dword(program_id); }

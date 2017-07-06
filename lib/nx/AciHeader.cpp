@@ -25,12 +25,9 @@ bool AciHeader::isEqual(const AciHeader & other) const
 {
 	return (mType == other.mType) \
 		&& (mProgramId == other.mProgramId) \
-		&& (mFac.offset == other.mFac.offset) \
-		&& (mFac.size == other.mFac.size) \
-		&& (mSac.offset == other.mSac.offset) \
-		&& (mSac.size == other.mSac.size) \
-		&& (mKc.offset == other.mKc.offset) \
-		&& (mKc.size == other.mKc.size);
+		&& (mFac == other.mFac) \
+		&& (mSac == other.mSac) \
+		&& (mKc == other.mKc);
 }
 
 void AciHeader::copyFrom(const AciHeader & other)
@@ -43,12 +40,9 @@ void AciHeader::copyFrom(const AciHeader & other)
 	{
 		mType = other.mType;
 		mProgramId = other.mProgramId;
-		mFac.offset = other.mFac.offset;
-		mFac.size = other.mFac.size;
-		mSac.offset = other.mSac.offset;
-		mSac.size = other.mSac.size;
-		mKc.offset = other.mKc.offset;
-		mKc.size = other.mKc.size;
+		mFac = other.mFac;
+		mSac = other.mSac;
+		mKc = other.mKc;
 	}
 }
 
