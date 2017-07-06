@@ -1,12 +1,12 @@
 #include <cstdio>
 #include <crypto/aes.h>
-#include <fnd/file_io.h>
+#include <fnd/io.h>
 #include <fnd/memory_blob.h>
 #include <nx/NXCrypto.h>
 #include <nx/NcaHeader.h>
 #include <inttypes.h>
 
-const size_t kNcaSectorSize = 0x200;
+const size_t kNcaSectorSize = NcaHeader::kDefaultBlockSize;
 
 void initNcaCtr(u8 ctr[crypto::aes::kAesBlockSize], u32 generation)
 {
@@ -29,7 +29,7 @@ void decryptNcaSectorXts(const fnd::MemoryBlob& nca, u8 out[kNcaSectorSize], siz
 {
 	u8 tweak[crypto::aes::kAesBlockSize];
 	crypto::aes::AesXtsMakeTweak(tweak, sector);
-	crypto::aes::AesXtsDecryptSector(nca.data() + sector*kNcaSectorSize, kNcaSectorSize, key1, key2, tweak, out);
+	crypto::aes::AesXtsDecryptSector(nca.getBytes() + sector*kNcaSectorSize, kNcaSectorSize, key1, key2, tweak, out);
 }
 
 void decryptNcaSectorCtr(const fnd::MemoryBlob& nca, u8 out[kNcaSectorSize], size_t sector, const u8* key)
@@ -37,7 +37,7 @@ void decryptNcaSectorCtr(const fnd::MemoryBlob& nca, u8 out[kNcaSectorSize], siz
 	u8 ctr[crypto::aes::kAesBlockSize];
 	initNcaCtr(ctr, 0);
 	crypto::aes::AesIncrementCounter(ctr, (sector*kNcaSectorSize)/crypto::aes::kAesBlockSize, ctr);
-	crypto::aes::AesCtr(nca.data() + sector*kNcaSectorSize, kNcaSectorSize, key, ctr, out);
+	crypto::aes::AesCtr(nca.getBytes() + sector*kNcaSectorSize, kNcaSectorSize, key, ctr, out);
 }
 
 void dumpNcaSector(u8 out[kNcaSectorSize])
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	}
 
 	fnd::MemoryBlob nca;
-	fnd::FileIO::ReadFile(argv[1], nca);
+	fnd::io::readFile(argv[1], nca);
 
 	u8 sector[kNcaSectorSize];
 
