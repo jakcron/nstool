@@ -7,3 +7,6 @@
 *.o
 *.exe
 
+/lib/fnd/Debug
+/lib/nx/Debug
+/sample
