@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libfnd", "lib\fnd\fnd.vcxproj", "{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnx", "lib\nx\nx.vcxproj", "{91BA9E79-8242-4F7D-B997-0DFEC95EA22B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncatool", "programs\ncatool\ncatool.vcxproj", "{7DA88C6F-4470-495D-995A-4F633F3370C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{170B4A09-1B67-4A62-93AB-116EBCFF4A8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,5 +56,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
+		{6ADBB60D-DBA0-411D-BD2D-A355EF8E0FE1} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
+		{91BA9E79-8242-4F7D-B997-0DFEC95EA22B} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 	EndGlobalSection
 EndGlobal
