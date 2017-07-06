@@ -18,9 +18,6 @@
     <ClInclude Include="elf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="file_io.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="memory_blob.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -33,11 +30,11 @@
     <ClInclude Include="exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="file_io.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="memory_blob.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="exception.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="io.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

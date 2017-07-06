@@ -11,31 +11,27 @@ namespace fnd
 	class MemoryBlob
 	{
 	public:
-		enum ErrorCode
-		{
-			ERR_NONE,
-			ERR_FAILOPEN,
-			ERR_FAILMALLOC,
-			ERR_FAILREAD,
-		};
-
 		MemoryBlob();
+		MemoryBlob(const byte_t* bytes, size_t len);
 
-		~MemoryBlob();
+		void alloc(size_t size);
+		void extend(size_t new_size);
 
-		int alloc(size_t size);
-		int extend(size_t new_size);;
+		inline byte_t& operator[](size_t index) { return mData[index]; }
+		inline const byte_t& operator[](size_t index) const { return mData[index]; }
 
-		inline byte_t* data() { return data_.data(); }
-		inline const byte_t* data() const { return data_.data(); }
-		inline size_t size() const { return apparent_size_; }
+		inline byte_t* getBytes() { return mData.data(); }
+		inline const byte_t* getBytes() const { return mData.data(); }
+		inline size_t getSize() const { return mVisableSize; }
 	private:
-		std::vector<byte_t> data_;
-		size_t size_;
-		size_t apparent_size_;
+		const std::string kModuleName = "MEMORY_BLOB";
+		static const size_t kAllocBlockSize = 0x1000;
 
-		int AllocateMemory(size_t size);
+		std::vector<byte_t> mData;
+		size_t mSize;
+		size_t mVisableSize;
 
-		void ClearMemory();
+		void allocateMemory(size_t size);
+		void clearMemory();
 	};
 }

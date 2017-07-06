@@ -3,56 +3,54 @@
 using namespace fnd;
 
 MemoryBlob::MemoryBlob() :
-	data_(),
-	size_(0),
-	apparent_size_(0)
+	mData(),
+	mSize(0),
+	mVisableSize(0)
 {
 
 }
 
-MemoryBlob::~MemoryBlob()
+fnd::MemoryBlob::MemoryBlob(const byte_t * bytes, size_t len) :
+	mData(),
+	mSize(0),
+	mVisableSize(0)
 {
+	alloc(len);
+	memcpy(getBytes(), bytes, getSize());
 }
 
-int MemoryBlob::alloc(size_t size)
+void MemoryBlob::alloc(size_t size)
 {
-	int ret = ERR_NONE;
-	if (size > size_)
+	if (size > mSize)
 	{
-		ret = AllocateMemory(size);
+		allocateMemory(size);
 	}
 	else
 	{
-		apparent_size_ = size;
-		ClearMemory();
+		mVisableSize = size;
+		clearMemory();
 	}
-	return ret;
 }
 
-int MemoryBlob::extend(size_t new_size)
+void MemoryBlob::extend(size_t new_size)
 {
 	try {
-		data_.resize(new_size);
+		mData.resize(new_size);
 	}
 	catch (...) {
-		return ERR_FAILMALLOC;
+		throw fnd::Exception(kModuleName, "extend() failed to allocate memory");
 	}
-
-	return ERR_NONE;
-	
-	return 0;
 }
 
-int MemoryBlob::AllocateMemory(size_t size)
+void MemoryBlob::allocateMemory(size_t size)
 {
-	size_ = (size_t)align(size, 0x1000);
-	apparent_size_ = size;
-	data_.resize(size_);
-	ClearMemory();
-	return ERR_NONE;
+	mSize = (size_t)align(size, kAllocBlockSize);
+	mVisableSize = size;
+	extend(mSize);
+	clearMemory();
 }
 
-void MemoryBlob::ClearMemory()
+void MemoryBlob::clearMemory()
 {
-	memset(data_.data(), 0, size_);
+	memset(mData.data(), 0, mSize);
 }

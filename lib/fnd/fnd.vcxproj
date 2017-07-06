@@ -116,15 +116,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="elf.h" />
-    <ClInclude Include="file_io.h" />
     <ClInclude Include="exception.h" />
+    <ClInclude Include="io.h" />
     <ClInclude Include="memory_blob.h" />
     <ClInclude Include="string_conv.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="file_io.cpp" />
     <ClCompile Include="exception.cpp" />
+    <ClCompile Include="io.cpp" />
     <ClCompile Include="memory_blob.cpp" />
     <ClCompile Include="string_conv.cpp" />
   </ItemGroup>

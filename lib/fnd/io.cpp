@@ -1,11 +1,11 @@
-#include "file_io.h"
+#include "io.h"
 
 using namespace fnd;
 
-static const std::string kModuleName = "FILE_IO";
+static const std::string kModuleName = "IO";
 static const size_t kBlockSize = 0x100000;
 
-void FileIO::ReadFile(const std::string& path, MemoryBlob & blob)
+void io::readFile(const std::string& path, MemoryBlob & blob)
 {
 	FILE* fp;
 	size_t filesz, filepos;
@@ -19,31 +19,34 @@ void FileIO::ReadFile(const std::string& path, MemoryBlob & blob)
 	filesz = ftell(fp);
 	rewind(fp);
 
-	if (blob.alloc(filesz) != blob.ERR_NONE)
+	try {
+		blob.alloc(filesz);
+	}
+	catch (const fnd::Exception& e)
 	{
 		fclose(fp);
-		throw Exception(kModuleName, "Failed to allocate memory for file");
+		throw fnd::Exception(kModuleName, "Failed to allocate memory for file: " + std::string(e.what()));
 	}
 
 	for (filepos = 0; filesz > kBlockSize; filesz -= kBlockSize, filepos += kBlockSize)
 	{
-		fread(blob.data() + filepos, 1, kBlockSize, fp);
+		fread(blob.getBytes() + filepos, 1, kBlockSize, fp);
 	}
 
 	if (filesz)
 	{
-		fread(blob.data() + filepos, 1, filesz, fp);
+		fread(blob.getBytes() + filepos, 1, filesz, fp);
 	}
 
 	fclose(fp);
 }
 
-void FileIO::WriteFile(const std::string& path, const MemoryBlob & blob)
+void io::writeFile(const std::string& path, const MemoryBlob & blob)
 {
-	WriteFile(path, blob.data(), blob.size());
+	writeFile(path, blob.getBytes(), blob.getSize());
 }
 
-void fnd::FileIO::WriteFile(const std::string & path, const u8 * data, size_t len)
+void io::writeFile(const std::string & path, const u8 * data, size_t len)
 {
 	FILE* fp;
 	size_t filesz, filepos;
