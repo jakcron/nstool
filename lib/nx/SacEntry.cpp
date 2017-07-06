@@ -1,5 +1,7 @@
 #include "SacEntry.h"
 
+using namespace nx;
+
 SacEntry::SacEntry() :
 	mIsServer(false),
 	mName("")

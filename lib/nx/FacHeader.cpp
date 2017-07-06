@@ -1,6 +1,6 @@
 #include "FacHeader.h"
 
-
+using namespace nx;
 
 FacHeader::FacHeader()
 {

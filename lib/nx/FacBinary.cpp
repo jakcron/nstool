@@ -1,6 +1,6 @@
 #include "FacBinary.h"
 
-
+using namespace nx;
 
 FacBinary::FacBinary() :
 	mHeader()

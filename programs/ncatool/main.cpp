@@ -6,7 +6,7 @@
 #include <nx/NcaHeader.h>
 #include <inttypes.h>
 
-const size_t kNcaSectorSize = NcaHeader::kDefaultBlockSize;
+const size_t kNcaSectorSize = nx::NcaHeader::kDefaultBlockSize;
 
 void initNcaCtr(u8 ctr[crypto::aes::kAesBlockSize], u32 generation)
 {
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 		{
 			decryptNcaSectorXts(nca, sector, 1, nx::crypto::aes::nca_header_key[0], nx::crypto::aes::nca_header_key[1]);
 
-			NcaHeader hdr;
+			nx::NcaHeader hdr;
 			hdr.importBinary(sector);
 
 			printf("[NCA Header]\n");
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 			printf("  Sections:\n");
 			for (size_t i = 0; i < hdr.getSections().getSize(); i++)
 			{
-				const NcaHeader::sSection& section = hdr.getSections()[i];
+				const nx::NcaHeader::sSection& section = hdr.getSections()[i];
 				printf("    %lu:\n", i);
 				//printf("      Start Blk: %" PRId32 "\n", section.start_blk);
 				//printf("      End Blk:   %" PRId32 "\n", section.end_blk);

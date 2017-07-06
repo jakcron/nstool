@@ -1,6 +1,6 @@
 #include "SacBinary.h"
 
-
+using namespace nx;
 
 SacBinary::SacBinary()
 {

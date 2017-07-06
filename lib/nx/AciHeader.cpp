@@ -1,5 +1,7 @@
 #include "AciHeader.h"
 
+using namespace nx;
+
 void AciHeader::clearVariables()
 {
 	mType = TYPE_ACI0;

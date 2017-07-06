@@ -1,6 +1,9 @@
 #include "NcaHeader.h"
 #include <fnd/exception.h>
 
+using namespace nx;
+
+
 void NcaHeader::exportBinary()
 {
 	mBinaryBlob.alloc(sizeof(sNcaHeader));
