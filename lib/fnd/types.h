@@ -17,6 +17,9 @@ typedef uint8_t u8;
 
 #define BIT(n) (1ULL << (n))
 
+#define MIN(x,y) ((x) <= (y)? (x) : (y))
+#define MAX(x,y) ((x) >= (y)? (x) : (y))
+
 static inline uint16_t __local_bswap16(uint16_t x) {
 	return ((x << 8) & 0xff00) | ((x >> 8) & 0x00ff);
 }
