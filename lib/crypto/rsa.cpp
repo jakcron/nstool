@@ -4,7 +4,7 @@
 using namespace crypto::rsa;
 using namespace crypto::sha;
 
-int GetWrappedHashType(HashType type)
+int getWrappedHashType(HashType type)
 {
 	switch (type)
 	{
@@ -21,7 +21,7 @@ int GetWrappedHashType(HashType type)
 	return 0;
 }
 
-uint32_t GetWrappedHashSize(HashType type)
+uint32_t getWrappedHashSize(HashType type)
 {
 	uint32_t size = 0;
 
@@ -39,7 +39,7 @@ uint32_t GetWrappedHashSize(HashType type)
 	return size;
 }
 
-int crypto::rsa::RsaSign(const sRsa1024Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa1024Size])
+int crypto::rsa::pkcs::rsaSign(const sRsa1024Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa1024Size])
 {
 	int ret;
 	rsa_context ctx;
@@ -49,14 +49,14 @@ int crypto::rsa::RsaSign(const sRsa1024Key & key, HashType hash_type, const uint
 	mpi_read_binary(&ctx.D, key.priv_exponent, ctx.len);
 	mpi_read_binary(&ctx.N, key.modulus, ctx.len);
 
-	ret = rsa_rsassa_pkcs1_v15_sign(&ctx, RSA_PRIVATE, GetWrappedHashType(hash_type), GetWrappedHashSize(hash_type), hash, signature);
+	ret = rsa_rsassa_pkcs1_v15_sign(&ctx, RSA_PRIVATE, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
 
 	rsa_free(&ctx);
 
 	return ret;
 }
 
-int crypto::rsa::RsaVerify(const sRsa1024Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa1024Size])
+int crypto::rsa::pkcs::rsaVerify(const sRsa1024Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa1024Size])
 {
 	static const uint8_t public_exponent[3] = { 0x01, 0x00, 0x01 };
 
@@ -68,14 +68,14 @@ int crypto::rsa::RsaVerify(const sRsa1024Key & key, HashType hash_type, const ui
 	mpi_read_binary(&ctx.E, public_exponent, sizeof(public_exponent));
 	mpi_read_binary(&ctx.N, key.modulus, ctx.len);
 
-	ret = rsa_rsassa_pkcs1_v15_verify(&ctx, RSA_PUBLIC, GetWrappedHashType(hash_type), GetWrappedHashSize(hash_type), hash, signature);
+	ret = rsa_rsassa_pkcs1_v15_verify(&ctx, RSA_PUBLIC, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
 
 	rsa_free(&ctx);
 
 	return ret;
 }
 
-int crypto::rsa::RsaSign(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa2048Size])
+int crypto::rsa::pkcs::rsaSign(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa2048Size])
 {
 	int ret;
 	rsa_context ctx;
@@ -85,14 +85,14 @@ int crypto::rsa::RsaSign(const sRsa2048Key & key, HashType hash_type, const uint
 	mpi_read_binary(&ctx.D, key.priv_exponent, ctx.len);
 	mpi_read_binary(&ctx.N, key.modulus, ctx.len);
 
-	ret = rsa_rsassa_pkcs1_v15_sign(&ctx, RSA_PRIVATE, GetWrappedHashType(hash_type), GetWrappedHashSize(hash_type), hash, signature);
+	ret = rsa_rsassa_pkcs1_v15_sign(&ctx, RSA_PRIVATE, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
 
 	rsa_free(&ctx);
 
 	return ret;
 }
 
-int crypto::rsa::RsaVerify(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa2048Size])
+int crypto::rsa::pkcs::rsaVerify(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa2048Size])
 {
 	static const uint8_t public_exponent[3] = { 0x01, 0x00, 0x01 };
 
@@ -104,14 +104,14 @@ int crypto::rsa::RsaVerify(const sRsa2048Key & key, HashType hash_type, const ui
 	mpi_read_binary(&ctx.E, public_exponent, sizeof(public_exponent));
 	mpi_read_binary(&ctx.N, key.modulus, ctx.len);
 
-	ret = rsa_rsassa_pkcs1_v15_verify(&ctx, RSA_PUBLIC, GetWrappedHashType(hash_type), GetWrappedHashSize(hash_type), hash, signature);
+	ret = rsa_rsassa_pkcs1_v15_verify(&ctx, RSA_PUBLIC, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
 
 	rsa_free(&ctx);
 
 	return ret;
 }
 
-int crypto::rsa::RsaSign(const sRsa4096Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa4096Size])
+int crypto::rsa::pkcs::rsaSign(const sRsa4096Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa4096Size])
 {
 	int ret;
 	rsa_context ctx;
@@ -121,14 +121,14 @@ int crypto::rsa::RsaSign(const sRsa4096Key & key, HashType hash_type, const uint
 	mpi_read_binary(&ctx.D, key.priv_exponent, ctx.len);
 	mpi_read_binary(&ctx.N, key.modulus, ctx.len);
 
-	ret = rsa_rsassa_pkcs1_v15_sign(&ctx, RSA_PRIVATE, GetWrappedHashType(hash_type), GetWrappedHashSize(hash_type), hash, signature);
+	ret = rsa_rsassa_pkcs1_v15_sign(&ctx, RSA_PRIVATE, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
 
 	rsa_free(&ctx);
 
 	return ret;
 }
 
-int crypto::rsa::RsaVerify(const sRsa4096Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa4096Size])
+int crypto::rsa::pkcs::rsaVerify(const sRsa4096Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa4096Size])
 {
 	static const uint8_t public_exponent[3] = { 0x01, 0x00, 0x01 };
 
@@ -140,7 +140,7 @@ int crypto::rsa::RsaVerify(const sRsa4096Key & key, HashType hash_type, const ui
 	mpi_read_binary(&ctx.E, public_exponent, sizeof(public_exponent));
 	mpi_read_binary(&ctx.N, key.modulus, ctx.len);
 
-	ret = rsa_rsassa_pkcs1_v15_verify(&ctx, RSA_PUBLIC, GetWrappedHashType(hash_type), GetWrappedHashSize(hash_type), hash, signature);
+	ret = rsa_rsassa_pkcs1_v15_verify(&ctx, RSA_PUBLIC, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
 
 	rsa_free(&ctx);
 
