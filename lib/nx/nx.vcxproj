@@ -20,14 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AciHeader.h" />
+    <ClInclude Include="FacBinary.h" />
+    <ClInclude Include="FacHeader.h" />
     <ClInclude Include="ISerialiseableBinary.h" />
     <ClInclude Include="NcaHeader.h" />
     <ClInclude Include="NXCrypto.h" />
+    <ClInclude Include="SacBinary.h" />
     <ClInclude Include="SacEntry.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AciHeader.cpp" />
+    <ClCompile Include="FacBinary.cpp" />
+    <ClCompile Include="FacHeader.cpp" />
     <ClCompile Include="NcaHeader.cpp" />
+    <ClCompile Include="SacBinary.cpp" />
     <ClCompile Include="SacEntry.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
