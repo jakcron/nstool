@@ -25,24 +25,27 @@ namespace crypto
 				memcpy(this->bytes, hash, kSha1HashLen);
 			}
 
-			void operator=(const sSha1Hash& other)
-			{
-				set(other.bytes);
-			}
-
-			bool compare(const uint8_t hash[kSha1HashLen])
+			bool compare(const uint8_t hash[kSha1HashLen]) const
 			{
 				return memcmp(this->bytes, hash, kSha1HashLen) == 0;
 			}
 
-			bool compare(const sSha1Hash& other)
+			bool compare(const sSha1Hash& other) const
 			{
 				return memcmp(this->bytes, other.bytes, kSha1HashLen) == 0;
 			}
 
-			bool operator==(const sSha1Hash& other)
+			void operator=(const sSha1Hash& other)
+			{
+				set(other.bytes);
+			}
+			bool operator==(const sSha1Hash& other) const
 			{
 				return compare(other);
+			}
+			bool operator!=(const sSha1Hash& other) const
+			{
+				return !compare(other);
 			}
 		};
 
@@ -55,24 +58,27 @@ namespace crypto
 				memcpy(this->bytes, hash, kSha256HashLen);
 			}
 
-			void operator=(const sSha256Hash& other)
-			{
-				set(other.bytes);
-			}
-
-			bool compare(const uint8_t hash[kSha256HashLen])
+			bool compare(const uint8_t hash[kSha256HashLen]) const
 			{
 				return memcmp(this->bytes, hash, kSha256HashLen) == 0;
 			}
 
-			bool compare(const sSha256Hash& other)
+			bool compare(const sSha256Hash& other) const
 			{
 				return memcmp(this->bytes, other.bytes, kSha256HashLen) == 0;
 			}
 
-			bool operator==(const sSha256Hash& other)
+			void operator=(const sSha256Hash& other)
+			{
+				set(other.bytes);
+			}
+			bool operator==(const sSha256Hash& other) const
 			{
 				return compare(other);
+			}
+			bool operator!=(const sSha256Hash& other) const
+			{
+				return !compare(other);
 			}
 		};
 #pragma pack (pop)

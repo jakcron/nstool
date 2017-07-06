@@ -20,10 +20,24 @@ namespace aes
 			memcpy(this->key, key, kAes128KeySize);
 		}
 
+		bool compare(const sAes128Key& other) const
+		{
+			return memcmp(this->key, other.key, kAes128KeySize) == 0;
+		}
+
 		void operator=(const sAes128Key& other)
 		{
 			set(other.key);
 		}
+		bool operator==(const sAes128Key& other) const
+		{
+			return compare(other);
+		}
+		bool operator!=(const sAes128Key& other) const
+		{
+			return !compare(other);
+		}
+		
 	};
 
 	struct sAesXts128Key
