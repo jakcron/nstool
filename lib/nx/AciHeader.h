@@ -23,7 +23,8 @@ public:
 	AciHeader(const AciHeader& other);
 	AciHeader(const u8* bytes);
 
-	bool operator==(const AciHeader& other);
+	bool operator==(const AciHeader& other) const;
+	bool operator!=(const AciHeader& other) const;
 	void operator=(const AciHeader& other);
 
 	// to be used after export
@@ -102,5 +103,7 @@ private:
 
 	void clearVariables();
 	void calculateSectionOffsets();
+	bool isEqual(const AciHeader& other) const;
+	void copyFrom(const AciHeader& other);
 };
 

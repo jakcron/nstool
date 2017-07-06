@@ -19,6 +19,37 @@ void AciHeader::calculateSectionOffsets()
 	mKc.offset = mSac.offset + align(mSac.size, kAciAlignSize);
 }
 
+bool AciHeader::isEqual(const AciHeader & other) const
+{
+	return (mType == other.mType) \
+		&& (mProgramId == other.mProgramId) \
+		&& (mFac.offset == other.mFac.offset) \
+		&& (mFac.size == other.mFac.size) \
+		&& (mSac.offset == other.mSac.offset) \
+		&& (mSac.size == other.mSac.size) \
+		&& (mKc.offset == other.mKc.offset) \
+		&& (mKc.size == other.mKc.size);
+}
+
+void AciHeader::copyFrom(const AciHeader & other)
+{
+	if (other.getSize())
+	{
+		importBinary(other.getBytes(), other.getSize());
+	}
+	else
+	{
+		mType = other.mType;
+		mProgramId = other.mProgramId;
+		mFac.offset = other.mFac.offset;
+		mFac.size = other.mFac.size;
+		mSac.offset = other.mSac.offset;
+		mSac.size = other.mSac.size;
+		mKc.offset = other.mKc.offset;
+		mKc.size = other.mKc.size;
+	}
+}
+
 AciHeader::AciHeader()
 {
 	clearVariables();
@@ -34,9 +65,14 @@ AciHeader::AciHeader(const u8 * bytes)
 	importBinary(bytes);
 }
 
-bool AciHeader::operator==(const AciHeader & other)
+bool AciHeader::operator==(const AciHeader & other) const
 {
-	return memcmp(this->getBytes(), other.getBytes(), this->getSize());
+	return isEqual(other);
+}
+
+bool AciHeader::operator!=(const AciHeader & other) const
+{
+	return !isEqual(other);
 }
 
 void AciHeader::operator=(const AciHeader & other)
