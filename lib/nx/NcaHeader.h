@@ -1,8 +1,8 @@
 #pragma once
-#include <vector>
 #include <string>
 #include <fnd/types.h>
 #include <fnd/memory_blob.h>
+#include <fnd/List.h>
 #include <crypto/aes.h>
 #include <crypto/sha.h>
 #include <nx/ISerialiseableBinary.h>
@@ -12,12 +12,33 @@ class NcaHeader : public ISerialiseableBinary
 public:
 	struct sSection
 	{
-		u32 start_blk;
-		u32 end_blk;
 		u64 offset;
 		u64 size;
 		u8 key_type;
 		crypto::sha::sSha256Hash hash;
+
+		const sSection& operator=(const sSection& other)
+		{
+			offset = other.offset;
+			size = other.size;
+			key_type = other.key_type;
+			hash = other.hash;
+
+			return *this;
+		}
+
+		bool operator==(const sSection& other) const
+		{
+			return (offset == other.offset) \
+				&& (size == other.size) \
+				&& (key_type == other.key_type) \
+				&& (hash == other.hash);
+		}
+
+		bool operator!=(const sSection& other) const
+		{
+			return operator==(other);
+		}
 	};
 
 	static const size_t kDefaultBlockSize = 0x200;
@@ -26,7 +47,8 @@ public:
 	NcaHeader(const NcaHeader& other);
 	NcaHeader(const u8* bytes);
 
-	bool operator==(const NcaHeader& other);
+	bool operator==(const NcaHeader& other) const;
+	bool operator!=(const NcaHeader& other) const;
 	void operator=(const NcaHeader& other);
 
 	// to be used after export
@@ -44,9 +66,9 @@ public:
 	u64 getProgramId() const;
 	void setProgramId(u64 program_id);
 	u32 getUnk() const;
-	const std::vector<sSection>& getSections() const;
+	const fnd::List<sSection>& getSections() const;
 	void addSection(const sSection& section);
-	const std::vector<crypto::aes::sAes128Key>& getAesKeys() const;
+	const fnd::List<crypto::aes::sAes128Key>& getAesKeys() const;
 	void addKey(const crypto::aes::sAes128Key& key);
 
 private:
@@ -122,10 +144,12 @@ private:
 	u64 mNcaSize;
 	u64 mProgramId;
 	u32 mUnk0;
-	std::vector<sSection> mSections;
-	std::vector<crypto::aes::sAes128Key> mAesKeys;
+	fnd::List<sSection> mSections;
+	fnd::List<crypto::aes::sAes128Key> mAesKeys;
 
 	void clearVariables();
 	u64 blockNumToSize(u32 block_num) const;
 	u32 sizeToBlockNum(u64 real_size) const;
+	bool isEqual(const NcaHeader& other) const;
+	void copyFrom(const NcaHeader& other);
 };

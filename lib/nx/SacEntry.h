@@ -6,9 +6,14 @@
 
 class SacEntry : public ISerialiseableBinary
 {
+public:
 	SacEntry();
+	SacEntry(const std::string& name, bool isServer);
 	SacEntry(const SacEntry& other);
-	SacEntry(const u8* bytes);
+
+	bool operator==(const SacEntry& other) const;
+	bool operator!=(const SacEntry& other) const;
+	void operator=(const SacEntry& other);
 
 	// to be used after export
 	const u8* getBytes() const;
@@ -40,4 +45,7 @@ private:
 	// variables
 	bool mIsServer;
 	std::string mName;
+
+	bool isEqual(const SacEntry& other) const;
+	void copyFrom(const SacEntry& other);
 };

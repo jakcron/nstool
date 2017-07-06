@@ -57,46 +57,52 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	fnd::MemoryBlob nca;
-	fnd::io::readFile(argv[1], nca);
-
-	u8 sector[kNcaSectorSize];
-
-	// nca test
-	if (argc == 2)
+	try
 	{
-		decryptNcaSectorXts(nca, sector, 1, nx::crypto::aes::nca_header_key[0], nx::crypto::aes::nca_header_key[1]);
+		fnd::MemoryBlob nca;
+		fnd::io::readFile(argv[1], nca);
 
-		NcaHeader hdr;
-		hdr.importBinary(sector);
+		u8 sector[kNcaSectorSize];
 
-		printf("NCA Header\n");
-		printf("  Size:       0x%" PRIx64 "\n", hdr.getNcaSize());
-		printf("  ProgID:     0x%016" PRIx64 "\n", hdr.getProgramId());
-		printf("  Unk0:       0x%" PRIx32 "\n", hdr.getUnk());
-		printf("  Sections:\n");
-		for (size_t i = 0; i < hdr.getSections().size(); i++)
+		// nca test
+		if (argc == 2)
 		{
-			const NcaHeader::sSection& section = hdr.getSections()[i];
-			printf("    %lu:\n", i);
-			printf("      Start Blk: %" PRId32 "\n", section.start_blk);
-			printf("      End Blk:   %" PRId32 "\n", section.end_blk);
-			printf("      Offset:    0x%" PRIx64 "\n", section.offset);
-			printf("      Size:      0x%" PRIx64 "\n", section.size);
-			printf("      KeyType:   0x%02x\n", section.key_type);
-			printf("      Hash:      ");
-			hexDump(section.hash.bytes, crypto::sha::kSha256HashLen);
-			printf("\n");
-		}
-		printf("  AES Keys:\n");
-		for (size_t i = 0; i < hdr.getAesKeys().size(); i++)
-		{
-			printf("    %lu: ", i);
-			hexDump(hdr.getAesKeys()[i].key, crypto::aes::kAes128KeySize);
-			printf("\n");
-		}
+			decryptNcaSectorXts(nca, sector, 1, nx::crypto::aes::nca_header_key[0], nx::crypto::aes::nca_header_key[1]);
 
-		
+			NcaHeader hdr;
+			hdr.importBinary(sector);
+
+			printf("[NCA Header]\n");
+			printf("  Size:       0x%" PRIx64 "\n", hdr.getNcaSize());
+			printf("  ProgID:     0x%016" PRIx64 "\n", hdr.getProgramId());
+			printf("  Unk0:       0x%" PRIx32 "\n", hdr.getUnk());
+			printf("  Sections:\n");
+			for (size_t i = 0; i < hdr.getSections().getSize(); i++)
+			{
+				const NcaHeader::sSection& section = hdr.getSections()[i];
+				printf("    %lu:\n", i);
+				//printf("      Start Blk: %" PRId32 "\n", section.start_blk);
+				//printf("      End Blk:   %" PRId32 "\n", section.end_blk);
+				printf("      Offset:    0x%" PRIx64 "\n", section.offset);
+				printf("      Size:      0x%" PRIx64 "\n", section.size);
+				printf("      KeyType:   0x%02x\n", section.key_type);
+				printf("      Hash:      ");
+				hexDump(section.hash.bytes, crypto::sha::kSha256HashLen);
+				printf("\n");
+			}
+			printf("  AES Keys:\n");
+			for (size_t i = 0; i < hdr.getAesKeys().getSize(); i++)
+			{
+				printf("    %lu: ", i);
+				hexDump(hdr.getAesKeys()[i].key, crypto::aes::kAes128KeySize);
+				printf("\n");
+			}
+
+
+		}
+	} catch (const fnd::Exception& e)
+	{
+		printf("[%s%sERROR] %s\n", e.module(), strlen(e.module()) > 0 ? " " : "", e.what());
 	}
 
 	return 0;

@@ -14,13 +14,13 @@ void NcaHeader::exportBinary()
 
 	// TODO: properly reconstruct NCA layout? atm in hands of user
 
-	for (size_t i = 0; i < mSections.size(); i++)
+	for (size_t i = 0; i < mSections.getSize(); i++)
 	{
 		// determine section index
-		u8 section = mSections.size() - 1 - i;
+		u8 section = mSections.getSize() - 1 - i;
 
-		hdr->section(section).set_start(mSections[i].start_blk);
-		hdr->section(section).set_end(mSections[i].end_blk);
+		hdr->section(section).set_start(sizeToBlockNum(mSections[i].offset));
+		hdr->section(section).set_end(sizeToBlockNum(mSections[i].offset) + sizeToBlockNum(mSections[i].size));
 		hdr->section(section).set_key_type(mSections[i].key_type);
 		hdr->section_hash(section) = mSections[i].hash;
 	}
@@ -59,12 +59,12 @@ void NcaHeader::importBinary(const u8 * bytes)
 		if (hdr->section(section).start() == 0 && hdr->section(section).end() == 0) continue;
 		
 		// add high level struct
-		mSections.push_back({ hdr->section(section).start(), hdr->section(section).end(), blockNumToSize(hdr->section(section).start()), blockNumToSize(hdr->section(section).end()- hdr->section(section).start()), hdr->section(section).key_type(), hdr->section_hash(section) });
+		mSections.addElement({ blockNumToSize(hdr->section(section).start()), blockNumToSize(hdr->section(section).end() - hdr->section(section).start()), hdr->section(section).key_type(), hdr->section_hash(section) });
 	}
 
 	for (size_t i = 0; i < kAesKeyNum; i++)
 	{
-		mAesKeys.push_back(hdr->aes_key(i));
+		mAesKeys.addElement(hdr->aes_key(i));
 	}
 }
 
@@ -102,33 +102,33 @@ u32 NcaHeader::getUnk() const
 	return mUnk0;
 }
 
-const std::vector<NcaHeader::sSection>& NcaHeader::getSections() const
+const fnd::List<NcaHeader::sSection>& NcaHeader::getSections() const
 {
 	return mSections;
 }
 
 void NcaHeader::addSection(const sSection & section)
 {
-	if (mSections.size() >= kSectionNum)
+	if (mSections.getSize() >= kSectionNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many NCA sections");
 	}
-	mSections.push_back(section);
+	mSections.addElement(section);
 }
 
-const std::vector<crypto::aes::sAes128Key>& NcaHeader::getAesKeys() const
+const fnd::List<crypto::aes::sAes128Key>& NcaHeader::getAesKeys() const
 {
 	return mAesKeys;
 }
 
 void NcaHeader::addKey(const crypto::aes::sAes128Key & key)
 {
-	if (mAesKeys.size() >= kAesKeyNum)
+	if (mAesKeys.getSize() >= kAesKeyNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many NCA aes keys");
 	}
 
-	mAesKeys.push_back(key);
+	mAesKeys.addElement(key);
 }
 
 void NcaHeader::clearVariables()
@@ -151,6 +151,34 @@ u32 NcaHeader::sizeToBlockNum(u64 real_size) const
 	return align(real_size, mBlockSize)/mBlockSize;
 }
 
+bool NcaHeader::isEqual(const NcaHeader & other) const
+{
+	return (mBlockSize == other.mBlockSize) \
+		&& (mNcaSize == other.mNcaSize) \
+		&& (mProgramId == other.mProgramId) \
+		&& (mUnk0 == other.mUnk0) \
+		&& (mSections == other.mSections) \
+		&& (mAesKeys == other.mAesKeys);
+}
+
+void NcaHeader::copyFrom(const NcaHeader & other)
+{
+	if (other.getSize())
+	{
+		importBinary(other.getBytes(), other.getSize());
+	}
+	else
+	{
+		this->mBinaryBlob.clear();
+		mBlockSize = other.mBlockSize;
+		mNcaSize = other.mNcaSize;
+		mProgramId = other.mProgramId;
+		mUnk0 = other.mUnk0;
+		mSections = other.mSections;
+		mAesKeys = other.mAesKeys;
+	}
+}
+
 NcaHeader::NcaHeader()
 {
 	clearVariables();
@@ -158,7 +186,7 @@ NcaHeader::NcaHeader()
 
 NcaHeader::NcaHeader(const NcaHeader & other)
 {
-	importBinary(other.getBytes());
+	copyFrom(other);
 }
 
 NcaHeader::NcaHeader(const u8 * bytes)
@@ -166,9 +194,14 @@ NcaHeader::NcaHeader(const u8 * bytes)
 	importBinary(bytes);
 }
 
-bool NcaHeader::operator==(const NcaHeader & other)
+bool NcaHeader::operator==(const NcaHeader & other) const
 {
-	return memcmp(this->getBytes(), other.getBytes(), this->getSize()) == 0;
+	return isEqual(other);
+}
+
+bool NcaHeader::operator!=(const NcaHeader & other) const
+{
+	return !isEqual(other);
 }
 
 void NcaHeader::operator=(const NcaHeader & other)

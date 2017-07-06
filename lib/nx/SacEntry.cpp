@@ -6,14 +6,31 @@ SacEntry::SacEntry() :
 {
 }
 
-SacEntry::SacEntry(const SacEntry & other)
+SacEntry::SacEntry(const std::string & name, bool isServer) :
+	mIsServer(isServer),
+	mName(name)
 {
-	importBinary(other.getBytes(), other.getSize());
+	exportBinary();
 }
 
-SacEntry::SacEntry(const u8 * bytes)
+SacEntry::SacEntry(const SacEntry & other)
 {
-	importBinary(bytes);
+	copyFrom(other);
+}
+
+bool SacEntry::operator==(const SacEntry & other) const
+{
+	return isEqual(other);
+}
+
+bool SacEntry::operator!=(const SacEntry & other) const
+{
+	return !isEqual(other);
+}
+
+void SacEntry::operator=(const SacEntry & other)
+{
+	copyFrom(other);
 }
 
 const u8 * SacEntry::getBytes() const
@@ -48,8 +65,19 @@ void SacEntry::exportBinary()
 
 void SacEntry::importBinary(const u8 * bytes)
 {
+	throw fnd::Exception(kModuleName, "Unsupported operation. importBinary(const u8* bytes) is not supported for variable size structures.");
+}
+
+void SacEntry::importBinary(const u8 * bytes, size_t len)
+{
 	bool isServer = (bytes[0] & SAC_IS_SERVER) == SAC_IS_SERVER;
 	size_t nameLen = (bytes[0] & SAC_NAME_LEN_MASK);
+
+	if (nameLen+1 > len)
+	{
+		throw fnd::Exception(kModuleName, "SAC entry is too small");
+	}
+
 	if (nameLen == 0)
 	{
 		throw fnd::Exception(kModuleName, "SAC entry has no service name");
@@ -64,15 +92,6 @@ void SacEntry::importBinary(const u8 * bytes)
 
 	mIsServer = isServer;
 	mName = std::string((const char*)(mBinaryBlob.getBytes() + 1), nameLen);
-}
-
-void SacEntry::importBinary(const u8 * bytes, size_t len)
-{
-	importBinary(bytes);
-	if (getSize() != len)
-	{
-		throw fnd::Exception(kModuleName, "SAC Entry has unexpected size");
-	}
 }
 
 bool SacEntry::isServer() const
@@ -98,4 +117,23 @@ void SacEntry::setName(const std::string & name)
 	}
 
 	mName = name;
+}
+
+bool SacEntry::isEqual(const SacEntry & other) const
+{
+	return (mIsServer == other.mIsServer) \
+		&& (mName == other.mName);
+}
+
+void SacEntry::copyFrom(const SacEntry & other)
+{
+	if (other.getSize())
+	{
+		importBinary(other.getBytes(), other.getSize());
+	}
+	else
+	{
+		this->mIsServer = other.mIsServer;
+		this->mName = other.mName;
+	}
 }
