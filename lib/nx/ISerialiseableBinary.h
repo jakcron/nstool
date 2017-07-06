@@ -4,8 +4,8 @@
 class ISerialiseableBinary
 {
 public:
-	virtual bool operator==(const ISerialiseableBinary& other) = 0;
-	virtual void operator=(const ISerialiseableBinary& other) = 0;
+	//virtual bool operator==(const ISerialiseableBinary& other) = 0;
+	//virtual void operator=(const ISerialiseableBinary& other) = 0;
 
 	virtual const u8* getBytes() const = 0;
 	virtual size_t getSize() const = 0;
