@@ -19,6 +19,34 @@ fnd::MemoryBlob::MemoryBlob(const byte_t * bytes, size_t len) :
 	memcpy(getBytes(), bytes, getSize());
 }
 
+bool fnd::MemoryBlob::operator==(const MemoryBlob & other) const
+{
+	bool isEqual = true;
+
+	if (this->getSize() == other.getSize())
+	{
+		isEqual = memcmp(this->getBytes(), other.getBytes(), this->getSize()) == 0;
+	}
+	else
+	{
+		isEqual = false;
+	}
+		
+
+	return isEqual;
+}
+
+bool fnd::MemoryBlob::operator!=(const MemoryBlob & other) const
+{
+	return !operator==(other);
+}
+
+void fnd::MemoryBlob::operator=(const MemoryBlob & other)
+{
+	alloc(other.getSize());
+	memcpy(getBytes(), other.getBytes(), getSize());
+}
+
 void MemoryBlob::alloc(size_t size)
 {
 	if (size > mSize)
@@ -40,6 +68,11 @@ void MemoryBlob::extend(size_t new_size)
 	catch (...) {
 		throw fnd::Exception(kModuleName, "extend() failed to allocate memory");
 	}
+}
+
+void fnd::MemoryBlob::clear()
+{
+	mVisableSize = 0;
 }
 
 void MemoryBlob::allocateMemory(size_t size)

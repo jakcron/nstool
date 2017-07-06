@@ -14,8 +14,13 @@ namespace fnd
 		MemoryBlob();
 		MemoryBlob(const byte_t* bytes, size_t len);
 
+		bool operator==(const MemoryBlob& other) const;
+		bool operator!=(const MemoryBlob& other) const;
+		void operator=(const MemoryBlob& other);
+
 		void alloc(size_t size);
 		void extend(size_t new_size);
+		void clear();
 
 		inline byte_t& operator[](size_t index) { return mData[index]; }
 		inline const byte_t& operator[](size_t index) const { return mData[index]; }
