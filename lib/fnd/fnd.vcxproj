@@ -118,6 +118,7 @@
     <ClInclude Include="elf.h" />
     <ClInclude Include="exception.h" />
     <ClInclude Include="io.h" />
+    <ClInclude Include="List.h" />
     <ClInclude Include="memory_blob.h" />
     <ClInclude Include="string_conv.h" />
     <ClInclude Include="types.h" />
