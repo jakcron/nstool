@@ -6,6 +6,8 @@
 *.a
 *.o
 *.exe
+*.db
+*.opendb
 
 /lib/fnd/Debug
 /lib/nx/Debug
