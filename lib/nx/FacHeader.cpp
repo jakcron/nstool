@@ -86,7 +86,7 @@ void FacHeader::importBinary(const u8 * bytes, size_t len)
 
 u64 FacHeader::getFacSize() const
 {
-	return getSaveDataOwnerIdOffset() + getSaveDataOwnerIdSize();
+	return MAX(getSaveDataOwnerIdOffset() + getSaveDataOwnerIdSize(), getContentOwnerIdOffset() + getContentOwnerIdSize());
 }
 
 u64 FacHeader::getFsaRights() const
