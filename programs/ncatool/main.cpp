@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 		// nca test
 		if (argc == 2)
 		{
-			decryptNcaSectorXts(nca, sector, 1, nx::crypto::aes::nca_header_key[0], nx::crypto::aes::nca_header_key[1]);
+			decryptNcaSectorXts(nca, sector, 1, crypto::aes::nx::nca_header_key[0], crypto::aes::nx::nca_header_key[1]);
 
 			nx::NcaHeader hdr;
 			hdr.importBinary(sector);
