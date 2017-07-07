@@ -5,7 +5,7 @@ using namespace fnd;
 Exception::Exception() noexcept :
 	what_(""),
 	module_(""),
-	level_(E_FATAL)
+	error_("")
 {
 
 }
@@ -13,33 +13,23 @@ Exception::Exception() noexcept :
 Exception::Exception(const std::string & what) noexcept :
 	what_(what),
 	module_(""),
-	level_(E_FATAL)
-{
-}
-
-Exception::Exception(const std::string & what, ExceptionLevel level) noexcept :
-	what_(what),
-	module_(""),
-	level_(level)
+	error_(what)
 {
 }
 
 Exception::Exception(const std::string & module, const std::string & what) noexcept :
-	what_(what),
+	what_(""),
 	module_(module),
-	level_(E_FATAL)
+	error_(what)
 {
-}
-
-Exception::Exception(const std::string & module, const std::string & what, ExceptionLevel level) noexcept :
-what_(what),
-	module_(module),
-	level_(level)
-{
-}
-
-Exception::~Exception()
-{
+	if (module_.length() > 0)
+	{
+		what_ = "[" + module_ + " ERROR] " + error_;
+	}
+	else
+	{
+		what_ = error_;
+	}
 }
 
 const char* Exception::what() const noexcept 
@@ -52,7 +42,7 @@ const char* Exception::module() const noexcept
 	return module_.c_str();
 }
 
-bool Exception::is_fatal() const noexcept
+const char * fnd::Exception::error() const noexcept
 {
-	return level_ == E_FATAL;
+	return nullptr;
 }

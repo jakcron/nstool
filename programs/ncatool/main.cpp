@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 		}
 	} catch (const fnd::Exception& e)
 	{
-		printf("[%s%sERROR] %s\n", e.module(), strlen(e.module()) > 0 ? " " : "", e.what());
+		printf("%s\n",e.what());
 	}
 
 	return 0;
