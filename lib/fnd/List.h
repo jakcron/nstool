@@ -73,6 +73,27 @@ namespace fnd
 
 		// functions
 		void addElement(const T& element) { mElements.push_back(element); }
+		size_t getIndexOf(const T& element) const
+		{
+			for (size_t i = 0; i < getSize(); i++)
+			{
+				if (getElement(i) == element) return i;
+			}
+
+			throw Exception("LIST", "Element does not exist");
+		}
+		bool hasElement(const T& element) const
+		{
+			try
+			{
+				getIndexOf(element);
+			} catch (const Exception&)
+			{
+				return false;
+			}
+
+			return true;
+		}
 		size_t getSize() const { return mElements.size(); }
 		void clear() { mElements.clear(); }
 	private:
