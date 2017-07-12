@@ -23,39 +23,57 @@
     <ClInclude Include="FacBinary.h" />
     <ClInclude Include="FacHeader.h" />
     <ClInclude Include="HandleTableSizeEntry.h" />
+    <ClInclude Include="HandleTableSizeHandler.h" />
     <ClInclude Include="IKernelCapabilityHandler.h" />
     <ClInclude Include="InteruptEntry.h" />
+    <ClInclude Include="InteruptHandler.h" />
     <ClInclude Include="ISerialiseableBinary.h" />
+    <ClInclude Include="KcBinary.h" />
     <ClInclude Include="KernelCapability.h" />
     <ClInclude Include="KernelVersionEntry.h" />
+    <ClInclude Include="KernelVersionHandler.h" />
+    <ClInclude Include="MemoryMappingHandler.h" />
     <ClInclude Include="MemoryPageEntry.h" />
     <ClInclude Include="MiscFlagsEntry.h" />
+    <ClInclude Include="MiscFlagsHandler.h" />
     <ClInclude Include="MiscParamsEntry.h" />
+    <ClInclude Include="MiscParamsHandler.h" />
     <ClInclude Include="NpdmHeader.h" />
     <ClInclude Include="NcaHeader.h" />
     <ClInclude Include="NXCrypto.h" />
     <ClInclude Include="SacBinary.h" />
     <ClInclude Include="SacEntry.h" />
     <ClInclude Include="SystemCallEntry.h" />
+    <ClInclude Include="SystemCallHandler.h" />
     <ClInclude Include="ThreadInfoEntry.h" />
+    <ClInclude Include="ThreadInfoHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AciHeader.cpp" />
     <ClCompile Include="FacBinary.cpp" />
     <ClCompile Include="FacHeader.cpp" />
     <ClCompile Include="HandleTableSizeEntry.cpp" />
+    <ClCompile Include="HandleTableSizeHandler.cpp" />
     <ClCompile Include="InteruptEntry.cpp" />
+    <ClCompile Include="InteruptHandler.cpp" />
+    <ClCompile Include="KcBinary.cpp" />
     <ClCompile Include="KernelCapability.cpp" />
     <ClCompile Include="KernelVersionEntry.cpp" />
+    <ClCompile Include="KernelVersionHandler.cpp" />
+    <ClCompile Include="MemoryMappingHandler.cpp" />
     <ClCompile Include="MemoryPageEntry.cpp" />
     <ClCompile Include="MiscFlagsEntry.cpp" />
+    <ClCompile Include="MiscFlagsHandler.cpp" />
     <ClCompile Include="MiscParamsEntry.cpp" />
+    <ClCompile Include="MiscParamsHandler.cpp" />
     <ClCompile Include="NpdmHeader.cpp" />
     <ClCompile Include="NcaHeader.cpp" />
     <ClCompile Include="SacBinary.cpp" />
     <ClCompile Include="SacEntry.cpp" />
     <ClCompile Include="SystemCallEntry.cpp" />
+    <ClCompile Include="SystemCallHandler.cpp" />
     <ClCompile Include="ThreadInfoEntry.cpp" />
+    <ClCompile Include="ThreadInfoHandler.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

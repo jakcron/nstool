@@ -8,26 +8,6 @@ namespace nx
 	class MiscFlagsEntry
 	{
 	public:
-		// consider different definition location, perhaps in MiscFlagsHandler?
-		enum Flags
-		{
-			FLAG_ENABLE_DEBUG = BIT(0),
-			FLAG_FORCE_DEBUG = BIT(1),
-			FLAG_UNK02 = BIT(2),
-			FLAG_UNK03 = BIT(3),
-			FLAG_UNK04 = BIT(4),
-			FLAG_UNK05 = BIT(5),
-			FLAG_UNK06 = BIT(6),
-			FLAG_UNK07 = BIT(7),
-			FLAG_UNK08 = BIT(8),
-			FLAG_UNK09 = BIT(9),
-			FLAG_UNK10 = BIT(10),
-			FLAG_UNK11 = BIT(11),
-			FLAG_UNK12 = BIT(12),
-			FLAG_UNK13 = BIT(13),
-			FLAG_UNK14 = BIT(14),
-		};
-
 		MiscFlagsEntry();
 		MiscFlagsEntry(const KernelCapability& kernel_cap);
 		MiscFlagsEntry(u32 flags);

@@ -23,8 +23,8 @@ namespace nx
 		bool getFlag() const;
 		void setFlag(bool flag);
 
-		bool hasFlag() const;
-		void useFlag(bool useFlag);
+		bool isMultiplePages() const;
+		void setMapMultiplePages(bool useFlag);
 	private:
 		const std::string kModuleName = "MEMORY_PAGE_ENTRY";
 		static const u32 kPageBits = 24;

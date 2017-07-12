@@ -10,6 +10,7 @@ namespace nx
 		public nx::ISerialiseableBinary
 	{
 	public:
+		// move these enums to NpdmBinary?
 		enum InstructionType
 		{
 			INSTR_32BIT,
@@ -100,14 +101,9 @@ namespace nx
 		const std::string kNpdmStructSig = "META";
 		static const size_t kNameMaxLen = 0x10;
 		static const size_t kProductCodeMaxLen = 0x10;
-		static const u8 kMaxPriority = 63;
+		static const u32 kMaxPriority = BIT(6) -1 ;
 		static const size_t kNpdmAlignSize = 0x10;
 
-
-		enum FlagBits
-		{
-			IS_64BIT_INSTRUCTION_SET = BIT(0)
-		};
 
 #pragma pack (push, 1)
 		struct sNpdmHeader

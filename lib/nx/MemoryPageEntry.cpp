@@ -80,12 +80,12 @@ void nx::MemoryPageEntry::setFlag(bool flag)
 	updateCapField();
 }
 
-bool nx::MemoryPageEntry::hasFlag() const
+bool nx::MemoryPageEntry::isMultiplePages() const
 {
 	return mUseFlag;
 }
 
-void nx::MemoryPageEntry::useFlag(bool useFlag)
+void nx::MemoryPageEntry::setMapMultiplePages(bool useFlag)
 {
 	mUseFlag = useFlag;
 }

@@ -9,7 +9,9 @@ namespace nx
 	{
 	public:
 		virtual void importKernelCapabilityList(const fnd::List<KernelCapability>& caps) = 0;
-		virtual const fnd::List<KernelCapability>& exportKernelCapabilityList() = 0;
+		virtual void exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const = 0;
+		virtual void clear() = 0;
+		virtual bool isSet() const = 0;
 	};
 }
 

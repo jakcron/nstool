@@ -20,8 +20,8 @@ nx::InteruptEntry::InteruptEntry(u32 interupt0, u32 interupt1) :
 	mCap(kCapId),
 	mInterupt{ 0,0 }
 {
-	setInterupt0(interupt0);
-	setInterupt1(interupt1);
+	setInterupt(0, interupt0);
+	setInterupt(1, interupt1);
 }
 
 const nx::KernelCapability & nx::InteruptEntry::getKernelCapability() const
@@ -40,34 +40,23 @@ void nx::InteruptEntry::setKernelCapability(const KernelCapability & kernel_cap)
 	processCapField();
 }
 
-u32 nx::InteruptEntry::getInterupt0() const
+u32 nx::InteruptEntry::operator[](size_t index) const
 {
-	return mInterupt[0];
+	return getInterupt(index);
 }
 
-void nx::InteruptEntry::setInterupt0(u32 interupt)
+u32 nx::InteruptEntry::getInterupt(size_t index) const
+{
+	return mInterupt[index % kInteruptNum];
+}
+
+void nx::InteruptEntry::setInterupt(size_t index, u32 interupt)
 {
 	if (interupt > kInteruptMax)
 	{
 		throw fnd::Exception(kModuleName, "Illegal interupt value.");
 	}
 
-	mInterupt[0] = interupt;
-	updateCapField();
-}
-
-u32 nx::InteruptEntry::getInterupt1() const
-{
-	return mInterupt[1];
-}
-
-void nx::InteruptEntry::setInterupt1(u32 interupt)
-{
-	if (interupt > kInteruptMax)
-	{
-		throw fnd::Exception(kModuleName, "Illegal interupt value.");
-	}
-
-	mInterupt[1] = interupt;
+	mInterupt[index % kInteruptNum] = interupt;
 	updateCapField();
 }
