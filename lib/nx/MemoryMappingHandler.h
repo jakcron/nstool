@@ -7,19 +7,31 @@ namespace nx
 		public IKernelCapabilityHandler
 	{
 	public:
+		enum MemoryPerm
+		{
+			MEM_RW,
+			MEM_RO
+		};
+
+		enum MappingType
+		{
+			MAP_IO,
+			MAP_STATIC
+		};
+
 		struct sMemoryMapping
 		{
 			u32 addr; // page index
 			u32 size; // page num
-			bool isRW;
-			bool isIO;
+			MemoryPerm perm;
+			MappingType type;
 
 			bool operator==(const sMemoryMapping& other) const
 			{
 				return (addr == other.addr) \
 					&& (size == other.size) \
-					&& (isRW == other.isRW) \
-					&& (isIO == other.isIO);
+					&& (perm == other.perm) \
+					&& (type == other.type);
 			}
 
 			bool operator!=(const sMemoryMapping& other) const
@@ -31,8 +43,8 @@ namespace nx
 			{
 				addr = other.addr;
 				size = other.size;
-				isRW = other.isRW;
-				isIO = other.isIO;
+				perm = other.perm;
+				type = other.type;
 
 				return *this;
 			}

@@ -35,15 +35,16 @@ void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<Kernel
 
 	mMemRange.clear();
 	mMemPage.clear();
-	for (size_t i = 0; i < entries.getSize(); i++)
+	for (size_t i = 0; i < entries.getSize();)
 	{
 		// has flag means "MemMap"
 		if (entries[i].isMultiplePages())
 		{
+
 			// this entry is the last one or the next one isn't a memory map
 			if ((i + 1) == entries.getSize() || entries[i+1].isMultiplePages() == false)
 			{
-				throw fnd::Exception(kModuleName, "Illegal page address");
+				throw fnd::Exception(kModuleName, "No paired entry");
 			}
 
 			// check valid page address
@@ -59,7 +60,7 @@ void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<Kernel
 			}
 
 			// add to list
-			mMemRange.addElement({ entries[i].getPage(), entries[i+1].getPage(), !entries[i].getFlag(), !entries[i+1].getFlag() });
+			mMemRange.addElement({ entries[i].getPage(), entries[i+1].getPage(), entries[i].getFlag() ? MEM_RO : MEM_RW, entries[i+1].getFlag() ? MAP_STATIC : MAP_IO });
 
 			// increment i by two
 			i += 2;
@@ -74,7 +75,7 @@ void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<Kernel
 			}
 
 			// add to list
-			mMemPage.addElement({ entries[i].getPage(), 1, true, true });
+			mMemPage.addElement({ entries[i].getPage(), 1, MEM_RW, MAP_IO });
 
 			// increment i by one
 			i += 1;
@@ -96,11 +97,11 @@ void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapabi
 	for (size_t i = 0; i < mMemRange.getSize(); i++)
 	{
 		cap.setPage(mMemRange[i].addr & kMaxPageAddr);
-		cap.setFlag(!mMemRange[i].isRW);
+		cap.setFlag(mMemRange[i].perm == MEM_RO);
 		caps.addElement(cap.getKernelCapability());
 
 		cap.setPage(mMemRange[i].size & kMaxPageNum);
-		cap.setFlag(!mMemRange[i].isIO);
+		cap.setFlag(mMemRange[i].type == MAP_STATIC);
 		caps.addElement(cap.getKernelCapability());
 	}
 

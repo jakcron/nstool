@@ -123,7 +123,7 @@ void nx::KcBinary::importBinary(const u8 * bytes, size_t len)
 	mSystemCalls.importKernelCapabilityList(systemCallCaps);
 	mMemoryMap.importKernelCapabilityList(memoryMapCaps);
 	mInterupts.importKernelCapabilityList(interuptCaps);
-	mMiscParams.importKernelCapabilityList(memoryMapCaps);
+	mMiscParams.importKernelCapabilityList(miscParamCaps);
 	mKernelVersion.importKernelCapabilityList(kernelVersionCaps);
 	mHandleTableSize.importKernelCapabilityList(handleTableSizeCaps);
 	mMiscFlags.importKernelCapabilityList(miscFlagsCaps);
