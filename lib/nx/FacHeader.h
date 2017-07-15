@@ -11,7 +11,7 @@ namespace nx
 	public:
 		FacHeader();
 		FacHeader(const FacHeader& other);
-		FacHeader(const u8* bytes);
+		FacHeader(const u8* bytes, size_t len);
 
 		bool operator==(const FacHeader& other) const;
 		bool operator!=(const FacHeader& other) const;
@@ -23,11 +23,11 @@ namespace nx
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes);
 		void importBinary(const u8* bytes, size_t len);
 
 		// variables
-		u64 getFacSize() const;
+		void clear();
+		size_t getFacSize() const;
 
 		u64 getFsaRights() const;
 		void setFsaRights(u64 flag);

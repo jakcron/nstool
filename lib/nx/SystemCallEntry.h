@@ -26,7 +26,7 @@ namespace nx
 		const std::string kModuleName = "SYSTEM_CALL_ENTRY";
 		static const KernelCapability::KernelCapId kCapId = KernelCapability::KC_ENABLE_SYSTEM_CALLS;
 		static const u32 kSysCallUpperBits = 3;
-		static const u32 kSysCallLowerBits = 23;
+		static const u32 kSysCallLowerBits = 24;
 		static const u32 kSysCallUpperMax = BIT(kSysCallUpperBits) - 1;
 		static const u32 kSysCallLowerMax = BIT(kSysCallLowerBits) - 1;
 

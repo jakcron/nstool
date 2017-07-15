@@ -55,25 +55,25 @@ void SacEntry::exportBinary()
 		throw fnd::Exception(kModuleName, "Failed to allocate memory for SacEntry: " + std::string(e.what()));
 	}
 
+	if (mName.length() == 0)
+	{
+		throw fnd::Exception(kModuleName, "Service name is empty");
+	}
+
 	if (mName.length() > kMaxServiceNameLen)
 	{
 		throw fnd::Exception(kModuleName, "Service name string too long (max 8 chars)");
 	}
 
 	// copy data into binary blob
-	mBinaryBlob[0] = (mIsServer ? SAC_IS_SERVER : 0) | (mName.length() & SAC_NAME_LEN_MASK);
+	mBinaryBlob[0] = (mIsServer ? SAC_IS_SERVER : 0) | ((mName.length()-1) & SAC_NAME_LEN_MASK); // bug?
 	memcpy(mBinaryBlob.getBytes() + 1, mName.c_str(), mName.length());
-}
-
-void SacEntry::importBinary(const u8 * bytes)
-{
-	throw fnd::Exception(kModuleName, "Unsupported operation. importBinary(const u8* bytes) is not supported for variable size structures.");
 }
 
 void SacEntry::importBinary(const u8 * bytes, size_t len)
 {
 	bool isServer = (bytes[0] & SAC_IS_SERVER) == SAC_IS_SERVER;
-	size_t nameLen = (bytes[0] & SAC_NAME_LEN_MASK);
+	size_t nameLen = (bytes[0] & SAC_NAME_LEN_MASK) + 1; // bug?
 
 	if (nameLen+1 > len)
 	{
@@ -94,6 +94,12 @@ void SacEntry::importBinary(const u8 * bytes, size_t len)
 
 	mIsServer = isServer;
 	mName = std::string((const char*)(mBinaryBlob.getBytes() + 1), nameLen);
+}
+
+void nx::SacEntry::clear()
+{
+	mIsServer = false;
+	mName.clear();
 }
 
 bool SacEntry::isServer() const

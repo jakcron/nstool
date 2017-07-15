@@ -49,7 +49,7 @@ namespace nx
 
 		NpdmHeader();
 		NpdmHeader(const NpdmHeader& other);
-		NpdmHeader(const u8* bytes);
+		NpdmHeader(const u8* bytes, size_t len);
 
 		bool operator==(const NpdmHeader& other) const;
 		bool operator!=(const NpdmHeader& other) const;
@@ -61,10 +61,10 @@ namespace nx
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes);
 		void importBinary(const u8* bytes, size_t len);
 
 		// variables
+		void clear();
 		size_t getNpdmSize() const;
 
 		InstructionType getInstructionType() const;

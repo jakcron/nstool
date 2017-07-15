@@ -47,7 +47,7 @@ namespace nx
 
 		NcaHeader();
 		NcaHeader(const NcaHeader& other);
-		NcaHeader(const u8* bytes);
+		NcaHeader(const u8* bytes, size_t len);
 
 		bool operator==(const NcaHeader& other) const;
 		bool operator!=(const NcaHeader& other) const;
@@ -59,10 +59,10 @@ namespace nx
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes);
 		void importBinary(const u8* bytes, size_t len);
 
 		// variables
+		void clear();
 		u64 getNcaSize() const;
 		void setNcaSize(u64 size);
 		u64 getProgramId() const;

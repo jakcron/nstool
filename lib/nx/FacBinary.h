@@ -51,10 +51,10 @@ namespace nx
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes);
 		void importBinary(const u8* bytes, size_t len);
 
 		// variables
+		void clear();
 		bool isPermissionSet(FsAccessFlag flag) const;
 		void addPermission(FsAccessFlag flag);
 		void removePermission(FsAccessFlag flag);

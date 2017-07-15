@@ -1,48 +1,48 @@
 #include "FacHeader.h"
 
-using namespace nx;
 
-FacHeader::FacHeader()
+
+nx::FacHeader::FacHeader()
 {
 	clearVariables();
 }
 
-FacHeader::FacHeader(const FacHeader & other)
+nx::FacHeader::FacHeader(const FacHeader & other)
 {
 	copyFrom(other);
 }
 
-FacHeader::FacHeader(const u8 * bytes)
+nx::FacHeader::FacHeader(const u8 * bytes, size_t len)
 {
-	importBinary(bytes);
+	importBinary(bytes, len);
 }
 
-bool FacHeader::operator==(const FacHeader & other) const
+bool nx::FacHeader::operator==(const FacHeader & other) const
 {
 	return isEqual(other);
 }
 
-bool FacHeader::operator!=(const FacHeader & other) const
+bool nx::FacHeader::operator!=(const FacHeader & other) const
 {
 	return !isEqual(other);
 }
 
-void FacHeader::operator=(const FacHeader & other)
+void nx::FacHeader::operator=(const FacHeader & other)
 {
 	copyFrom(other);
 }
 
-const u8 * FacHeader::getBytes() const
+const u8 * nx::FacHeader::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
 
-size_t FacHeader::getSize() const
+size_t nx::FacHeader::getSize() const
 {
 	return mBinaryBlob.getSize();
 }
 
-void FacHeader::exportBinary()
+void nx::FacHeader::exportBinary()
 {
 	mBinaryBlob.alloc(sizeof(sFacHeader));
 	sFacHeader* hdr = (sFacHeader*)mBinaryBlob.getBytes();
@@ -57,8 +57,13 @@ void FacHeader::exportBinary()
 	hdr->save_data_owner_ids().set_end(mSaveDataOwnerIdPos.offset + mSaveDataOwnerIdPos.size);
 }
 
-void FacHeader::importBinary(const u8 * bytes)
+void nx::FacHeader::importBinary(const u8 * bytes, size_t len)
 {
+	if (len < sizeof(sFacHeader))
+	{
+		throw fnd::Exception(kModuleName, "FAC header too small");
+	}
+	
 	mBinaryBlob.alloc(sizeof(sFacHeader));
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 	sFacHeader* hdr = (sFacHeader*)mBinaryBlob.getBytes();
@@ -70,66 +75,64 @@ void FacHeader::importBinary(const u8 * bytes)
 
 	mFsaRights = hdr->fac_flags();
 	mContentOwnerIdPos.offset = hdr->content_owner_ids().start();
-	mContentOwnerIdPos.size = hdr->content_owner_ids().end() - hdr->content_owner_ids().start();
+	mContentOwnerIdPos.size = hdr->content_owner_ids().end() > hdr->content_owner_ids().start() ? hdr->content_owner_ids().end() - hdr->content_owner_ids().start() : 0;
 	mSaveDataOwnerIdPos.offset = hdr->save_data_owner_ids().start();
-	mSaveDataOwnerIdPos.size = hdr->save_data_owner_ids().end() - hdr->save_data_owner_ids().start();
+	mSaveDataOwnerIdPos.size = hdr->save_data_owner_ids().end() > hdr->save_data_owner_ids().start() ? hdr->save_data_owner_ids().end() - hdr->save_data_owner_ids().start() : 0;
 }
 
-void FacHeader::importBinary(const u8 * bytes, size_t len)
+void nx::FacHeader::clear()
 {
-	if (len < sizeof(sFacHeader))
-	{
-		throw fnd::Exception(kModuleName, "FAC header too small");
-	}
-	importBinary(bytes);
+	clearVariables();
 }
 
-u64 FacHeader::getFacSize() const
+size_t nx::FacHeader::getFacSize() const
 {
-	return MAX(getSaveDataOwnerIdOffset() + getSaveDataOwnerIdSize(), getContentOwnerIdOffset() + getContentOwnerIdSize());
+	size_t savedata = getSaveDataOwnerIdOffset() + getSaveDataOwnerIdSize();
+	size_t content = getContentOwnerIdOffset() + getContentOwnerIdSize();
+	return MAX(MAX(savedata, content), sizeof(sFacHeader));
 }
 
-u64 FacHeader::getFsaRights() const
+u64 nx::FacHeader::getFsaRights() const
 {
 	return mFsaRights;
 }
 
-void FacHeader::setFsaRights(u64 flag)
+void nx::FacHeader::setFsaRights(u64 flag)
 {
 	mFsaRights = flag;
 }
 
-size_t FacHeader::getContentOwnerIdOffset() const
+size_t nx::FacHeader::getContentOwnerIdOffset() const
 {
 	return mContentOwnerIdPos.offset;
 }
 
-size_t FacHeader::getContentOwnerIdSize() const
+size_t nx::FacHeader::getContentOwnerIdSize() const
 {
 	return mContentOwnerIdPos.size;
 }
 
-void FacHeader::setContentOwnerIdSize(size_t size)
+void nx::FacHeader::setContentOwnerIdSize(size_t size)
 {
 	mContentOwnerIdPos.size = size;
 }
 
-size_t FacHeader::getSaveDataOwnerIdOffset() const
+size_t nx::FacHeader::getSaveDataOwnerIdOffset() const
 {
 	return mSaveDataOwnerIdPos.offset;
 }
 
-size_t FacHeader::getSaveDataOwnerIdSize() const
+size_t nx::FacHeader::getSaveDataOwnerIdSize() const
 {
 	return mSaveDataOwnerIdPos.size;
 }
 
-void FacHeader::setSaveDataOwnerIdSize(size_t size)
+void nx::FacHeader::setSaveDataOwnerIdSize(size_t size)
 {
 	mSaveDataOwnerIdPos.size = size;
 }
 
-void FacHeader::clearVariables()
+void nx::FacHeader::clearVariables()
 {
 	mFsaRights = 0;
 	mContentOwnerIdPos.offset = 0;
@@ -138,13 +141,13 @@ void FacHeader::clearVariables()
 	mSaveDataOwnerIdPos.size = 0;
 }
 
-void FacHeader::calculateOffsets()
+void nx::FacHeader::calculateOffsets()
 {
 	mContentOwnerIdPos.offset = align(sizeof(sFacHeader), 4);
 	mSaveDataOwnerIdPos.offset = mContentOwnerIdPos.offset + align(mContentOwnerIdPos.size, 4);
 }
 
-bool FacHeader::isEqual(const FacHeader & other) const
+bool nx::FacHeader::isEqual(const FacHeader & other) const
 {
 	return (mFsaRights == other.mFsaRights) \
 		&& (mContentOwnerIdPos.offset == other.mContentOwnerIdPos.offset) \
@@ -153,7 +156,7 @@ bool FacHeader::isEqual(const FacHeader & other) const
 		&& (mSaveDataOwnerIdPos.size == other.mSaveDataOwnerIdPos.size);
 }
 
-void FacHeader::copyFrom(const FacHeader & other)
+void nx::FacHeader::copyFrom(const FacHeader & other)
 {
 	if (other.getSize())
 	{

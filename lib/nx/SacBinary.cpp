@@ -57,11 +57,6 @@ void SacBinary::exportBinary()
 	}
 }
 
-void SacBinary::importBinary(const u8 * bytes)
-{
-	throw fnd::Exception(kModuleName, "Unsupported operation. importBinary(const u8* bytes) is not supported for variable size structures.");
-}
-
 void SacBinary::importBinary(const u8 * bytes, size_t len)
 {
 	clearVariables();
@@ -74,6 +69,11 @@ void SacBinary::importBinary(const u8 * bytes, size_t len)
 		svc.importBinary((const u8*)(mBinaryBlob.getBytes() + pos), len - pos);
 		mServices.addElement(svc);
 	}
+}
+
+void nx::SacBinary::clear()
+{
+	clearVariables();
 }
 
 const fnd::List<SacEntry>& SacBinary::getServiceList() const

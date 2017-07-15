@@ -13,8 +13,9 @@ namespace nx
 		virtual size_t getSize() const = 0;
 
 		virtual void exportBinary() = 0;
-		virtual void importBinary(const u8* bytes) = 0;
 		virtual void importBinary(const u8* bytes, size_t len) = 0;
+
+		virtual void clear() = 0;
 	};
 }
 

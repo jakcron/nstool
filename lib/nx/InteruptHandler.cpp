@@ -24,6 +24,9 @@ void nx::InteruptHandler::operator=(const InteruptHandler & other)
 
 void nx::InteruptHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
 {
+	if (caps.getSize() == 0)
+		return;
+
 	// convert to interupts
 	fnd::List<InteruptEntry> interupts;
 	for (size_t i = 0; i < caps.getSize(); i++)
@@ -92,12 +95,12 @@ bool nx::InteruptHandler::isSet() const
 	return mIsSet;
 }
 
-const fnd::List<u16>& nx::InteruptHandler::getInterupts() const
+const fnd::List<u16>& nx::InteruptHandler::getInteruptList() const
 {
 	return mInterupts;
 }
 
-void nx::InteruptHandler::setInterupts(const fnd::List<u16>& interupts)
+void nx::InteruptHandler::setInteruptList(const fnd::List<u16>& interupts)
 {
 	mInterupts.clear();
 	for (size_t i = 0; i < interupts.getSize(); i++)

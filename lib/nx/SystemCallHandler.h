@@ -21,7 +21,7 @@ namespace nx
 
 		// variables
 		const fnd::List<u8>& getSystemCalls() const;
-		void setSystemCalls(const fnd::List<u8>& calls);
+		void setSystemCallList(const fnd::List<u8>& calls);
 
 	private:
 		const std::string kModuleName = "SYSTEM_CALL_HANDLER";

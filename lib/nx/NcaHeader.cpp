@@ -34,10 +34,15 @@ void NcaHeader::exportBinary()
 	}
 }
 
-void NcaHeader::importBinary(const u8 * bytes)
+void NcaHeader::importBinary(const u8 * bytes, size_t len)
 {
+	if (len < sizeof(sNcaHeader))
+	{
+		throw fnd::Exception(kModuleName, "NCA header size is too small");
+	}
+
 	clearVariables();
-	
+
 	mBinaryBlob.alloc(sizeof(sNcaHeader));
 	memcpy(mBinaryBlob.getBytes(), bytes, sizeof(sNcaHeader));
 
@@ -47,7 +52,7 @@ void NcaHeader::importBinary(const u8 * bytes)
 	{
 		throw fnd::Exception(kModuleName, "NCA header corrupt");
 	}
-	
+
 	mBlockSize = hdr->block_size();
 	mNcaSize = hdr->nca_size();
 	mProgramId = hdr->program_id();
@@ -57,10 +62,10 @@ void NcaHeader::importBinary(const u8 * bytes)
 	{
 		// determine section index
 		u8 section = kSectionNum - 1 - i;
-		
+
 		// skip sections that don't exist
 		if (hdr->section(section).start() == 0 && hdr->section(section).end() == 0) continue;
-		
+
 		// add high level struct
 		mSections.addElement({ blockNumToSize(hdr->section(section).start()), blockNumToSize(hdr->section(section).end() - hdr->section(section).start()), hdr->section(section).key_type(), hdr->section_hash(section) });
 	}
@@ -71,13 +76,9 @@ void NcaHeader::importBinary(const u8 * bytes)
 	}
 }
 
-void NcaHeader::importBinary(const u8 * bytes, size_t len)
+void nx::NcaHeader::clear()
 {
-	if (len < sizeof(sNcaHeader))
-	{
-		throw fnd::Exception(kModuleName, "NCA header size is too small");
-	}
-	importBinary(bytes);
+	clearVariables();
 }
 
 u64 NcaHeader::getNcaSize() const
@@ -192,9 +193,9 @@ NcaHeader::NcaHeader(const NcaHeader & other)
 	copyFrom(other);
 }
 
-NcaHeader::NcaHeader(const u8 * bytes)
+NcaHeader::NcaHeader(const u8 * bytes, size_t len)
 {
-	importBinary(bytes);
+	importBinary(bytes, len);
 }
 
 bool NcaHeader::operator==(const NcaHeader & other) const

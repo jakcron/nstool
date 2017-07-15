@@ -21,8 +21,8 @@ namespace nx
 		bool isSet() const;
 
 		// variables
-		const fnd::List<u16>& getInterupts() const;
-		void setInterupts(const fnd::List<u16>& interupts);
+		const fnd::List<u16>& getInteruptList() const;
+		void setInteruptList(const fnd::List<u16>& interupts);
 
 	private:
 		const std::string kModuleName = "INTERUPT_HANDLER";

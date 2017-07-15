@@ -12,9 +12,9 @@ nx::NpdmHeader::NpdmHeader(const NpdmHeader & other)
 	copyFrom(other);
 }
 
-nx::NpdmHeader::NpdmHeader(const u8 * bytes)
+nx::NpdmHeader::NpdmHeader(const u8 * bytes, size_t len)
 {
-	importBinary(bytes);
+	importBinary(bytes, len);
 }
 
 bool nx::NpdmHeader::operator==(const NpdmHeader & other) const
@@ -122,8 +122,15 @@ void nx::NpdmHeader::exportBinary()
 	hdr->acid().set_size(mAcidPos.size);
 }
 
-void nx::NpdmHeader::importBinary(const u8 * bytes)
+void nx::NpdmHeader::importBinary(const u8 * bytes, size_t len)
 {
+	if (len < sizeof(sNpdmHeader))
+	{
+		throw fnd::Exception(kModuleName, "NPDM header too small");
+	}
+	
+	clearVariables();
+
 	mBinaryBlob.alloc(sizeof(sNpdmHeader));
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
@@ -148,13 +155,9 @@ void nx::NpdmHeader::importBinary(const u8 * bytes)
 	mAcidPos.size = hdr->acid().size();
 }
 
-void nx::NpdmHeader::importBinary(const u8 * bytes, size_t len)
+void nx::NpdmHeader::clear()
 {
-	if (len < sizeof(sNpdmHeader))
-	{
-		throw fnd::Exception(kModuleName, "NPDM header too small");
-	}
-	importBinary(bytes);
+	clearVariables();
 }
 
 size_t nx::NpdmHeader::getNpdmSize() const

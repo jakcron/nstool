@@ -10,21 +10,22 @@ namespace nx
 	public:
 		enum Flags
 		{
-			FLAG_ENABLE_DEBUG = BIT(0),
-			FLAG_FORCE_DEBUG = BIT(1),
-			FLAG_UNK02 = BIT(2),
-			FLAG_UNK03 = BIT(3),
-			FLAG_UNK04 = BIT(4),
-			FLAG_UNK05 = BIT(5),
-			FLAG_UNK06 = BIT(6),
-			FLAG_UNK07 = BIT(7),
-			FLAG_UNK08 = BIT(8),
-			FLAG_UNK09 = BIT(9),
-			FLAG_UNK10 = BIT(10),
-			FLAG_UNK11 = BIT(11),
-			FLAG_UNK12 = BIT(12),
-			FLAG_UNK13 = BIT(13),
-			FLAG_UNK14 = BIT(14),
+			FLAG_ENABLE_DEBUG,
+			FLAG_FORCE_DEBUG,
+			FLAG_UNK02,
+			FLAG_UNK03,
+			FLAG_UNK04,
+			FLAG_UNK05,
+			FLAG_UNK06,
+			FLAG_UNK07,
+			FLAG_UNK08,
+			FLAG_UNK09,
+			FLAG_UNK10,
+			FLAG_UNK11,
+			FLAG_UNK12,
+			FLAG_UNK13,
+			FLAG_UNK14,
+			FLAG_NUM
 		};
 
 		MiscFlagsHandler();
@@ -40,14 +41,15 @@ namespace nx
 		bool isSet() const;
 
 		// variables
-		u32 getFlags() const;
-		void setFlags(u32 flags);
+		const fnd::List<Flags>& getFlagList() const;
+		void setFlagList(fnd::List<Flags> flags);
+
 	private:
 		const std::string kModuleName = "MISC_FLAGS_HANDLER";
 		static const size_t kMaxKernelCapNum = 1;
 
 		bool mIsSet;
-		MiscFlagsEntry mEntry;
+		fnd::List<Flags> mFlags;
 
 		void copyFrom(const MiscFlagsHandler& other);
 		bool isEqual(const MiscFlagsHandler& other) const;

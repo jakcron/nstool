@@ -65,11 +65,6 @@ void nx::KcBinary::exportBinary()
 	}
 }
 
-void nx::KcBinary::importBinary(const u8 * bytes)
-{
-	throw fnd::Exception(kModuleName, "Unsupported operation. importBinary(const u8* bytes) is not supported for variable size structures.");
-}
-
 void nx::KcBinary::importBinary(const u8 * bytes, size_t len)
 {
 	if ((len % sizeof(u32)) != 0)
@@ -132,6 +127,11 @@ void nx::KcBinary::importBinary(const u8 * bytes, size_t len)
 	mKernelVersion.importKernelCapabilityList(kernelVersionCaps);
 	mHandleTableSize.importKernelCapabilityList(handleTableSizeCaps);
 	mMiscFlags.importKernelCapabilityList(miscFlagsCaps);
+}
+
+void nx::KcBinary::clear()
+{
+	clearVariables();
 }
 
 const nx::ThreadInfoHandler & nx::KcBinary::getThreadInfo() const

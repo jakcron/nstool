@@ -23,10 +23,10 @@ namespace nx
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes);
 		void importBinary(const u8* bytes, size_t len);
 
 		// variables
+		void clear();
 		bool isServer() const;
 		void setIsServer(bool isServer);
 		const std::string& getName() const;

@@ -40,7 +40,7 @@ namespace nx
 
 		AciHeader();
 		AciHeader(const AciHeader& other);
-		AciHeader(const u8* bytes);
+		AciHeader(const u8* bytes, size_t len);
 
 		bool operator==(const AciHeader& other) const;
 		bool operator!=(const AciHeader& other) const;
@@ -51,21 +51,36 @@ namespace nx
 		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const u8* bytes);
-		void importBinary(const u8* bytes, size_t len);
+		virtual void exportBinary();
+		virtual void importBinary(const u8* bytes, size_t len);
 
 		// variables
-		AciType getAciType() const;
-		void setAciType(AciType type);
+		virtual void clear();
+		size_t getAciSize() const;
+
+		// ACI0 only
 		u64 getProgramId() const;
 		void setProgramId(u64 program_id);
-		const sSection& getFileAccessControl() const;
-		void setFileAccessControl(u32 size);
-		const sSection& getServiceAccessControl() const;
-		void setServiceAccessControl(u32 size);
-		const sSection& getKernelCapabilities() const;
-		void setKernelCapabilities(u32 size);
+		
+		// ACID only
+		u32 getAcidVersion() const;
+		void setAcidVersion(u32 version);
+		size_t getAcidSize() const;
+		void setAcidSize(size_t size);
+		u64 getProgramIdMin() const;
+		void setProgramIdMin(u64 program_id);
+		u64 getProgramIdMax() const;
+		void setProgramIdMax(u64 program_id);
+
+		// ACID & ACI0
+		AciType getAciType() const;
+		void setAciType(AciType type);
+		const sSection& getFacPos() const;
+		void setFacSize(u32 size);
+		const sSection& getSacPos() const;
+		void setSacSize(u32 size);
+		const sSection& getKcPos() const;
+		void setKcSize(u32 size);
 
 	private:
 		const std::string kModuleName = "ACI_HEADER";
@@ -79,9 +94,10 @@ namespace nx
 		private:
 			u8 signature_[4];
 			u32 size_; // includes prefacing signature, set only in ACID since it is signed
-			u8 reserved_1[8];
+			u32 version_; // set in ACID only, v0 has size, but no pid range, v1 has no size by pid range
+			u8 reserved_1[4];
 			u64 program_id_; // set only in ACI0 (since ACID is generic)
-			u8 reserved_2[8];
+			u64 program_id_max_;
 			struct sAciSection
 			{
 			private:
@@ -93,8 +109,7 @@ namespace nx
 
 				u32 size() const { return le_word(size_); }
 				void set_size(u32 size) { size_ = le_word(size); }
-			} fac_, sac_, kc_;
-			u8 reserved_3[8];
+			} fac_, sac_, kc_, reserved_3;
 		public:
 			const char* signature() const { return (const char*)signature_; }
 			void set_signature(const char* signature) { memcpy(signature_, signature, 4); }
@@ -102,8 +117,17 @@ namespace nx
 			u32 size() const { return le_word(size_); }
 			void set_size(u32 size) { size_ = le_word(size); }
 
+			u32 version() const { return le_word(version_); }
+			void set_version(u32 version) { version_ = le_word(version); }
+
 			u64 program_id() const { return le_dword(program_id_); }
 			void set_program_id(u64 program_id) { program_id_ = le_dword(program_id); }
+
+			u64 program_id_min() const { return program_id(); }
+			void set_program_id_min(u64 program_id) { set_program_id(program_id); }
+
+			u64 program_id_max() const { return le_dword(program_id_max_); }
+			void set_program_id_max(u64 program_id) { program_id_max_ = le_dword(program_id); }
 
 			const sAciSection& fac() const { return fac_; }
 			sAciSection& fac() { return fac_; }
@@ -119,9 +143,17 @@ namespace nx
 		// raw data
 		fnd::MemoryBlob mBinaryBlob;
 
-		// variables
-		AciType mType;
+		// ACI variables
 		u64 mProgramId;
+
+		// ACID variables
+		u32 mAcidVersion;
+		size_t mAcidSize;
+		u64 mProgramIdMin;
+		u64 mProgramIdMax;
+
+		// ACI(D) variables
+		AciType mType;
 		sSection mFac, mSac, mKc;
 
 		void clearVariables();

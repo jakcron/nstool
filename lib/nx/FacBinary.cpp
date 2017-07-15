@@ -66,11 +66,6 @@ void FacBinary::exportBinary()
 	}
 }
 
-void FacBinary::importBinary(const u8 * bytes)
-{
-	throw fnd::Exception(kModuleName, "Unsupported operation. importBinary(const u8* bytes) is not supported for variable size structures.");
-}
-
 void FacBinary::importBinary(const u8 * bytes, size_t len)
 {
 	clearVariables();
@@ -97,6 +92,11 @@ void FacBinary::importBinary(const u8 * bytes, size_t len)
 	{
 		addSaveDataOwnerId(le_word(rawSaveDataOwnerIds[i]));
 	}
+}
+
+void nx::FacBinary::clear()
+{
+	clearVariables();
 }
 
 bool FacBinary::isPermissionSet(FsAccessFlag flag) const

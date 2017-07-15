@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 			decryptNcaSectorXts(nca, sector, 1, crypto::aes::nx::nca_header_key[0], crypto::aes::nx::nca_header_key[1]);
 
 			nx::NcaHeader hdr;
-			hdr.importBinary(sector);
+			hdr.importBinary(sector, kNcaSectorSize);
 
 			printf("[NCA Header]\n");
 			printf("  Size:       0x%" PRIx64 "\n", hdr.getNcaSize());
