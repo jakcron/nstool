@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AciBinary.h" />
     <ClInclude Include="AciHeader.h" />
     <ClInclude Include="FacBinary.h" />
     <ClInclude Include="FacHeader.h" />
@@ -49,6 +50,7 @@
     <ClInclude Include="ThreadInfoHandler.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AciBinary.cpp" />
     <ClCompile Include="AciHeader.cpp" />
     <ClCompile Include="FacBinary.cpp" />
     <ClCompile Include="FacHeader.cpp" />
