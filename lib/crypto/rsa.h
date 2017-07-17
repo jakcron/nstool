@@ -33,14 +33,14 @@ namespace crypto
 				memcpy(this->public_exponent, other.public_exponent, kRsaPublicExponentSize);
 			}
 
-			bool operator==(const sRsa1024Key& other)
+			bool operator==(const sRsa1024Key& other) const
 			{
 				return memcmp(this->modulus, other.modulus, kRsa1024Size) == 0 \
 					&& memcmp(this->priv_exponent, other.priv_exponent, kRsa1024Size) == 0 \
-					&& memcpy(this->public_exponent, other.public_exponent, kRsaPublicExponentSize) == 0;
+					&& memcmp(this->public_exponent, other.public_exponent, kRsaPublicExponentSize) == 0;
 			}
 
-			bool operator!=(const sRsa1024Key& other)
+			bool operator!=(const sRsa1024Key& other) const
 			{
 				return !operator==(other);
 			}
@@ -59,12 +59,12 @@ namespace crypto
 				memcpy(this->public_exponent, other.public_exponent, kRsaPublicExponentSize);
 			}
 
-			bool operator==(const sRsa2048Key& other)
+			bool operator==(const sRsa2048Key& other) const
 			{
-				return memcmp(this->modulus, other.modulus, kRsa2048Size) == 0 && memcmp(this->priv_exponent, other.priv_exponent, kRsa2048Size) == 0 && memcpy(this->public_exponent, other.public_exponent, kRsaPublicExponentSize) == 0;
+				return memcmp(this->modulus, other.modulus, kRsa2048Size) == 0 && memcmp(this->priv_exponent, other.priv_exponent, kRsa2048Size) == 0 && memcmp(this->public_exponent, other.public_exponent, kRsaPublicExponentSize) == 0;
 			}
 
-			bool operator!=(const sRsa2048Key& other)
+			bool operator!=(const sRsa2048Key& other) const
 			{
 				return !operator==(other);
 			}
@@ -83,12 +83,12 @@ namespace crypto
 				memcpy(this->public_exponent, other.public_exponent, kRsaPublicExponentSize);
 			}
 
-			bool operator==(const sRsa4096Key& other)
+			bool operator==(const sRsa4096Key& other) const
 			{
-				return memcmp(this->modulus, other.modulus, kRsa4096Size) == 0 && memcmp(this->priv_exponent, other.priv_exponent, kRsa4096Size) == 0 && memcpy(this->public_exponent, other.public_exponent, kRsaPublicExponentSize) == 0;
+				return memcmp(this->modulus, other.modulus, kRsa4096Size) == 0 && memcmp(this->priv_exponent, other.priv_exponent, kRsa4096Size) == 0 && memcmp(this->public_exponent, other.public_exponent, kRsaPublicExponentSize) == 0;
 			}
 
-			bool operator!=(const sRsa4096Key& other)
+			bool operator!=(const sRsa4096Key& other) const
 			{
 				return !operator==(other);
 			}
