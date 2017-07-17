@@ -1,4 +1,4 @@
-PROGS = ncatool
+PROGS = ncatool npdmtool
 
 main: build
 
