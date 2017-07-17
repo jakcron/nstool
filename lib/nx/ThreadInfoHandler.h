@@ -25,10 +25,10 @@ namespace nx
 		void setMinPriority(u8 priority);
 		u8 getMaxPriority() const;
 		void setMaxPriority(u8 priority);
-		u8 getMinCoreNumber() const;
-		void setMinCoreNumber(u8 core_num);
-		u8 getMaxCoreNumber() const;
-		void setMaxCoreNumber(u8 core_num);
+		u8 getMinCpuId() const;
+		void setMinCpuId(u8 core_num);
+		u8 getMaxCpuId() const;
+		void setMaxCpuId(u8 core_num);
 
 	private:
 		const std::string kModuleName = "THREAD_INFO_HANDLER";

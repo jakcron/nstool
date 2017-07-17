@@ -131,7 +131,15 @@ void nx::KcBinary::importBinary(const u8 * bytes, size_t len)
 
 void nx::KcBinary::clear()
 {
-	clearVariables();
+	mBinaryBlob.clear();
+	mThreadInfo.clear();
+	mSystemCalls.clear();
+	mMemoryMap.clear();
+	mInterupts.clear();
+	mMiscParams.clear();
+	mKernelVersion.clear();
+	mHandleTableSize.clear();
+	mMiscFlags.clear();
 }
 
 const nx::ThreadInfoHandler & nx::KcBinary::getThreadInfo() const
@@ -212,19 +220,6 @@ const nx::MiscFlagsHandler & nx::KcBinary::getMiscFlags() const
 nx::MiscFlagsHandler & nx::KcBinary::getMiscFlags()
 {
 	return mMiscFlags;
-}
-
-void nx::KcBinary::clearVariables()
-{
-	mBinaryBlob.clear();
-	mThreadInfo.clear();
-	mSystemCalls.clear();
-	mMemoryMap.clear();
-	mInterupts.clear();
-	mMiscParams.clear();
-	mKernelVersion.clear();
-	mHandleTableSize.clear();
-	mMiscFlags.clear();
 }
 
 bool nx::KcBinary::isEqual(const KcBinary & other) const

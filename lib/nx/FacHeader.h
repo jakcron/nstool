@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/memory_blob.h>
+#include <fnd/List.h>
 #include <nx/ISerialiseableBinary.h>
 
 namespace nx
@@ -9,6 +10,32 @@ namespace nx
 		public ISerialiseableBinary
 	{
 	public:
+		enum FsAccessFlag
+		{
+			FSA_APPLICATION_INFO,
+			FSA_BOOT_MODE_CONTROL,
+			FSA_CALIBRATION,
+			FSA_SYSTEM_SAVE_DATA,
+			FSA_GAME_CARD,
+			FSA_SAVE_DATA_BACKUP,
+			FSA_SAVE_DATA_MANAGEMENT,
+			FSA_BIS_ALL_RAW,
+			FSA_GAME_CARD_RAW,
+			FSA_GAME_CARD_PRIVATE,
+			FSA_SET_TIME,
+			FSA_CONTENT_MANAGER,
+			FSA_IMAGE_MANAGER,
+			FSA_CREATE_SAVE_DATA,
+			FSA_SYSTEM_SAVE_DATA_MANAGEMENT,
+			FSA_BIS_FILE_SYSTEM,
+			FSA_SYSTEM_UPDATE,
+			FSA_SAVE_DATA_META,
+			FSA_DEVICE_SAVE_CONTROL,
+			FSA_SETTINGS_CONTROL,
+			FSA_DEBUG = 62,
+			FSA_FULL_PERMISSION = 63,
+		};
+
 		FacHeader();
 		FacHeader(const FacHeader& other);
 		FacHeader(const u8* bytes, size_t len);
@@ -29,8 +56,11 @@ namespace nx
 		void clear();
 		size_t getFacSize() const;
 
-		u64 getFsaRights() const;
-		void setFsaRights(u64 flag);
+		u32 getFormatVersion() const;
+		void setFormatVersion(u32 version);
+
+		const fnd::List<FsAccessFlag>& getFsaRightsList() const;
+		void setFsaRightsList(const fnd::List<FsAccessFlag>& list);
 
 		size_t getContentOwnerIdOffset() const;
 		size_t getContentOwnerIdSize() const;
@@ -81,14 +111,14 @@ namespace nx
 		fnd::MemoryBlob mBinaryBlob;
 
 		// variables
-		u64 mFsaRights;
+		u32 mVersion;
+		fnd::List<FsAccessFlag> mFsaRights;
 		struct sSection
 		{
 			size_t offset;
 			size_t size;
 		} mContentOwnerIdPos, mSaveDataOwnerIdPos;
 
-		void clearVariables();
 		void calculateOffsets();
 		bool isEqual(const FacHeader& other) const;
 		void copyFrom(const FacHeader& other);

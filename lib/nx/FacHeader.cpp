@@ -2,17 +2,20 @@
 
 
 
-nx::FacHeader::FacHeader()
+nx::FacHeader::FacHeader() :
+	mFsaRights()
 {
-	clearVariables();
+	clear();
 }
 
-nx::FacHeader::FacHeader(const FacHeader & other)
+nx::FacHeader::FacHeader(const FacHeader & other) :
+	mFsaRights()
 {
 	copyFrom(other);
 }
 
-nx::FacHeader::FacHeader(const u8 * bytes, size_t len)
+nx::FacHeader::FacHeader(const u8 * bytes, size_t len) :
+	mFsaRights()
 {
 	importBinary(bytes, len);
 }
@@ -47,8 +50,18 @@ void nx::FacHeader::exportBinary()
 	mBinaryBlob.alloc(sizeof(sFacHeader));
 	sFacHeader* hdr = (sFacHeader*)mBinaryBlob.getBytes();
 
-	hdr->set_version(kFacFormatVersion);
-	hdr->set_fac_flags(mFsaRights);
+	if (mVersion != kFacFormatVersion)
+	{
+		fnd::Exception(kModuleName, "Unsupported format version");
+	}
+	hdr->set_version(mVersion);
+
+	u64 flag = 0;
+	for (size_t i = 0; i < mFsaRights.getSize(); i++)
+	{
+		flag |= BIT((u64)mFsaRights[i]);
+	}
+	hdr->set_fac_flags(flag);
 
 	calculateOffsets();
 	hdr->content_owner_ids().set_start(mContentOwnerIdPos.offset);
@@ -72,8 +85,16 @@ void nx::FacHeader::importBinary(const u8 * bytes, size_t len)
 	{
 		throw fnd::Exception(kModuleName, "Unsupported FAC format version");
 	}
+	mVersion = hdr->version();
 
-	mFsaRights = hdr->fac_flags();
+	clear();
+	for (u64 i = 0; i < 64; i++)
+	{
+		if ((hdr->fac_flags() >> i) & 1)
+		{
+			mFsaRights.addElement((FsAccessFlag)i);
+		}
+	}
 	mContentOwnerIdPos.offset = hdr->content_owner_ids().start();
 	mContentOwnerIdPos.size = hdr->content_owner_ids().end() > hdr->content_owner_ids().start() ? hdr->content_owner_ids().end() - hdr->content_owner_ids().start() : 0;
 	mSaveDataOwnerIdPos.offset = hdr->save_data_owner_ids().start();
@@ -82,7 +103,11 @@ void nx::FacHeader::importBinary(const u8 * bytes, size_t len)
 
 void nx::FacHeader::clear()
 {
-	clearVariables();
+	mFsaRights.clear();
+	mContentOwnerIdPos.offset = 0;
+	mContentOwnerIdPos.size = 0;
+	mSaveDataOwnerIdPos.offset = 0;
+	mSaveDataOwnerIdPos.size = 0;
 }
 
 size_t nx::FacHeader::getFacSize() const
@@ -92,14 +117,28 @@ size_t nx::FacHeader::getFacSize() const
 	return MAX(MAX(savedata, content), sizeof(sFacHeader));
 }
 
-u64 nx::FacHeader::getFsaRights() const
+u32 nx::FacHeader::getFormatVersion() const
+{
+	return mVersion;
+}
+
+void nx::FacHeader::setFormatVersion(u32 version)
+{
+	mVersion = version;
+}
+
+const fnd::List<nx::FacHeader::FsAccessFlag>& nx::FacHeader::getFsaRightsList() const
 {
 	return mFsaRights;
 }
 
-void nx::FacHeader::setFsaRights(u64 flag)
+void nx::FacHeader::setFsaRightsList(const fnd::List<FsAccessFlag>& list)
 {
-	mFsaRights = flag;
+	mFsaRights.clear();
+	for (size_t i = 0; i < list.getSize(); i++)
+	{
+		mFsaRights.hasElement(list[i]) ? mFsaRights.addElement(list[i]) : throw fnd::Exception(kModuleName, "FSA right already exists");
+	}
 }
 
 size_t nx::FacHeader::getContentOwnerIdOffset() const
@@ -130,15 +169,6 @@ size_t nx::FacHeader::getSaveDataOwnerIdSize() const
 void nx::FacHeader::setSaveDataOwnerIdSize(size_t size)
 {
 	mSaveDataOwnerIdPos.size = size;
-}
-
-void nx::FacHeader::clearVariables()
-{
-	mFsaRights = 0;
-	mContentOwnerIdPos.offset = 0;
-	mContentOwnerIdPos.size = 0;
-	mSaveDataOwnerIdPos.offset = 0;
-	mSaveDataOwnerIdPos.size = 0;
 }
 
 void nx::FacHeader::calculateOffsets()

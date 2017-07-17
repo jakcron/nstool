@@ -41,7 +41,7 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 		throw fnd::Exception(kModuleName, "NCA header size is too small");
 	}
 
-	clearVariables();
+	clear();
 
 	mBinaryBlob.alloc(sizeof(sNcaHeader));
 	memcpy(mBinaryBlob.getBytes(), bytes, sizeof(sNcaHeader));
@@ -78,7 +78,12 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 
 void nx::NcaHeader::clear()
 {
-	clearVariables();
+	mBlockSize = 0;
+	mNcaSize = 0;
+	mProgramId = 0;
+	mUnk0 = 0;
+	mSections.clear();
+	mAesKeys.clear();
 }
 
 u64 NcaHeader::getNcaSize() const
@@ -135,16 +140,6 @@ void NcaHeader::addKey(const crypto::aes::sAes128Key & key)
 	mAesKeys.addElement(key);
 }
 
-void NcaHeader::clearVariables()
-{
-	mBlockSize = 0;
-	mNcaSize = 0;
-	mProgramId = 0;
-	mUnk0 = 0;
-	mSections.clear();
-	mAesKeys.clear();
-}
-
 u64 NcaHeader::blockNumToSize(u32 block_num) const
 {
 	return block_num*mBlockSize;
@@ -185,7 +180,7 @@ void NcaHeader::copyFrom(const NcaHeader & other)
 
 NcaHeader::NcaHeader()
 {
-	clearVariables();
+	clear();
 }
 
 NcaHeader::NcaHeader(const NcaHeader & other)

@@ -6,16 +6,16 @@ nx::ThreadInfoEntry::ThreadInfoEntry() :
 	mCap(kCapId),
 	mMinPriority(kDefaultPriority),
 	mMaxPriority(kDefaultPriority),
-	mMinCoreNumber(kDefaultCoreNumber),
-	mMaxCoreNumber(kDefaultCoreNumber)
+	mMinCpuId(kDefaultCpuId),
+	mMaxCpuId(kDefaultCpuId)
 {}
 
 nx::ThreadInfoEntry::ThreadInfoEntry(const KernelCapability & kernel_cap) :
 	mCap(kCapId),
 	mMinPriority(kDefaultPriority),
 	mMaxPriority(kDefaultPriority),
-	mMinCoreNumber(kDefaultCoreNumber),
-	mMaxCoreNumber(kDefaultCoreNumber)
+	mMinCpuId(kDefaultCpuId),
+	mMaxCpuId(kDefaultCpuId)
 {
 	setKernelCapability(kernel_cap);
 }
@@ -24,13 +24,13 @@ nx::ThreadInfoEntry::ThreadInfoEntry(u8 min_priority, u8 max_priority, u8 min_co
 	mCap(kCapId),
 	mMinPriority(kDefaultPriority),
 	mMaxPriority(kDefaultPriority),
-	mMinCoreNumber(kDefaultCoreNumber),
-	mMaxCoreNumber(kDefaultCoreNumber)
+	mMinCpuId(kDefaultCpuId),
+	mMaxCpuId(kDefaultCpuId)
 {
 	setMinPriority(min_priority);
 	setMaxPriority(max_priority);
-	setMinCoreNumber(min_core_number);
-	setMaxCoreNumber(max_core_number);
+	setMinCpuId(min_core_number);
+	setMaxCpuId(max_core_number);
 }
 
 const nx::KernelCapability & nx::ThreadInfoEntry::getKernelCapability() const
@@ -81,34 +81,34 @@ void nx::ThreadInfoEntry::setMaxPriority(u8 priority)
 	updateCapField();
 }
 
-u8 nx::ThreadInfoEntry::getMinCoreNumber() const
+u8 nx::ThreadInfoEntry::getMinCpuId() const
 {
-	return mMinCoreNumber;
+	return mMinCpuId;
 }
 
-void nx::ThreadInfoEntry::setMinCoreNumber(u8 core_num)
+void nx::ThreadInfoEntry::setMinCpuId(u8 core_num)
 {
 	if (core_num > kMaxVal)
 	{
 		throw fnd::Exception(kModuleName, "Illegal MinCoreNumber (range 0-63)");
 	}
 
-	mMinCoreNumber = core_num;
+	mMinCpuId = core_num;
 	updateCapField();
 }
 
-u8 nx::ThreadInfoEntry::getMaxCoreNumber() const
+u8 nx::ThreadInfoEntry::getMaxCpuId() const
 {
-	return mMaxCoreNumber;
+	return mMaxCpuId;
 }
 
-void nx::ThreadInfoEntry::setMaxCoreNumber(u8 core_num)
+void nx::ThreadInfoEntry::setMaxCpuId(u8 core_num)
 {
 	if (core_num > kMaxVal)
 	{
 		throw fnd::Exception(kModuleName, "Illegal MaxCoreNumber (range 0-63)");
 	}
 
-	mMaxCoreNumber = core_num;
+	mMaxCpuId = core_num;
 	updateCapField();
 }

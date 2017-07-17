@@ -76,8 +76,8 @@ namespace nx
 		u8 getMainThreadPriority() const;
 		void setMainThreadPriority(u8 priority);
 
-		u8 getMainThreadCoreNumber() const;
-		void setMainThreadCoreNumber(u8 core_num);
+		u8 getMainThreadCpuId() const;
+		void setMainThreadCpuId(u8 cpu_id);
 
 		u32 getVersion() const;
 		void setVersion(u32 version);
@@ -92,10 +92,10 @@ namespace nx
 		void setProductCode(const std::string& product_code);
 
 		const sSection& getAciPos() const;
-		void setSetAciSize(size_t size);
+		void setAciSize(size_t size);
 
 		const sSection& getAcidPos() const;
-		void setSetAcidSize(size_t size);
+		void setAcidSize(size_t size);
 	private:
 		const std::string kModuleName = "NPDM_HEADER";
 		const std::string kNpdmStructSig = "META";
@@ -114,7 +114,7 @@ namespace nx
 			u8 flags_;
 			u8 reserved_1;
 			u8 main_thread_priority_; // 0-63 inclusive
-			u8 main_thread_core_number_;
+			u8 main_thread_cpu_id_;
 			u8 reserved_2[8];
 			u32 version_;
 			u32 main_thread_stack_size_; // default 4096
@@ -144,8 +144,8 @@ namespace nx
 			u8 main_thread_priority() const { return main_thread_priority_; }
 			void set_main_thread_priority(u8 priority) { main_thread_priority_ = priority; }
 
-			u8 main_thread_core_number() const { return main_thread_core_number_; }
-			void set_main_thread_core_number(u8 core_number) { main_thread_core_number_ = core_number; }
+			u8 main_thread_cpu_id() const { return main_thread_cpu_id_; }
+			void set_main_thread_cpu_id(u8 cpu_id) { main_thread_cpu_id_ = cpu_id; }
 
 			u32 version() const { return le_word(version_); }
 			void set_version(u32 version) { version_ = le_word(version); }
@@ -174,7 +174,7 @@ namespace nx
 		InstructionType mInstructionType;
 		ProcAddrSpaceType mProcAddressSpaceType;
 		u8 mMainThreadPriority;
-		u8 mMainThreadCoreNumber;
+		u8 mMainThreadCpuId;
 		u32 mVersion;
 		u32 mMainThreadStackSize;
 		std::string mName;
@@ -182,7 +182,6 @@ namespace nx
 		sSection mAciPos;
 		sSection mAcidPos;
 
-		void clearVariables();
 		void calculateOffsets();
 		bool isEqual(const NpdmHeader& other) const;
 		void copyFrom(const NpdmHeader& other);

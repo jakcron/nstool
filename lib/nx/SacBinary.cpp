@@ -59,7 +59,7 @@ void SacBinary::exportBinary()
 
 void SacBinary::importBinary(const u8 * bytes, size_t len)
 {
-	clearVariables();
+	clear();
 	mBinaryBlob.alloc(len);
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 
@@ -73,7 +73,8 @@ void SacBinary::importBinary(const u8 * bytes, size_t len)
 
 void nx::SacBinary::clear()
 {
-	clearVariables();
+	mBinaryBlob.clear();
+	mServices.clear();
 }
 
 const fnd::List<SacEntry>& SacBinary::getServiceList() const
@@ -84,12 +85,6 @@ const fnd::List<SacEntry>& SacBinary::getServiceList() const
 void SacBinary::addService(const SacEntry& service)
 {
 	mServices.addElement(service);
-}
-
-void SacBinary::clearVariables()
-{
-	mBinaryBlob.clear();
-	mServices.clear();
 }
 
 bool SacBinary::isEqual(const SacBinary & other) const

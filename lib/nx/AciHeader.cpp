@@ -2,28 +2,17 @@
 
 using namespace nx;
 
-void AciHeader::clearVariables()
-{
-	mType = TYPE_ACI0;
-	mProgramId = 0;
-	mFac.offset = 0;
-	mFac.size = 0;
-	mSac.offset = 0;
-	mSac.size = 0;
-	mKc.offset = 0;
-	mKc.size = 0;
-}
-
 void AciHeader::calculateSectionOffsets()
 {
-	mFac.offset = align(sizeof(sAciHeader), kAciAlignSize);
+	mFac.offset = align(mHeaderOffset, kAciAlignSize) + align(sizeof(sAciHeader), kAciAlignSize);
 	mSac.offset = mFac.offset + align(mFac.size, kAciAlignSize);
 	mKc.offset = mSac.offset + align(mSac.size, kAciAlignSize);
 }
 
 bool AciHeader::isEqual(const AciHeader & other) const
 {
-	return (mType == other.mType) \
+	return (mHeaderOffset == other.mHeaderOffset) \
+		&& (mType == other.mType) \
 		&& (mAcidSize == other.mAcidSize) \
 		&& (mProgramId == other.mProgramId) \
 		&& (mFac == other.mFac) \
@@ -39,6 +28,7 @@ void AciHeader::copyFrom(const AciHeader & other)
 	}
 	else
 	{
+		mHeaderOffset = other.mHeaderOffset;
 		mType = other.mType;
 		mAcidSize = other.mAcidSize;
 		mProgramId = other.mProgramId;
@@ -50,7 +40,7 @@ void AciHeader::copyFrom(const AciHeader & other)
 
 AciHeader::AciHeader()
 {
-	clearVariables();
+	clear();
 }
 
 AciHeader::AciHeader(const AciHeader & other)
@@ -106,17 +96,36 @@ void AciHeader::exportBinary()
 		throw fnd::Exception(kModuleName, "Unexpected ACI type");
 	}
 
+	// set offset/size
+	calculateSectionOffsets();
+	hdr->fac().set_offset(mFac.offset);
+	hdr->fac().set_size(mFac.size);
+	hdr->sac().set_offset(mSac.offset);
+	hdr->sac().set_size(mSac.size);
+	hdr->kc().set_offset(mKc.offset);
+	hdr->kc().set_size(mKc.size);
+
+	hdr->set_version(mFormatVersion);
+
 	if (mType == TYPE_ACI0)
 	{
 		// set program
 		hdr->set_program_id(mProgramId);
+		switch (mFormatVersion)
+		{
+			case(0):
+				break;
+			default:
+				throw fnd::Exception(kModuleName, "Unsupported ACI0 version");
+		}
 	}
 	else if (mType == TYPE_ACID)
 	{
-		hdr->set_version(mAcidVersion);
-		switch (mAcidVersion)
+		
+		switch (mFormatVersion)
 		{
 			case(0):
+				mAcidSize = getAciSize();
 				hdr->set_size(mAcidSize);
 				hdr->set_program_id_min(0);
 				hdr->set_program_id_max(0);
@@ -130,16 +139,6 @@ void AciHeader::exportBinary()
 				throw fnd::Exception(kModuleName, "Unsupported ACID version");
 		}
 	}
-
-
-	// set offset/size
-	calculateSectionOffsets();
-	hdr->fac().set_offset(mFac.offset);
-	hdr->fac().set_size(mFac.size);
-	hdr->sac().set_offset(mSac.offset);
-	hdr->sac().set_size(mSac.size);
-	hdr->kc().set_offset(mKc.offset);
-	hdr->kc().set_size(mKc.size);
 }
 
 void AciHeader::importBinary(const u8 * bytes, size_t len)
@@ -149,7 +148,7 @@ void AciHeader::importBinary(const u8 * bytes, size_t len)
 		throw fnd::Exception(kModuleName, "ACI header too small");
 	}
 	
-	clearVariables();
+	clear();
 
 	mBinaryBlob.alloc(sizeof(sAciHeader));
 	memcpy(mBinaryBlob.getBytes(), bytes, sizeof(sAciHeader));
@@ -173,16 +172,24 @@ void AciHeader::importBinary(const u8 * bytes, size_t len)
 	if (mType == TYPE_ACI0)
 	{
 		mProgramId = hdr->program_id();
-		mAcidVersion = 0;
+		mFormatVersion = hdr->version();
 		mAcidSize = 0;
 		mProgramIdMin = 0;
 		mProgramIdMax = 0;
+
+		switch (mFormatVersion)
+		{
+			case(0):
+				break;
+			default:
+				throw fnd::Exception(kModuleName, "Unsupported ACI0 version");
+		}
 	}
 	else if (mType == TYPE_ACID)
 	{
 		mProgramId = 0;
-		mAcidVersion = hdr->version();
-		switch (mAcidVersion)
+		mFormatVersion = hdr->version();
+		switch (mFormatVersion)
 		{
 			case(0):
 				mAcidSize = hdr->size();
@@ -199,17 +206,28 @@ void AciHeader::importBinary(const u8 * bytes, size_t len)
 		}
 	}
 	
-	mFac.offset = hdr->fac().offset();
+	// the header offset is the MIN(sac.offset, fac.offset, kc.offset) - sizeof(sHeader)
+	mHeaderOffset = MAX(MIN(hdr->sac().offset(), MIN(hdr->fac().offset(), hdr->kc().offset())), align(sizeof(sAciHeader), kAciAlignSize)) - align(sizeof(sAciHeader), kAciAlignSize);
+
+	mFac.offset = hdr->fac().offset() - mHeaderOffset;
 	mFac.size = hdr->fac().size();
-	mSac.offset = hdr->sac().offset();
+	mSac.offset = hdr->sac().offset() - mHeaderOffset;
 	mSac.size = hdr->sac().size();
-	mKc.offset = hdr->kc().offset();
+	mKc.offset = hdr->kc().offset() - mHeaderOffset;
 	mKc.size = hdr->kc().size();
 }
 
 void nx::AciHeader::clear()
 {
-	clearVariables();
+	mHeaderOffset = 0;
+	mType = TYPE_ACI0;
+	mProgramId = 0;
+	mFac.offset = 0;
+	mFac.size = 0;
+	mSac.offset = 0;
+	mSac.size = 0;
+	mKc.offset = 0;
+	mKc.size = 0;
 }
 
 size_t nx::AciHeader::getAciSize() const
@@ -217,14 +235,14 @@ size_t nx::AciHeader::getAciSize() const
 	return MAX(MAX(MAX(mSac.offset + mSac.size, mKc.offset + mKc.size), mFac.offset + mFac.size), sizeof(sAciHeader));
 }
 
-u32 nx::AciHeader::getAcidVersion() const
+u32 nx::AciHeader::getFormatVersion() const
 {
-	return mAcidVersion;
+	return mFormatVersion;
 }
 
-void nx::AciHeader::setAcidVersion(u32 version)
+void nx::AciHeader::setFormatVersion(u32 version)
 {
-	mAcidVersion = version;
+	mFormatVersion = version;
 }
 
 size_t nx::AciHeader::getAcidSize() const
@@ -232,10 +250,12 @@ size_t nx::AciHeader::getAcidSize() const
 	return mAcidSize;
 }
 
+/*
 void nx::AciHeader::setAcidSize(size_t size)
 {
 	mAcidSize = size;
 }
+*/
 
 u64 nx::AciHeader::getProgramIdMin() const
 {
@@ -255,6 +275,11 @@ u64 nx::AciHeader::getProgramIdMax() const
 void nx::AciHeader::setProgramIdMax(u64 program_id)
 {
 	mProgramIdMax = program_id;
+}
+
+void nx::AciHeader::setHeaderOffset(size_t offset)
+{
+	mHeaderOffset = offset;
 }
 
 AciHeader::AciType AciHeader::getAciType() const
@@ -282,7 +307,7 @@ const AciHeader::sSection & AciHeader::getFacPos() const
 	return mFac;
 }
 
-void AciHeader::setFacSize(u32 size)
+void AciHeader::setFacSize(size_t size)
 {
 	mFac.size = size;
 }
@@ -292,7 +317,7 @@ const AciHeader::sSection & AciHeader::getSacPos() const
 	return mSac;
 }
 
-void AciHeader::setSacSize(u32 size)
+void AciHeader::setSacSize(size_t size)
 {
 	mSac.size = size;
 }
@@ -302,7 +327,7 @@ const AciHeader::sSection & AciHeader::getKcPos() const
 	return mKc;
 }
 
-void AciHeader::setKcSize(u32 size)
+void AciHeader::setKcSize(size_t size)
 {
 	mKc.size = size;
 }

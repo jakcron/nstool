@@ -41,7 +41,6 @@ namespace nx
 		// variables
 		fnd::List<SacEntry> mServices;
 
-		void clearVariables();
 		bool isEqual(const SacBinary& other) const;
 		void copyFrom(const SacBinary& other);
 	};

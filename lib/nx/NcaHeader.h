@@ -149,7 +149,6 @@ namespace nx
 		fnd::List<sSection> mSections;
 		fnd::List<crypto::aes::sAes128Key> mAesKeys;
 
-		void clearVariables();
 		u64 blockNumToSize(u32 block_num) const;
 		u32 sizeToBlockNum(u64 real_size) const;
 		bool isEqual(const NcaHeader& other) const;

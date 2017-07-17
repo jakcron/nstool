@@ -33,9 +33,6 @@
     <ClInclude Include="FacHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FacBinary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SacBinary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -102,6 +99,15 @@
     <ClInclude Include="KcBinary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AcidBinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FacBinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NpdmBinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NcaHeader.cpp">
@@ -114,9 +120,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FacHeader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FacBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SacBinary.cpp">
@@ -180,6 +183,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KcBinary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AcidBinary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FacBinary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NpdmBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

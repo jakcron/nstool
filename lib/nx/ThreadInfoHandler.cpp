@@ -49,8 +49,8 @@ void nx::ThreadInfoHandler::clear()
 	mIsSet = false;
 	mEntry.setMaxPriority(0);
 	mEntry.setMinPriority(0);
-	mEntry.setMaxCoreNumber(0);
-	mEntry.setMinCoreNumber(0);
+	mEntry.setMaxCpuId(0);
+	mEntry.setMinCpuId(0);
 }
 
 bool nx::ThreadInfoHandler::isSet() const
@@ -80,25 +80,25 @@ void nx::ThreadInfoHandler::setMaxPriority(u8 priority)
 	mIsSet = true;
 }
 
-u8 nx::ThreadInfoHandler::getMinCoreNumber() const
+u8 nx::ThreadInfoHandler::getMinCpuId() const
 {
-	return mEntry.getMinCoreNumber();
+	return mEntry.getMinCpuId();
 }
 
-void nx::ThreadInfoHandler::setMinCoreNumber(u8 core_num)
+void nx::ThreadInfoHandler::setMinCpuId(u8 core_num)
 {
-	mEntry.setMinCoreNumber(core_num);
+	mEntry.setMinCpuId(core_num);
 	mIsSet = true;
 }
 
-u8 nx::ThreadInfoHandler::getMaxCoreNumber() const
+u8 nx::ThreadInfoHandler::getMaxCpuId() const
 {
-	return mEntry.getMaxCoreNumber();
+	return mEntry.getMaxCpuId();
 }
 
-void nx::ThreadInfoHandler::setMaxCoreNumber(u8 core_num)
+void nx::ThreadInfoHandler::setMaxCpuId(u8 core_num)
 {
-	mEntry.setMaxCoreNumber(core_num);
+	mEntry.setMaxCpuId(core_num);
 	mIsSet = true;
 }
 

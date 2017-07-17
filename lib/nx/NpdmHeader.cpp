@@ -4,7 +4,7 @@
 
 nx::NpdmHeader::NpdmHeader()
 {
-	clearVariables();
+	clear();
 }
 
 nx::NpdmHeader::NpdmHeader(const NpdmHeader & other)
@@ -42,23 +42,6 @@ size_t nx::NpdmHeader::getSize() const
 	return mBinaryBlob.getSize();
 }
 
-void nx::NpdmHeader::clearVariables()
-{
-	mBinaryBlob.clear();
-	mInstructionType = INSTR_64BIT;
-	mProcAddressSpaceType = ADDR_SPACE_64BIT;
-	mMainThreadPriority = 0;
-	mMainThreadCoreNumber = 0;
-	mVersion = 0;
-	mMainThreadStackSize = 0;
-	mName.clear();
-	mProductCode.clear();
-	mAciPos.offset = 0;
-	mAciPos.size = 0;
-	mAcidPos.offset = 0;
-	mAcidPos.size = 0;
-}
-
 void nx::NpdmHeader::calculateOffsets()
 {
 	mAcidPos.offset = align(sizeof(sNpdmHeader), kNpdmAlignSize);
@@ -70,7 +53,7 @@ bool nx::NpdmHeader::isEqual(const NpdmHeader & other) const
 	return (mInstructionType == other.mInstructionType) \
 		&& (mProcAddressSpaceType == other.mProcAddressSpaceType) \
 		&& (mMainThreadPriority == other.mMainThreadPriority) \
-		&& (mMainThreadCoreNumber == other.mMainThreadCoreNumber) \
+		&& (mMainThreadCpuId == other.mMainThreadCpuId) \
 		&& (mVersion == other.mVersion) \
 		&& (mMainThreadStackSize == other.mMainThreadStackSize) \
 		&& (mName == other.mName) \
@@ -90,7 +73,7 @@ void nx::NpdmHeader::copyFrom(const NpdmHeader & other)
 		mInstructionType = other.mInstructionType;
 		mProcAddressSpaceType = other.mProcAddressSpaceType;
 		mMainThreadPriority = other.mMainThreadPriority;
-		mMainThreadCoreNumber = other.mMainThreadCoreNumber;
+		mMainThreadCpuId = other.mMainThreadCpuId;
 		mVersion = other.mVersion;
 		mMainThreadStackSize = other.mMainThreadStackSize;
 		mName = other.mName;
@@ -109,7 +92,7 @@ void nx::NpdmHeader::exportBinary()
 	u8 flag = ((u8)(mInstructionType & 1) | (u8)((mProcAddressSpaceType & 3) << 1)) & 0xf;
 	hdr->set_flags(flag);
 	hdr->set_main_thread_priority(mMainThreadPriority);
-	hdr->set_main_thread_core_number(mMainThreadCoreNumber);
+	hdr->set_main_thread_cpu_id(mMainThreadCpuId);
 	hdr->set_version(mVersion);
 	hdr->set_main_thread_stack_size(mMainThreadStackSize);
 	hdr->set_name(mName.c_str());
@@ -129,7 +112,7 @@ void nx::NpdmHeader::importBinary(const u8 * bytes, size_t len)
 		throw fnd::Exception(kModuleName, "NPDM header too small");
 	}
 	
-	clearVariables();
+	clear();
 
 	mBinaryBlob.alloc(sizeof(sNpdmHeader));
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
@@ -144,11 +127,19 @@ void nx::NpdmHeader::importBinary(const u8 * bytes, size_t len)
 	mInstructionType = (InstructionType)(flag & 1);
 	mProcAddressSpaceType = (ProcAddrSpaceType)((flag >> 1) & 3);
 	mMainThreadPriority = hdr->main_thread_priority();
-	mMainThreadCoreNumber = hdr->main_thread_core_number();
+	mMainThreadCpuId = hdr->main_thread_cpu_id();
 	mVersion = hdr->version();
 	mMainThreadStackSize = hdr->main_thread_stack_size();
 	mName = std::string(hdr->name(), kNameMaxLen);
+	if (mName[0] == '\0')
+	{
+		mName.clear();
+	}
 	mProductCode = std::string(hdr->product_code(), kProductCodeMaxLen);
+	if (mProductCode[0] == '\0')
+	{
+		mProductCode.clear();
+	}
 	mAciPos.offset = hdr->aci().offset();
 	mAciPos.size = hdr->aci().size();
 	mAcidPos.offset = hdr->acid().offset();
@@ -157,7 +148,19 @@ void nx::NpdmHeader::importBinary(const u8 * bytes, size_t len)
 
 void nx::NpdmHeader::clear()
 {
-	clearVariables();
+	mBinaryBlob.clear();
+	mInstructionType = INSTR_64BIT;
+	mProcAddressSpaceType = ADDR_SPACE_64BIT;
+	mMainThreadPriority = 0;
+	mMainThreadCpuId = 0;
+	mVersion = 0;
+	mMainThreadStackSize = 0;
+	mName.clear();
+	mProductCode.clear();
+	mAciPos.offset = 0;
+	mAciPos.size = 0;
+	mAcidPos.offset = 0;
+	mAcidPos.size = 0;
 }
 
 size_t nx::NpdmHeader::getNpdmSize() const
@@ -200,14 +203,14 @@ void nx::NpdmHeader::setMainThreadPriority(u8 priority)
 	mMainThreadPriority = priority;
 }
 
-u8 nx::NpdmHeader::getMainThreadCoreNumber() const
+u8 nx::NpdmHeader::getMainThreadCpuId() const
 {
-	return mMainThreadCoreNumber;
+	return mMainThreadCpuId;
 }
 
-void nx::NpdmHeader::setMainThreadCoreNumber(u8 core_num)
+void nx::NpdmHeader::setMainThreadCpuId(u8 core_num)
 {
-	mMainThreadCoreNumber = core_num;
+	mMainThreadCpuId = core_num;
 }
 
 u32 nx::NpdmHeader::getVersion() const
@@ -265,7 +268,7 @@ const nx::NpdmHeader::sSection & nx::NpdmHeader::getAciPos() const
 	return mAciPos;
 }
 
-void nx::NpdmHeader::setSetAciSize(size_t size)
+void nx::NpdmHeader::setAciSize(size_t size)
 {
 	mAciPos.size = size;
 }
@@ -275,7 +278,7 @@ const nx::NpdmHeader::sSection & nx::NpdmHeader::getAcidPos() const
 	return mAcidPos;
 }
 
-void nx::NpdmHeader::setSetAcidSize(size_t size)
+void nx::NpdmHeader::setAcidSize(size_t size)
 {
 	mAcidPos.size = size;
 }

@@ -3,7 +3,9 @@
 
 
 nx::AciBinary::AciBinary()
-{}
+{
+	clear();
+}
 
 nx::AciBinary::AciBinary(const AciBinary & other)
 {

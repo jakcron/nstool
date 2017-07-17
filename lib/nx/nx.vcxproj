@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AciBinary.h" />
+    <ClInclude Include="AcidBinary.h" />
     <ClInclude Include="AciHeader.h" />
     <ClInclude Include="FacBinary.h" />
     <ClInclude Include="FacHeader.h" />
@@ -39,6 +40,7 @@
     <ClInclude Include="MiscFlagsHandler.h" />
     <ClInclude Include="MiscParamsEntry.h" />
     <ClInclude Include="MiscParamsHandler.h" />
+    <ClInclude Include="NpdmBinary.h" />
     <ClInclude Include="NpdmHeader.h" />
     <ClInclude Include="NcaHeader.h" />
     <ClInclude Include="NXCrypto.h" />
@@ -51,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AciBinary.cpp" />
+    <ClCompile Include="AcidBinary.cpp" />
     <ClCompile Include="AciHeader.cpp" />
     <ClCompile Include="FacBinary.cpp" />
     <ClCompile Include="FacHeader.cpp" />
@@ -68,6 +71,7 @@
     <ClCompile Include="MiscFlagsHandler.cpp" />
     <ClCompile Include="MiscParamsEntry.cpp" />
     <ClCompile Include="MiscParamsHandler.cpp" />
+    <ClCompile Include="NpdmBinary.cpp" />
     <ClCompile Include="NpdmHeader.cpp" />
     <ClCompile Include="NcaHeader.cpp" />
     <ClCompile Include="SacBinary.cpp" />

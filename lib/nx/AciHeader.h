@@ -63,24 +63,25 @@ namespace nx
 		void setProgramId(u64 program_id);
 		
 		// ACID only
-		u32 getAcidVersion() const;
-		void setAcidVersion(u32 version);
 		size_t getAcidSize() const;
-		void setAcidSize(size_t size);
+		//void setAcidSize(size_t size);
 		u64 getProgramIdMin() const;
 		void setProgramIdMin(u64 program_id);
 		u64 getProgramIdMax() const;
 		void setProgramIdMax(u64 program_id);
 
 		// ACID & ACI0
+		void setHeaderOffset(size_t offset);
 		AciType getAciType() const;
 		void setAciType(AciType type);
+		u32 getFormatVersion() const;
+		void setFormatVersion(u32 version);
 		const sSection& getFacPos() const;
-		void setFacSize(u32 size);
+		void setFacSize(size_t size);
 		const sSection& getSacPos() const;
-		void setSacSize(u32 size);
+		void setSacSize(size_t size);
 		const sSection& getKcPos() const;
-		void setKcSize(u32 size);
+		void setKcSize(size_t size);
 
 	private:
 		const std::string kModuleName = "ACI_HEADER";
@@ -94,8 +95,8 @@ namespace nx
 		private:
 			u8 signature_[4];
 			u32 size_; // includes prefacing signature, set only in ACID since it is signed
+			u8 reserved_0[4];
 			u32 version_; // set in ACID only, v0 has size, but no pid range, v1 has no size by pid range
-			u8 reserved_1[4];
 			u64 program_id_; // set only in ACI0 (since ACID is generic)
 			u64 program_id_max_;
 			struct sAciSection
@@ -109,7 +110,7 @@ namespace nx
 
 				u32 size() const { return le_word(size_); }
 				void set_size(u32 size) { size_ = le_word(size); }
-			} fac_, sac_, kc_, reserved_3;
+			} fac_, sac_, kc_;
 		public:
 			const char* signature() const { return (const char*)signature_; }
 			void set_signature(const char* signature) { memcpy(signature_, signature, 4); }
@@ -147,16 +148,15 @@ namespace nx
 		u64 mProgramId;
 
 		// ACID variables
-		u32 mAcidVersion;
 		size_t mAcidSize;
 		u64 mProgramIdMin;
 		u64 mProgramIdMax;
 
 		// ACI(D) variables
+		size_t mHeaderOffset;
 		AciType mType;
+		u32 mFormatVersion;
 		sSection mFac, mSac, mKc;
-
-		void clearVariables();
 		void calculateSectionOffsets();
 		bool isEqual(const AciHeader& other) const;
 		void copyFrom(const AciHeader& other);

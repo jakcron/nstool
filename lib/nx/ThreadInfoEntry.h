@@ -10,7 +10,7 @@ namespace nx
 	public:
 		ThreadInfoEntry();
 		ThreadInfoEntry(const KernelCapability& kernel_cap);
-		ThreadInfoEntry(u8 min_priority, u8 max_priority, u8 min_core_number, u8 max_core_number);
+		ThreadInfoEntry(u8 min_priority, u8 max_priority, u8 min_cpu_id, u8 max_cpu_id);
 
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
@@ -21,10 +21,10 @@ namespace nx
 		void setMinPriority(u8 priority);
 		u8 getMaxPriority() const;
 		void setMaxPriority(u8 priority);
-		u8 getMinCoreNumber() const;
-		void setMinCoreNumber(u8 core_num);
-		u8 getMaxCoreNumber() const;
-		void setMaxCoreNumber(u8 core_num);
+		u8 getMinCpuId() const;
+		void setMinCpuId(u8 cpu_id);
+		u8 getMaxCpuId() const;
+		void setMaxCpuId(u8 cpu_id);
 
 	private:
 		const std::string kModuleName = "THREAD_INFO_ENTRY";
@@ -32,21 +32,21 @@ namespace nx
 		static const u8 kValBits = 6;
 		static const u8 kMaxVal = BIT(kValBits)-1;
 		static const u8 kDefaultPriority = 6;
-		static const u8 kDefaultCoreNumber = 8;
+		static const u8 kDefaultCpuId = 8;
 
 		KernelCapability mCap;
 		u8 mMinPriority;
 		u8 mMaxPriority;
-		u8 mMinCoreNumber;
-		u8 mMaxCoreNumber;
+		u8 mMinCpuId;
+		u8 mMaxCpuId;
 
 		inline void updateCapField()
 		{
 			u32 field = 0;
 			field |= (u32)(mMinPriority & kMaxVal) << (kValBits * 0);
 			field |= (u32)(mMaxPriority & kMaxVal) << (kValBits * 1);
-			field |= (u32)(mMinCoreNumber & kMaxVal) << (kValBits * 2);
-			field |= (u32)(mMaxCoreNumber & kMaxVal) << (kValBits * 3);
+			field |= (u32)(mMinCpuId & kMaxVal) << (kValBits * 2);
+			field |= (u32)(mMaxCpuId & kMaxVal) << (kValBits * 3);
 			mCap.setField(field);
 		}
 
@@ -55,8 +55,8 @@ namespace nx
 			u32 field = mCap.getField();
 			mMinPriority = (field >> (kValBits * 0)) & kMaxVal;
 			mMaxPriority = (field >> (kValBits * 1)) & kMaxVal;
-			mMinCoreNumber = (field >> (kValBits * 2)) & kMaxVal;
-			mMaxCoreNumber = (field >> (kValBits * 3)) & kMaxVal;
+			mMinCpuId = (field >> (kValBits * 2)) & kMaxVal;
+			mMaxCpuId = (field >> (kValBits * 3)) & kMaxVal;
 		}
 	};
 }
