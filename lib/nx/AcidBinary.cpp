@@ -23,12 +23,12 @@ void nx::AcidBinary::clear()
 	mEmbeddedPublicKey = crypto::rsa::sRsa2048Key();
 }
 
-const crypto::rsa::sRsa2048Key & nx::AcidBinary::getPublicKey() const
+const crypto::rsa::sRsa2048Key & nx::AcidBinary::getNcaHeader2RsaKey() const
 {
 	return mEmbeddedPublicKey;
 }
 
-void nx::AcidBinary::setPublicKey(const crypto::rsa::sRsa2048Key & key)
+void nx::AcidBinary::setNcaHeader2RsaKey(const crypto::rsa::sRsa2048Key & key)
 {
 	mEmbeddedPublicKey = key;
 }

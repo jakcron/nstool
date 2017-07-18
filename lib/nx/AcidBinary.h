@@ -32,8 +32,8 @@ namespace nx
 		// variables
 		virtual void clear();
 
-		const crypto::rsa::sRsa2048Key& getPublicKey() const;
-		void setPublicKey(const crypto::rsa::sRsa2048Key& key);
+		const crypto::rsa::sRsa2048Key& getNcaHeader2RsaKey() const;
+		void setNcaHeader2RsaKey(const crypto::rsa::sRsa2048Key& key);
 
 	private:
 		const std::string kModuleName = "ACID_BINARY";

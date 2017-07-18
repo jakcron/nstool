@@ -10,7 +10,6 @@ namespace nx
 		public nx::ISerialiseableBinary
 	{
 	public:
-		// move these enums to NpdmBinary?
 		enum InstructionType
 		{
 			INSTR_32BIT,

@@ -44,12 +44,14 @@
     <ClInclude Include="NpdmHeader.h" />
     <ClInclude Include="NcaHeader.h" />
     <ClInclude Include="NXCrypto.h" />
+    <ClInclude Include="PfsHeader.h" />
     <ClInclude Include="SacBinary.h" />
     <ClInclude Include="SacEntry.h" />
     <ClInclude Include="SystemCallEntry.h" />
     <ClInclude Include="SystemCallHandler.h" />
     <ClInclude Include="ThreadInfoEntry.h" />
     <ClInclude Include="ThreadInfoHandler.h" />
+    <ClInclude Include="XciHeader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AciBinary.cpp" />
@@ -74,12 +76,14 @@
     <ClCompile Include="NpdmBinary.cpp" />
     <ClCompile Include="NpdmHeader.cpp" />
     <ClCompile Include="NcaHeader.cpp" />
+    <ClCompile Include="PfsHeader.cpp" />
     <ClCompile Include="SacBinary.cpp" />
     <ClCompile Include="SacEntry.cpp" />
     <ClCompile Include="SystemCallEntry.cpp" />
     <ClCompile Include="SystemCallHandler.cpp" />
     <ClCompile Include="ThreadInfoEntry.cpp" />
     <ClCompile Include="ThreadInfoHandler.cpp" />
+    <ClCompile Include="XciHeader.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

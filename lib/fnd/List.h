@@ -73,20 +73,45 @@ namespace fnd
 
 		// functions
 		void addElement(const T& element) { mElements.push_back(element); }
-		size_t getIndexOf(const T& element) const
+		size_t getIndexOf(const T& key) const
 		{
 			for (size_t i = 0; i < getSize(); i++)
 			{
-				if (getElement(i) == element) return i;
+				if (getElement(i) == key) return i;
 			}
 
 			throw Exception("LIST", "Element does not exist");
 		}
-		bool hasElement(const T& element) const
+		bool hasElement(const T& key) const
 		{
 			try
 			{
-				getIndexOf(element);
+				getIndexOf(key);
+			} catch (const Exception&)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		// special
+		template <class X>
+		size_t getIndexOf(const X& key) const
+		{
+			for (size_t i = 0; i < getSize(); i++)
+			{
+				if (getElement(i) == key) return i;
+			}
+
+			throw Exception("LIST", "Element does not exist");
+		}
+		template <class X>
+		bool hasElement(const X& key) const
+		{
+			try
+			{
+				getIndexOf(key);
 			} catch (const Exception&)
 			{
 				return false;

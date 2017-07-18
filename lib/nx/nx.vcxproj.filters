@@ -108,6 +108,12 @@
     <ClInclude Include="NpdmBinary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PfsHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XciHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NcaHeader.cpp">
@@ -192,6 +198,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NpdmBinary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PfsHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XciHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
