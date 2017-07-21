@@ -8,6 +8,7 @@
 *.exe
 *.db
 *.opendb
+*.log
 
 /lib/fnd/Debug
 /lib/nx/Debug
