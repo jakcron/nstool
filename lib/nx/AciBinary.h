@@ -2,7 +2,6 @@
 #include <string>
 #include <fnd/memory_blob.h>
 #include <fnd/List.h>
-#include <nx/ISerialiseableBinary.h>
 #include <nx/AciHeader.h>
 #include <nx/FacBinary.h>
 #include <nx/SacBinary.h>

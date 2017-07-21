@@ -2,11 +2,12 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/memory_blob.h>
-#include <nx/ISerialiseableBinary.h>
+#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
-	class AciHeader : public ISerialiseableBinary
+	class AciHeader :
+		public fnd::ISerialiseableBinary
 	{
 	public:
 		enum AciType
@@ -74,8 +75,8 @@ namespace nx
 		void setHeaderOffset(size_t offset);
 		AciType getAciType() const;
 		void setAciType(AciType type);
-		u32 getFormatVersion() const;
-		void setFormatVersion(u32 version);
+		bool isProduction() const;
+		void setIsProduction(bool isProduction);
 		const sSection& getFacPos() const;
 		void setFacSize(size_t size);
 		const sSection& getSacPos() const;
@@ -94,9 +95,9 @@ namespace nx
 		{
 		private:
 			u8 signature_[4];
-			u32 size_; // includes prefacing signature, set only in ACID since it is signed
+			u32 size_; // includes prefacing signature, set only in ACID made by SDK (it enables easy resigning)
 			u8 reserved_0[4];
-			u32 version_; // set in ACID only, v0 has size, but no pid range, v1 has no size by pid range
+			u32 flags_; // set in ACID only
 			u64 program_id_; // set only in ACI0 (since ACID is generic)
 			u64 program_id_max_;
 			struct sAciSection
@@ -118,8 +119,8 @@ namespace nx
 			u32 size() const { return le_word(size_); }
 			void set_size(u32 size) { size_ = le_word(size); }
 
-			u32 version() const { return le_word(version_); }
-			void set_version(u32 version) { version_ = le_word(version); }
+			u32 flags() const { return le_word(flags_); }
+			void set_flags(u32 flags) { flags_ = le_word(flags); }
 
 			u64 program_id() const { return le_dword(program_id_); }
 			void set_program_id(u64 program_id) { program_id_ = le_dword(program_id); }
@@ -155,8 +156,9 @@ namespace nx
 		// ACI(D) variables
 		size_t mHeaderOffset;
 		AciType mType;
-		u32 mFormatVersion;
+		bool mIsProduction;
 		sSection mFac, mSac, mKc;
+
 		void calculateSectionOffsets();
 		bool isEqual(const AciHeader& other) const;
 		void copyFrom(const AciHeader& other);

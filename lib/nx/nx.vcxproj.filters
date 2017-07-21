@@ -27,9 +27,6 @@
     <ClInclude Include="SacEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ISerialiseableBinary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FacHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -29,7 +29,6 @@
     <ClInclude Include="IKernelCapabilityHandler.h" />
     <ClInclude Include="InteruptEntry.h" />
     <ClInclude Include="InteruptHandler.h" />
-    <ClInclude Include="ISerialiseableBinary.h" />
     <ClInclude Include="KcBinary.h" />
     <ClInclude Include="KernelCapability.h" />
     <ClInclude Include="KernelVersionEntry.h" />
@@ -161,6 +160,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

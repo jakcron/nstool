@@ -105,39 +105,23 @@ void AciHeader::exportBinary()
 	hdr->kc().set_offset(mKc.offset);
 	hdr->kc().set_size(mKc.size);
 
-	hdr->set_version(mFormatVersion);
+	u32 flags = 0;
+	if (mIsProduction)
+		flags |= BIT(0);
+
+	hdr->set_flags(flags);
 
 	if (mType == TYPE_ACI0)
 	{
 		// set program
 		hdr->set_program_id(mProgramId);
-		switch (mFormatVersion)
-		{
-			case(0):
-				break;
-			default:
-				throw fnd::Exception(kModuleName, "Unsupported ACI0 version");
-		}
 	}
 	else if (mType == TYPE_ACID)
 	{
-		
-		switch (mFormatVersion)
-		{
-			case(0):
-				mAcidSize = getAciSize();
-				hdr->set_size(mAcidSize);
-				hdr->set_program_id_min(0);
-				hdr->set_program_id_max(0);
-				break;
-			case(1):
-				hdr->set_size(0);
-				hdr->set_program_id_min(mProgramIdMin);
-				hdr->set_program_id_max(mProgramIdMax);
-				break;
-			default:
-				throw fnd::Exception(kModuleName, "Unsupported ACID version");
-		}
+		mAcidSize = getAciSize();
+		hdr->set_size(mAcidSize);
+		hdr->set_program_id_min(mProgramIdMin);
+		hdr->set_program_id_max(mProgramIdMax);	
 	}
 }
 
@@ -172,38 +156,18 @@ void AciHeader::importBinary(const u8 * bytes, size_t len)
 	if (mType == TYPE_ACI0)
 	{
 		mProgramId = hdr->program_id();
-		mFormatVersion = hdr->version();
+		mIsProduction = false;
 		mAcidSize = 0;
 		mProgramIdMin = 0;
 		mProgramIdMax = 0;
-
-		switch (mFormatVersion)
-		{
-			case(0):
-				break;
-			default:
-				throw fnd::Exception(kModuleName, "Unsupported ACI0 version");
-		}
 	}
 	else if (mType == TYPE_ACID)
 	{
 		mProgramId = 0;
-		mFormatVersion = hdr->version();
-		switch (mFormatVersion)
-		{
-			case(0):
-				mAcidSize = hdr->size();
-				mProgramIdMin = 0;
-				mProgramIdMax = 0;
-				break;
-			case(1):
-				mAcidSize = 0;
-				mProgramIdMin = hdr->program_id_min();
-				mProgramIdMax = hdr->program_id_max();
-				break;
-			default:
-				throw fnd::Exception(kModuleName, "Unsupported ACID version");
-		}
+		mIsProduction = (hdr->flags() & BIT(0)) == BIT(0);
+		mAcidSize = hdr->size();
+		mProgramIdMin = hdr->program_id_min();
+		mProgramIdMax = hdr->program_id_max();
 	}
 	
 	// the header offset is the MIN(sac.offset, fac.offset, kc.offset) - sizeof(sHeader)
@@ -219,9 +183,14 @@ void AciHeader::importBinary(const u8 * bytes, size_t len)
 
 void nx::AciHeader::clear()
 {
+	mBinaryBlob.clear();
 	mHeaderOffset = 0;
 	mType = TYPE_ACI0;
 	mProgramId = 0;
+	mProgramIdMin = 0;
+	mProgramIdMax = 0;
+	mAcidSize = 0;
+	mIsProduction = false;
 	mFac.offset = 0;
 	mFac.size = 0;
 	mSac.offset = 0;
@@ -233,16 +202,6 @@ void nx::AciHeader::clear()
 size_t nx::AciHeader::getAciSize() const
 {
 	return MAX(MAX(MAX(mSac.offset + mSac.size, mKc.offset + mKc.size), mFac.offset + mFac.size), sizeof(sAciHeader));
-}
-
-u32 nx::AciHeader::getFormatVersion() const
-{
-	return mFormatVersion;
-}
-
-void nx::AciHeader::setFormatVersion(u32 version)
-{
-	mFormatVersion = version;
 }
 
 size_t nx::AciHeader::getAcidSize() const
@@ -290,6 +249,16 @@ AciHeader::AciType AciHeader::getAciType() const
 void AciHeader::setAciType(AciType type)
 {
 	mType = type;
+}
+
+bool nx::AciHeader::isProduction() const
+{
+	return mIsProduction;
+}
+
+void nx::AciHeader::setIsProduction(bool isProduction)
+{
+	mIsProduction = isProduction;
 }
 
 u64 AciHeader::getProgramId() const

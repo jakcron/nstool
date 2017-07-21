@@ -212,6 +212,8 @@ const std::string kSysCall[0x80] =
 const std::string kMemMapPerm[2] = { "RW", "RO" };
 const std::string kMemMapType[2] = { "Io", "Static" };
  
+const std::string kAcidTarget[2] = { "Development", "Production" };
+
 void displayNpdmHeader(const nx::NpdmHeader& hdr)
 {
 	printf("[NPDM HEADER]\n");
@@ -241,17 +243,12 @@ void displayAciHdr(const nx::AciHeader& aci)
 	}
 	else if (aci.getAciType() == nx::AciBinary::TYPE_ACID)
 	{
-		switch (aci.getFormatVersion())
-		{
-			case (0):
-				printf("  ACID Size:       %" PRIx64 "\n", aci.getAcidSize());
-				break;
-			case (1):
-				printf("  ProgramID Restriction\n");
-				printf("    Min:           %016" PRIx64 "\n", aci.getProgramIdMin());
-				printf("    Max:           %016" PRIx64 "\n", aci.getProgramIdMax());
-				break;
-		}
+
+		printf("  ACID Size:       %" PRIx64 "\n", aci.getAcidSize());
+		printf("  Target:          %s\n", kAcidTarget[aci.isProduction()].c_str());
+		printf("  ProgramID Restriction\n");
+		printf("    Min:           %016" PRIx64 "\n", aci.getProgramIdMin());
+		printf("    Max:           %016" PRIx64 "\n", aci.getProgramIdMax());
 		
 	}
 }

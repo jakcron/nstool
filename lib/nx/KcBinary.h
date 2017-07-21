@@ -3,7 +3,7 @@
 #include <vector>
 #include <fnd/memory_blob.h>
 #include <fnd/List.h>
-#include <nx/ISerialiseableBinary.h>
+#include <fnd/ISerialiseableBinary.h>
 #include <nx/ThreadInfoHandler.h>
 #include <nx/SystemCallHandler.h>
 #include <nx/MemoryMappingHandler.h>
@@ -16,7 +16,7 @@
 namespace nx
 {
 	class KcBinary :
-		public ISerialiseableBinary
+		public fnd::ISerialiseableBinary
 	{
 	public:
 		KcBinary();

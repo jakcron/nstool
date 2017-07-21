@@ -5,11 +5,12 @@
 #include <fnd/List.h>
 #include <crypto/aes.h>
 #include <crypto/sha.h>
-#include <nx/ISerialiseableBinary.h>
+#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
-	class NcaHeader : public ISerialiseableBinary
+	class NcaHeader : 
+		public fnd::ISerialiseableBinary
 	{
 	public:
 		enum DistributionType

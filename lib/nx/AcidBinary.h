@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <fnd/memory_blob.h>
-#include <nx/ISerialiseableBinary.h>
 #include <nx/AciBinary.h>
 #include <crypto/rsa.h>
 

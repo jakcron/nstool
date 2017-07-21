@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/memory_blob.h>
 #include <fnd/List.h>
-#include <nx/ISerialiseableBinary.h>
+#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {

@@ -2,12 +2,12 @@
 #include <string>
 #include <fnd/memory_blob.h>
 #include <fnd/List.h>
-#include <nx/ISerialiseableBinary.h>
+#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
 	class FacHeader :
-		public ISerialiseableBinary
+		public fnd::ISerialiseableBinary
 	{
 	public:
 		enum FsAccessFlag

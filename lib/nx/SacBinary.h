@@ -3,13 +3,13 @@
 #include <vector>
 #include <fnd/memory_blob.h>
 #include <fnd/List.h>
-#include <nx/ISerialiseableBinary.h>
+#include <fnd/ISerialiseableBinary.h>
 #include <nx/SacEntry.h>
 
 namespace nx
 {
 	class SacBinary :
-		public ISerialiseableBinary
+		public fnd::ISerialiseableBinary
 	{
 	public:
 		SacBinary();

@@ -1,4 +1,4 @@
-LIBS = fnd crypto nx
+LIBS = fnd crypto es nx
 main: build
 
 rebuild: clean build

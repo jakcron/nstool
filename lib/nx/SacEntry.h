@@ -2,11 +2,12 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/memory_blob.h>
-#include <nx/ISerialiseableBinary.h>
+#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
-	class SacEntry : public ISerialiseableBinary
+	class SacEntry : 
+		public fnd::ISerialiseableBinary
 	{
 	public:
 		SacEntry();

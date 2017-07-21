@@ -138,7 +138,7 @@ int main(int argc, char** argv)
 		// nca test
 		if (argc == 2 || argc == 3)
 		{
-			decryptNcaSectorXts(nca, sector, 1, crypto::aes::nx::nca_header_key[0], crypto::aes::nx::nca_header_key[1]);
+			decryptNcaSectorXts(nca, sector, 1, crypto::aes::nx::dev::nca_header_key[0], crypto::aes::nx::dev::nca_header_key[1]);
 
 			nx::NcaHeader hdr;
 			hdr.importBinary(sector, kNcaSectorSize);
@@ -192,6 +192,19 @@ int main(int argc, char** argv)
 #endif
 				}
 			}
+		}
+		if (argc == 4)
+		{
+			printf("encrypt test\n");
+			u8 sect[kNcaSectorSize] = { 0 };
+			u8 enc_sect[kNcaSectorSize * 6];
+			u8 tweak[crypto::aes::kAesBlockSize];
+			for (size_t i = 0; i < 6; i++)
+			{
+				crypto::aes::AesXtsMakeTweak(tweak, i);
+				crypto::aes::AesXtsEncryptSector(sect, kNcaSectorSize, crypto::aes::nx::dev::nca_header_key[0], crypto::aes::nx::dev::nca_header_key[1], tweak, enc_sect + i*kNcaSectorSize);
+			}
+			fnd::io::writeFile("testenc.bin", enc_sect, kNcaSectorSize * 6);
 		}
 		
 	} catch (const fnd::Exception& e)
