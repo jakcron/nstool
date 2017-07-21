@@ -20,14 +20,22 @@ void crypto::aes::AesEcbDecrypt(const uint8_t * in, uint64_t size, const uint8_t
 {
 	aes_context ctx;
 	aes_setkey_dec(&ctx, key, 128);
-	aes_crypt_ecb(&ctx, AES_DECRYPT, in, out);
+	
+	for (size_t i = 0; i < size / kAesBlockSize; i++)
+	{
+		aes_crypt_ecb(&ctx, AES_DECRYPT, in + kAesBlockSize * i, out + kAesBlockSize * i);
+	}
+	
 }
 
 void crypto::aes::AesEcbEncrypt(const uint8_t * in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t * out)
 {
 	aes_context ctx;
 	aes_setkey_enc(&ctx, key, 128);
-	aes_crypt_ecb(&ctx, AES_ENCRYPT, in, out);
+	for (size_t i = 0; i < size / kAesBlockSize; i++)
+	{
+		aes_crypt_ecb(&ctx, AES_ENCRYPT, in + kAesBlockSize * i, out + kAesBlockSize * i);
+	}
 }
 
 void crypto::aes::AesCtr(const uint8_t* in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t ctr[kAesBlockSize], uint8_t* out)
@@ -86,12 +94,11 @@ void crypto::aes::AesCbcEncrypt(const uint8_t* in, uint64_t size, const uint8_t 
 
 void crypto::aes::AesXtsDecryptSector(const uint8_t * in, uint64_t sector_size, const uint8_t key1[kAes128KeySize], const uint8_t key2[kAes128KeySize], uint8_t tweak[kAesBlockSize], uint8_t * out)
 {
-	aes_context data_ctx, tweak_ctx;
+	aes_context data_ctx;
 	aes_setkey_dec(&data_ctx, key1, 128);
-	aes_setkey_enc(&tweak_ctx, key2, 128);
 
 	uint8_t enc_tweak[kAesBlockSize];
-	aes_crypt_ecb(&tweak_ctx, AES_ENCRYPT, tweak, enc_tweak);
+	AesEcbEncrypt(tweak, kAesBlockSize, key2, enc_tweak);
 
 	size_t block_num = sector_size / kAesBlockSize;
 	uint8_t block[kAesBlockSize];
@@ -111,12 +118,11 @@ void crypto::aes::AesXtsDecryptSector(const uint8_t * in, uint64_t sector_size, 
 
 void crypto::aes::AesXtsEncryptSector(const uint8_t * in, uint64_t sector_size, const uint8_t key1[kAes128KeySize], const uint8_t key2[kAes128KeySize], uint8_t tweak[kAesBlockSize], uint8_t * out)
 {
-	aes_context data_ctx, tweak_ctx;
+	aes_context data_ctx;
 	aes_setkey_enc(&data_ctx, key1, 128);
-	aes_setkey_enc(&tweak_ctx, key2, 128);
 
 	uint8_t enc_tweak[kAesBlockSize];
-	aes_crypt_ecb(&tweak_ctx, AES_ENCRYPT, tweak, enc_tweak);
+	AesEcbEncrypt(tweak, kAesBlockSize, key2, enc_tweak);
 
 	size_t block_num = sector_size / kAesBlockSize;
 	uint8_t block[kAesBlockSize];
@@ -134,7 +140,7 @@ void crypto::aes::AesXtsEncryptSector(const uint8_t * in, uint64_t sector_size, 
 	}
 }
 
-void crypto::aes::AesXtsMakeTweak(uint8_t tweak[kAesBlockSize], uint64_t block_index)
+void crypto::aes::AesXtsMakeTweak(uint8_t tweak[kAesBlockSize], size_t block_index)
 {
 	memset(tweak, 0, kAesBlockSize);
 	AesIncrementCounter(tweak, block_index, tweak);

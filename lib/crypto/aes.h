@@ -74,7 +74,7 @@ namespace aes
 
 	void AesXtsDecryptSector(const uint8_t* in, uint64_t sector_size, const uint8_t key1[kAes128KeySize], const uint8_t key2[kAes128KeySize], uint8_t tweak[kAesBlockSize], uint8_t* out);
 	void AesXtsEncryptSector(const uint8_t* in, uint64_t sector_size, const uint8_t key1[kAes128KeySize], const uint8_t key2[kAes128KeySize], uint8_t tweak[kAesBlockSize], uint8_t* out);
-	void AesXtsMakeTweak(uint8_t tweak[kAesBlockSize], uint64_t block_index);
+	void AesXtsMakeTweak(uint8_t tweak[kAesBlockSize], size_t block_index);
 
 	void GaloisFunc(uint8_t x[kAesBlockSize]);
 }
