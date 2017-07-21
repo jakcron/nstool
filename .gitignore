@@ -2,14 +2,13 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/*
+/.vs
 *.a
 *.o
 *.exe
 *.db
 *.opendb
 *.log
-
-/lib/fnd/Debug
-/lib/nx/Debug
+/bin/*
+/*/*/Debug
 /sample
