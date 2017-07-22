@@ -1,4 +1,4 @@
-PROGS = ncatool npdmtool pfstool
+PROGS = ncatool npdmtool pfstool tiktool
 
 main: build
 

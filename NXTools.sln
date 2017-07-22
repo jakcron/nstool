@@ -12,6 +12,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncatool", "programs\ncatool\ncatool.vcxproj", "{7DA88C6F-4470-495D-995A-4F633F3370C1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{170B4A09-1B67-4A62-93AB-116EBCFF4A8C}"
+	ProjectSection(SolutionItems) = preProject
+		lib\makefile = lib\makefile
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "npdmtool", "programs\npdmtool\npdmtool.vcxproj", "{550C6AC3-EBE0-46CA-AE6C-EEEB59DDF35C}"
 EndProject
@@ -24,9 +27,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		makefile = makefile
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pfstool", "programs\pfstool\pfstool.vcxproj", "{BC2F2D07-BAB3-469C-9C25-8CC54F96F7AB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libes", "lib\es\es.vcxproj", "{7BE99936-0D40-410D-944B-4513C2EFF8DC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tiktool", "programs\tiktool\tiktool.vcxproj", "{2200B834-F15A-4C6E-9DDB-6012B9A5C246}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +92,22 @@ Global
 		{BC2F2D07-BAB3-469C-9C25-8CC54F96F7AB}.Release|x64.Build.0 = Release|x64
 		{BC2F2D07-BAB3-469C-9C25-8CC54F96F7AB}.Release|x86.ActiveCfg = Release|Win32
 		{BC2F2D07-BAB3-469C-9C25-8CC54F96F7AB}.Release|x86.Build.0 = Release|Win32
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC}.Debug|x64.ActiveCfg = Debug|x64
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC}.Debug|x64.Build.0 = Debug|x64
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC}.Debug|x86.ActiveCfg = Debug|Win32
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC}.Debug|x86.Build.0 = Debug|Win32
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC}.Release|x64.ActiveCfg = Release|x64
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC}.Release|x64.Build.0 = Release|x64
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC}.Release|x86.ActiveCfg = Release|Win32
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC}.Release|x86.Build.0 = Release|Win32
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Debug|x64.ActiveCfg = Debug|x64
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Debug|x64.Build.0 = Debug|x64
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Debug|x86.ActiveCfg = Debug|Win32
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Debug|x86.Build.0 = Debug|Win32
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Release|x64.ActiveCfg = Release|x64
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Release|x64.Build.0 = Release|x64
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Release|x86.ActiveCfg = Release|Win32
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,5 +119,7 @@ Global
 		{7DA88C6F-4470-495D-995A-4F633F3370C1} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
 		{550C6AC3-EBE0-46CA-AE6C-EEEB59DDF35C} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
 		{BC2F2D07-BAB3-469C-9C25-8CC54F96F7AB} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
+		{7BE99936-0D40-410D-944B-4513C2EFF8DC} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
+		{2200B834-F15A-4C6E-9DDB-6012B9A5C246} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
 	EndGlobalSection
 EndGlobal
