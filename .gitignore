@@ -12,6 +12,7 @@
 /bin/*
 /*/*/Debug
 /*/*/x64
+/*/*/bin
 /x64
 /Debug
 /test
