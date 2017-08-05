@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\crypto">
+      <UniqueIdentifier>{c24d0e3f-1a38-486c-9bad-b7db5b39eee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\polarssl">
+      <UniqueIdentifier>{50821199-d06b-4e82-b424-3f17b60f1a9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\polarssl">
+      <UniqueIdentifier>{012a6f22-d10a-4ca3-b7c3-4c31c6ff1cc1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\crypto\aes.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="include\crypto\AesCtrStream.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="include\crypto\rsa.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="include\crypto\sha.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\aes.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\base64.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\bignum.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\bn_mul.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\config.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\rsa.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\sha1.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\sha2.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\aes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\AesCtrStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\rsa.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\libpolarssl\source\polar_aes.c">
+      <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\libpolarssl\source\polar_base64.c">
+      <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\libpolarssl\source\polar_bignum.c">
+      <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\libpolarssl\source\polar_rsa.c">
+      <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\libpolarssl\source\polar_sha2.c">
+      <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\libpolarssl\source\polar_sha1.c">
+      <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
+</Project>

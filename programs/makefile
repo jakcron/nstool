@@ -1,13 +1,14 @@
 PROGS = ncatool npdmtool pfstool tiktool
+BIN_DIR = "../bin"
 
 main: build
 
 rebuild: clean build
 
 build:
-	mkdir -p "../bin"
-	@$(foreach prog,$(PROGS), cd $(prog) && $(MAKE) && cd ..;)
+	mkdir -p $(BIN_DIR)
+	@$(foreach prog,$(PROGS), cd $(prog) && $(MAKE) && cd .. && cp -r $(prog)/bin/* $(BIN_DIR);)
 
 clean:
 	@$(foreach prog,$(PROGS), cd $(prog) && $(MAKE) clean && cd ..;)
-	#rm -rf "../bin"
+	rm -rf $(BIN_DIR)
