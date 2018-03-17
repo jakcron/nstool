@@ -8,15 +8,15 @@ void NcaHeader::exportBinary()
 	mBinaryBlob.alloc(sizeof(sNcaHeader));
 	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
-	hdr->set_signature(kNcaSig.c_str());
-	hdr->set_distribution_type(mDistributionType);
-	hdr->set_content_type(mContentType);
-	hdr->set_key_generation(mEncryptionType);
-	hdr->set_key_area_encryption_key_index(mKeyIndex);
-	hdr->set_nca_size(mNcaSize);
-	hdr->set_program_id(mProgramId);
-	hdr->set_content_index(mContentIndex);
-	hdr->set_sdk_addon_version(mSdkAddonVersion);
+	strncpy(hdr->signature, kNcaSig.c_str(), 4);
+	hdr->distribution_type = mDistributionType;
+	hdr->content_type = mContentType;
+	hdr->key_generation = mEncryptionType;
+	hdr->key_area_encryption_key_index = mKeyIndex;
+	hdr->nca_size = mNcaSize;
+	hdr->program_id = mProgramId;
+	hdr->content_index = mContentIndex;
+	hdr->sdk_addon_version = mSdkAddonVersion;
 
 	// TODO: properly reconstruct NCA layout? atm in hands of user
 
@@ -25,15 +25,15 @@ void NcaHeader::exportBinary()
 		// determine section index
 		u8 section = mSections.getSize() - 1 - i;
 
-		hdr->section(section).set_start(sizeToBlockNum(mSections[i].offset));
-		hdr->section(section).set_end(sizeToBlockNum(mSections[i].offset) + sizeToBlockNum(mSections[i].size));
-		hdr->section(section).set_enabled(1);
-		hdr->section_hash(section) = mSections[i].hash;
+		hdr->section[section].start = sizeToBlockNum(mSections[i].offset);
+		hdr->section[section].end = (sizeToBlockNum(mSections[i].offset) + sizeToBlockNum(mSections[i].size));
+		hdr->section[section].enabled = true;
+		hdr->section_hash[section] = mSections[i].hash;
 	}
 
 	for (size_t i = 0; i < kAesKeyNum; i++)
 	{
-		hdr->enc_aes_key(i) = mEncAesKeys[i];
+		hdr->enc_aes_key[i] = mEncAesKeys[i];
 	}
 }
 
@@ -51,19 +51,19 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 
 	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
-	if (memcmp(hdr->signature(), kNcaSig.c_str(), 4) != 0)
+	if (memcmp(hdr->signature, kNcaSig.c_str(), 4) != 0)
 	{
 		throw fnd::Exception(kModuleName, "NCA header corrupt");
 	}
 
-	mDistributionType = (DistributionType)hdr->distribution_type();
-	mContentType = (ContentType)hdr->content_type();
-	mEncryptionType = (EncryptionType)hdr->key_generation();
-	mKeyIndex = (EncryptionKeyIndex)hdr->key_area_encryption_key_index();
-	mNcaSize = hdr->nca_size();
-	mProgramId = hdr->program_id();
-	mContentIndex = hdr->content_index();
-	mSdkAddonVersion = hdr->sdk_addon_version();
+	mDistributionType = (DistributionType)hdr->distribution_type;
+	mContentType = (ContentType)hdr->content_type;
+	mEncryptionType = (EncryptionType)hdr->key_generation;
+	mKeyIndex = (EncryptionKeyIndex)hdr->key_area_encryption_key_index;
+	mNcaSize = *hdr->nca_size;
+	mProgramId = *hdr->program_id;
+	mContentIndex = *hdr->content_index;
+	mSdkAddonVersion = *hdr->sdk_addon_version;
 
 	for (size_t i = 0; i < kSectionNum; i++)
 	{
@@ -71,7 +71,7 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 		u8 section = kSectionNum - 1 - i;
 
 		// skip sections that don't exist
-		if (hdr->section(section).start() == 0 && hdr->section(section).end() == 0) continue;
+		if (*hdr->section[section].start == 0 && *hdr->section[section].end == 0) continue;
 
 		EncryptionType encType = mEncryptionType;
 		if (encType == CRYPT_AUTO)
@@ -87,12 +87,12 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 		}
 
 		// add high level struct
-		mSections.addElement({ blockNumToSize(hdr->section(section).start()), blockNumToSize(hdr->section(section).end() - hdr->section(section).start()), encType, hdr->section_hash(section) });
+		mSections.addElement({ blockNumToSize(*hdr->section[section].start), blockNumToSize(hdr->section[section].end.get() - hdr->section[section].start.get()), encType, hdr->section_hash[section] });
 	}
 
 	for (size_t i = 0; i < kAesKeyNum; i++)
 	{
-		mEncAesKeys.addElement(hdr->enc_aes_key(i));
+		mEncAesKeys.addElement(hdr->enc_aes_key[i]);
 	}
 }
 
