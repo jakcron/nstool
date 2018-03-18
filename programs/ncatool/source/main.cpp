@@ -13,6 +13,7 @@
 
 const size_t kNcaSectorSize = nx::NcaHeader::kBlockSize;
 
+inline size_t sectorToOffset(size_t sector_index) { return sector_index * kNcaSectorSize; }
 
 void initNcaCtr(u8 ctr[crypto::aes::kAesBlockSize], u32 generation)
 {
@@ -36,6 +37,25 @@ void xorData(const u8* a, const u8* b, u8* out, size_t len)
 	for (size_t i = 0; i < len; i++)
 	{
 		out[i] = a[i] ^ b[i];
+	}
+}
+
+void decryptNcaHeader(byte_t header[0xc00], const u8* key1, const u8* key2)
+{
+	byte_t tweak[crypto::aes::kAesBlockSize];
+
+	// decrypt main header
+	byte_t raw_hdr[kNcaSectorSize];
+	nx::NcaHeader hdr;
+	crypto::aes::AesXtsMakeTweak(tweak, 1);
+	crypto::aes::AesXtsDecryptSector(header + sectorToOffset(1), kNcaSectorSize, key1, key2, tweak, raw_hdr);
+	hdr.importBinary(raw_hdr, kNcaSectorSize);
+
+	// decrypt whole header
+	for (size_t i = 0; i < 6; i++)
+	{
+		crypto::aes::AesXtsMakeTweak(tweak, (i > 1 && hdr.getFormatVersion() == nx::NcaHeader::NCA2_FORMAT)? 0 : i);
+		crypto::aes::AesXtsDecryptSector(header + sectorToOffset(i), kNcaSectorSize, key1, key2, tweak, header + sectorToOffset(i));
 	}
 }
 
@@ -97,6 +117,12 @@ void dumpHxdStyleSector(u8* out, size_t len)
 	*/
 }
 
+std::string kFormatVersionStr[]
+{
+	"NCA2",
+	"NCA3"
+};
+
 std::string kDistributionTypeStr[]
 {
 	"Download",
@@ -116,9 +142,53 @@ std::string kEncryptionTypeStr[]
 {
 	"Auto",
 	"None",
-	"UNKNOWN_2",
-	"AesCtr"
+	"AesXts",
+	"AesCtr",
+	"BKTR"
 };
+
+std::string kHashTypeStr[]
+{
+	"Auto",
+	"UNKNOWN_1",
+	"HierarchicalSha256",
+	"HierarchicalIntegrity"
+};
+
+std::string kFormatTypeStr[]
+{
+	"RomFs",
+	"PartitionFs"
+};
+
+std::string kKaekIndexStr[]
+{
+	"Application",
+	"Ocean",
+	"System"
+};
+
+enum EncryptionType
+{
+	CRYPT_AUTO,
+	CRYPT_NONE,
+	CRYPT_AESXTS,
+	CRYPT_AESCTR,
+	CRYPT_BKTR
+};
+
+#pragma pack(push,1)
+struct sNcaFsHeader
+{
+	le_uint16_t version; // usually 0x0002
+	byte_t format_type; // RomFs(0x00), PartitionFs(0x01)
+	byte_t hash_type; // HashTypeAuto(0x00), HashTypeHierarchicalSha256(0x02), HashTypeHierarchicalIntegrity(0x03).RomFs uses (0x03) this is forced, PartitionFs uses (0x02).
+	byte_t encryption_type; // EncryptionTypeAuto(0x00), EncryptionTypeNone(0x01), EncryptionTypeAesCtr(0x03)
+	byte_t reserved[3];
+};
+#pragma pack(pop)
+
+
 
 int main(int argc, char** argv)
 {
@@ -133,25 +203,45 @@ int main(int argc, char** argv)
 		fnd::MemoryBlob nca;
 		fnd::io::readFile(argv[1], nca);
 
-		u8 sector[kNcaSectorSize];
+		decryptNcaHeader(nca.getBytes(), crypto::aes::nx::dev::nca_header_key[0], crypto::aes::nx::dev::nca_header_key[1]);
+		//dumpHxdStyleSector(nca.getBytes(), 0xc00);
+
+		//u8 sector[kNcaSectorSize];
 
 		// nca test
 		if (argc == 2 || argc == 3)
 		{
-			decryptNcaSectorXts(nca, sector, 1, crypto::aes::nx::dev::nca_header_key[0], crypto::aes::nx::dev::nca_header_key[1]);
+			//decryptNcaSectorXts(nca, sector, 1, crypto::aes::nx::dev::nca_header_key[0], crypto::aes::nx::dev::nca_header_key[1]);
 
 			nx::NcaHeader hdr;
-			hdr.importBinary(sector, kNcaSectorSize);
+			hdr.importBinary(nca.getBytes() + sectorToOffset(1), kNcaSectorSize);
 
 			printf("[NCA Header]\n");
+			printf("  Format Type:     %s\n", kFormatVersionStr[hdr.getFormatVersion()].c_str());
 			printf("  Dist. Type:      %s\n", kDistributionTypeStr[hdr.getDistributionType()].c_str());
 			printf("  Type:            %s\n", kContentTypeStr[hdr.getContentType()].c_str());
-			printf("  Enc. Type:       %s\n", kEncryptionTypeStr[hdr.getEncryptionType()].c_str());
-			printf("  KeyIndex:        %d\n", hdr.getKeyIndex());
+			printf("  Crypto Type:     %d\n", hdr.getCryptoType());
+			printf("  Kaek Index:      %s (%d)\n", kKaekIndexStr[hdr.getKaekIndex()].c_str(), hdr.getKaekIndex());
 			printf("  Size:            0x%" PRIx64 "\n", hdr.getNcaSize());
 			printf("  ProgID:          0x%016" PRIx64 "\n", hdr.getProgramId());
 			printf("  Content. Idx:    %" PRIu32 "\n", hdr.getContentIndex());
-			printf("  SdkAddon Ver.:   v%" PRIu32 "\n", hdr.getSdkAddonVersion());
+			uint32_t ver = hdr.getSdkAddonVersion();
+			printf("  SdkAddon Ver.:   v%d.%d.%d.%d (v%" PRIu32 ")\n", (ver>>24 & 0xff),(ver>>16 & 0xff),(ver>>8 & 0xff),(ver>>0 & 0xff), ver);
+			printf("  Encrypted Key Area:\n");
+			for (size_t i = 0; i < hdr.getEncAesKeys().getSize(); i++)
+			{
+				printf("    %lu: ", i);
+				hexDump(hdr.getEncAesKeys()[i].key, crypto::aes::kAes128KeySize);
+				printf("\n");
+				/*
+				byte_t key[crypto::aes::kAes128KeySize];
+				crypto::aes::AesEcbDecrypt(hdr.getEncAesKeys()[i].key, crypto::aes::kAes128KeySize, crypto::aes::nx::dev::key_area_encryption_key_0, key);
+				printf("    dec: ", i);
+				hexDump(key, crypto::aes::kAes128KeySize);
+				printf("\n");
+				*/
+			}
+			
 			printf("  Sections:\n");
 			for (size_t i = 0; i < hdr.getSections().getSize(); i++)
 			{
@@ -161,19 +251,41 @@ int main(int argc, char** argv)
 				//printf("      End Blk:   %" PRId32 "\n", section.end_blk);
 				printf("      Offset:      0x%" PRIx64 "\n", section.offset);
 				printf("      Size:        0x%" PRIx64 "\n", section.size);
-				printf("      Enc. Type:   %s\n", kEncryptionTypeStr[section.enc_type].c_str());
+				
+
+				size_t sector_index = 1 + (hdr.getSections().getSize() - i);
+
+				byte_t hash[crypto::sha::kSha256HashLen];
+				crypto::sha::Sha256(nca.getBytes() + sectorToOffset(sector_index), kNcaSectorSize, hash);
+				if (section.hash.compare(hash) == false)
+				{
+					//throw fnd::Exception("ncatool", "NcaFsHeader has bad sha256 hash");
+				}
+
+				const sNcaFsHeader* fsHdr = (const sNcaFsHeader*)(nca.getBytes() + sectorToOffset(sector_index));
+				printf("      FsHeader:\n");
+				printf("        Version:     0x%d\n", fsHdr->version.get());
+				printf("        Format Type: %s\n", kFormatTypeStr[fsHdr->format_type].c_str());
+				printf("        Hash Type:   %s\n", kHashTypeStr[fsHdr->hash_type].c_str());
+				printf("        Enc. Type:   %s\n", kEncryptionTypeStr[fsHdr->encryption_type].c_str());
+				/*
 				printf("      Hash:        ");
 				hexDump(section.hash.bytes, crypto::sha::kSha256HashLen);
 				printf("\n");
-			}
-			printf("  Encrypted Body Keys:\n");
-			for (size_t i = 0; i < hdr.getEncAesKeys().getSize(); i++)
-			{
-				printf("    %lu: ", i);
-				hexDump(hdr.getEncAesKeys()[i].key, crypto::aes::kAes128KeySize);
+				byte_t hash[crypto::sha::kSha256HashLen];
+				crypto::sha::Sha256(nca.getBytes() + sectorToOffset(sector_index), kNcaSectorSize, hash);
+				printf("      Hash:        ");
+				hexDump(hash, crypto::sha::kSha256HashLen);
 				printf("\n");
-			}
+				*/
+				//dumpHxdStyleSector(nca.getBytes() + sectorToOffset(sector_index), 0x10);
 
+			}
+			
+
+			
+
+#ifdef USE_OLD_CODE
 			if (argc == 3)
 			{
 #ifdef _WIN32
@@ -203,7 +315,8 @@ int main(int argc, char** argv)
 				dumpNcaSector(sect);
 			}
 		}
-		
+#endif
+		}
 	} catch (const fnd::Exception& e)
 	{
 		printf("%s\n",e.what());

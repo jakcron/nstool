@@ -8,15 +8,27 @@ void NcaHeader::exportBinary()
 	mBinaryBlob.alloc(sizeof(sNcaHeader));
 	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
-	strncpy(hdr->signature, kNcaSig.c_str(), 4);
+	
+	switch(mFormatVersion)
+	{
+	case (NCA2_FORMAT):
+		strncpy(hdr->signature, kNca2Sig.c_str(), 4);
+		break;
+	case (NCA3_FORMAT):
+		strncpy(hdr->signature, kNca3Sig.c_str(), 4);
+		break;
+	default:
+		throw fnd::Exception(kModuleName, "Unsupported format version");
+	}
 	hdr->distribution_type = mDistributionType;
 	hdr->content_type = mContentType;
-	hdr->key_generation = mEncryptionType;
-	hdr->key_area_encryption_key_index = mKeyIndex;
+	hdr->crypto_type = mCryptoType;
+	hdr->key_area_encryption_key_index = mKaekIndex;
 	hdr->nca_size = mNcaSize;
 	hdr->program_id = mProgramId;
 	hdr->content_index = mContentIndex;
 	hdr->sdk_addon_version = mSdkAddonVersion;
+	hdr->crypto_type_2 = 0;
 
 	// TODO: properly reconstruct NCA layout? atm in hands of user
 
@@ -51,15 +63,23 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 
 	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
-	if (memcmp(hdr->signature, kNcaSig.c_str(), 4) != 0)
+	if (memcmp(hdr->signature, kNca2Sig.c_str(), 4) == 0)
+	{
+		mFormatVersion = NCA2_FORMAT;
+	}
+	else if (memcmp(hdr->signature, kNca3Sig.c_str(), 4) == 0)
+	{
+		mFormatVersion = NCA3_FORMAT;
+	}
+	else
 	{
 		throw fnd::Exception(kModuleName, "NCA header corrupt");
 	}
 
 	mDistributionType = (DistributionType)hdr->distribution_type;
 	mContentType = (ContentType)hdr->content_type;
-	mEncryptionType = (EncryptionType)hdr->key_generation;
-	mKeyIndex = (EncryptionKeyIndex)hdr->key_area_encryption_key_index;
+	mCryptoType = MAX(hdr->crypto_type, hdr->crypto_type_2);
+	mKaekIndex = hdr->key_area_encryption_key_index;
 	mNcaSize = *hdr->nca_size;
 	mProgramId = *hdr->program_id;
 	mContentIndex = *hdr->content_index;
@@ -73,21 +93,8 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 		// skip sections that don't exist
 		if (*hdr->section[section].start == 0 && *hdr->section[section].end == 0) continue;
 
-		EncryptionType encType = mEncryptionType;
-		if (encType == CRYPT_AUTO)
-		{
-			if (mContentType == TYPE_PROGRAM && section == SECTION_LOGO)
-			{
-				encType = CRYPT_NONE;
-			}
-			else
-			{
-				encType = CRYPT_AESCTR;
-			}
-		}
-
 		// add high level struct
-		mSections.addElement({ blockNumToSize(*hdr->section[section].start), blockNumToSize(hdr->section[section].end.get() - hdr->section[section].start.get()), encType, hdr->section_hash[section] });
+		mSections.addElement({ blockNumToSize(*hdr->section[section].start), blockNumToSize(hdr->section[section].end.get() - hdr->section[section].start.get()), hdr->section_hash[section] });
 	}
 
 	for (size_t i = 0; i < kAesKeyNum; i++)
@@ -98,16 +105,27 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 
 void nx::NcaHeader::clear()
 {
+	mFormatVersion = NCA3_FORMAT;
 	mDistributionType = DIST_DOWNLOAD;
 	mContentType = TYPE_PROGRAM;
-	mEncryptionType = CRYPT_AUTO;
-	mKeyIndex = KEY_DEFAULT;
+	mCryptoType = 0;
+	mKaekIndex = 0;
 	mNcaSize = 0;
 	mProgramId = 0;
 	mContentIndex = 0;
 	mSdkAddonVersion = 0;
 	mSections.clear();
 	mEncAesKeys.clear();
+}
+
+nx::NcaHeader::FormatVersion nx::NcaHeader::getFormatVersion() const
+{
+	return mFormatVersion;
+}
+
+void nx::NcaHeader::setFormatVersion(FormatVersion version)
+{
+	mFormatVersion = version;
 }
 
 nx::NcaHeader::DistributionType nx::NcaHeader::getDistributionType() const
@@ -130,24 +148,24 @@ void nx::NcaHeader::setContentType(ContentType type)
 	mContentType = type;
 }
 
-nx::NcaHeader::EncryptionType nx::NcaHeader::getEncryptionType() const
+byte_t nx::NcaHeader::getCryptoType() const
 {
-	return mEncryptionType;
+	return mCryptoType;
 }
 
-void nx::NcaHeader::setEncryptionType(EncryptionType type)
+void nx::NcaHeader::setCryptoType(byte_t type)
 {
-	mEncryptionType = type;
+	mCryptoType = type;
 }
 
-nx::NcaHeader::EncryptionKeyIndex nx::NcaHeader::getKeyIndex() const
+byte_t nx::NcaHeader::getKaekIndex() const
 {
-	return mKeyIndex;
+	return mKaekIndex;
 }
 
-void nx::NcaHeader::setKeyIndex(EncryptionKeyIndex index)
+void nx::NcaHeader::setKaekIndex(byte_t index)
 {
-	mKeyIndex = index;
+	mKaekIndex = index;
 }
 
 u64 NcaHeader::getNcaSize() const
@@ -233,8 +251,8 @@ bool NcaHeader::isEqual(const NcaHeader & other) const
 {
 	return (mDistributionType == other.mDistributionType) \
 		&& (mContentType == other.mContentType) \
-		&& (mEncryptionType == other.mEncryptionType) \
-		&& (mKeyIndex == other.mKeyIndex) \
+		&& (mCryptoType == other.mCryptoType) \
+		&& (mKaekIndex == other.mKaekIndex) \
 		&& (mNcaSize == other.mNcaSize) \
 		&& (mProgramId == other.mProgramId) \
 		&& (mContentIndex == other.mContentIndex) \
@@ -254,8 +272,8 @@ void NcaHeader::copyFrom(const NcaHeader & other)
 		mBinaryBlob.clear();
 		mDistributionType = other.mDistributionType;
 		mContentType = other.mContentType;
-		mEncryptionType = other.mEncryptionType;
-		mKeyIndex = other.mKeyIndex;
+		mCryptoType = other.mCryptoType;
+		mKaekIndex = other.mKaekIndex;
 		mNcaSize = other.mNcaSize;
 		mProgramId = other.mProgramId;
 		mContentIndex = other.mContentIndex;

@@ -34,18 +34,11 @@ namespace nx
 			TYPE_DATA,
 		};
 
-		enum EncryptionType
+		enum KeyBankIndex
 		{
-			CRYPT_AUTO,
-			CRYPT_NONE,
-			CRYPT_AESCTR = 3
-		};
-
-		enum EncryptionKeyIndex
-		{
-			KEY_UNUSED_0,
-			KEY_UNUSED_1,
-			KEY_DEFAULT,
+			KEY_AESXTS_0,
+			KEY_AESXTS_1,
+			KEY_AESCTR,
 			KEY_UNUSED_3,
 		};
 
@@ -53,14 +46,12 @@ namespace nx
 		{
 			u64 offset;
 			u64 size;
-			EncryptionType enc_type;
 			crypto::sha::sSha256Hash hash;
 
 			const sSection& operator=(const sSection& other)
 			{
 				offset = other.offset;
 				size = other.size;
-				enc_type = other.enc_type;
 				hash = other.hash;
 
 				return *this;
@@ -70,7 +61,6 @@ namespace nx
 			{
 				return (offset == other.offset) \
 					&& (size == other.size) \
-					&& (enc_type == other.enc_type) \
 					&& (hash == other.hash);
 			}
 
@@ -100,14 +90,16 @@ namespace nx
 
 		// variables
 		void clear();
+		FormatVersion getFormatVersion() const;
+		void setFormatVersion(FormatVersion ver);
 		DistributionType getDistributionType() const;
 		void setDistributionType(DistributionType type);
 		ContentType getContentType() const;
 		void setContentType(ContentType type);
-		EncryptionType getEncryptionType() const;
-		void setEncryptionType(EncryptionType type);
-		EncryptionKeyIndex getKeyIndex() const;
-		void setKeyIndex(EncryptionKeyIndex index);
+		byte_t getCryptoType() const;
+		void setCryptoType(byte_t type);
+		byte_t getKaekIndex() const;
+		void setKaekIndex(byte_t index);
 		u64 getNcaSize() const;
 		void setNcaSize(u64 size);
 		u64 getProgramId() const;
@@ -123,7 +115,8 @@ namespace nx
 
 	private:
 		const std::string kModuleName = "NCA_HEADER";
-		const std::string kNcaSig = "NCA2";
+		const std::string kNca2Sig = "NCA2";
+		const std::string kNca3Sig = "NCA3";
 		static const size_t kSectionNum = 4;
 		static const size_t kAesKeyNum = 4;
 		static const u32 kDefaultSdkAddonVersion = 721920;
@@ -142,13 +135,15 @@ namespace nx
 			char signature[4];
 			byte_t distribution_type;
 			byte_t content_type;
-			byte_t key_generation;
+			byte_t crypto_type; // KeyGeneration
 			byte_t key_area_encryption_key_index;
 			le_uint64_t nca_size;
 			le_uint64_t program_id;
 			le_uint32_t content_index;
 			le_uint32_t sdk_addon_version;
-			byte_t reserved_2[0x20];
+			byte_t crypto_type_2;
+			byte_t reserved_2[0xf];
+			byte_t rights_id[0x10];
 			struct sNcaSection
 			{
 				le_uint32_t start; // block units
@@ -166,10 +161,11 @@ namespace nx
 		fnd::MemoryBlob mBinaryBlob;
 
 		// data
+		FormatVersion mFormatVersion;
 		DistributionType mDistributionType;
 		ContentType mContentType;
-		EncryptionType mEncryptionType;
-		EncryptionKeyIndex mKeyIndex;
+		byte_t mCryptoType;
+		byte_t mKaekIndex;
 		u64 mNcaSize;
 		u64 mProgramId;
 		u32 mContentIndex;
