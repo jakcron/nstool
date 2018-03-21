@@ -13,110 +13,6 @@
 
 const size_t kNcaSectorSize = nx::NcaHeader::kBlockSize;
 
-inline size_t sectorToOffset(size_t sector_index) { return sector_index * kNcaSectorSize; }
-
-void initNcaCtr(u8 ctr[crypto::aes::kAesBlockSize], u32 generation)
-{
-	memset(ctr, 0, crypto::aes::kAesBlockSize);
-	for (size_t i = 0; i < 4; i++)
-	{
-		ctr[7 - i] = (generation >> i * 8) & 0xff;
-	}
-}
-
-void hexDump(const u8* data, size_t len)
-{
-	for (size_t i = 0; i < len; i++)
-	{
-		printf("%02X", data[i]);
-	}
-}
-
-void xorData(const u8* a, const u8* b, u8* out, size_t len)
-{
-	for (size_t i = 0; i < len; i++)
-	{
-		out[i] = a[i] ^ b[i];
-	}
-}
-
-void decryptNcaHeader(byte_t header[0xc00], const u8* key1, const u8* key2)
-{
-	byte_t tweak[crypto::aes::kAesBlockSize];
-
-	// decrypt main header
-	byte_t raw_hdr[kNcaSectorSize];
-	nx::NcaHeader hdr;
-	crypto::aes::AesXtsMakeTweak(tweak, 1);
-	crypto::aes::AesXtsDecryptSector(header + sectorToOffset(1), kNcaSectorSize, key1, key2, tweak, raw_hdr);
-	hdr.importBinary(raw_hdr, kNcaSectorSize);
-
-	// decrypt whole header
-	for (size_t i = 0; i < 6; i++)
-	{
-		crypto::aes::AesXtsMakeTweak(tweak, (i > 1 && hdr.getFormatVersion() == nx::NcaHeader::NCA2_FORMAT)? 0 : i);
-		crypto::aes::AesXtsDecryptSector(header + sectorToOffset(i), kNcaSectorSize, key1, key2, tweak, header + sectorToOffset(i));
-	}
-}
-
-void decryptNcaSectorXts(const fnd::MemoryBlob& nca, u8 out[kNcaSectorSize], size_t sector, const u8* key1, const u8* key2)
-{
-	u8 tweak[crypto::aes::kAesBlockSize];
-	crypto::aes::AesXtsMakeTweak(tweak, sector);
-	crypto::aes::AesXtsDecryptSector(nca.getBytes() + sector*kNcaSectorSize, kNcaSectorSize, key1, key2, tweak, out);
-}
-
-void decryptNcaSectorCtr(const fnd::MemoryBlob& nca, u8 out[kNcaSectorSize], size_t sector, const u8* key)
-{
-	u8 ctr[crypto::aes::kAesBlockSize];
-	initNcaCtr(ctr, 0);
-	crypto::aes::AesIncrementCounter(ctr, (sector*kNcaSectorSize)/crypto::aes::kAesBlockSize, ctr);
-	crypto::aes::AesCtr(nca.getBytes() + sector*kNcaSectorSize, kNcaSectorSize, key, ctr, out);
-}
-
-void dumpNcaSector(u8 out[kNcaSectorSize])
-{
-	for (size_t j = 0; j < kNcaSectorSize / crypto::aes::kAesBlockSize; j++)
-	{
-		hexDump(out + j * crypto::aes::kAesBlockSize, crypto::aes::kAesBlockSize);
-		printf("\n");
-	}
-}
-
-void dumpHxdStyleSector(u8* out, size_t len)
-{
-	// iterate over 0x10 blocks
-	for (size_t i = 0; i < (len / crypto::aes::kAesBlockSize); i++)
-	{
-		// for block i print each byte
-		for (size_t j = 0; j < crypto::aes::kAesBlockSize; j++)
-		{
-			printf("%02X ", out[i*crypto::aes::kAesBlockSize + j]);
-		}
-		printf(" ");
-		for (size_t j = 0; j < crypto::aes::kAesBlockSize; j++)
-		{
-			printf("%c", isalnum(out[i*crypto::aes::kAesBlockSize + j]) ? out[i*crypto::aes::kAesBlockSize + j] : '.');
-		}
-		printf("\n");
-	}
-
-	/*
-	for (size_t i = 0; i < len % crypto::aes::kAesBlockSize; i++)
-	{
-		printf("%02X ", out[(len / crypto::aes::kAesBlockSize)*crypto::aes::kAesBlockSize + i]);
-	}
-	for (size_t i = 0; i < crypto::aes::kAesBlockSize - (len % crypto::aes::kAesBlockSize); i++)
-	{
-		printf("   ");
-	}
-	for (size_t i = 0; i < len % crypto::aes::kAesBlockSize; i++)
-	{
-		printf("%c", out[(len / crypto::aes::kAesBlockSize)*crypto::aes::kAesBlockSize + i]);
-	}
-	*/
-}
-
 std::string kFormatVersionStr[]
 {
 	"NCA2",
@@ -177,6 +73,20 @@ enum EncryptionType
 	CRYPT_BKTR
 };
 
+static const byte_t kNcaMagic[2][4] = {{'N','C','A','2'}, {'N','C','A','3'}};
+
+enum KeysetType
+{
+	KEYSET_DEV,
+	KEYSET_PROD
+};
+
+static const byte_t* kNcaHeaderKey[2][2] = 
+{
+	{ crypto::aes::nx::dev::nca_header_key[0], crypto::aes::nx::dev::nca_header_key[1] },
+	{ crypto::aes::nx::prod::nca_header_key[0], crypto::aes::nx::prod::nca_header_key[1] }
+};
+
 #pragma pack(push,1)
 struct sNcaFsHeader
 {
@@ -188,7 +98,140 @@ struct sNcaFsHeader
 };
 #pragma pack(pop)
 
+inline size_t sectorToOffset(size_t sector_index) { return sector_index * kNcaSectorSize; }
 
+void initNcaCtr(u8 ctr[crypto::aes::kAesBlockSize], u32 generation)
+{
+	memset(ctr, 0, crypto::aes::kAesBlockSize);
+	for (size_t i = 0; i < 4; i++)
+	{
+		ctr[7 - i] = (generation >> i * 8) & 0xff;
+	}
+}
+
+void hexDump(const u8* data, size_t len)
+{
+	for (size_t i = 0; i < len; i++)
+	{
+		printf("%02X", data[i]);
+	}
+}
+
+void xorData(const u8* a, const u8* b, u8* out, size_t len)
+{
+	for (size_t i = 0; i < len; i++)
+	{
+		out[i] = a[i] ^ b[i];
+	}
+}
+
+void decryptNcaHeader(byte_t header[0xc00], const byte_t* key[2])
+{
+	byte_t tweak[crypto::aes::kAesBlockSize];
+
+	// decrypt main header
+	byte_t raw_hdr[kNcaSectorSize];
+	nx::NcaHeader hdr;
+	crypto::aes::AesXtsMakeTweak(tweak, 1);
+	crypto::aes::AesXtsDecryptSector(header + sectorToOffset(1), kNcaSectorSize, key[0], key[1], tweak, raw_hdr);
+	hdr.importBinary(raw_hdr, kNcaSectorSize);
+
+	// decrypt whole header
+	for (size_t i = 0; i < 6; i++)
+	{
+		crypto::aes::AesXtsMakeTweak(tweak, (i > 1 && hdr.getFormatVersion() == nx::NcaHeader::NCA2_FORMAT)? 0 : i);
+		crypto::aes::AesXtsDecryptSector(header + sectorToOffset(i), kNcaSectorSize, key[0], key[1], tweak, header + sectorToOffset(i));
+	}
+}
+
+void decryptNcaSectorXts(const fnd::MemoryBlob& nca, u8 out[kNcaSectorSize], size_t sector, const byte_t* key[2])
+{
+	u8 tweak[crypto::aes::kAesBlockSize];
+	crypto::aes::AesXtsMakeTweak(tweak, sector);
+	crypto::aes::AesXtsDecryptSector(nca.getBytes() + sectorToOffset(sector), kNcaSectorSize, key[0], key[1], tweak, out);
+}
+
+void decryptNcaSectorCtr(const fnd::MemoryBlob& nca, u8 out[kNcaSectorSize], size_t sector, const u8* key)
+{
+	u8 ctr[crypto::aes::kAesBlockSize];
+	initNcaCtr(ctr, 0);
+	crypto::aes::AesIncrementCounter(ctr, (sector*kNcaSectorSize)/crypto::aes::kAesBlockSize, ctr);
+	crypto::aes::AesCtr(nca.getBytes() + sector*kNcaSectorSize, kNcaSectorSize, key, ctr, out);
+}
+
+void dumpNcaSector(u8 out[kNcaSectorSize])
+{
+	for (size_t j = 0; j < kNcaSectorSize / crypto::aes::kAesBlockSize; j++)
+	{
+		hexDump(out + j * crypto::aes::kAesBlockSize, crypto::aes::kAesBlockSize);
+		printf("\n");
+	}
+}
+
+void dumpHxdStyleSector(u8* out, size_t len)
+{
+	// iterate over 0x10 blocks
+	for (size_t i = 0; i < (len / crypto::aes::kAesBlockSize); i++)
+	{
+		// for block i print each byte
+		for (size_t j = 0; j < crypto::aes::kAesBlockSize; j++)
+		{
+			printf("%02X ", out[i*crypto::aes::kAesBlockSize + j]);
+		}
+		printf(" ");
+		for (size_t j = 0; j < crypto::aes::kAesBlockSize; j++)
+		{
+			printf("%c", isalnum(out[i*crypto::aes::kAesBlockSize + j]) ? out[i*crypto::aes::kAesBlockSize + j] : '.');
+		}
+		printf("\n");
+	}
+
+	/*
+	for (size_t i = 0; i < len % crypto::aes::kAesBlockSize; i++)
+	{
+		printf("%02X ", out[(len / crypto::aes::kAesBlockSize)*crypto::aes::kAesBlockSize + i]);
+	}
+	for (size_t i = 0; i < crypto::aes::kAesBlockSize - (len % crypto::aes::kAesBlockSize); i++)
+	{
+		printf("   ");
+	}
+	for (size_t i = 0; i < len % crypto::aes::kAesBlockSize; i++)
+	{
+		printf("%c", out[(len / crypto::aes::kAesBlockSize)*crypto::aes::kAesBlockSize + i]);
+	}
+	*/
+}
+
+
+bool testNcaHeaderKey(const byte_t* header_src, const byte_t* key[2])
+{
+	bool validKey = false;
+	byte_t header_dec[kNcaSectorSize];
+	u8 tweak[crypto::aes::kAesBlockSize];
+
+	// try key
+	crypto::aes::AesXtsMakeTweak(tweak, 1);
+	crypto::aes::AesXtsDecryptSector(header_src + sectorToOffset(1), kNcaSectorSize, key[0], key[1], tweak, header_dec);
+	if (memcmp(header_dec, kNcaMagic[0], 4) == 0 || memcmp(header_dec, kNcaMagic[1], 4) == 0)
+	{
+		validKey = true;
+	}
+
+	return validKey;
+}
+
+KeysetType getKeysetFromNcaHeader(const byte_t* header_src)
+{
+	for (int i = 0; i < 2; i++)
+	{
+		if (testNcaHeaderKey(header_src, kNcaHeaderKey[i]) == true)
+		{
+			return (KeysetType)i;
+		}
+	}
+	
+	throw fnd::Exception("Failed to determine NCA header key");
+}
 
 int main(int argc, char** argv)
 {
@@ -203,10 +246,10 @@ int main(int argc, char** argv)
 		fnd::MemoryBlob nca;
 		fnd::io::readFile(argv[1], nca);
 
-		decryptNcaHeader(nca.getBytes(), crypto::aes::nx::dev::nca_header_key[0], crypto::aes::nx::dev::nca_header_key[1]);
-		//dumpHxdStyleSector(nca.getBytes(), 0xc00);
+		KeysetType keyset = getKeysetFromNcaHeader(nca.getBytes());
 
-		//u8 sector[kNcaSectorSize];
+		decryptNcaHeader(nca.getBytes(), kNcaHeaderKey[keyset]);
+		//dumpHxdStyleSector(nca.getBytes(), 0xc00);
 
 		// nca test
 		if (argc == 2 || argc == 3)
@@ -259,7 +302,7 @@ int main(int argc, char** argv)
 				crypto::sha::Sha256(nca.getBytes() + sectorToOffset(sector_index), kNcaSectorSize, hash);
 				if (section.hash.compare(hash) == false)
 				{
-					//throw fnd::Exception("ncatool", "NcaFsHeader has bad sha256 hash");
+					throw fnd::Exception("ncatool", "NcaFsHeader has bad sha256 hash");
 				}
 
 				const sNcaFsHeader* fsHdr = (const sNcaFsHeader*)(nca.getBytes() + sectorToOffset(sector_index));
