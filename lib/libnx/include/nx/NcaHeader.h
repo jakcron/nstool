@@ -66,7 +66,7 @@ namespace nx
 
 			bool operator!=(const sSection& other) const
 			{
-				return operator==(other);
+				return !operator==(other);
 			}
 		};
 
