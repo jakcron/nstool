@@ -45,11 +45,11 @@ void es::ETicketSectionHeader_V2::exportBinary()
 	mBinaryBlob.alloc(sizeof(sSectionHeader_v2));
 	sSectionHeader_v2* hdr = (sSectionHeader_v2*)mBinaryBlob.getBytes();
 
-	hdr->set_section_offset(mSectionOffset);
-	hdr->set_record_size(mRecordSize);
-	hdr->set_section_size(mSectionSize);
-	hdr->set_record_num(mRecordNum);
-	hdr->set_section_type(mSectionType);
+	hdr->section_offset = (mSectionOffset);
+	hdr->record_size = (mRecordSize);
+	hdr->section_size = (mSectionSize);
+	hdr->record_num = (mRecordNum);
+	hdr->section_type = (mSectionType);
 }
 
 void es::ETicketSectionHeader_V2::importBinary(const byte_t * bytes, size_t len)
@@ -65,11 +65,11 @@ void es::ETicketSectionHeader_V2::importBinary(const byte_t * bytes, size_t len)
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 	sSectionHeader_v2* hdr = (sSectionHeader_v2*)mBinaryBlob.getBytes();
 
-	mSectionOffset = hdr->section_offset();
-	mRecordSize = hdr->record_size();
-	mSectionSize = hdr->section_size();
-	mRecordNum = hdr->record_num();
-	mSectionType = (SectionType)hdr->section_type();
+	mSectionOffset = hdr->section_offset.get();
+	mRecordSize = hdr->record_size.get();
+	mSectionSize = hdr->section_size.get();
+	mRecordNum = hdr->record_num.get();
+	mSectionType = (SectionType)hdr->section_type.get();
 }
 
 bool es::ETicketSectionHeader_V2::isEqual(const ETicketSectionHeader_V2 & other) const

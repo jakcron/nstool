@@ -97,26 +97,26 @@ void es::ETicketBody_V2::exportBinary()
 	mBinaryBlob.alloc(sizeof(sTicketBody_v2));
 	sTicketBody_v2* body = (sTicketBody_v2*)mBinaryBlob.getBytes();
 
-	body->set_format_version(kFormatVersion);
+	body->format_version = (kFormatVersion);
 
-	body->set_issuer(mIssuer.c_str());
-	body->set_enc_title_key(mEncTitleKey, kEncTitleKeyLen);
-	body->set_title_key_enc_type(mEncType);
-	body->set_ticket_version(mTicketVersion);
+	strncmp(body->issuer, mIssuer.c_str(), kIssuerLen);
+	memcpy(body->enc_title_key, mEncTitleKey, kEncTitleKeyLen);
+	body->title_key_enc_type = (mEncType);
+	body->ticket_version = (mTicketVersion);
 	byte_t property_mask = 0;
 	property_mask |= mPreInstall ? BIT(FLAG_PRE_INSTALL) : 0;
 	property_mask |= mSharedTitle ? BIT(FLAG_SHARED_TITLE) : 0;
 	property_mask |= mAllowAllContent ? BIT(FLAG_ALLOW_ALL_CONTENT) : 0;
-	body->set_property_mask(property_mask);
-	body->set_reserved_region(mReservedRegion, kReservedRegionLen);
-	body->set_ticket_id(mTicketId);
-	body->set_device_id(mDeviceId);
-	body->set_rights_id(mRightsId);
-	body->set_account_id(mAccountId);
-	body->set_sect_total_size(mSectTotalSize);
-	body->set_sect_header_offset(mSectHeaderOffset);
-	body->set_sect_num(mSectNum);
-	body->set_sect_entry_size(mSectEntrySize);
+	body->property_mask = (property_mask);
+	memcpy(body->reserved_region, mReservedRegion, kReservedRegionLen);
+	body->ticket_id = (mTicketId);
+	body->device_id = (mDeviceId);
+	memcmp(body->rights_id, mRightsId, kRightsIdLen);
+	body->account_id = (mAccountId);
+	body->sect_total_size = (mSectTotalSize);
+	body->sect_header_offset = (mSectHeaderOffset);
+	body->sect_num = (mSectNum);
+	body->sect_entry_size = (mSectEntrySize);
 }
 
 void es::ETicketBody_V2::importBinary(const byte_t * bytes, size_t len)
@@ -132,28 +132,28 @@ void es::ETicketBody_V2::importBinary(const byte_t * bytes, size_t len)
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 	sTicketBody_v2* body = (sTicketBody_v2*)mBinaryBlob.getBytes();
 
-	if (body->format_version() != kFormatVersion)
+	if (body->format_version != kFormatVersion)
 	{
 		throw fnd::Exception(kModuleName, "Unsupported format version");
 	}
 
-	mIssuer.append(body->issuer(), kIssuerLen);
-	memcpy(mEncTitleKey, body->enc_title_key(), kEncTitleKeyLen);
-	mEncType = (TitleKeyEncType)body->title_key_enc_type();
-	mTicketVersion = body->ticket_version();
-	mLicenseType = (LicenseType)body->license_type();
-	mPreInstall = (body->property_mask() & BIT(FLAG_PRE_INSTALL)) == BIT(FLAG_PRE_INSTALL);
-	mSharedTitle = (body->property_mask() & BIT(FLAG_SHARED_TITLE)) == BIT(FLAG_SHARED_TITLE);
-	mAllowAllContent = (body->property_mask() & BIT(FLAG_ALLOW_ALL_CONTENT)) == BIT(FLAG_ALLOW_ALL_CONTENT);
-	memcpy(mReservedRegion, body->reserved_region(), kReservedRegionLen);
-	mTicketId = body->ticket_id();
-	mDeviceId = body->device_id();
-	memcpy(mRightsId, body->rights_id(), kRightsIdLen);
-	mAccountId = body->account_id();
-	mSectTotalSize = body->sect_total_size();
-	mSectHeaderOffset = body->sect_header_offset();
-	mSectNum = body->sect_num();
-	mSectEntrySize = body->sect_entry_size();
+	mIssuer.append(body->issuer, kIssuerLen);
+	memcpy(mEncTitleKey, body->enc_title_key, kEncTitleKeyLen);
+	mEncType = (TitleKeyEncType)body->title_key_enc_type;
+	mTicketVersion = body->ticket_version.get();
+	mLicenseType = (LicenseType)body->license_type;
+	mPreInstall = (body->property_mask & BIT(FLAG_PRE_INSTALL)) == BIT(FLAG_PRE_INSTALL);
+	mSharedTitle = (body->property_mask & BIT(FLAG_SHARED_TITLE)) == BIT(FLAG_SHARED_TITLE);
+	mAllowAllContent = (body->property_mask & BIT(FLAG_ALLOW_ALL_CONTENT)) == BIT(FLAG_ALLOW_ALL_CONTENT);
+	memcpy(mReservedRegion, body->reserved_region, kReservedRegionLen);
+	mTicketId = body->ticket_id.get();
+	mDeviceId = body->device_id.get();
+	memcpy(mRightsId, body->rights_id, kRightsIdLen);
+	mAccountId = body->account_id.get();
+	mSectTotalSize = body->sect_total_size.get();
+	mSectHeaderOffset = body->sect_header_offset.get();
+	mSectNum = body->sect_num.get();
+	mSectEntrySize = body->sect_entry_size.get();
 }
 
 void es::ETicketBody_V2::clear()

@@ -58,27 +58,11 @@ namespace es
 #pragma pack (push, 1)
 		struct sSectionHeader_v2
 		{
-		private:
-			uint32_t section_offset_;
-			uint32_t record_size_;
-			uint32_t section_size_;
-			uint16_t record_num_;
-			uint16_t section_type_;
-		public:
-			uint32_t section_offset() const { return le_word(section_offset_); }
-			void set_section_offset(uint32_t offset) { section_offset_ = le_word(offset); }
-
-			uint32_t record_size() const { return le_word(record_size_); }
-			void set_record_size(uint32_t size) { record_size_ = le_word(size); }
-
-			uint32_t section_size() const { return le_word(section_size_); }
-			void set_section_size(uint32_t size) { section_size_ = le_word(size); }
-
-			uint16_t record_num() const { return le_hword(record_num_); }
-			void set_record_num(uint16_t num) { record_num_ = le_hword(num); }
-
-			uint16_t section_type() const { return le_hword(section_type_); }
-			void set_section_type(uint16_t type) { section_type_ = le_hword(type); }
+			le_uint32_t section_offset;
+			le_uint32_t record_size;
+			le_uint32_t section_size;
+			le_uint16_t record_num;
+			le_uint16_t section_type;
 		};
 #pragma pack (pop)
 
