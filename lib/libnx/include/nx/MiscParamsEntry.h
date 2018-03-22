@@ -10,33 +10,33 @@ namespace nx
 	public:
 		MiscParamsEntry();
 		MiscParamsEntry(const KernelCapability& kernel_cap);
-		MiscParamsEntry(u8 program_type);
+		MiscParamsEntry(byte_t program_type);
 
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);
 
 		// variables
-		u8 getProgramType() const;
-		void setProgramType(u8 type);
+		byte_t getProgramType() const;
+		void setProgramType(byte_t type);
 	private:
 		const std::string kModuleName = "MISC_PARAMS_ENTRY";
 		static const KernelCapability::KernelCapId kCapId = KernelCapability::KC_MISC_PARAMS;
-		static const u8 kValBits = 3;
-		static const u8 kMaxProgramType = BIT(kValBits)-1;
+		static const byte_t kValBits = 3;
+		static const byte_t kMaxProgramType = BIT(kValBits)-1;
 
 		KernelCapability mCap;
-		u8 mProgramType;
+		byte_t mProgramType;
 
 		inline void updateCapField()
 		{
-			u32 field = mProgramType & kMaxProgramType;
+			uint32_t field = mProgramType & kMaxProgramType;
 			mCap.setField(field);
 		}
 
 		inline void processCapField()
 		{
-			u32 field = mCap.getField();
+			uint32_t field = mCap.getField();
 			mProgramType = field & kMaxProgramType;
 		}
 	};

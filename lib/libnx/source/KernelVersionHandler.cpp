@@ -57,23 +57,23 @@ bool nx::KernelVersionHandler::isSet() const
 	return mIsSet;
 }
 
-u16 nx::KernelVersionHandler::getVerMajor() const
+uint16_t nx::KernelVersionHandler::getVerMajor() const
 {
 	return mEntry.getVerMajor();
 }
 
-void nx::KernelVersionHandler::setVerMajor(u16 major)
+void nx::KernelVersionHandler::setVerMajor(uint16_t major)
 {
 	mEntry.setVerMajor(major);
 	mIsSet = true;
 }
 
-u8 nx::KernelVersionHandler::getVerMinor() const
+uint8_t nx::KernelVersionHandler::getVerMinor() const
 {
 	return mEntry.getVerMinor();
 }
 
-void nx::KernelVersionHandler::setVerMinor(u8 minor)
+void nx::KernelVersionHandler::setVerMinor(uint8_t minor)
 {
 	mEntry.setVerMinor(minor);
 	mIsSet = true;

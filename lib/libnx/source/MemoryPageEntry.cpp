@@ -18,7 +18,7 @@ nx::MemoryPageEntry::MemoryPageEntry(const KernelCapability & kernel_cap) :
 	setKernelCapability(kernel_cap);
 }
 
-nx::MemoryPageEntry::MemoryPageEntry(u32 page) :
+nx::MemoryPageEntry::MemoryPageEntry(uint32_t page) :
 	mCap(KernelCapability::KC_INVALID),
 	mPage(0),
 	mFlag(false),
@@ -27,7 +27,7 @@ nx::MemoryPageEntry::MemoryPageEntry(u32 page) :
 	setPage(page);
 }
 
-nx::MemoryPageEntry::MemoryPageEntry(u32 page, bool flag) :
+nx::MemoryPageEntry::MemoryPageEntry(uint32_t page, bool flag) :
 	mCap(KernelCapability::KC_INVALID),
 	mPage(0),
 	mFlag(false),
@@ -53,12 +53,12 @@ void nx::MemoryPageEntry::setKernelCapability(const KernelCapability & kernel_ca
 	processCapField();
 }
 
-u32 nx::MemoryPageEntry::getPage() const
+uint32_t nx::MemoryPageEntry::getPage() const
 {
 	return mPage;
 }
 
-void nx::MemoryPageEntry::setPage(u32 page)
+void nx::MemoryPageEntry::setPage(uint32_t page)
 {
 	if (page > kMaxPage)
 	{

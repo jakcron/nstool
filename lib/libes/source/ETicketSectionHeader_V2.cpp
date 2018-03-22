@@ -10,7 +10,7 @@ es::ETicketSectionHeader_V2::ETicketSectionHeader_V2(const ETicketSectionHeader_
 	copyFrom(other);
 }
 
-es::ETicketSectionHeader_V2::ETicketSectionHeader_V2(const u8 * bytes, size_t len)
+es::ETicketSectionHeader_V2::ETicketSectionHeader_V2(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -30,7 +30,7 @@ void es::ETicketSectionHeader_V2::operator=(const ETicketSectionHeader_V2 & othe
 	copyFrom(other);
 }
 
-const u8 * es::ETicketSectionHeader_V2::getBytes() const
+const byte_t * es::ETicketSectionHeader_V2::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -52,7 +52,7 @@ void es::ETicketSectionHeader_V2::exportBinary()
 	hdr->set_section_type(mSectionType);
 }
 
-void es::ETicketSectionHeader_V2::importBinary(const u8 * bytes, size_t len)
+void es::ETicketSectionHeader_V2::importBinary(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sSectionHeader_v2))
 	{
@@ -108,42 +108,42 @@ void es::ETicketSectionHeader_V2::clear()
 	mSectionType = PERMANENT;
 }
 
-u32 es::ETicketSectionHeader_V2::getSectionOffset() const
+uint32_t es::ETicketSectionHeader_V2::getSectionOffset() const
 {
 	return mSectionOffset;
 }
 
-void es::ETicketSectionHeader_V2::setSectionOffset(u32 offset)
+void es::ETicketSectionHeader_V2::setSectionOffset(uint32_t offset)
 {
 	mSectionOffset = offset;
 }
 
-u32 es::ETicketSectionHeader_V2::getRecordSize() const
+uint32_t es::ETicketSectionHeader_V2::getRecordSize() const
 {
 	return mRecordSize;
 }
 
-void es::ETicketSectionHeader_V2::setRecordSize(u32 size)
+void es::ETicketSectionHeader_V2::setRecordSize(uint32_t size)
 {
 	mRecordSize = size;
 }
 
-u32 es::ETicketSectionHeader_V2::getSectionSize() const
+uint32_t es::ETicketSectionHeader_V2::getSectionSize() const
 {
 	return mSectionSize;
 }
 
-void es::ETicketSectionHeader_V2::getSectionSize(u32 size)
+void es::ETicketSectionHeader_V2::getSectionSize(uint32_t size)
 {
 	mSectionSize = size;
 }
 
-u16 es::ETicketSectionHeader_V2::getRecordNum() const
+uint16_t es::ETicketSectionHeader_V2::getRecordNum() const
 {
 	return mRecordNum;
 }
 
-void es::ETicketSectionHeader_V2::setRecordNum(u16 record_num)
+void es::ETicketSectionHeader_V2::setRecordNum(uint16_t record_num)
 {
 	mRecordNum = record_num;
 }

@@ -48,7 +48,7 @@ AciHeader::AciHeader(const AciHeader & other)
 	importBinary(other.getBytes(), other.getSize());
 }
 
-AciHeader::AciHeader(const u8 * bytes, size_t len)
+AciHeader::AciHeader(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -68,7 +68,7 @@ void AciHeader::operator=(const AciHeader & other)
 	this->importBinary(other.getBytes(), other.getSize());
 }
 
-const u8 * AciHeader::getBytes() const
+const byte_t * AciHeader::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -105,7 +105,7 @@ void AciHeader::exportBinary()
 	hdr->kc().set_offset(mKc.offset);
 	hdr->kc().set_size(mKc.size);
 
-	u32 flags = 0;
+	uint32_t flags = 0;
 	if (mIsProduction)
 		flags |= BIT(0);
 
@@ -125,7 +125,7 @@ void AciHeader::exportBinary()
 	}
 }
 
-void AciHeader::importBinary(const u8 * bytes, size_t len)
+void AciHeader::importBinary(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sAciHeader))
 	{
@@ -216,22 +216,22 @@ void nx::AciHeader::setAcidSize(size_t size)
 }
 */
 
-u64 nx::AciHeader::getProgramIdMin() const
+uint64_t nx::AciHeader::getProgramIdMin() const
 {
 	return mProgramIdMin;
 }
 
-void nx::AciHeader::setProgramIdMin(u64 program_id)
+void nx::AciHeader::setProgramIdMin(uint64_t program_id)
 {
 	mProgramIdMin = program_id;
 }
 
-u64 nx::AciHeader::getProgramIdMax() const
+uint64_t nx::AciHeader::getProgramIdMax() const
 {
 	return mProgramIdMax;
 }
 
-void nx::AciHeader::setProgramIdMax(u64 program_id)
+void nx::AciHeader::setProgramIdMax(uint64_t program_id)
 {
 	mProgramIdMax = program_id;
 }
@@ -261,12 +261,12 @@ void nx::AciHeader::setIsProduction(bool isProduction)
 	mIsProduction = isProduction;
 }
 
-u64 AciHeader::getProgramId() const
+uint64_t AciHeader::getProgramId() const
 {
 	return mProgramId;
 }
 
-void AciHeader::setProgramId(u64 program_id)
+void AciHeader::setProgramId(uint64_t program_id)
 {
 	mProgramId = program_id;
 }

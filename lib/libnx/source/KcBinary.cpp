@@ -10,7 +10,7 @@ nx::KcBinary::KcBinary(const KcBinary & other)
 	copyFrom(other);
 }
 
-nx::KcBinary::KcBinary(const u8 * bytes, size_t len)
+nx::KcBinary::KcBinary(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -30,7 +30,7 @@ void nx::KcBinary::operator=(const KcBinary & other)
 	copyFrom(other);
 }
 
-const u8 * nx::KcBinary::getBytes() const
+const byte_t * nx::KcBinary::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -55,19 +55,19 @@ void nx::KcBinary::exportBinary()
 	mMiscFlags.exportKernelCapabilityList(caps);
 
 	// allocate memory
-	mBinaryBlob.alloc(caps.getSize() * sizeof(u32));
+	mBinaryBlob.alloc(caps.getSize() * sizeof(uint32_t));
 
 	// write to binary
-	u32* raw_caps = (u32*)mBinaryBlob.getBytes();
+	uint32_t* raw_caps = (uint32_t*)mBinaryBlob.getBytes();
 	for (size_t i = 0; i < caps.getSize(); i++)
 	{
 		raw_caps[i] = le_word(caps[i].getCap());
 	}
 }
 
-void nx::KcBinary::importBinary(const u8 * bytes, size_t len)
+void nx::KcBinary::importBinary(const byte_t * bytes, size_t len)
 {
-	if ((len % sizeof(u32)) != 0)
+	if ((len % sizeof(uint32_t)) != 0)
 	{
 		throw fnd::Exception(kModuleName, "KernelCapability list must be aligned to 4 bytes");
 	}
@@ -81,8 +81,8 @@ void nx::KcBinary::importBinary(const u8 * bytes, size_t len)
 	fnd::List<KernelCapability> handleTableSizeCaps;
 	fnd::List<KernelCapability> miscFlagsCaps;
 
-	const u32* raw_caps = (const u32*)bytes;
-	size_t cap_num = len / sizeof(u32);
+	const uint32_t* raw_caps = (const uint32_t*)bytes;
+	size_t cap_num = len / sizeof(uint32_t);
 	KernelCapability cap;
 	for (size_t i = 0; i < cap_num; i++)
 	{

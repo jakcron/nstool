@@ -21,14 +21,14 @@ namespace nx
 		bool isSet() const;
 
 		// variables
-		const fnd::List<u16>& getInteruptList() const;
-		void setInteruptList(const fnd::List<u16>& interupts);
+		const fnd::List<uint16_t>& getInteruptList() const;
+		void setInteruptList(const fnd::List<uint16_t>& interupts);
 
 	private:
 		const std::string kModuleName = "INTERUPT_HANDLER";
 
 		bool mIsSet;
-		fnd::List<u16> mInterupts;
+		fnd::List<uint16_t> mInterupts;
 
 		void copyFrom(const InteruptHandler& other);
 		bool isEqual(const InteruptHandler& other) const;

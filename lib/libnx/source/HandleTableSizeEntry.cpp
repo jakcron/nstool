@@ -14,7 +14,7 @@ nx::HandleTableSizeEntry::HandleTableSizeEntry(const KernelCapability & kernel_c
 	setKernelCapability(kernel_cap);
 }
 
-nx::HandleTableSizeEntry::HandleTableSizeEntry(u16 size) :
+nx::HandleTableSizeEntry::HandleTableSizeEntry(uint16_t size) :
 	mCap(kCapId),
 	mHandleTableSize(0)
 {
@@ -37,12 +37,12 @@ void nx::HandleTableSizeEntry::setKernelCapability(const KernelCapability & kern
 	processCapField();
 }
 
-u16 nx::HandleTableSizeEntry::getHandleTableSize() const
+uint16_t nx::HandleTableSizeEntry::getHandleTableSize() const
 {
 	return mHandleTableSize;
 }
 
-void nx::HandleTableSizeEntry::setHandleTableSize(u16 size)
+void nx::HandleTableSizeEntry::setHandleTableSize(uint16_t size)
 {
 	if (size > kMaxHandleTableSize)
 	{

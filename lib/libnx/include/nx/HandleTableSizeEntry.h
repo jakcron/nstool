@@ -10,33 +10,33 @@ namespace nx
 	public:
 		HandleTableSizeEntry();
 		HandleTableSizeEntry(const KernelCapability& kernel_cap);
-		HandleTableSizeEntry(u16 size);
+		HandleTableSizeEntry(uint16_t size);
 
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);
 
 		// variables
-		u16 getHandleTableSize() const;
-		void setHandleTableSize(u16 size);
+		uint16_t getHandleTableSize() const;
+		void setHandleTableSize(uint16_t size);
 	private:
 		const std::string kModuleName = "HANDLE_TABLE_SIZE_ENTRY";
 		static const KernelCapability::KernelCapId kCapId = KernelCapability::KC_HANDLE_TABLE_SIZE;
-		static const u16 kValBits = 10;
-		static const u16 kMaxHandleTableSize = BIT(kValBits) - 1;
+		static const uint16_t kValBits = 10;
+		static const uint16_t kMaxHandleTableSize = BIT(kValBits) - 1;
 
 		KernelCapability mCap;
-		u16 mHandleTableSize;
+		uint16_t mHandleTableSize;
 
 		inline void updateCapField()
 		{
-			u32 field = mHandleTableSize & kMaxHandleTableSize;
+			uint32_t field = mHandleTableSize & kMaxHandleTableSize;
 			mCap.setField(field);
 		}
 
 		inline void processCapField()
 		{
-			u32 field = mCap.getField();
+			uint32_t field = mCap.getField();
 			mHandleTableSize = field & kMaxHandleTableSize;
 		}
 	};

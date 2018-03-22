@@ -56,12 +56,12 @@ bool nx::MiscParamsHandler::isSet() const
 	return mIsSet;
 }
 
-u8 nx::MiscParamsHandler::getProgramType() const
+uint8_t nx::MiscParamsHandler::getProgramType() const
 {
 	return mEntry.getProgramType();
 }
 
-void nx::MiscParamsHandler::setProgramType(u8 type)
+void nx::MiscParamsHandler::setProgramType(uint8_t type)
 {
 	mEntry.setProgramType(type);
 	mIsSet = true;

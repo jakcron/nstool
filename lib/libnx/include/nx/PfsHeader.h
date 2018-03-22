@@ -51,19 +51,19 @@ namespace nx
 
 		PfsHeader();
 		PfsHeader(const PfsHeader& other);
-		PfsHeader(const u8* bytes, size_t len);
+		PfsHeader(const byte_t* bytes, size_t len);
 
 		bool operator==(const PfsHeader& other) const;
 		bool operator!=(const PfsHeader& other) const;
 		void operator=(const PfsHeader& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes, size_t len);
+		void importBinary(const byte_t* bytes, size_t len);
 
 		// variables
 		void clear();
@@ -79,36 +79,16 @@ namespace nx
 #pragma pack (push, 1)
 		struct sPfsFile
 		{
-		private:
-			u64 data_offset_;
-			u64 size_;
-			u64 name_offset_;
-		public:
-			u64 offset() const { return le_dword(data_offset_); }
-			void set_offset(u64 offset) { data_offset_ = le_dword(offset); }
-
-			u64 size() const { return le_dword(size_); }
-			void set_size(u64 size) { size_ = le_dword(size); }
-
-			u64 name_offset() const { return le_dword(name_offset_); }
-			void set_name_offset(u64 offset) { name_offset_ = le_dword(offset); }
+			le_uint64_t data_offset;
+			le_uint64_t size;
+			le_uint64_t name_offset;
 		};
 
 		struct sPfsHeader
 		{
-		private:
-			u8 signature_[4];
-			u32 file_num_;
-			u64 name_table_size_;
-		public:
-			const char* signature() const { return (const char*)signature_; }
-			void set_signature(const char* signature) { memcpy(signature_, signature, 4); }
-
-			u32 file_num() const { return le_word(file_num_); }
-			void set_file_num(u32 file_num) { file_num_ = le_word(file_num); }
-
-			u64 name_table_size() const { return le_dword(name_table_size_); }
-			void set_name_table_size(u64 size) { name_table_size_ = le_dword(size); }
+			char signature[4];
+			le_uint32_t file_num;
+			le_uint64_t name_table_size;
 		};
 #pragma pack (pop)
 

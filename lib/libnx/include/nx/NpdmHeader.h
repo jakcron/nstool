@@ -48,19 +48,19 @@ namespace nx
 
 		NpdmHeader();
 		NpdmHeader(const NpdmHeader& other);
-		NpdmHeader(const u8* bytes, size_t len);
+		NpdmHeader(const byte_t* bytes, size_t len);
 
 		bool operator==(const NpdmHeader& other) const;
 		bool operator!=(const NpdmHeader& other) const;
 		void operator=(const NpdmHeader& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes, size_t len);
+		void importBinary(const byte_t* bytes, size_t len);
 
 		// variables
 		void clear();
@@ -72,17 +72,17 @@ namespace nx
 		ProcAddrSpaceType getProcAddressSpaceType() const;
 		void setProcAddressSpaceType(ProcAddrSpaceType type);
 
-		u8 getMainThreadPriority() const;
-		void setMainThreadPriority(u8 priority);
+		byte_t getMainThreadPriority() const;
+		void setMainThreadPriority(byte_t priority);
 
-		u8 getMainThreadCpuId() const;
-		void setMainThreadCpuId(u8 cpu_id);
+		byte_t getMainThreadCpuId() const;
+		void setMainThreadCpuId(byte_t cpu_id);
 
-		u32 getVersion() const;
-		void setVersion(u32 version);
+		uint32_t getVersion() const;
+		void setVersion(uint32_t version);
 
-		u32 getMainThreadStackSize() const;
-		void setMainThreadStackSize(u32 size);
+		uint32_t getMainThreadStackSize() const;
+		void setMainThreadStackSize(uint32_t size);
 
 		const std::string& getName() const;
 		void setName(const std::string& name);
@@ -100,7 +100,7 @@ namespace nx
 		const std::string kNpdmStructSig = "META";
 		static const size_t kNameMaxLen = 0x10;
 		static const size_t kProductCodeMaxLen = 0x10;
-		static const u32 kMaxPriority = BIT(6) -1 ;
+		static const uint32_t kMaxPriority = BIT(6) -1 ;
 		static const size_t kNpdmAlignSize = 0x10;
 
 
@@ -108,49 +108,49 @@ namespace nx
 		struct sNpdmHeader
 		{
 		private:
-			u8 signature_[4]; // be"META" 
-			u8 reserved_0[8];
-			u8 flags_;
-			u8 reserved_1;
-			u8 main_thread_priority_; // 0-63 inclusive
-			u8 main_thread_cpu_id_;
-			u8 reserved_2[8];
-			u32 version_;
-			u32 main_thread_stack_size_; // default 4096
-			u8 name_[kNameMaxLen]; // important
-			u8 product_code_[kProductCodeMaxLen]; // can be empty
-			u8 reserved_3[48];
+			byte_t signature_[4]; // be"META" 
+			byte_t reserved_0[8];
+			byte_t flags_;
+			byte_t reserved_1;
+			byte_t main_thread_priority_; // 0-63 inclusive
+			byte_t main_thread_cpu_id_;
+			byte_t reserved_2[8];
+			uint32_t version_;
+			uint32_t main_thread_stack_size_; // default 4096
+			byte_t name_[kNameMaxLen]; // important
+			byte_t product_code_[kProductCodeMaxLen]; // can be empty
+			byte_t reserved_3[48];
 			// Access Control Info
 			struct sNpdmSection
 			{
 			private:
-				u32 offset_;
-				u32 size_;
+				uint32_t offset_;
+				uint32_t size_;
 			public:
-				u32 offset() const { return le_word(offset_); }
-				void set_offset(u32 offset) { offset_ = le_word(offset); }
+				uint32_t offset() const { return le_word(offset_); }
+				void set_offset(uint32_t offset) { offset_ = le_word(offset); }
 
-				u32 size() const { return le_word(size_); }
-				void set_size(u32 size) { size_ = le_word(size); }
+				uint32_t size() const { return le_word(size_); }
+				void set_size(uint32_t size) { size_ = le_word(size); }
 			} aci_, acid_;
 		public:
 			const char* signature() const { return (const char*)signature_; }
 			void set_signature(const char* signature) { memcpy(signature_, signature, 4); }
 
-			u8 flags() const { return flags_; }
-			void set_flags(u8 flags) { flags_ = flags; }
+			byte_t flags() const { return flags_; }
+			void set_flags(byte_t flags) { flags_ = flags; }
 
-			u8 main_thread_priority() const { return main_thread_priority_; }
-			void set_main_thread_priority(u8 priority) { main_thread_priority_ = priority; }
+			byte_t main_thread_priority() const { return main_thread_priority_; }
+			void set_main_thread_priority(byte_t priority) { main_thread_priority_ = priority; }
 
-			u8 main_thread_cpu_id() const { return main_thread_cpu_id_; }
-			void set_main_thread_cpu_id(u8 cpu_id) { main_thread_cpu_id_ = cpu_id; }
+			byte_t main_thread_cpu_id() const { return main_thread_cpu_id_; }
+			void set_main_thread_cpu_id(byte_t cpu_id) { main_thread_cpu_id_ = cpu_id; }
 
-			u32 version() const { return le_word(version_); }
-			void set_version(u32 version) { version_ = le_word(version); }
+			uint32_t version() const { return le_word(version_); }
+			void set_version(uint32_t version) { version_ = le_word(version); }
 
-			u32 main_thread_stack_size() const { return le_word(main_thread_stack_size_); }
-			void set_main_thread_stack_size(u32 size) { main_thread_stack_size_ = le_word(size); }
+			uint32_t main_thread_stack_size() const { return le_word(main_thread_stack_size_); }
+			void set_main_thread_stack_size(uint32_t size) { main_thread_stack_size_ = le_word(size); }
 
 			const char* name() const { return (const char*)name_; }
 			void set_name(const char* name) { strncpy((char*)name_, name, kNameMaxLen); }
@@ -172,10 +172,10 @@ namespace nx
 		// variables
 		InstructionType mInstructionType;
 		ProcAddrSpaceType mProcAddressSpaceType;
-		u8 mMainThreadPriority;
-		u8 mMainThreadCpuId;
-		u32 mVersion;
-		u32 mMainThreadStackSize;
+		byte_t mMainThreadPriority;
+		byte_t mMainThreadCpuId;
+		uint32_t mVersion;
+		uint32_t mMainThreadStackSize;
 		std::string mName;
 		std::string mProductCode;
 		sSection mAciPos;

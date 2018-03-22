@@ -55,12 +55,12 @@ bool nx::HandleTableSizeHandler::isSet() const
 	return mIsSet;
 }
 
-u16 nx::HandleTableSizeHandler::getHandleTableSize() const
+uint16_t nx::HandleTableSizeHandler::getHandleTableSize() const
 {
 	return mEntry.getHandleTableSize();
 }
 
-void nx::HandleTableSizeHandler::setHandleTableSize(u16 size)
+void nx::HandleTableSizeHandler::setHandleTableSize(uint16_t size)
 {
 	mEntry.setHandleTableSize(size);
 	mIsSet = true;

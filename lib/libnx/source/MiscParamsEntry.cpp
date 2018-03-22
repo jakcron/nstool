@@ -14,7 +14,7 @@ nx::MiscParamsEntry::MiscParamsEntry(const KernelCapability & kernel_cap) :
 	setKernelCapability(kernel_cap);
 }
 
-nx::MiscParamsEntry::MiscParamsEntry(u8 program_type) :
+nx::MiscParamsEntry::MiscParamsEntry(uint8_t program_type) :
 	mCap(kCapId),
 	mProgramType(0)
 {
@@ -37,12 +37,12 @@ void nx::MiscParamsEntry::setKernelCapability(const KernelCapability & kernel_ca
 	processCapField();
 }
 
-u8 nx::MiscParamsEntry::getProgramType() const
+uint8_t nx::MiscParamsEntry::getProgramType() const
 {
 	return mProgramType;
 }
 
-void nx::MiscParamsEntry::setProgramType(u8 type)
+void nx::MiscParamsEntry::setProgramType(uint8_t type)
 {
 	if (type > kMaxProgramType)
 	{

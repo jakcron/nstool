@@ -323,7 +323,7 @@ void displayKernelCap(const nx::KcBinary& kern)
 	}
 	if (kern.getSystemCalls().isSet())
 	{
-		fnd::List<u8> syscalls = kern.getSystemCalls().getSystemCalls();
+		fnd::List<uint8_t> syscalls = kern.getSystemCalls().getSystemCalls();
 		printf("  SystemCalls:");
 		printf("\n    ");
 		size_t lineLen = 0;
@@ -346,19 +346,19 @@ void displayKernelCap(const nx::KcBinary& kern)
 		printf("  MemoryMaps:\n");
 		for (size_t i = 0; i < maps.getSize(); i++)
 		{
-			printf("    0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s)\n", (u64)maps[i].addr << 12, ((u64)(maps[i].addr + maps[i].size) << 12) - 1, kMemMapPerm[maps[i].perm].c_str(), kMemMapType[maps[i].type].c_str());
+			printf("    0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s)\n", (uint64_t)maps[i].addr << 12, ((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1, kMemMapPerm[maps[i].perm].c_str(), kMemMapType[maps[i].type].c_str());
 		}
 		//printf("  IoMaps:\n");
 		for (size_t i = 0; i < ioMaps.getSize(); i++)
 		{
-			printf("    0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s)\n", (u64)ioMaps[i].addr << 12, ((u64)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1, kMemMapPerm[ioMaps[i].perm].c_str(), kMemMapType[ioMaps[i].type].c_str());
+			printf("    0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s)\n", (uint64_t)ioMaps[i].addr << 12, ((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1, kMemMapPerm[ioMaps[i].perm].c_str(), kMemMapType[ioMaps[i].type].c_str());
 		}
 	}
 	if (kern.getInterupts().isSet())
 	{
-		fnd::List<u16> interupts = kern.getInterupts().getInteruptList();
+		fnd::List<uint16_t> interupts = kern.getInterupts().getInteruptList();
 		printf("  Interupts Flags:\n");
-		for (u32 i = 0; i < interupts.getSize(); i++)
+		for (uint32_t i = 0; i < interupts.getSize(); i++)
 		{
 			if (i % 10 == 0)
 			{
@@ -384,7 +384,7 @@ void displayKernelCap(const nx::KcBinary& kern)
 		fnd::List<nx::MiscFlagsHandler::Flags> flagList = kern.getMiscFlags().getFlagList();
 
 		printf("  Misc Flags:\n");
-		for (u32 i = 0; i < flagList.getSize(); i++)
+		for (uint32_t i = 0; i < flagList.getSize(); i++)
 		{
 			if (i % 10 == 0)
 			{

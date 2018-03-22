@@ -21,14 +21,14 @@ namespace nx
 		bool isSet() const;
 
 		// variables
-		u8 getMinPriority() const;
-		void setMinPriority(u8 priority);
-		u8 getMaxPriority() const;
-		void setMaxPriority(u8 priority);
-		u8 getMinCpuId() const;
-		void setMinCpuId(u8 core_num);
-		u8 getMaxCpuId() const;
-		void setMaxCpuId(u8 core_num);
+		uint8_t getMinPriority() const;
+		void setMinPriority(uint8_t priority);
+		uint8_t getMaxPriority() const;
+		void setMaxPriority(uint8_t priority);
+		uint8_t getMinCpuId() const;
+		void setMinCpuId(uint8_t core_num);
+		uint8_t getMaxCpuId() const;
+		void setMaxCpuId(uint8_t core_num);
 
 	private:
 		const std::string kModuleName = "THREAD_INFO_HANDLER";

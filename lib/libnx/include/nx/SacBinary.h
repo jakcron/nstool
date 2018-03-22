@@ -14,19 +14,19 @@ namespace nx
 	public:
 		SacBinary();
 		SacBinary(const SacBinary& other);
-		SacBinary(const u8* bytes, size_t len);
+		SacBinary(const byte_t* bytes, size_t len);
 
 		bool operator==(const SacBinary& other) const;
 		bool operator!=(const SacBinary& other) const;
 		void operator=(const SacBinary& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes, size_t len);
+		void importBinary(const byte_t* bytes, size_t len);
 
 		// variables
 		void clear();

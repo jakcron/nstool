@@ -16,7 +16,7 @@ nx::InteruptEntry::InteruptEntry(const KernelCapability & kernel_cap) :
 	setKernelCapability(kernel_cap);
 }
 
-nx::InteruptEntry::InteruptEntry(u32 interupt0, u32 interupt1) :
+nx::InteruptEntry::InteruptEntry(uint32_t interupt0, uint32_t interupt1) :
 	mCap(kCapId),
 	mInterupt{ 0,0 }
 {
@@ -40,17 +40,17 @@ void nx::InteruptEntry::setKernelCapability(const KernelCapability & kernel_cap)
 	processCapField();
 }
 
-u32 nx::InteruptEntry::operator[](size_t index) const
+uint32_t nx::InteruptEntry::operator[](size_t index) const
 {
 	return getInterupt(index);
 }
 
-u32 nx::InteruptEntry::getInterupt(size_t index) const
+uint32_t nx::InteruptEntry::getInterupt(size_t index) const
 {
 	return mInterupt[index % kInteruptNum];
 }
 
-void nx::InteruptEntry::setInterupt(size_t index, u32 interupt)
+void nx::InteruptEntry::setInterupt(size_t index, uint32_t interupt)
 {
 	if (interupt > kInteruptMax)
 	{

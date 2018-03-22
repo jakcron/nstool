@@ -12,7 +12,7 @@ nx::AciBinary::AciBinary(const AciBinary & other)
 	copyFrom(other);
 }
 
-nx::AciBinary::AciBinary(const u8 * bytes, size_t len)
+nx::AciBinary::AciBinary(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -32,7 +32,7 @@ void nx::AciBinary::operator=(const AciBinary & other)
 	copyFrom(other);
 }
 
-const u8 * nx::AciBinary::getBytes() const
+const byte_t * nx::AciBinary::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -69,7 +69,7 @@ void nx::AciBinary::exportBinary()
 	memcpy(mBinaryBlob.getBytes() + getKcPos().offset, mKc.getBytes(), mKc.getSize());
 }
 
-void nx::AciBinary::importBinary(const u8 * bytes, size_t len)
+void nx::AciBinary::importBinary(const byte_t * bytes, size_t len)
 {
 	AciHeader::importBinary(bytes, len);
 

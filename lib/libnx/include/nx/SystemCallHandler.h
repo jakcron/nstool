@@ -20,16 +20,16 @@ namespace nx
 		bool isSet() const;
 
 		// variables
-		const fnd::List<u8>& getSystemCalls() const;
-		void setSystemCallList(const fnd::List<u8>& calls);
+		const fnd::List<uint8_t>& getSystemCalls() const;
+		void setSystemCallList(const fnd::List<uint8_t>& calls);
 
 	private:
 		const std::string kModuleName = "SYSTEM_CALL_HANDLER";
-		static const u32 kMaxSystemCall = (BIT(3) * 24) - 1;
+		static const uint32_t kMaxSystemCall = (BIT(3) * 24) - 1;
 		static const size_t kSyscallTotalEntryNum = (kMaxSystemCall / 24) + 1;
 
 		bool mIsSet;
-		fnd::List<u8> mSystemCalls;
+		fnd::List<uint8_t> mSystemCalls;
 
 		void copyFrom(const SystemCallHandler& other);
 		bool isEqual(const SystemCallHandler& other) const;

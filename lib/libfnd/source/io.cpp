@@ -46,7 +46,7 @@ void io::writeFile(const std::string& path, const MemoryBlob & blob)
 	writeFile(path, blob.getBytes(), blob.getSize());
 }
 
-void io::writeFile(const std::string & path, const u8 * data, size_t len)
+void io::writeFile(const std::string & path, const byte_t * data, size_t len)
 {
 	FILE* fp;
 	size_t filesz, filepos;

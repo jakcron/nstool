@@ -21,8 +21,8 @@ namespace nx
 
 		struct sMemoryMapping
 		{
-			u32 addr; // page index
-			u32 size; // page num
+			uint32_t addr; // page index
+			uint32_t size; // page num
 			MemoryPerm perm;
 			MappingType type;
 
@@ -67,8 +67,8 @@ namespace nx
 
 	private:
 		const std::string kModuleName = "MEMORY_MAPPING_HANDLER";
-		static const u32 kMaxPageAddr = BIT(24) - 1;
-		static const u32 kMaxPageNum = BIT(20) - 1;
+		static const uint32_t kMaxPageAddr = BIT(24) - 1;
+		static const uint32_t kMaxPageNum = BIT(20) - 1;
 
 		bool mIsSet;
 		fnd::List<sMemoryMapping> mMemRange;

@@ -4,10 +4,6 @@
 #include <fnd/BitMath.h>
 #include <fnd/Endian.h>
 
-typedef uint64_t u64;
-typedef uint32_t u32;
-typedef uint16_t u16;
-typedef uint8_t u8;
 typedef uint8_t byte_t;
 
 #define MIN(x,y) ((x) <= (y)? (x) : (y))

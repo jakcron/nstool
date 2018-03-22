@@ -44,8 +44,8 @@ namespace nx
 
 		struct sSection
 		{
-			u64 offset;
-			u64 size;
+			uint64_t offset;
+			uint64_t size;
 			crypto::sha::sSha256Hash hash;
 
 			const sSection& operator=(const sSection& other)
@@ -74,19 +74,19 @@ namespace nx
 
 		NcaHeader();
 		NcaHeader(const NcaHeader& other);
-		NcaHeader(const u8* bytes, size_t len);
+		NcaHeader(const byte_t* bytes, size_t len);
 
 		bool operator==(const NcaHeader& other) const;
 		bool operator!=(const NcaHeader& other) const;
 		void operator=(const NcaHeader& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes, size_t len);
+		void importBinary(const byte_t* bytes, size_t len);
 
 		// variables
 		void clear();
@@ -100,14 +100,14 @@ namespace nx
 		void setCryptoType(byte_t type);
 		byte_t getKaekIndex() const;
 		void setKaekIndex(byte_t index);
-		u64 getNcaSize() const;
-		void setNcaSize(u64 size);
-		u64 getProgramId() const;
-		void setProgramId(u64 program_id);
-		u32 getContentIndex() const;
-		void setContentIndex(u32 index);
-		u32 getSdkAddonVersion() const;
-		void setSdkAddonVersion(u32 version);
+		uint64_t getNcaSize() const;
+		void setNcaSize(uint64_t size);
+		uint64_t getProgramId() const;
+		void setProgramId(uint64_t program_id);
+		uint32_t getContentIndex() const;
+		void setContentIndex(uint32_t index);
+		uint32_t getSdkAddonVersion() const;
+		void setSdkAddonVersion(uint32_t version);
 		const fnd::List<sSection>& getSections() const;
 		void addSection(const sSection& section);
 		const fnd::List<crypto::aes::sAes128Key>& getEncAesKeys() const;
@@ -119,7 +119,7 @@ namespace nx
 		const std::string kNca3Sig = "NCA3";
 		static const size_t kSectionNum = 4;
 		static const size_t kAesKeyNum = 4;
-		static const u32 kDefaultSdkAddonVersion = 721920;
+		static const uint32_t kDefaultSdkAddonVersion = 721920;
 
 		enum ProgramPartitionId
 		{
@@ -166,15 +166,15 @@ namespace nx
 		ContentType mContentType;
 		byte_t mCryptoType;
 		byte_t mKaekIndex;
-		u64 mNcaSize;
-		u64 mProgramId;
-		u32 mContentIndex;
-		u32 mSdkAddonVersion;
+		uint64_t mNcaSize;
+		uint64_t mProgramId;
+		uint32_t mContentIndex;
+		uint32_t mSdkAddonVersion;
 		fnd::List<sSection> mSections;
 		fnd::List<crypto::aes::sAes128Key> mEncAesKeys;
 
-		u64 blockNumToSize(u32 block_num) const;
-		u32 sizeToBlockNum(u64 real_size) const;
+		uint64_t blockNumToSize(uint32_t block_num) const;
+		uint32_t sizeToBlockNum(uint64_t real_size) const;
 		bool isEqual(const NcaHeader& other) const;
 		void copyFrom(const NcaHeader& other);
 	};

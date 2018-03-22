@@ -12,7 +12,7 @@ nx::AcidBinary::AcidBinary(const AcidBinary & other)
 	copyFrom(other);
 }
 
-nx::AcidBinary::AcidBinary(const u8 * bytes, size_t len)
+nx::AcidBinary::AcidBinary(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -67,7 +67,7 @@ void nx::AcidBinary::operator=(const AcidBinary & other)
 	copyFrom(other);
 }
 
-const u8 * nx::AcidBinary::getBytes() const
+const byte_t * nx::AcidBinary::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -94,7 +94,7 @@ void nx::AcidBinary::signBinary(const crypto::rsa::sRsa2048Key & key)
 		exportBinary();
 	}
 
-	u8 hash[crypto::sha::kSha256HashLen];
+	byte_t hash[crypto::sha::kSha256HashLen];
 	crypto::sha::Sha256(mBinaryBlob.getBytes() + crypto::rsa::kRsa2048Size, mBinaryBlob.getSize() - crypto::rsa::kRsa2048Size, hash);
 
 	if (crypto::rsa::pkcs::rsaSign(key, crypto::sha::HASH_SHA256, hash, mBinaryBlob.getBytes()) != 0)
@@ -103,7 +103,7 @@ void nx::AcidBinary::signBinary(const crypto::rsa::sRsa2048Key & key)
 	}
 }
 
-void nx::AcidBinary::importBinary(const u8 * bytes, size_t len)
+void nx::AcidBinary::importBinary(const byte_t * bytes, size_t len)
 {
 	if (len <= crypto::rsa::kRsa2048Size*2)
 	{
@@ -132,7 +132,7 @@ void nx::AcidBinary::verifyBinary(const crypto::rsa::sRsa2048Key & key)
 		throw fnd::Exception(kModuleName, "No ACID binary exists to verify");
 	}
 
-	u8 hash[crypto::sha::kSha256HashLen];
+	byte_t hash[crypto::sha::kSha256HashLen];
 	crypto::sha::Sha256(mBinaryBlob.getBytes() + crypto::rsa::kRsa2048Size, mBinaryBlob.getSize() - crypto::rsa::kRsa2048Size, hash);
 
 	if (crypto::rsa::pkcs::rsaVerify(key, crypto::sha::HASH_SHA256, hash, mBinaryBlob.getBytes()) != 0)

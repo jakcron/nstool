@@ -22,32 +22,32 @@ namespace nx
 
 		KernelCapability();
 		KernelCapability(KernelCapId type);
-		KernelCapability(KernelCapId type, u32 field);
+		KernelCapability(KernelCapId type, uint32_t field);
 
 		const KernelCapability& operator=(const KernelCapability& other);
 		bool operator==(const KernelCapability& other) const;
 		bool operator!=(const KernelCapability& other) const;
 
-		u32 getCap() const;
-		void setCap(u32 cap);
+		uint32_t getCap() const;
+		void setCap(uint32_t cap);
 
 		KernelCapId getType() const;
 		void setType(KernelCapId type);
 
-		u32 getField() const;
-		void setField(u32 field);
+		uint32_t getField() const;
+		void setField(uint32_t field);
 
 	private:
 		KernelCapId mType;
-		u32 mField;
+		uint32_t mField;
 
-		inline u32 getFieldShift() const { return mType + 1; }
-		inline u32 getFieldMask() const { return BIT(31 - mType) - 1; }
-		inline u32 getCapMask() const { return BIT(mType) - 1; }
-		inline KernelCapId getCapId(u32 cap) const
+		inline uint32_t getFieldShift() const { return mType + 1; }
+		inline uint32_t getFieldMask() const { return BIT(31 - mType) - 1; }
+		inline uint32_t getCapMask() const { return BIT(mType) - 1; }
+		inline KernelCapId getCapId(uint32_t cap) const
 		{
 			KernelCapId id = KC_INVALID;
-			for (u8 tmp = 0; tmp < 31; tmp++)
+			for (byte_t tmp = 0; tmp < 31; tmp++)
 			{
 				if (((cap >> tmp) & 1) == 0)
 				{

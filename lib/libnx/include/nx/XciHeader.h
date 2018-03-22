@@ -45,45 +45,45 @@ namespace nx
 
 		struct sContentMetaInfo
 		{
-			u64 id;
-			u32 version;
-			u8 type; // ContentMetaType
-			u8 attributes;
-			u8 reserved[2];
+			uint64_t id;
+			uint32_t version;
+			byte_t type; // ContentMetaType
+			byte_t attributes;
+			byte_t reserved[2];
 		};
 
 		struct sContentInfo
 		{
-			u8 id[16];
-			u32 size_low;
-			u16 size_high;
-			u8 type;
-			u8 reserved;
+			byte_t id[16];
+			uint32_t size_low;
+			uint16_t size_high;
+			byte_t type;
+			byte_t reserved;
 		};
 
 		struct sXciHeader
 		{
-			u8 signature[4];
-			u32 rom_area_start_page;
-			u32 backup_area_start_page;
-			u8 key_flag; // bit0-3 = KekIndex, bit4-7 = TitleKeyDecIndex
-			u8 rom_size; // this is an enum
-			u8 flags;
-			u8 package_id[8]; // stylised as 0x{0:x2}{1:x2}{2:x2}{3:x2}_{4:x2}{5:x2}{6:x2}{7:x2}
-			u32 valid_data_end_page;
-			u8 reserved_0[100];
-			u32 sel_sec;
-			u32 sel_t1_key;
-			u32 sel_key;
-			u32 lim_area;
-			u32 fw_version[2]; // [0]=minor, [1]=major
-			u32 acc_ctrl_1;
-			u8 reserved_1[0x10];
-			u32 fw_mode;
-			u32 cup_version;
-			u8 reserved_2[0x4];
-			u8 upp_hash[8]; // stylised as 0x{0:x2}{1:x2}{2:x2}{3:x2}_{4:x2}{5:x2}{6:x2}{7:x2}
-			u64 cup_id; // cup programID?
+			byte_t signature[4];
+			uint32_t rom_area_start_page;
+			uint32_t backup_area_start_page;
+			byte_t key_flag; // bit0-3 = KekIndex, bit4-7 = TitleKeyDecIndex
+			byte_t rom_size; // this is an enum
+			byte_t flags;
+			byte_t package_id[8]; // stylised as 0x{0:x2}{1:x2}{2:x2}{3:x2}_{4:x2}{5:x2}{6:x2}{7:x2}
+			uint32_t valid_data_end_page;
+			byte_t reserved_0[100];
+			uint32_t sel_sec;
+			uint32_t sel_t1_key;
+			uint32_t sel_key;
+			uint32_t lim_area;
+			uint32_t fw_version[2]; // [0]=minor, [1]=major
+			uint32_t acc_ctrl_1;
+			byte_t reserved_1[0x10];
+			uint32_t fw_mode;
+			uint32_t cup_version;
+			byte_t reserved_2[0x4];
+			byte_t upp_hash[8]; // stylised as 0x{0:x2}{1:x2}{2:x2}{3:x2}_{4:x2}{5:x2}{6:x2}{7:x2}
+			uint64_t cup_id; // cup programID?
 
 		};
 #pragma pack (pop)

@@ -11,7 +11,7 @@ SacBinary::SacBinary(const SacBinary & other)
 	copyFrom(other);
 }
 
-SacBinary::SacBinary(const u8 * bytes, size_t len)
+SacBinary::SacBinary(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -31,7 +31,7 @@ void SacBinary::operator=(const SacBinary & other)
 	copyFrom(other);
 }
 
-const u8 * SacBinary::getBytes() const
+const byte_t * SacBinary::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -57,7 +57,7 @@ void SacBinary::exportBinary()
 	}
 }
 
-void SacBinary::importBinary(const u8 * bytes, size_t len)
+void SacBinary::importBinary(const byte_t * bytes, size_t len)
 {
 	clear();
 	mBinaryBlob.alloc(len);
@@ -66,7 +66,7 @@ void SacBinary::importBinary(const u8 * bytes, size_t len)
 	SacEntry svc;
 	for (size_t pos = 0; pos < len; pos += mServices.atBack().getSize())
 	{
-		svc.importBinary((const u8*)(mBinaryBlob.getBytes() + pos), len - pos);
+		svc.importBinary((const byte_t*)(mBinaryBlob.getBytes() + pos), len - pos);
 		mServices.addElement(svc);
 	}
 }

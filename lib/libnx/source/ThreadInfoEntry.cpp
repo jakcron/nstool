@@ -20,7 +20,7 @@ nx::ThreadInfoEntry::ThreadInfoEntry(const KernelCapability & kernel_cap) :
 	setKernelCapability(kernel_cap);
 }
 
-nx::ThreadInfoEntry::ThreadInfoEntry(u8 min_priority, u8 max_priority, u8 min_core_number, u8 max_core_number) :
+nx::ThreadInfoEntry::ThreadInfoEntry(uint8_t min_priority, uint8_t max_priority, uint8_t min_core_number, uint8_t max_core_number) :
 	mCap(kCapId),
 	mMinPriority(kDefaultPriority),
 	mMaxPriority(kDefaultPriority),
@@ -49,12 +49,12 @@ void nx::ThreadInfoEntry::setKernelCapability(const KernelCapability & kernel_ca
 	processCapField();
 }
 
-u8 nx::ThreadInfoEntry::getMinPriority() const
+uint8_t nx::ThreadInfoEntry::getMinPriority() const
 {
 	return mMinPriority;
 }
 
-void nx::ThreadInfoEntry::setMinPriority(u8 priority)
+void nx::ThreadInfoEntry::setMinPriority(uint8_t priority)
 {
 	if (priority > kMaxVal)
 	{
@@ -65,12 +65,12 @@ void nx::ThreadInfoEntry::setMinPriority(u8 priority)
 	updateCapField();
 }
 
-u8 nx::ThreadInfoEntry::getMaxPriority() const
+uint8_t nx::ThreadInfoEntry::getMaxPriority() const
 {
 	return mMaxPriority;
 }
 
-void nx::ThreadInfoEntry::setMaxPriority(u8 priority)
+void nx::ThreadInfoEntry::setMaxPriority(uint8_t priority)
 {
 	if (priority > kMaxVal)
 	{
@@ -81,12 +81,12 @@ void nx::ThreadInfoEntry::setMaxPriority(u8 priority)
 	updateCapField();
 }
 
-u8 nx::ThreadInfoEntry::getMinCpuId() const
+uint8_t nx::ThreadInfoEntry::getMinCpuId() const
 {
 	return mMinCpuId;
 }
 
-void nx::ThreadInfoEntry::setMinCpuId(u8 core_num)
+void nx::ThreadInfoEntry::setMinCpuId(uint8_t core_num)
 {
 	if (core_num > kMaxVal)
 	{
@@ -97,12 +97,12 @@ void nx::ThreadInfoEntry::setMinCpuId(u8 core_num)
 	updateCapField();
 }
 
-u8 nx::ThreadInfoEntry::getMaxCpuId() const
+uint8_t nx::ThreadInfoEntry::getMaxCpuId() const
 {
 	return mMaxCpuId;
 }
 
-void nx::ThreadInfoEntry::setMaxCpuId(u8 core_num)
+void nx::ThreadInfoEntry::setMaxCpuId(uint8_t core_num)
 {
 	if (core_num > kMaxVal)
 	{

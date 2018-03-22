@@ -13,39 +13,39 @@ namespace nx
 	public:
 		FacBinary();
 		FacBinary(const FacBinary& other);
-		FacBinary(const u8* bytes, size_t len);
+		FacBinary(const byte_t* bytes, size_t len);
 
 		bool operator==(const FacBinary& other) const;
 		bool operator!=(const FacBinary& other) const;
 		void operator=(const FacBinary& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes, size_t len);
+		void importBinary(const byte_t* bytes, size_t len);
 
 		// variables
 		void clear();
 
-		const fnd::List<u32>& getContentOwnerIdList() const;
-		void setContentOwnerIdList(const fnd::List<u32>& list);
+		const fnd::List<uint32_t>& getContentOwnerIdList() const;
+		void setContentOwnerIdList(const fnd::List<uint32_t>& list);
 
-		const fnd::List<u32>& getSaveDataOwnerIdList() const;
-		void setSaveDataOwnerIdList(const fnd::List<u32>& list);
+		const fnd::List<uint32_t>& getSaveDataOwnerIdList() const;
+		void setSaveDataOwnerIdList(const fnd::List<uint32_t>& list);
 
 	private:
 		const std::string kModuleName = "FAC_BINARY";
-		static const u32 kFacFormatVersion = 1;
+		static const uint32_t kFacFormatVersion = 1;
 
 		// raw binary
 		fnd::MemoryBlob mBinaryBlob;
 
 		// variables
-		fnd::List<u32> mContentOwnerIdList;
-		fnd::List<u32> mSaveDataOwnerIdList;
+		fnd::List<uint32_t> mContentOwnerIdList;
+		fnd::List<uint32_t> mSaveDataOwnerIdList;
 
 		bool isEqual(const FacBinary& other) const;
 		void copyFrom(const FacBinary& other);

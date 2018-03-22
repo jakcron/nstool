@@ -20,14 +20,14 @@ namespace es
 		{
 		private:
 			static const size_t kAccessMaskSize = 0x80;
-			static const u16 kGroupMask = 0xFC00;
-			static const u16 kAccessMaskMask = 0x3FF;
+			static const uint16_t kGroupMask = 0xFC00;
+			static const uint16_t kAccessMaskMask = 0x3FF;
 
-			u32 group_;
-			u8 access_mask_[kAccessMaskSize];
+			uint32_t group_;
+			byte_t access_mask_[kAccessMaskSize];
 		public:
-			u32 index_group() const { return be_word(group_); }
-			bool is_index_enabled(u16 index) const
+			uint32_t index_group() const { return be_word(group_); }
+			bool is_index_enabled(uint16_t index) const
 			{
 				return (index_group() == get_group(index)) \
 					&& ((access_mask_[get_access_mask(index) / 8] & BIT(get_access_mask(index) % 8)) != 0);
@@ -35,12 +35,12 @@ namespace es
 
 			void clear() { memset(this, 0, sizeof(sContentRecord_v1)); }
 
-			void set_index_group(u16 index) { group_ = be_hword(get_group(index)); }
-			void enable_index(u16 index) { access_mask_[get_access_mask(index) / 8] |= BIT(get_access_mask(index) % 8); }
-			void disable_index(u16 index) { access_mask_[get_access_mask(index) / 8] &= ~BIT(get_access_mask(index) % 8); }
+			void set_index_group(uint16_t index) { group_ = be_hword(get_group(index)); }
+			void enable_index(uint16_t index) { access_mask_[get_access_mask(index) / 8] |= BIT(get_access_mask(index) % 8); }
+			void disable_index(uint16_t index) { access_mask_[get_access_mask(index) / 8] &= ~BIT(get_access_mask(index) % 8); }
 
-			inline u16 get_access_mask(u16 index) const { return index & kAccessMaskMask; }
-			inline u16 get_group(u16 index) const { return index & kGroupMask; }
+			inline uint16_t get_access_mask(uint16_t index) const { return index & kAccessMaskMask; }
+			inline uint16_t get_group(uint16_t index) const { return index & kGroupMask; }
 		};
 #pragma pack (pop)
 	};

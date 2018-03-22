@@ -29,12 +29,12 @@ void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCap
 
 	SystemCallEntry entry;
 
-	u8 syscallUpper, syscall;
+	uint8_t syscallUpper, syscall;
 	for (size_t i = 0; i < caps.getSize(); i++)
 	{
 		entry.setKernelCapability(caps[i]);
 		syscallUpper = 24 * entry.getSystemCallUpperBits();
-		for (u8 j = 0; j < 24; j++)
+		for (uint8_t j = 0; j < 24; j++)
 		{
 			syscall = syscallUpper + j;
 			if (((entry.getSystemCallLowerBits() >> j) & 1) == 1)
@@ -90,12 +90,12 @@ bool nx::SystemCallHandler::isSet() const
 	return mIsSet;
 }
 
-const fnd::List<u8>& nx::SystemCallHandler::getSystemCalls() const
+const fnd::List<uint8_t>& nx::SystemCallHandler::getSystemCalls() const
 {
 	return mSystemCalls;
 }
 
-void nx::SystemCallHandler::setSystemCallList(const fnd::List<u8>& calls)
+void nx::SystemCallHandler::setSystemCallList(const fnd::List<uint8_t>& calls)
 {
 	mSystemCalls.clear();
 	for (size_t i = 0; i < calls.getSize(); i++)

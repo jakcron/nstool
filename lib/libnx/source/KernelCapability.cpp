@@ -11,7 +11,7 @@ KernelCapability::KernelCapability(KernelCapId type) :
 	mField(0)
 {}
 
-KernelCapability::KernelCapability(KernelCapId type, u32 field) :
+KernelCapability::KernelCapability(KernelCapId type, uint32_t field) :
 	mType(type),
 	mField(field)
 {}
@@ -34,12 +34,12 @@ bool nx::KernelCapability::operator!=(const KernelCapability & other) const
 	return !operator==(other);
 }
 
-u32 KernelCapability::getCap() const
+uint32_t KernelCapability::getCap() const
 {
 	return (mField & getFieldMask()) << getFieldShift() | getCapMask();
 }
 
-void KernelCapability::setCap(u32 cap)
+void KernelCapability::setCap(uint32_t cap)
 {
 	mType = getCapId(cap);
 	mField = (cap >> getFieldShift()) & getFieldMask();
@@ -55,12 +55,12 @@ void KernelCapability::setType(KernelCapId type)
 	mType = type;
 }
 
-u32 KernelCapability::getField() const
+uint32_t KernelCapability::getField() const
 {
 	return mField & getFieldMask();
 }
 
-void KernelCapability::setField(u32 field)
+void KernelCapability::setField(uint32_t field)
 {
 	mField = field;
 }

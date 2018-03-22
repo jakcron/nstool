@@ -35,7 +35,7 @@ void SacEntry::operator=(const SacEntry & other)
 	copyFrom(other);
 }
 
-const u8 * SacEntry::getBytes() const
+const byte_t * SacEntry::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -70,7 +70,7 @@ void SacEntry::exportBinary()
 	memcpy(mBinaryBlob.getBytes() + 1, mName.c_str(), mName.length());
 }
 
-void SacEntry::importBinary(const u8 * bytes, size_t len)
+void SacEntry::importBinary(const byte_t * bytes, size_t len)
 {
 	bool isServer = (bytes[0] & SAC_IS_SERVER) == SAC_IS_SERVER;
 	size_t nameLen = (bytes[0] & SAC_NAME_LEN_MASK) + 1; // bug?

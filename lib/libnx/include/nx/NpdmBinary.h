@@ -15,19 +15,19 @@ namespace nx
 	public:
 		NpdmBinary();
 		NpdmBinary(const NpdmBinary& other);
-		NpdmBinary(const u8* bytes, size_t len);
+		NpdmBinary(const byte_t* bytes, size_t len);
 
 		bool operator==(const NpdmBinary& other) const;
 		bool operator!=(const NpdmBinary& other) const;
 		void operator=(const NpdmBinary& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes, size_t len);
+		void importBinary(const byte_t* bytes, size_t len);
 
 		// variables
 		void clear();

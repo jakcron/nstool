@@ -12,7 +12,7 @@ nx::NpdmHeader::NpdmHeader(const NpdmHeader & other)
 	copyFrom(other);
 }
 
-nx::NpdmHeader::NpdmHeader(const u8 * bytes, size_t len)
+nx::NpdmHeader::NpdmHeader(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -32,7 +32,7 @@ void nx::NpdmHeader::operator=(const NpdmHeader & other)
 	copyFrom(other);
 }
 
-const u8 * nx::NpdmHeader::getBytes() const
+const byte_t * nx::NpdmHeader::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -89,7 +89,7 @@ void nx::NpdmHeader::exportBinary()
 	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
 
 	hdr->set_signature(kNpdmStructSig.c_str());
-	u8 flag = ((u8)(mInstructionType & 1) | (u8)((mProcAddressSpaceType & 3) << 1)) & 0xf;
+	byte_t flag = ((byte_t)(mInstructionType & 1) | (byte_t)((mProcAddressSpaceType & 3) << 1)) & 0xf;
 	hdr->set_flags(flag);
 	hdr->set_main_thread_priority(mMainThreadPriority);
 	hdr->set_main_thread_cpu_id(mMainThreadCpuId);
@@ -105,7 +105,7 @@ void nx::NpdmHeader::exportBinary()
 	hdr->acid().set_size(mAcidPos.size);
 }
 
-void nx::NpdmHeader::importBinary(const u8 * bytes, size_t len)
+void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sNpdmHeader))
 	{
@@ -123,7 +123,7 @@ void nx::NpdmHeader::importBinary(const u8 * bytes, size_t len)
 		throw fnd::Exception(kModuleName, "NPDM header corrupt");
 	}
 
-	u8 flag = hdr->flags() & 0xf;
+	byte_t flag = hdr->flags() & 0xf;
 	mInstructionType = (InstructionType)(flag & 1);
 	mProcAddressSpaceType = (ProcAddrSpaceType)((flag >> 1) & 3);
 	mMainThreadPriority = hdr->main_thread_priority();
@@ -188,12 +188,12 @@ void nx::NpdmHeader::setProcAddressSpaceType(ProcAddrSpaceType type)
 	mProcAddressSpaceType = type;
 }
 
-u8 nx::NpdmHeader::getMainThreadPriority() const
+byte_t nx::NpdmHeader::getMainThreadPriority() const
 {
 	return mMainThreadPriority;
 }
 
-void nx::NpdmHeader::setMainThreadPriority(u8 priority)
+void nx::NpdmHeader::setMainThreadPriority(byte_t priority)
 {
 	if (priority > kMaxPriority)
 	{
@@ -203,32 +203,32 @@ void nx::NpdmHeader::setMainThreadPriority(u8 priority)
 	mMainThreadPriority = priority;
 }
 
-u8 nx::NpdmHeader::getMainThreadCpuId() const
+byte_t nx::NpdmHeader::getMainThreadCpuId() const
 {
 	return mMainThreadCpuId;
 }
 
-void nx::NpdmHeader::setMainThreadCpuId(u8 core_num)
+void nx::NpdmHeader::setMainThreadCpuId(byte_t core_num)
 {
 	mMainThreadCpuId = core_num;
 }
 
-u32 nx::NpdmHeader::getVersion() const
+uint32_t nx::NpdmHeader::getVersion() const
 {
 	return mVersion;
 }
 
-void nx::NpdmHeader::setVersion(u32 version)
+void nx::NpdmHeader::setVersion(uint32_t version)
 {
 	mVersion = version;
 }
 
-u32 nx::NpdmHeader::getMainThreadStackSize() const
+uint32_t nx::NpdmHeader::getMainThreadStackSize() const
 {
 	return mMainThreadStackSize;
 }
 
-void nx::NpdmHeader::setMainThreadStackSize(u32 size)
+void nx::NpdmHeader::setMainThreadStackSize(uint32_t size)
 {
 	mMainThreadStackSize = size;
 }

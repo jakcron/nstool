@@ -27,7 +27,7 @@ const std::string kBooleanStr[2] =
 	"TRUE"
 };
 
-u8 eticket_common_key[16] = { 0x55, 0xA3, 0xF8, 0x72, 0xBD, 0xC8, 0x0C, 0x55, 0x5A, 0x65, 0x43, 0x81, 0x13, 0x9E, 0x15, 0x3B }; // lol this 3ds dev common key
+const byte_t eticket_common_key[16] = { 0x55, 0xA3, 0xF8, 0x72, 0xBD, 0xC8, 0x0C, 0x55, 0x5A, 0x65, 0x43, 0x81, 0x13, 0x9E, 0x15, 0x3B }; // lol this 3ds dev common key
 
 int main(int argc, char** argv)
 {
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 		printf("    CommonKeyId:  %02X\n", body.getCommonKeyId());
 		printf("    EncData:");
 		size_t size = body.getTitleKeyEncType() == es::ETicketBody_V2::RSA2048 ? crypto::rsa::kRsa2048Size : crypto::aes::kAes128KeySize;
-		for (u32 i = 0; i < size; i++)
+		for (uint32_t i = 0; i < size; i++)
 		{
 			if (i % 16 == 0)
 			{
@@ -64,13 +64,13 @@ int main(int argc, char** argv)
 
 		if (body.getTitleKeyEncType() == es::ETicketBody_V2::AES128_CBC && body.getCommonKeyId() == 0)
 		{
-			u8 iv[crypto::aes::kAesBlockSize];
-			u8 key[crypto::aes::kAes128KeySize];
+			byte_t iv[crypto::aes::kAesBlockSize];
+			byte_t key[crypto::aes::kAes128KeySize];
 			memcpy(iv, body.getRightsId(), crypto::aes::kAesBlockSize);
 			crypto::aes::AesCbcDecrypt(body.getEncTitleKey(), crypto::aes::kAes128KeySize, eticket_common_key, iv, key);
 			size = crypto::aes::kAes128KeySize;
 			printf("    TitleKey:");
-			for (u32 i = 0; i < size; i++)
+			for (uint32_t i = 0; i < size; i++)
 			{
 				if (i % 16 == 0)
 				{
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 		printf("    SharedTitle:  %s\n", kBooleanStr[body.isSharedTitle()].c_str());
 		printf("    AllContent:   %s\n", kBooleanStr[body.allowAllContent()].c_str());
 		printf("  Reserved Region:");
-		for (u32 i = 0; i < 8; i++)
+		for (uint32_t i = 0; i < 8; i++)
 		{
 			if (i % 16 == 0)
 			{

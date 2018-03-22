@@ -35,7 +35,7 @@ void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapa
 	entry.setKernelCapability(caps[0]);
 	
 	clear();
-	for (u32 i = 0; i < FLAG_NUM; i++)
+	for (uint32_t i = 0; i < FLAG_NUM; i++)
 	{
 		if ((entry.getFlags() & BIT(i)) == BIT(i))
 		{
@@ -52,7 +52,7 @@ void nx::MiscFlagsHandler::exportKernelCapabilityList(fnd::List<KernelCapability
 		return;
 
 	// convert list to word flags
-	u32 flag = 0;
+	uint32_t flag = 0;
 	for (size_t i = 0; i < mFlags.getSize(); i++)
 	{
 		flag |= BIT(mFlags[i]);

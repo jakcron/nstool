@@ -14,7 +14,7 @@ nx::FacHeader::FacHeader(const FacHeader & other) :
 	copyFrom(other);
 }
 
-nx::FacHeader::FacHeader(const u8 * bytes, size_t len) :
+nx::FacHeader::FacHeader(const byte_t * bytes, size_t len) :
 	mFsaRights()
 {
 	importBinary(bytes, len);
@@ -35,7 +35,7 @@ void nx::FacHeader::operator=(const FacHeader & other)
 	copyFrom(other);
 }
 
-const u8 * nx::FacHeader::getBytes() const
+const byte_t * nx::FacHeader::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -54,23 +54,23 @@ void nx::FacHeader::exportBinary()
 	{
 		fnd::Exception(kModuleName, "Unsupported format version");
 	}
-	hdr->set_version(mVersion);
+	hdr->version = (mVersion);
 
-	u64 flag = 0;
+	uint64_t flag = 0;
 	for (size_t i = 0; i < mFsaRights.getSize(); i++)
 	{
-		flag |= BIT((u64)mFsaRights[i]);
+		flag |= BIT((uint64_t)mFsaRights[i]);
 	}
-	hdr->set_fac_flags(flag);
+	hdr->fac_flags = (flag);
 
 	calculateOffsets();
-	hdr->content_owner_ids().set_start(mContentOwnerIdPos.offset);
-	hdr->content_owner_ids().set_end(mContentOwnerIdPos.offset + mContentOwnerIdPos.size);
-	hdr->save_data_owner_ids().set_start(mSaveDataOwnerIdPos.offset);
-	hdr->save_data_owner_ids().set_end(mSaveDataOwnerIdPos.offset + mSaveDataOwnerIdPos.size);
+	hdr->content_owner_ids.start = (mContentOwnerIdPos.offset);
+	hdr->content_owner_ids.end = (mContentOwnerIdPos.offset + mContentOwnerIdPos.size);
+	hdr->save_data_owner_ids.start = (mSaveDataOwnerIdPos.offset);
+	hdr->save_data_owner_ids.end = (mSaveDataOwnerIdPos.offset + mSaveDataOwnerIdPos.size);
 }
 
-void nx::FacHeader::importBinary(const u8 * bytes, size_t len)
+void nx::FacHeader::importBinary(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sFacHeader))
 	{
@@ -81,24 +81,24 @@ void nx::FacHeader::importBinary(const u8 * bytes, size_t len)
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 	sFacHeader* hdr = (sFacHeader*)mBinaryBlob.getBytes();
 
-	if (hdr->version() != kFacFormatVersion)
+	if (hdr->version.get() != kFacFormatVersion)
 	{
 		throw fnd::Exception(kModuleName, "Unsupported FAC format version");
 	}
-	mVersion = hdr->version();
+	mVersion = hdr->version.get();
 
 	clear();
-	for (u64 i = 0; i < 64; i++)
+	for (uint64_t i = 0; i < 64; i++)
 	{
-		if ((hdr->fac_flags() >> i) & 1)
+		if ((hdr->fac_flags.get() >> i) & 1)
 		{
 			mFsaRights.addElement((FsAccessFlag)i);
 		}
 	}
-	mContentOwnerIdPos.offset = hdr->content_owner_ids().start();
-	mContentOwnerIdPos.size = hdr->content_owner_ids().end() > hdr->content_owner_ids().start() ? hdr->content_owner_ids().end() - hdr->content_owner_ids().start() : 0;
-	mSaveDataOwnerIdPos.offset = hdr->save_data_owner_ids().start();
-	mSaveDataOwnerIdPos.size = hdr->save_data_owner_ids().end() > hdr->save_data_owner_ids().start() ? hdr->save_data_owner_ids().end() - hdr->save_data_owner_ids().start() : 0;
+	mContentOwnerIdPos.offset = hdr->content_owner_ids.start.get();
+	mContentOwnerIdPos.size = hdr->content_owner_ids.end.get() > hdr->content_owner_ids.start.get() ? hdr->content_owner_ids.end.get() - hdr->content_owner_ids.start.get() : 0;
+	mSaveDataOwnerIdPos.offset = hdr->save_data_owner_ids.start.get();
+	mSaveDataOwnerIdPos.size = hdr->save_data_owner_ids.end.get() > hdr->save_data_owner_ids.start.get() ? hdr->save_data_owner_ids.end.get() - hdr->save_data_owner_ids.start.get() : 0;
 }
 
 void nx::FacHeader::clear()
@@ -117,12 +117,12 @@ size_t nx::FacHeader::getFacSize() const
 	return MAX(MAX(savedata, content), sizeof(sFacHeader));
 }
 
-u32 nx::FacHeader::getFormatVersion() const
+uint32_t nx::FacHeader::getFormatVersion() const
 {
 	return mVersion;
 }
 
-void nx::FacHeader::setFormatVersion(u32 version)
+void nx::FacHeader::setFormatVersion(uint32_t version)
 {
 	mVersion = version;
 }

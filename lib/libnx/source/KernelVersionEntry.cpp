@@ -16,7 +16,7 @@ nx::KernelVersionEntry::KernelVersionEntry(const KernelCapability & kernel_cap) 
 	setKernelCapability(kernel_cap);
 }
 
-nx::KernelVersionEntry::KernelVersionEntry(u16 major, u8 minor) :
+nx::KernelVersionEntry::KernelVersionEntry(uint16_t major, uint8_t minor) :
 	mCap(kCapId),
 	mVerMajor(0),
 	mVerMinor(0)
@@ -41,12 +41,12 @@ void nx::KernelVersionEntry::setKernelCapability(const KernelCapability & kernel
 	processCapField();
 }
 
-u16 nx::KernelVersionEntry::getVerMajor() const
+uint16_t nx::KernelVersionEntry::getVerMajor() const
 {
 	return mVerMajor;
 }
 
-void nx::KernelVersionEntry::setVerMajor(u16 major)
+void nx::KernelVersionEntry::setVerMajor(uint16_t major)
 {
 	if (major > kVerMajorMax)
 	{
@@ -57,12 +57,12 @@ void nx::KernelVersionEntry::setVerMajor(u16 major)
 	updateCapField();
 }
 
-u8 nx::KernelVersionEntry::getVerMinor() const
+uint8_t nx::KernelVersionEntry::getVerMinor() const
 {
 	return mVerMinor;
 }
 
-void nx::KernelVersionEntry::setVerMinor(u8 minor)
+void nx::KernelVersionEntry::setVerMinor(uint8_t minor)
 {
 	if (minor > kVerMinorMax)
 	{

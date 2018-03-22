@@ -16,7 +16,7 @@ nx::NpdmBinary::NpdmBinary(const NpdmBinary & other) :
 	copyFrom(other);
 }
 
-nx::NpdmBinary::NpdmBinary(const u8 * bytes, size_t len) :
+nx::NpdmBinary::NpdmBinary(const byte_t * bytes, size_t len) :
 	mAci(),
 	mAcid()
 {
@@ -47,7 +47,7 @@ void nx::NpdmBinary::exportBinary()
 	setAcidSize(mAcid.getSize());
 }
 
-void nx::NpdmBinary::importBinary(const u8 * bytes, size_t len)
+void nx::NpdmBinary::importBinary(const byte_t * bytes, size_t len)
 {
 	// clear
 	clear();
@@ -125,7 +125,7 @@ void nx::NpdmBinary::copyFrom(const NpdmBinary & other)
 	}
 }
 
-const u8 * nx::NpdmBinary::getBytes() const
+const byte_t * nx::NpdmBinary::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }

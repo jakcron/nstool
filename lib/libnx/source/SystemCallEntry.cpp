@@ -18,7 +18,7 @@ nx::SystemCallEntry::SystemCallEntry(const KernelCapability & kernel_cap) :
 	setKernelCapability(kernel_cap);
 }
 
-nx::SystemCallEntry::SystemCallEntry(u32 upper_bits, u32 lower_bits) :
+nx::SystemCallEntry::SystemCallEntry(uint32_t upper_bits, uint32_t lower_bits) :
 	mCap(kCapId),
 	mSystemCallUpper(0),
 	mSystemCallLower(0)
@@ -43,12 +43,12 @@ void nx::SystemCallEntry::setKernelCapability(const KernelCapability & kernel_ca
 	processCapField();
 }
 
-u32 nx::SystemCallEntry::getSystemCallUpperBits() const
+uint32_t nx::SystemCallEntry::getSystemCallUpperBits() const
 {
 	return mSystemCallUpper;
 }
 
-void nx::SystemCallEntry::setSystemCallUpperBits(u32 upper_bits)
+void nx::SystemCallEntry::setSystemCallUpperBits(uint32_t upper_bits)
 {
 	if (upper_bits > kSysCallUpperMax)
 	{
@@ -59,12 +59,12 @@ void nx::SystemCallEntry::setSystemCallUpperBits(u32 upper_bits)
 	updateCapField();
 }
 
-u32 nx::SystemCallEntry::getSystemCallLowerBits() const
+uint32_t nx::SystemCallEntry::getSystemCallLowerBits() const
 {
 	return mSystemCallLower;
 }
 
-void nx::SystemCallEntry::setSystemCallLowerBits(u32 lower_bits)
+void nx::SystemCallEntry::setSystemCallLowerBits(uint32_t lower_bits)
 {
 	if (lower_bits > kSysCallLowerMax)
 	{

@@ -21,8 +21,8 @@ namespace nx
 		bool isSet() const;
 
 		// variables
-		u8 getProgramType() const;
-		void setProgramType(u8 type);
+		byte_t getProgramType() const;
+		void setProgramType(byte_t type);
 
 	private:
 		const std::string kModuleName = "MISC_PARAMS_HANDLER";

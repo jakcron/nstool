@@ -21,10 +21,10 @@ namespace nx
 		bool isSet() const;
 
 		// variables
-		u16 getVerMajor() const;
-		void setVerMajor(u16 major);
-		u8 getVerMinor() const;
-		void setVerMinor(u8 minor);
+		uint16_t getVerMajor() const;
+		void setVerMajor(uint16_t major);
+		uint8_t getVerMinor() const;
+		void setVerMinor(uint8_t minor);
 
 	private:
 		const std::string kModuleName = "KERNEL_VERSION_HANDLER";

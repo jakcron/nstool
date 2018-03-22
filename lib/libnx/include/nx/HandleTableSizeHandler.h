@@ -21,8 +21,8 @@ namespace nx
 		bool isSet() const;
 
 		// variables
-		u16 getHandleTableSize() const;
-		void setHandleTableSize(u16 size);
+		uint16_t getHandleTableSize() const;
+		void setHandleTableSize(uint16_t size);
 
 	private:
 		const std::string kModuleName = "HANDLE_TABLE_SIZE_HANDLER";

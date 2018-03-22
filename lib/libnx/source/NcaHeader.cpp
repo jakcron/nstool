@@ -35,7 +35,7 @@ void NcaHeader::exportBinary()
 	for (size_t i = 0; i < mSections.getSize(); i++)
 	{
 		// determine section index
-		u8 section = mSections.getSize() - 1 - i;
+		byte_t section = mSections.getSize() - 1 - i;
 
 		hdr->section[section].start = sizeToBlockNum(mSections[i].offset);
 		hdr->section[section].end = (sizeToBlockNum(mSections[i].offset) + sizeToBlockNum(mSections[i].size));
@@ -49,7 +49,7 @@ void NcaHeader::exportBinary()
 	}
 }
 
-void NcaHeader::importBinary(const u8 * bytes, size_t len)
+void NcaHeader::importBinary(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sNcaHeader))
 	{
@@ -88,7 +88,7 @@ void NcaHeader::importBinary(const u8 * bytes, size_t len)
 	for (size_t i = 0; i < kSectionNum; i++)
 	{
 		// determine section index
-		u8 section = kSectionNum - 1 - i;
+		byte_t section = kSectionNum - 1 - i;
 
 		// skip sections that don't exist
 		if (*hdr->section[section].start == 0 && *hdr->section[section].end == 0) continue;
@@ -168,42 +168,42 @@ void nx::NcaHeader::setKaekIndex(byte_t index)
 	mKaekIndex = index;
 }
 
-u64 NcaHeader::getNcaSize() const
+uint64_t NcaHeader::getNcaSize() const
 {
 	return mNcaSize;
 }
 
-void NcaHeader::setNcaSize(u64 size)
+void NcaHeader::setNcaSize(uint64_t size)
 {
 	mNcaSize = size;
 }
 
-u64 NcaHeader::getProgramId() const
+uint64_t NcaHeader::getProgramId() const
 {
 	return mProgramId;
 }
 
-void NcaHeader::setProgramId(u64 program_id)
+void NcaHeader::setProgramId(uint64_t program_id)
 {
 	mProgramId = program_id;
 }
 
-u32 nx::NcaHeader::getContentIndex() const
+uint32_t nx::NcaHeader::getContentIndex() const
 {
 	return mContentIndex;
 }
 
-void nx::NcaHeader::setContentIndex(u32 index)
+void nx::NcaHeader::setContentIndex(uint32_t index)
 {
 	mContentIndex = index;
 }
 
-u32 nx::NcaHeader::getSdkAddonVersion() const
+uint32_t nx::NcaHeader::getSdkAddonVersion() const
 {
 	return mSdkAddonVersion;
 }
 
-void nx::NcaHeader::setSdkAddonVersion(u32 version)
+void nx::NcaHeader::setSdkAddonVersion(uint32_t version)
 {
 	mSdkAddonVersion = version;
 }
@@ -237,12 +237,12 @@ void NcaHeader::addEncAesKey(const crypto::aes::sAes128Key & key)
 	mEncAesKeys.addElement(key);
 }
 
-u64 NcaHeader::blockNumToSize(u32 block_num) const
+uint64_t NcaHeader::blockNumToSize(uint32_t block_num) const
 {
 	return block_num*kBlockSize;
 }
 
-u32 NcaHeader::sizeToBlockNum(u64 real_size) const
+uint32_t NcaHeader::sizeToBlockNum(uint64_t real_size) const
 {
 	return align(real_size, kBlockSize)/kBlockSize;
 }
@@ -293,7 +293,7 @@ NcaHeader::NcaHeader(const NcaHeader & other)
 	copyFrom(other);
 }
 
-NcaHeader::NcaHeader(const u8 * bytes, size_t len)
+NcaHeader::NcaHeader(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -313,7 +313,7 @@ void NcaHeader::operator=(const NcaHeader & other)
 	this->importBinary(other.getBytes(), other.getSize());
 }
 
-const u8 * NcaHeader::getBytes() const
+const byte_t * NcaHeader::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }

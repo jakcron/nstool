@@ -14,7 +14,7 @@ nx::MiscFlagsEntry::MiscFlagsEntry(const KernelCapability & kernel_cap) :
 	setKernelCapability(kernel_cap);
 }
 
-nx::MiscFlagsEntry::MiscFlagsEntry(u32 flags) :
+nx::MiscFlagsEntry::MiscFlagsEntry(uint32_t flags) :
 	mCap(kCapId),
 	mFlags(0)
 {
@@ -37,12 +37,12 @@ void nx::MiscFlagsEntry::setKernelCapability(const KernelCapability & kernel_cap
 	processCapField();
 }
 
-u32 nx::MiscFlagsEntry::getFlags() const
+uint32_t nx::MiscFlagsEntry::getFlags() const
 {
 	return mFlags;
 }
 
-void nx::MiscFlagsEntry::setFlags(u32 flags)
+void nx::MiscFlagsEntry::setFlags(uint32_t flags)
 {
 	if ((flags & ~kMaxVal) != 0)
 	{

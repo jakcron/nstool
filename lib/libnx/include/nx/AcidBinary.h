@@ -12,20 +12,20 @@ namespace nx
 	public:
 		AcidBinary();
 		AcidBinary(const AcidBinary& other);
-		AcidBinary(const u8* bytes, size_t len);
+		AcidBinary(const byte_t* bytes, size_t len);
 
 		bool operator==(const AcidBinary& other) const;
 		bool operator!=(const AcidBinary& other) const;
 		void operator=(const AcidBinary& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		virtual void exportBinary();
 		void signBinary(const crypto::rsa::sRsa2048Key& key);
-		virtual void importBinary(const u8* bytes, size_t len);
+		virtual void importBinary(const byte_t* bytes, size_t len);
 		void verifyBinary(const crypto::rsa::sRsa2048Key& key);
 
 		// variables

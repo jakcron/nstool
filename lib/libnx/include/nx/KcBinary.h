@@ -21,19 +21,19 @@ namespace nx
 	public:
 		KcBinary();
 		KcBinary(const KcBinary& other);
-		KcBinary(const u8* bytes, size_t len);
+		KcBinary(const byte_t* bytes, size_t len);
 
 		bool operator==(const KcBinary& other) const;
 		bool operator!=(const KcBinary& other) const;
 		void operator=(const KcBinary& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		void exportBinary();
-		void importBinary(const u8* bytes, size_t len);
+		void importBinary(const byte_t* bytes, size_t len);
 
 		// variables (consider further abstraction?)
 		void clear();

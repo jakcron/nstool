@@ -15,19 +15,19 @@ namespace nx
 	public:
 		AciBinary();
 		AciBinary(const AciBinary& other);
-		AciBinary(const u8* bytes, size_t len);
+		AciBinary(const byte_t* bytes, size_t len);
 
 		bool operator==(const AciBinary& other) const;
 		bool operator!=(const AciBinary& other) const;
 		void operator=(const AciBinary& other);
 
 		// to be used after export
-		const u8* getBytes() const;
+		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
 		virtual void exportBinary();
-		virtual void importBinary(const u8* bytes, size_t len);
+		virtual void importBinary(const byte_t* bytes, size_t len);
 
 		// variables
 		virtual void clear();

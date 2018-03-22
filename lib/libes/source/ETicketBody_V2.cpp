@@ -12,7 +12,7 @@ es::ETicketBody_V2::ETicketBody_V2(const ETicketBody_V2 & other)
 	copyFrom(other);
 }
 
-es::ETicketBody_V2::ETicketBody_V2(const u8 * bytes, size_t len)
+es::ETicketBody_V2::ETicketBody_V2(const byte_t * bytes, size_t len)
 {
 	importBinary(bytes, len);
 }
@@ -32,7 +32,7 @@ void es::ETicketBody_V2::operator=(const ETicketBody_V2 & other)
 	copyFrom(other);
 }
 
-const u8 * es::ETicketBody_V2::getBytes() const
+const byte_t * es::ETicketBody_V2::getBytes() const
 {
 	return mBinaryBlob.getBytes();
 }
@@ -103,7 +103,7 @@ void es::ETicketBody_V2::exportBinary()
 	body->set_enc_title_key(mEncTitleKey, kEncTitleKeyLen);
 	body->set_title_key_enc_type(mEncType);
 	body->set_ticket_version(mTicketVersion);
-	u8 property_mask = 0;
+	byte_t property_mask = 0;
 	property_mask |= mPreInstall ? BIT(FLAG_PRE_INSTALL) : 0;
 	property_mask |= mSharedTitle ? BIT(FLAG_SHARED_TITLE) : 0;
 	property_mask |= mAllowAllContent ? BIT(FLAG_ALLOW_ALL_CONTENT) : 0;
@@ -119,7 +119,7 @@ void es::ETicketBody_V2::exportBinary()
 	body->set_sect_entry_size(mSectEntrySize);
 }
 
-void es::ETicketBody_V2::importBinary(const u8 * bytes, size_t len)
+void es::ETicketBody_V2::importBinary(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sTicketBody_v2))
 	{
@@ -193,12 +193,12 @@ void es::ETicketBody_V2::setIssuer(const std::string & issuer)
 	mIssuer = issuer;
 }
 
-const u8 * es::ETicketBody_V2::getEncTitleKey() const
+const byte_t * es::ETicketBody_V2::getEncTitleKey() const
 {
 	return mEncTitleKey;
 }
 
-void es::ETicketBody_V2::setEncTitleKey(const u8 * data, size_t len)
+void es::ETicketBody_V2::setEncTitleKey(const byte_t * data, size_t len)
 {
 	memset(mEncTitleKey, 0, kEncTitleKeyLen);
 	memcpy(mEncTitleKey, data, MIN(len, kEncTitleKeyLen));
@@ -214,12 +214,12 @@ void es::ETicketBody_V2::setTitleKeyEncType(TitleKeyEncType type)
 	mEncType = type;
 }
 
-u16 es::ETicketBody_V2::getTicketVersion() const
+uint16_t es::ETicketBody_V2::getTicketVersion() const
 {
 	return mTicketVersion;
 }
 
-void es::ETicketBody_V2::setTicketVersion(u16 version)
+void es::ETicketBody_V2::setTicketVersion(uint16_t version)
 {
 	mTicketVersion = version;
 }
@@ -234,12 +234,12 @@ void es::ETicketBody_V2::setLicenseType(LicenseType type)
 	mLicenseType = type;
 }
 
-u8 es::ETicketBody_V2::getCommonKeyId() const
+byte_t es::ETicketBody_V2::getCommonKeyId() const
 {
 	return mCommonKeyId;
 }
 
-void es::ETicketBody_V2::setCommonKeyId(u8 id)
+void es::ETicketBody_V2::setCommonKeyId(byte_t id)
 {
 	mCommonKeyId = id;
 }
@@ -274,93 +274,93 @@ void es::ETicketBody_V2::setAllowAllContent(bool allowAllContent)
 	mAllowAllContent = allowAllContent;
 }
 
-const u8 * es::ETicketBody_V2::getReservedRegion() const
+const byte_t * es::ETicketBody_V2::getReservedRegion() const
 {
 	return mReservedRegion;
 }
 
-void es::ETicketBody_V2::setReservedRegion(const u8 * data, size_t len)
+void es::ETicketBody_V2::setReservedRegion(const byte_t * data, size_t len)
 {
 	memset(mReservedRegion, 0, kReservedRegionLen);
 	memcpy(mReservedRegion, data, MIN(len, kReservedRegionLen));
 }
 
-u64 es::ETicketBody_V2::getTicketId() const
+uint64_t es::ETicketBody_V2::getTicketId() const
 {
 	return mTicketId;
 }
 
-void es::ETicketBody_V2::setTicketId(u64 id)
+void es::ETicketBody_V2::setTicketId(uint64_t id)
 {
 	mTicketId = id;
 }
 
-u64 es::ETicketBody_V2::getDeviceId() const
+uint64_t es::ETicketBody_V2::getDeviceId() const
 {
 	return mDeviceId;
 }
 
-void es::ETicketBody_V2::setDeviceId(u64 id)
+void es::ETicketBody_V2::setDeviceId(uint64_t id)
 {
 	mDeviceId = id;
 }
 
-const u8 * es::ETicketBody_V2::getRightsId() const
+const byte_t * es::ETicketBody_V2::getRightsId() const
 {
 	return mRightsId;
 }
 
-void es::ETicketBody_V2::setRightsId(const u8 * id)
+void es::ETicketBody_V2::setRightsId(const byte_t * id)
 {
 	memcpy(mRightsId, id, kRightsIdLen);
 }
 
-u32 es::ETicketBody_V2::getAccountId() const
+uint32_t es::ETicketBody_V2::getAccountId() const
 {
 	return mAccountId;
 }
 
-void es::ETicketBody_V2::setAccountId(u32 id)
+void es::ETicketBody_V2::setAccountId(uint32_t id)
 {
 	mAccountId = id;
 }
 
-u32 es::ETicketBody_V2::getSectionTotalSize() const
+uint32_t es::ETicketBody_V2::getSectionTotalSize() const
 {
 	return mSectTotalSize;
 }
 
-void es::ETicketBody_V2::setSectionTotalSize(u32 size)
+void es::ETicketBody_V2::setSectionTotalSize(uint32_t size)
 {
 	mSectTotalSize = size;
 }
 
-u32 es::ETicketBody_V2::getSectionHeaderOffset() const
+uint32_t es::ETicketBody_V2::getSectionHeaderOffset() const
 {
 	return mSectHeaderOffset;
 }
 
-void es::ETicketBody_V2::setSectionHeaderOffset(u32 offset)
+void es::ETicketBody_V2::setSectionHeaderOffset(uint32_t offset)
 {
 	mSectHeaderOffset = offset;
 }
 
-u16 es::ETicketBody_V2::getSectionNum() const
+uint16_t es::ETicketBody_V2::getSectionNum() const
 {
 	return mSectNum;
 }
 
-void es::ETicketBody_V2::setSectionNum(u16 num)
+void es::ETicketBody_V2::setSectionNum(uint16_t num)
 {
 	mSectNum = num;
 }
 
-u16 es::ETicketBody_V2::getSectionEntrySize() const
+uint16_t es::ETicketBody_V2::getSectionEntrySize() const
 {
 	return mSectEntrySize;
 }
 
-void es::ETicketBody_V2::setSectionEntrySize(u16 size)
+void es::ETicketBody_V2::setSectionEntrySize(uint16_t size)
 {
 	mSectEntrySize = size;
 }
