@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libfnd", "lib\libfnd\fnd.vcxproj", "{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B}"
 EndProject
@@ -35,6 +35,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libes", "lib\libes\es.vcxproj", "{7BE99936-0D40-410D-944B-4513C2EFF8DC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tiktool", "programs\tiktool\tiktool.vcxproj", "{2200B834-F15A-4C6E-9DDB-6012B9A5C246}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xcitool", "programs\xcitool\xcitool.vcxproj", "{007FF616-7B99-4CB3-84CD-39C47F64FC7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -108,6 +110,14 @@ Global
 		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Release|x64.Build.0 = Release|x64
 		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Release|x86.ActiveCfg = Release|Win32
 		{2200B834-F15A-4C6E-9DDB-6012B9A5C246}.Release|x86.Build.0 = Release|Win32
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E}.Debug|x64.ActiveCfg = Debug|x64
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E}.Debug|x64.Build.0 = Debug|x64
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E}.Debug|x86.ActiveCfg = Debug|Win32
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E}.Debug|x86.Build.0 = Debug|Win32
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E}.Release|x64.ActiveCfg = Release|x64
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E}.Release|x64.Build.0 = Release|x64
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E}.Release|x86.ActiveCfg = Release|Win32
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,5 +131,9 @@ Global
 		{BC2F2D07-BAB3-469C-9C25-8CC54F96F7AB} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
 		{7BE99936-0D40-410D-944B-4513C2EFF8DC} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 		{2200B834-F15A-4C6E-9DDB-6012B9A5C246} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
+		{007FF616-7B99-4CB3-84CD-39C47F64FC7E} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {07DCCACC-D10D-47C9-85AE-FB9C54DB7D62}
 	EndGlobalSection
 EndGlobal

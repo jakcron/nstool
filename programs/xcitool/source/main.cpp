@@ -30,9 +30,10 @@ enum CardClockRate
 };
 
 static const size_t kXciPageSize = 0x200;
-static const size_t kXciHeaderEncOffset = 0xA0;
+static const size_t kXciHeaderEncOffset = 0x90;
 static const size_t kXciHeaderEncSize = 0x70;
 
+#pragma pack (push, 1)
 struct sXciHeader
 {
 	char signature[4]; // 0x00 // "HEAD"
@@ -86,13 +87,15 @@ struct sKeyDataArea
 	byte_t reserved_01[0x100];
 }; // sizeof() = 512*8 (8 pages)
 
-static struct sXciKeyData
+#pragma pack (pop)
+
+struct sXciKeyData
 {
 	crypto::aes::sAes128Key xci_header_encryption_key;
 	crypto::aes::sAes128Key initial_data_key;
 	crypto::rsa::sRsa2048Key xci_header_signer_key;
 	crypto::rsa::sRsa2048Key card_key_area_oeap_key;
-} key_data;
+};
 
 /*
 void getTitleKeyFromInitialData(const byte_t* initialData, crypto::aes::sAes128Key& titleKey)
@@ -116,7 +119,7 @@ inline const char* getBoolStr(bool isTrue)
 
 inline const char* getRomSizeStr(byte_t rom_size)
 {
-	char* str = "unknown";
+	const char* str = "unknown";
 	switch (rom_size)
 	{
 		case (ROM_SIZE_1GB) :
@@ -143,7 +146,7 @@ inline const char* getRomSizeStr(byte_t rom_size)
 
 inline const char* getCardClockRate(uint32_t acc_ctrl_1)
 {
-	char* str = "unknown";
+	const char* str = "unknown";
 	switch (acc_ctrl_1)
 	{
 		case (CLOCK_RATE_25) :
@@ -157,18 +160,52 @@ inline const char* getCardClockRate(uint32_t acc_ctrl_1)
 	return str;
 }
 
+void dumpHxdStyleSector(byte_t* out, size_t len)
+{
+	// iterate over 0x10 blocks
+	for (size_t i = 0; i < (len / crypto::aes::kAesBlockSize); i++)
+	{
+		// for block i print each byte
+		for (size_t j = 0; j < crypto::aes::kAesBlockSize; j++)
+		{
+			printf("%02X ", out[i*crypto::aes::kAesBlockSize + j]);
+		}
+		printf(" ");
+		for (size_t j = 0; j < crypto::aes::kAesBlockSize; j++)
+		{
+			printf("%c", isalnum(out[i*crypto::aes::kAesBlockSize + j]) ? out[i*crypto::aes::kAesBlockSize + j] : '.');
+		}
+		printf("\n");
+	}
+
+	/*
+	for (size_t i = 0; i < len % crypto::aes::kAesBlockSize; i++)
+	{
+		printf("%02X ", out[(len / crypto::aes::kAesBlockSize)*crypto::aes::kAesBlockSize + i]);
+	}
+	for (size_t i = 0; i < crypto::aes::kAesBlockSize - (len % crypto::aes::kAesBlockSize); i++)
+	{
+		printf("   ");
+	}
+	for (size_t i = 0; i < len % crypto::aes::kAesBlockSize; i++)
+	{
+		printf("%c", out[(len / crypto::aes::kAesBlockSize)*crypto::aes::kAesBlockSize + i]);
+	}
+	*/
+}
+
 void printXciHeader(const sXciHeader& hdr, bool is_decrypted)
 {
 	be_uint64_t *aes_iv, *hash;
 
 	printf("[XCI HEADER]\n");
 	printf("  Magic:                HEAD\n");
-	printf("  RomAreaStartPage:     0x%0x (0x" PRIx64 ")\n", hdr.rom_area_start_page.get(), blockToAddr(hdr.rom_area_start_page.get()));
+	printf("  RomAreaStartPage:     0x%0x (0x%" PRIx64 ")\n", hdr.rom_area_start_page.get(), blockToAddr(hdr.rom_area_start_page.get()));
 	printf("  BackupAreaStartPage:  0x%0x\n", hdr.backup_area_start_page.get());
-	printf("  KeyFlag:  			0x%x\n", hdr.key_flag);
+	printf("  KeyFlag:              0x%x\n", hdr.key_flag);
 	printf("    KekIndex:           %d\n", hdr.key_flag & 7);
 	printf("    TitleKeyDecIndex:   %d\n", (hdr.key_flag >> 4) & 7);
-	printf("  RomSize:				0x%x (%s)\n", hdr.rom_size, getRomSizeStr(hdr.rom_size));
+	printf("  RomSize:              0x%x (%s)\n", hdr.rom_size, getRomSizeStr(hdr.rom_size));
 	printf("  CardHeaderVersion:    %d\n", hdr.card_header_version);
 	printf("  Flags:                0x%x\n", hdr.flags);
 	printf("    AutoBoot:           %s\n", getBoolStr(_HAS_BIT(hdr.flags, XCI_FLAG_AUTOBOOT)));
@@ -176,15 +213,15 @@ void printXciHeader(const sXciHeader& hdr, bool is_decrypted)
 	printf("  PackageId:            0x%" PRIx64 "\n", hdr.package_id.get());
 	printf("  ValidDataEndPage:     0x%x (0x%" PRIx64 ")\n", hdr.valid_data_end_page.get(), blockToAddr(hdr.valid_data_end_page.get()));
 	aes_iv = (be_uint64_t*)hdr.encryption_iv;
-	printf("  AesIv:                %" PRIX64 "%" PRIX64"\n", aes_iv[0].get(), aes_iv[1].get());
+	printf("  AesIv:                %016" PRIX64 "%016" PRIX64"\n", aes_iv[0].get(), aes_iv[1].get());
 	printf("  PartitionFs:\n");
 	printf("    Offset:             0x%" PRIx64 "\n", hdr.partition_fs_header_address.get());
 	printf("    Size:               0x%" PRIx64 "\n", hdr.partition_fs_header_size.get());
 	hash = (be_uint64_t*)hdr.partition_fs_header_hash;
-	printf("    Hash:               %" PRIX64 "%" PRIX64 "%" PRIX64 "%" PRIX64"\n", hash[0].get(),hash[1].get(),hash[2].get(),hash[3].get());
+	printf("    Hash:               %016" PRIX64 "%016" PRIX64 "%016" PRIX64 "%016" PRIX64"\n", hash[0].get(),hash[1].get(),hash[2].get(),hash[3].get());
 	printf("  InitialData:\n");
 	hash = (be_uint64_t*)hdr.initial_data_hash;
-	printf("    Hash:               %" PRIX64 "%" PRIX64 "%" PRIX64 "%" PRIX64"\n", hash[0].get(),hash[1].get(),hash[2].get(),hash[3].get());
+	printf("    Hash:               %016" PRIX64 "%016" PRIX64 "%016" PRIX64 "%016" PRIX64"\n", hash[0].get(),hash[1].get(),hash[2].get(),hash[3].get());
 	printf("  SelSec:               0x%x\n", hdr.sel_sec.get());
 	printf("  SelT1Key:             0x%x\n", hdr.sel_t1_key.get());
 	printf("  SelKey:               0x%x\n", hdr.sel_key.get());
@@ -192,7 +229,7 @@ void printXciHeader(const sXciHeader& hdr, bool is_decrypted)
 	
 	if (is_decrypted == true)
 	{
-		printf("  FwVersion:            v%d.%d\n", hdr.fw_version[0].get(), hdr.fw_version[1].get());
+		printf("  FwVersion:            v%d.%d\n", hdr.fw_version[1].get(), hdr.fw_version[0].get());
 		printf("  AccCtrl1:             0x%x\n", hdr.acc_ctrl_1.get());
 		printf("    CardClockRate:      %s\n", getCardClockRate(hdr.acc_ctrl_1.get()));
 		printf("  Wait1TimeRead:        0x%x\n", hdr.wait_1_time_read.get());
@@ -202,15 +239,21 @@ void printXciHeader(const sXciHeader& hdr, bool is_decrypted)
 		printf("  FwMode:               0x%x\n", hdr.fw_mode.get());
 		printf("  CupVersion:           %d\n", hdr.cup_version.get());
 		hash = (be_uint64_t*)hdr.upp_hash;
-		printf("  UppHash:              %" PRIX64 "\n", hash[0].get());
-		printf("  CupId:                %" PRIx64 "\n", hdr.cup_id.get());
+		printf("  UppHash:              %016" PRIX64 "\n", hash[0].get());
+		printf("  CupId:                %016" PRIx64 "\n", hdr.cup_id.get());
+
 	}
 }
 
 void decryptXciHeader(const byte_t* src, byte_t* dst)
 {
+	const byte_t* src_iv = ((const sXciHeader*)src)->encryption_iv;
 	byte_t iv[crypto::aes::kAesBlockSize];
-	memcpy(iv, ((const sXciHeader*)src)->encryption_iv, crypto::aes::kAesBlockSize);
+
+	for (int i = 0; i < crypto::aes::kAesBlockSize; i++)
+	{
+		iv[i] = src_iv[15 - i];
+	}
 
 	// copy plain
 	memcpy(dst, src, kXciHeaderEncOffset);
