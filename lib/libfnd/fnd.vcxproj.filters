@@ -39,6 +39,12 @@
     <ClInclude Include="include\fnd\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\fnd\BitMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fnd\Endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Exception.cpp">
