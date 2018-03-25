@@ -250,7 +250,7 @@ void decryptXciHeader(const byte_t* src, byte_t* dst)
 	const byte_t* src_iv = ((const sXciHeader*)src)->encryption_iv;
 	byte_t iv[crypto::aes::kAesBlockSize];
 
-	for (int i = 0; i < crypto::aes::kAesBlockSize; i++)
+	for (size_t i = 0; i < crypto::aes::kAesBlockSize; i++)
 	{
 		iv[i] = src_iv[15 - i];
 	}
@@ -270,21 +270,13 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	FILE* fp = fopen(argv[1], "rb");
-	if (fp == nullptr)
-	{
-		printf("Failed to open file.\n");
-		return 1;
-	}
-
+	
 	fnd::MemoryBlob xciFile;
-	xciFile.alloc(0x200);
-	fread(xciFile.getBytes(), 0x200, 1, fp);
-	fclose(fp);
+	fnd::io::readFile(argv[1], 0x100, 0x100, xciFile);
 
-	sXciHeader hdr;
-	decryptXciHeader(xciFile.getBytes() + 0x100, (byte_t*)&hdr);
-	printXciHeader(hdr, true);
+	sXciHeader* hdr = (sXciHeader*)xciFile.getBytes();
+	decryptXciHeader(xciFile.getBytes(), xciFile.getBytes());
+	printXciHeader(*hdr, true);
 
 	return 0;
 }
