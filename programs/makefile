@@ -1,4 +1,4 @@
-PROGS = ncatool npdmtool pfstool tiktool
+PROGS = ncatool npdmtool pfstool tiktool xcitool
 BIN_DIR = "../bin"
 
 main: build
