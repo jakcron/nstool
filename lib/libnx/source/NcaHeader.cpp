@@ -12,38 +12,49 @@ void NcaHeader::exportBinary()
 	switch(mFormatVersion)
 	{
 	case (NCA2_FORMAT):
-		strncpy(hdr->signature, kNca2Sig.c_str(), 4);
+		strncpy(hdr->signature, nca::kNca2Sig.c_str(), 4);
 		break;
 	case (NCA3_FORMAT):
-		strncpy(hdr->signature, kNca3Sig.c_str(), 4);
+		strncpy(hdr->signature, nca::kNca3Sig.c_str(), 4);
 		break;
 	default:
 		throw fnd::Exception(kModuleName, "Unsupported format version");
 	}
 	hdr->distribution_type = mDistributionType;
 	hdr->content_type = mContentType;
-	hdr->crypto_type = mCryptoType;
+	if (mKeyGeneration > 2)
+	{
+		hdr->key_generation = 2;
+		hdr->key_generation_2 = mKeyGeneration;
+	}
+	else
+	{
+		hdr->key_generation = mKeyGeneration;
+		hdr->key_generation_2 = 0;
+	}
+	
 	hdr->key_area_encryption_key_index = mKaekIndex;
-	hdr->nca_size = mNcaSize;
+	hdr->content_size = mContentSize;
 	hdr->program_id = mProgramId;
 	hdr->content_index = mContentIndex;
 	hdr->sdk_addon_version = mSdkAddonVersion;
-	hdr->crypto_type_2 = 0;
+	memcpy(hdr->rights_id, mRightsId, nca::kRightsIdLen);
 
 	// TODO: properly reconstruct NCA layout? atm in hands of user
-
-	for (size_t i = 0; i < mSections.getSize(); i++)
+	for (size_t i = 0; i < mPartitions.getSize(); i++)
 	{
-		// determine section index
-		byte_t section = mSections.getSize() - 1 - i;
+		// determine partition index
+		byte_t idx = mPartitions[i].index;
 
-		hdr->section[section].start = sizeToBlockNum(mSections[i].offset);
-		hdr->section[section].end = (sizeToBlockNum(mSections[i].offset) + sizeToBlockNum(mSections[i].size));
-		hdr->section[section].enabled = true;
-		hdr->section_hash[section] = mSections[i].hash;
+		if (mPartitions[i].index >= nca::kPartitionNum || hdr->partition[idx].enabled) continue;
+
+		hdr->partition[idx].start = sizeToBlockNum(mPartitions[i].offset);
+		hdr->partition[idx].end = (sizeToBlockNum(mPartitions[i].offset) + sizeToBlockNum(mPartitions[i].size));
+		hdr->partition[idx].enabled = true;
+		hdr->partition_hash[idx] = mPartitions[i].hash;
 	}
 
-	for (size_t i = 0; i < kAesKeyNum; i++)
+	for (size_t i = 0; i < nca::kAesKeyNum; i++)
 	{
 		hdr->enc_aes_key[i] = mEncAesKeys[i];
 	}
@@ -63,11 +74,11 @@ void NcaHeader::importBinary(const byte_t * bytes, size_t len)
 
 	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
-	if (memcmp(hdr->signature, kNca2Sig.c_str(), 4) == 0)
+	if (memcmp(hdr->signature, nca::kNca2Sig.c_str(), 4) == 0)
 	{
 		mFormatVersion = NCA2_FORMAT;
 	}
-	else if (memcmp(hdr->signature, kNca3Sig.c_str(), 4) == 0)
+	else if (memcmp(hdr->signature, nca::kNca3Sig.c_str(), 4) == 0)
 	{
 		mFormatVersion = NCA3_FORMAT;
 	}
@@ -76,28 +87,26 @@ void NcaHeader::importBinary(const byte_t * bytes, size_t len)
 		throw fnd::Exception(kModuleName, "NCA header corrupt");
 	}
 
-	mDistributionType = (DistributionType)hdr->distribution_type;
-	mContentType = (ContentType)hdr->content_type;
-	mCryptoType = MAX(hdr->crypto_type, hdr->crypto_type_2);
+	mDistributionType = (nca::DistributionType)hdr->distribution_type;
+	mContentType = (nca::ContentType)hdr->content_type;
+	mKeyGeneration = MAX(hdr->key_generation, hdr->key_generation_2);
 	mKaekIndex = hdr->key_area_encryption_key_index;
-	mNcaSize = *hdr->nca_size;
+	mContentSize = *hdr->content_size;
 	mProgramId = *hdr->program_id;
 	mContentIndex = *hdr->content_index;
 	mSdkAddonVersion = *hdr->sdk_addon_version;
+	memcpy(mRightsId, hdr->rights_id, nca::kRightsIdLen);
 
-	for (size_t i = 0; i < kSectionNum; i++)
+	for (size_t i = 0; i < nca::kPartitionNum; i++)
 	{
-		// determine section index
-		byte_t section = kSectionNum - 1 - i;
-
 		// skip sections that don't exist
-		if (*hdr->section[section].start == 0 && *hdr->section[section].end == 0) continue;
+		if (hdr->partition[i].enabled == 0) continue;
 
 		// add high level struct
-		mSections.addElement({ blockNumToSize(*hdr->section[section].start), blockNumToSize(hdr->section[section].end.get() - hdr->section[section].start.get()), hdr->section_hash[section] });
+		mPartitions.addElement({(byte_t)i, blockNumToSize(hdr->partition[i].start.get()), blockNumToSize(hdr->partition[i].end.get() - hdr->partition[i].start.get()), hdr->partition_hash[i] });
 	}
 
-	for (size_t i = 0; i < kAesKeyNum; i++)
+	for (size_t i = 0; i < nca::kAesKeyNum; i++)
 	{
 		mEncAesKeys.addElement(hdr->enc_aes_key[i]);
 	}
@@ -106,15 +115,16 @@ void NcaHeader::importBinary(const byte_t * bytes, size_t len)
 void nx::NcaHeader::clear()
 {
 	mFormatVersion = NCA3_FORMAT;
-	mDistributionType = DIST_DOWNLOAD;
-	mContentType = TYPE_PROGRAM;
-	mCryptoType = 0;
+	mDistributionType = nca::DIST_DOWNLOAD;
+	mContentType = nca::TYPE_PROGRAM;
+	mKeyGeneration = 0;
 	mKaekIndex = 0;
-	mNcaSize = 0;
+	mContentSize = 0;
 	mProgramId = 0;
 	mContentIndex = 0;
 	mSdkAddonVersion = 0;
-	mSections.clear();
+
+	mPartitions.clear();
 	mEncAesKeys.clear();
 }
 
@@ -128,34 +138,34 @@ void nx::NcaHeader::setFormatVersion(FormatVersion version)
 	mFormatVersion = version;
 }
 
-nx::NcaHeader::DistributionType nx::NcaHeader::getDistributionType() const
+nx::nca::DistributionType nx::NcaHeader::getDistributionType() const
 {
 	return mDistributionType;
 }
 
-void nx::NcaHeader::setDistributionType(DistributionType type)
+void nx::NcaHeader::setDistributionType(nca::DistributionType type)
 {
 	mDistributionType = type;
 }
 
-nx::NcaHeader::ContentType nx::NcaHeader::getContentType() const
+nx::nca::ContentType nx::NcaHeader::getContentType() const
 {
 	return mContentType;
 }
 
-void nx::NcaHeader::setContentType(ContentType type)
+void nx::NcaHeader::setContentType(nca::ContentType type)
 {
 	mContentType = type;
 }
 
-byte_t nx::NcaHeader::getCryptoType() const
+byte_t nx::NcaHeader::getKeyGeneration() const
 {
-	return mCryptoType;
+	return mKeyGeneration;
 }
 
-void nx::NcaHeader::setCryptoType(byte_t type)
+void nx::NcaHeader::setKeyGeneration(byte_t gen)
 {
-	mCryptoType = type;
+	mKeyGeneration = gen;
 }
 
 byte_t nx::NcaHeader::getKaekIndex() const
@@ -168,14 +178,14 @@ void nx::NcaHeader::setKaekIndex(byte_t index)
 	mKaekIndex = index;
 }
 
-uint64_t NcaHeader::getNcaSize() const
+uint64_t NcaHeader::getContentSize() const
 {
-	return mNcaSize;
+	return mContentSize;
 }
 
-void NcaHeader::setNcaSize(uint64_t size)
+void NcaHeader::setContentSize(uint64_t size)
 {
-	mNcaSize = size;
+	mContentSize = size;
 }
 
 uint64_t NcaHeader::getProgramId() const
@@ -208,18 +218,28 @@ void nx::NcaHeader::setSdkAddonVersion(uint32_t version)
 	mSdkAddonVersion = version;
 }
 
-const fnd::List<NcaHeader::sSection>& NcaHeader::getSections() const
+const byte_t* nx::NcaHeader::getRightsId() const
 {
-	return mSections;
+	return mRightsId;
 }
 
-void NcaHeader::addSection(const sSection & section)
+void nx::NcaHeader::setRightsId(const byte_t* rights_id)
 {
-	if (mSections.getSize() >= kSectionNum)
+	memcpy(mRightsId, rights_id, nca::kRightsIdLen);
+}
+
+const fnd::List<NcaHeader::sPartition>& NcaHeader::getPartitions() const
+{
+	return mPartitions;
+}
+
+void NcaHeader::setPartitions(const fnd::List<NcaHeader::sPartition>& partitions)
+{
+	mPartitions = partitions;
+	if (mPartitions.getSize() >= nca::kPartitionNum)
 	{
-		throw fnd::Exception(kModuleName, "Too many NCA sections");
+		throw fnd::Exception(kModuleName, "Too many NCA partitions");
 	}
-	mSections.addElement(section);
 }
 
 const fnd::List<crypto::aes::sAes128Key>& NcaHeader::getEncAesKeys() const
@@ -227,37 +247,32 @@ const fnd::List<crypto::aes::sAes128Key>& NcaHeader::getEncAesKeys() const
 	return mEncAesKeys;
 }
 
-void NcaHeader::addEncAesKey(const crypto::aes::sAes128Key & key)
+void NcaHeader::setEncAesKeys(const fnd::List<crypto::aes::sAes128Key>& keys)
 {
-	if (mEncAesKeys.getSize() >= kAesKeyNum)
-	{
-		throw fnd::Exception(kModuleName, "Too many NCA aes keys");
-	}
-
-	mEncAesKeys.addElement(key);
+	mEncAesKeys = keys;
 }
 
 uint64_t NcaHeader::blockNumToSize(uint32_t block_num) const
 {
-	return block_num*kBlockSize;
+	return block_num*nca::kSectorSize;
 }
 
 uint32_t NcaHeader::sizeToBlockNum(uint64_t real_size) const
 {
-	return align(real_size, kBlockSize)/kBlockSize;
+	return align(real_size, nca::kSectorSize) / nca::kSectorSize;
 }
 
 bool NcaHeader::isEqual(const NcaHeader & other) const
 {
 	return (mDistributionType == other.mDistributionType) \
 		&& (mContentType == other.mContentType) \
-		&& (mCryptoType == other.mCryptoType) \
+		&& (mKeyGeneration == other.mKeyGeneration) \
 		&& (mKaekIndex == other.mKaekIndex) \
-		&& (mNcaSize == other.mNcaSize) \
+		&& (mContentSize == other.mContentSize) \
 		&& (mProgramId == other.mProgramId) \
 		&& (mContentIndex == other.mContentIndex) \
 		&& (mSdkAddonVersion == other.mSdkAddonVersion) \
-		&& (mSections == other.mSections) \
+		&& (mPartitions == other.mPartitions) \
 		&& (mEncAesKeys == other.mEncAesKeys);
 }
 
@@ -272,13 +287,13 @@ void NcaHeader::copyFrom(const NcaHeader & other)
 		mBinaryBlob.clear();
 		mDistributionType = other.mDistributionType;
 		mContentType = other.mContentType;
-		mCryptoType = other.mCryptoType;
+		mKeyGeneration = other.mKeyGeneration;
 		mKaekIndex = other.mKaekIndex;
-		mNcaSize = other.mNcaSize;
+		mContentSize = other.mContentSize;
 		mProgramId = other.mProgramId;
 		mContentIndex = other.mContentIndex;
 		mSdkAddonVersion = other.mSdkAddonVersion;
-		mSections = other.mSections;
+		mPartitions = other.mPartitions;
 		mEncAesKeys = other.mEncAesKeys;
 	}
 }

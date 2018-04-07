@@ -1,10 +1,7 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
+#include <nx/nca.h>
 #include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
-#include <crypto/aes.h>
-#include <crypto/sha.h>
 #include <fnd/ISerialiseableBinary.h>
 
 namespace nx
@@ -19,37 +16,16 @@ namespace nx
 			NCA3_FORMAT
 		};
 
-		enum DistributionType
+		struct sPartition
 		{
-			DIST_DOWNLOAD,
-			DIST_GAME_CARD
-		};
-
-		enum ContentType
-		{
-			TYPE_PROGRAM,
-			TYPE_META,
-			TYPE_CONTROL,
-			TYPE_MANUAL,
-			TYPE_DATA,
-		};
-
-		enum KeyBankIndex
-		{
-			KEY_AESXTS_0,
-			KEY_AESXTS_1,
-			KEY_AESCTR,
-			KEY_UNUSED_3,
-		};
-
-		struct sSection
-		{
+			byte_t index;
 			uint64_t offset;
 			uint64_t size;
 			crypto::sha::sSha256Hash hash;
 
-			const sSection& operator=(const sSection& other)
+			const sPartition& operator=(const sPartition& other)
 			{
+				index = other.index;
 				offset = other.offset;
 				size = other.size;
 				hash = other.hash;
@@ -57,20 +33,19 @@ namespace nx
 				return *this;
 			}
 
-			bool operator==(const sSection& other) const
+			bool operator==(const sPartition& other) const
 			{
-				return (offset == other.offset) \
+				return (index == other.index) \
+					&& (offset == other.offset) \
 					&& (size == other.size) \
 					&& (hash == other.hash);
 			}
 
-			bool operator!=(const sSection& other) const
+			bool operator!=(const sPartition& other) const
 			{
 				return !operator==(other);
 			}
 		};
-
-		static const size_t kBlockSize = 0x200;
 
 		NcaHeader();
 		NcaHeader(const NcaHeader& other);
@@ -92,85 +67,56 @@ namespace nx
 		void clear();
 		FormatVersion getFormatVersion() const;
 		void setFormatVersion(FormatVersion ver);
-		DistributionType getDistributionType() const;
-		void setDistributionType(DistributionType type);
-		ContentType getContentType() const;
-		void setContentType(ContentType type);
-		byte_t getCryptoType() const;
-		void setCryptoType(byte_t type);
+		nca::DistributionType getDistributionType() const;
+		void setDistributionType(nca::DistributionType type);
+		nca::ContentType getContentType() const;
+		void setContentType(nca::ContentType type);
+		byte_t getKeyGeneration() const;
+		void setKeyGeneration(byte_t gen);
 		byte_t getKaekIndex() const;
 		void setKaekIndex(byte_t index);
-		uint64_t getNcaSize() const;
-		void setNcaSize(uint64_t size);
+		uint64_t getContentSize() const;
+		void setContentSize(uint64_t size);
 		uint64_t getProgramId() const;
 		void setProgramId(uint64_t program_id);
 		uint32_t getContentIndex() const;
 		void setContentIndex(uint32_t index);
 		uint32_t getSdkAddonVersion() const;
 		void setSdkAddonVersion(uint32_t version);
-		const fnd::List<sSection>& getSections() const;
-		void addSection(const sSection& section);
+		const byte_t* getRightsId() const;
+		void setRightsId(const byte_t* rights_id);
+		const fnd::List<sPartition>& getPartitions() const;
+		void setPartitions(const fnd::List<sPartition>& partitions);
 		const fnd::List<crypto::aes::sAes128Key>& getEncAesKeys() const;
-		void addEncAesKey(const crypto::aes::sAes128Key& key);
+		void setEncAesKeys(const fnd::List<crypto::aes::sAes128Key>& keys);
 
 	private:
 		const std::string kModuleName = "NCA_HEADER";
-		const std::string kNca2Sig = "NCA2";
-		const std::string kNca3Sig = "NCA3";
-		static const size_t kSectionNum = 4;
-		static const size_t kAesKeyNum = 4;
-		static const uint32_t kDefaultSdkAddonVersion = 721920;
+		
+		//static const uint32_t kDefaultSdkAddonVersion = 721920;
 
 		enum ProgramPartitionId
 		{
-			SECTION_CODE,
-			SECTION_DATA,
-			SECTION_LOGO,
+			PARTITION_CODE,
+			PARTITION_DATA,
+			PARTITION_LOGO,
 		};
-
-#pragma pack (push, 1)
-
-		struct sNcaHeader
-		{
-			char signature[4];
-			byte_t distribution_type;
-			byte_t content_type;
-			byte_t crypto_type; // KeyGeneration
-			byte_t key_area_encryption_key_index;
-			le_uint64_t nca_size;
-			le_uint64_t program_id;
-			le_uint32_t content_index;
-			le_uint32_t sdk_addon_version;
-			byte_t crypto_type_2;
-			byte_t reserved_2[0xf];
-			byte_t rights_id[0x10];
-			struct sNcaSection
-			{
-				le_uint32_t start; // block units
-				le_uint32_t end; // block units
-				byte_t enabled;
-				byte_t reserved[7];
-			} section[kSectionNum];
-			crypto::sha::sSha256Hash section_hash[kSectionNum];
-			crypto::aes::sAes128Key enc_aes_key[kAesKeyNum];
-		
-		};
-#pragma pack (pop)
 
 		// binary
 		fnd::MemoryBlob mBinaryBlob;
 
 		// data
 		FormatVersion mFormatVersion;
-		DistributionType mDistributionType;
-		ContentType mContentType;
-		byte_t mCryptoType;
+		nca::DistributionType mDistributionType;
+		nca::ContentType mContentType;
+		byte_t mKeyGeneration;
 		byte_t mKaekIndex;
-		uint64_t mNcaSize;
+		uint64_t mContentSize;
 		uint64_t mProgramId;
 		uint32_t mContentIndex;
 		uint32_t mSdkAddonVersion;
-		fnd::List<sSection> mSections;
+		byte_t mRightsId[nca::kRightsIdLen];
+		fnd::List<sPartition> mPartitions;
 		fnd::List<crypto::aes::sAes128Key> mEncAesKeys;
 
 		uint64_t blockNumToSize(uint32_t block_num) const;
