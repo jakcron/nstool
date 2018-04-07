@@ -22,8 +22,8 @@ else
 	UNAME = $(shell uname -s)
 	ifeq ($(UNAME), Darwin)
 		# MacOS Only Flags/Libs
-		CFLAGS += -Wunused-private-field
-		CXXFLAGS += -Wunused-private-field
+		CFLAGS += -Wno-unused-private-field
+		CXXFLAGS += -Wno-unused-private-field
 		ARFLAGS = rc
 	else
 		# *nix Only Flags/Libs

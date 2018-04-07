@@ -12,19 +12,27 @@ BIN_DIR = bin
 OUTPUT = $(BIN_DIR)/$(shell basename $(CURDIR))
 
 # Compiler Settings
-CXXFLAGS = -std=c++11 $(INCS) -D__STDC_FORMAT_MACROS -Wall -Wno-unused-but-set-variable -Wno-unused-value
+CXXFLAGS = -std=c++11 $(INCS) -D__STDC_FORMAT_MACROS -Wall -Wno-unused-value
 ifeq ($(OS),Windows_NT)
 	# Windows Only Flags/Libs
 	CC = x86_64-w64-mingw32-gcc
 	CXX = x86_64-w64-mingw32-g++
-	CFLAGS += 
-	CXXFLAGS += 
+	CFLAGS += -Wno-unused-but-set-variable
+	CXXFLAGS += -Wno-unused-but-set-variable
 	LIBS += -static
 else
-	# *nix Only Flags/Libs
-	CFLAGS += 
-	CXXFLAGS += 
-	LIBS +=
+	UNAME = $(shell uname -s)
+	ifeq ($(UNAME), Darwin)
+		# MacOS Only Flags/Libs
+		CFLAGS += -Wno-unused-private-field
+		CXXFLAGS += -Wno-unused-private-field
+		LIBS +=
+	else
+		# *nix Only Flags/Libs
+		CFLAGS += -Wno-unused-but-set-variable
+		CXXFLAGS += -Wno-unused-but-set-variable
+		LIBS +=
+	endif
 endif
 
 all: build
