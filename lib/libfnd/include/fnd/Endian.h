@@ -37,7 +37,7 @@ static inline uint16_t le_hword(uint16_t a) { return __local_bswap16(a); }
 #error "What's the endianness of the platform you're targeting?"
 #endif
 
-template <class T, T (*F)(T)>
+template <class T, static T (*F)(T)>
 class ISerialiseablePrimative {
 public:
 	inline T get() const { return F(mVar);}
