@@ -5,90 +5,12 @@
 #include <crypto/rsa.h>
 #include <fnd/io.h>
 #include <fnd/MemoryBlob.h>
+#include <fnd/SimpleTextOutput.h>
 #include <nx/NXCrypto.h>
+#include <nx/xci.h>
+#include <nx/PfsHeader.h>
 
-enum RomSize
-{
-	ROM_SIZE_1GB = 0xFA,
-	ROM_SIZE_2GB = 0xF8,
-	ROM_SIZE_4GB = 0xF0,
-	ROM_SIZE_8GB = 0xE0,
-	ROM_SIZE_16GB = 0xE1,
-	ROM_SIZE_32GB = 0xE2
-};
-
-enum XciHeaderFlags
-{
-	XCI_FLAG_AUTOBOOT,
-	XCI_FLAG_HISTORY_ERASE
-};
-
-enum CardClockRate
-{
-	CLOCK_RATE_25 = 10551312,
-	CLOCK_RATE_50 = 10551313,
-};
-
-static const size_t kXciPageSize = 0x200;
-static const size_t kXciHeaderEncOffset = 0x90;
-static const size_t kXciHeaderEncSize = 0x70;
-
-#pragma pack (push, 1)
-struct sXciHeader
-{
-	char signature[4]; // 0x00 // "HEAD"
-	le_uint32_t rom_area_start_page; // 0x04
-	le_uint32_t backup_area_start_page; // 0x08
-	byte_t key_flag; // 0x0C // bit0-3 = KekIndex, bit4-7 = TitleKeyDecIndex
-	byte_t rom_size; // 0x0D // this is an enum
-	byte_t card_header_version; // 0x0E // CardHeaderVersion
-	byte_t flags; // 0x0F
-	le_uint64_t package_id; // 0x10 // stylised as 0x{0:x2}{1:x2}{2:x2}{3:x2}_{4:x2}{5:x2}{6:x2}{7:x2}
-	le_uint32_t valid_data_end_page; // 0x18
-	byte_t reserved_01[4]; // 0x1C
-	byte_t encryption_iv[16]; // 0x20
-	le_uint64_t partition_fs_header_address; // 0x30
-	le_uint64_t partition_fs_header_size; // 0x38
-	byte_t partition_fs_header_hash[0x20]; // 0x40
-	byte_t initial_data_hash[0x20]; // 0x60
-	le_uint32_t sel_sec; // 0x80
-	le_uint32_t sel_t1_key; // 0x84 // SelT1Key
-	le_uint32_t sel_key; // 0x88 // SelKey
-	le_uint32_t lim_area; // 0x8C
-	// START ENCRYPTION
-	le_uint32_t fw_version[2]; // 0x90 // [0]=minor, [1]=major
-	le_uint32_t acc_ctrl_1; // 0x98
-	le_uint32_t wait_1_time_read; // 0x9C // Wait1TimeRead
-	le_uint32_t wait_2_time_read; // 0xA0 // Wait2TimeRead
-	le_uint32_t wait_1_time_write; // 0xA4 // Wait1TimeWrite
-	le_uint32_t wait_2_time_write; // 0xA8 // Wait2TimeWrite
-	le_uint32_t fw_mode; // 0xAC
-	le_uint32_t cup_version; // 0xB0
-	byte_t reserved_03[0x4]; // 0xB4
-	byte_t upp_hash[8]; // 0xB8 // stylised as 0x{0:x2}{1:x2}{2:x2}{3:x2}_{4:x2}{5:x2}{6:x2}{7:x2}
-	le_uint64_t cup_id; // 0xC0 // cup programID?
-	byte_t reserved_04[0x38];
-	// END ENCRYPTION
-};
-
-struct sInitialData
-{
-	byte_t key_source[16]; // { package_id[8], zeros[8]}
-	byte_t title_key_enc[16];
-	byte_t ccm_mac[16];
-	byte_t ccm_nonce[12];
-}; // sizeof() = 512 (1 page)
-
-struct sKeyDataArea
-{
-	sInitialData initial_data; // AES128-CCM encrypted {titlekey[16]}
-	byte_t encrypted_00[0x200*6]; // AES128-CTR encrypted {titlekey[16]}
-	byte_t encrypted_00_aesctr_data[0x100]; // RSA2048-OAEP-SHA256 encrypted AES-CTR data used for encrypted_00 {key[16],iv[16]}
-	byte_t reserved_01[0x100];
-}; // sizeof() = 512*8 (8 pages)
-
-#pragma pack (pop)
-
+/*
 struct sXciKeyData
 {
 	crypto::aes::sAes128Key xci_header_encryption_key;
@@ -97,13 +19,12 @@ struct sXciKeyData
 	crypto::rsa::sRsa2048Key card_key_area_oeap_key;
 };
 
-/*
 void getTitleKeyFromInitialData(const byte_t* initialData, crypto::aes::sAes128Key& titleKey)
 {
 	const sInitialData* data = (const sInitialData*)initialData;
 	crypto::aes::sAes128Key ccmKey;
 	crypto::aes::AesEcbDecrypt(data->key_source, 16, key_data.initial_data_key.key, ccmKey.key);
-	//crypto::aes::AesCcmDecrypt(data->title_key_enc, 16, ccmKey.key, data->ccm_nonce, data->ccm_mac, titleKey.key);
+	crypto::aes::AesCcmDecrypt(data->title_key_enc, 16, ccmKey.key, data->ccm_nonce, data->ccm_mac, titleKey.key);
 }
 */
 
@@ -122,22 +43,22 @@ inline const char* getRomSizeStr(byte_t rom_size)
 	const char* str = "unknown";
 	switch (rom_size)
 	{
-		case (ROM_SIZE_1GB) :
+		case (nx::xci::ROM_SIZE_1GB) :
 			str = "1GB";
 			break;
-		case (ROM_SIZE_2GB) :
+		case (nx::xci::ROM_SIZE_2GB) :
 			str = "2GB";
 			break;
-		case (ROM_SIZE_4GB) :
+		case (nx::xci::ROM_SIZE_4GB) :
 			str = "4GB";
 			break;
-		case (ROM_SIZE_8GB) :
+		case (nx::xci::ROM_SIZE_8GB) :
 			str = "8GB";
 			break;
-		case (ROM_SIZE_16GB) :
+		case (nx::xci::ROM_SIZE_16GB) :
 			str = "16GB";
 			break;
-		case (ROM_SIZE_32GB) :
+		case (nx::xci::ROM_SIZE_32GB) :
 			str = "32GB";
 			break;
 	}
@@ -149,10 +70,10 @@ inline const char* getCardClockRate(uint32_t acc_ctrl_1)
 	const char* str = "unknown";
 	switch (acc_ctrl_1)
 	{
-		case (CLOCK_RATE_25) :
+		case (nx::xci::CLOCK_RATE_25) :
 			str = "20 MHz";
 			break;
-		case (CLOCK_RATE_50) :
+		case (nx::xci::CLOCK_RATE_50) :
 			str = "50 MHz";
 			break;
 		
@@ -160,43 +81,13 @@ inline const char* getCardClockRate(uint32_t acc_ctrl_1)
 	return str;
 }
 
-void dumpHxdStyleSector(byte_t* out, size_t len)
+void printXciHeader(const nx::sXciHeader& hdr, bool is_decrypted)
 {
-	// iterate over 0x10 blocks
-	for (size_t i = 0; i < (len / crypto::aes::kAesBlockSize); i++)
+	crypto::aes::sAesIvCtr iv;
+	for (size_t i = 0; i < sizeof(iv); i++)
 	{
-		// for block i print each byte
-		for (size_t j = 0; j < crypto::aes::kAesBlockSize; j++)
-		{
-			printf("%02X ", out[i*crypto::aes::kAesBlockSize + j]);
-		}
-		printf(" ");
-		for (size_t j = 0; j < crypto::aes::kAesBlockSize; j++)
-		{
-			printf("%c", isalnum(out[i*crypto::aes::kAesBlockSize + j]) ? out[i*crypto::aes::kAesBlockSize + j] : '.');
-		}
-		printf("\n");
+		iv.iv[15-i] = hdr.encryption_iv[i];
 	}
-
-	/*
-	for (size_t i = 0; i < len % crypto::aes::kAesBlockSize; i++)
-	{
-		printf("%02X ", out[(len / crypto::aes::kAesBlockSize)*crypto::aes::kAesBlockSize + i]);
-	}
-	for (size_t i = 0; i < crypto::aes::kAesBlockSize - (len % crypto::aes::kAesBlockSize); i++)
-	{
-		printf("   ");
-	}
-	for (size_t i = 0; i < len % crypto::aes::kAesBlockSize; i++)
-	{
-		printf("%c", out[(len / crypto::aes::kAesBlockSize)*crypto::aes::kAesBlockSize + i]);
-	}
-	*/
-}
-
-void printXciHeader(const sXciHeader& hdr, bool is_decrypted)
-{
-	be_uint64_t *aes_iv, *hash;
 
 	printf("[XCI HEADER]\n");
 	printf("  Magic:                HEAD\n");
@@ -208,20 +99,21 @@ void printXciHeader(const sXciHeader& hdr, bool is_decrypted)
 	printf("  RomSize:              0x%x (%s)\n", hdr.rom_size, getRomSizeStr(hdr.rom_size));
 	printf("  CardHeaderVersion:    %d\n", hdr.card_header_version);
 	printf("  Flags:                0x%x\n", hdr.flags);
-	printf("    AutoBoot:           %s\n", getBoolStr(_HAS_BIT(hdr.flags, XCI_FLAG_AUTOBOOT)));
-	printf("    HistoryErase:       %s\n", getBoolStr(_HAS_BIT(hdr.flags, XCI_FLAG_HISTORY_ERASE)));
+	printf("    AutoBoot:           %s\n", getBoolStr(_HAS_BIT(hdr.flags, nx::xci::FLAG_AUTOBOOT)));
+	printf("    HistoryErase:       %s\n", getBoolStr(_HAS_BIT(hdr.flags, nx::xci::FLAG_HISTORY_ERASE)));
+	printf("    RepairTool:         %s\n", getBoolStr(_HAS_BIT(hdr.flags, nx::xci::FLAG_REPAIR_TOOL)));
 	printf("  PackageId:            0x%" PRIx64 "\n", hdr.package_id.get());
 	printf("  ValidDataEndPage:     0x%x (0x%" PRIx64 ")\n", hdr.valid_data_end_page.get(), blockToAddr(hdr.valid_data_end_page.get()));
-	aes_iv = (be_uint64_t*)hdr.encryption_iv;
-	printf("  AesIv:                %016" PRIX64 "%016" PRIX64"\n", aes_iv[0].get(), aes_iv[1].get());
+	printf("  AesIv:                ");
+	fnd::SimpleTextOutput::hexDump(iv.iv, sizeof(iv));
 	printf("  PartitionFs:\n");
 	printf("    Offset:             0x%" PRIx64 "\n", hdr.partition_fs_header_address.get());
 	printf("    Size:               0x%" PRIx64 "\n", hdr.partition_fs_header_size.get());
-	hash = (be_uint64_t*)hdr.partition_fs_header_hash;
-	printf("    Hash:               %016" PRIX64 "%016" PRIX64 "%016" PRIX64 "%016" PRIX64"\n", hash[0].get(),hash[1].get(),hash[2].get(),hash[3].get());
+	printf("    Hash:               ");
+	fnd::SimpleTextOutput::hexDump(hdr.partition_fs_header_hash, 0x20);
 	printf("  InitialData:\n");
-	hash = (be_uint64_t*)hdr.initial_data_hash;
-	printf("    Hash:               %016" PRIX64 "%016" PRIX64 "%016" PRIX64 "%016" PRIX64"\n", hash[0].get(),hash[1].get(),hash[2].get(),hash[3].get());
+	printf("    Hash:               ");
+	fnd::SimpleTextOutput::hexDump(hdr.initial_data_hash, 0x20);
 	printf("  SelSec:               0x%x\n", hdr.sel_sec.get());
 	printf("  SelT1Key:             0x%x\n", hdr.sel_t1_key.get());
 	printf("  SelKey:               0x%x\n", hdr.sel_key.get());
@@ -229,7 +121,7 @@ void printXciHeader(const sXciHeader& hdr, bool is_decrypted)
 	
 	if (is_decrypted == true)
 	{
-		printf("  FwVersion:            v%d.%d\n", hdr.fw_version[1].get(), hdr.fw_version[0].get());
+		printf("  FwVersion:            v%d.%d\n", hdr.fw_version[nx::xci::FWVER_MAJOR].get(), hdr.fw_version[nx::xci::FWVER_MINOR].get());
 		printf("  AccCtrl1:             0x%x\n", hdr.acc_ctrl_1.get());
 		printf("    CardClockRate:      %s\n", getCardClockRate(hdr.acc_ctrl_1.get()));
 		printf("  Wait1TimeRead:        0x%x\n", hdr.wait_1_time_read.get());
@@ -237,17 +129,41 @@ void printXciHeader(const sXciHeader& hdr, bool is_decrypted)
 		printf("  Wait1TimeWrite:       0x%x\n", hdr.wait_1_time_write.get());
 		printf("  Wait2TimeWrite:       0x%x\n", hdr.wait_2_time_write.get());
 		printf("  FwMode:               0x%x\n", hdr.fw_mode.get());
-		printf("  CupVersion:           %d\n", hdr.cup_version.get());
-		hash = (be_uint64_t*)hdr.upp_hash;
-		printf("  UppHash:              %016" PRIX64 "\n", hash[0].get());
-		printf("  CupId:                %016" PRIx64 "\n", hdr.cup_id.get());
+		printf("  UppVersion:           %d\n", hdr.upp_version.get());
+		printf("  UppHash:              ");
+		fnd::SimpleTextOutput::hexDump(hdr.upp_hash, 8);
+		printf("  UppId:                %016" PRIx64 "\n", hdr.upp_id.get());
 
+	}
+}
+
+void printXciPartitionFs(const nx::PfsHeader& pfs, const std::string& partition_name)
+{
+	printf("[PartitionFS]\n");
+	printf("  Type:        %s\n", pfs.getFsType() == pfs.TYPE_PFS0 ? "PFS0" : "HFS0");
+	
+	if (partition_name.empty())
+	{
+		printf("  FileSystem:  (%d files)\n", pfs.getFileList().getSize());
+	}
+	else
+	{
+		printf("  %s/\n", partition_name.c_str());
+	}
+	for (size_t i = 0; i < pfs.getFileList().getSize(); i++)
+	{
+		printf("    %s", pfs.getFileList()[i].name.c_str());
+		if (pfs.getFsType() == pfs.TYPE_PFS0)
+			printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", pfs.getFileList()[i].offset, pfs.getFileList()[i].size);
+		else
+			printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", pfs.getFileList()[i].offset, pfs.getFileList()[i].size, pfs.getFileList()[i].hash_protected_size);
+		
 	}
 }
 
 void decryptXciHeader(const byte_t* src, byte_t* dst)
 {
-	const byte_t* src_iv = ((const sXciHeader*)src)->encryption_iv;
+	const byte_t* src_iv = ((const nx::sXciHeader*)src)->encryption_iv;
 	byte_t iv[crypto::aes::kAesBlockSize];
 
 	for (size_t i = 0; i < crypto::aes::kAesBlockSize; i++)
@@ -256,10 +172,10 @@ void decryptXciHeader(const byte_t* src, byte_t* dst)
 	}
 
 	// copy plain
-	memcpy(dst, src, kXciHeaderEncOffset);
+	memcpy(dst, src, nx::xci::kHeaderEncOffset);
 
-	// decrypt encrypted
-	crypto::aes::AesCbcDecrypt(src + kXciHeaderEncOffset, kXciHeaderEncSize, crypto::aes::nx::prod::xci_header_key, iv, dst + kXciHeaderEncOffset);
+	// decrypt encrypted data
+	crypto::aes::AesCbcDecrypt(src + nx::xci::kHeaderEncOffset, nx::xci::kHeaderEncSize, crypto::aes::nx::prod::xci_header_key, iv, dst + nx::xci::kHeaderEncOffset);
 }
 
 int main(int argc, char** argv)
@@ -271,12 +187,40 @@ int main(int argc, char** argv)
 	}
 
 	
-	fnd::MemoryBlob xciFile;
-	fnd::io::readFile(argv[1], 0x100, 0x100, xciFile);
+	fnd::MemoryBlob tmp;
+	fnd::io::readFile(argv[1], 0x100, sizeof(nx::sXciHeader), tmp);
+	decryptXciHeader(tmp.getBytes(), tmp.getBytes());
 
-	sXciHeader* hdr = (sXciHeader*)xciFile.getBytes();
-	decryptXciHeader(xciFile.getBytes(), xciFile.getBytes());
-	printXciHeader(*hdr, true);
+	nx::sXciHeader hdr;
+	memcpy((void*)&hdr, tmp.getBytes(), sizeof(nx::sXciHeader));
+	printXciHeader(hdr, true);
+
+	crypto::sha::sSha256Hash testHash;
+
+	// read root PFS
+	fnd::io::readFile(argv[1], hdr.partition_fs_header_address.get(), hdr.partition_fs_header_size.get(), tmp);
+	crypto::sha::Sha256(tmp.getBytes(), tmp.getSize(), testHash.bytes);
+	if (testHash.compare(hdr.partition_fs_header_hash) == false)
+	{
+		throw fnd::Exception("xcitool", "Bad root partition hash");
+	}
+	nx::PfsHeader rootPfs;
+	rootPfs.importBinary(tmp.getBytes(), tmp.getSize());
+	printXciPartitionFs(rootPfs, "xci:");
+
+	// read sub PFS
+	for (size_t i = 0; i < rootPfs.getFileList().getSize(); i++)
+	{
+		fnd::io::readFile(argv[1], hdr.partition_fs_header_address.get() + rootPfs.getFileList()[i].offset, rootPfs.getFileList()[i].hash_protected_size, tmp);
+		crypto::sha::Sha256(tmp.getBytes(), tmp.getSize(), testHash.bytes);
+		if (testHash.compare(rootPfs.getFileList()[i].hash) == false)
+		{
+			throw fnd::Exception("xcitool", "Bad partition hash");
+		}
+		nx::PfsHeader pfs;
+		pfs.importBinary(tmp.getBytes(), tmp.getSize());
+		printXciPartitionFs(pfs, "xci:/" + rootPfs.getFileList()[i].name);
+	}
 
 	return 0;
 }
