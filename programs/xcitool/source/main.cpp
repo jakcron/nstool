@@ -117,7 +117,7 @@ void printXciHeader(const nx::sXciHeader& hdr, bool is_decrypted)
 	printf("  SelSec:               0x%x\n", hdr.sel_sec.get());
 	printf("  SelT1Key:             0x%x\n", hdr.sel_t1_key.get());
 	printf("  SelKey:               0x%x\n", hdr.sel_key.get());
-	printf("  LimArea:              0x%x\n", hdr.lim_area.get());
+	printf("  LimArea:              0x%x (0x%" PRIx64 ")\n", hdr.lim_area.get(), blockToAddr(hdr.lim_area.get()));
 	
 	if (is_decrypted == true)
 	{
@@ -137,7 +137,7 @@ void printXciHeader(const nx::sXciHeader& hdr, bool is_decrypted)
 	}
 }
 
-void printXciPartitionFs(const nx::PfsHeader& pfs, const std::string& partition_name)
+void printXciPartitionFs(const nx::PfsHeader& pfs, size_t partition_base_offset, const std::string& partition_name)
 {
 	printf("[PartitionFS]\n");
 	printf("  Type:        %s\n", pfs.getFsType() == pfs.TYPE_PFS0 ? "PFS0" : "HFS0");
@@ -154,9 +154,9 @@ void printXciPartitionFs(const nx::PfsHeader& pfs, const std::string& partition_
 	{
 		printf("    %s", pfs.getFileList()[i].name.c_str());
 		if (pfs.getFsType() == pfs.TYPE_PFS0)
-			printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", pfs.getFileList()[i].offset, pfs.getFileList()[i].size);
+			printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", (partition_base_offset + pfs.getFileList()[i].offset), pfs.getFileList()[i].size);
 		else
-			printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", pfs.getFileList()[i].offset, pfs.getFileList()[i].size, pfs.getFileList()[i].hash_protected_size);
+			printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", (partition_base_offset + pfs.getFileList()[i].offset), pfs.getFileList()[i].size, pfs.getFileList()[i].hash_protected_size);
 		
 	}
 }
@@ -206,7 +206,7 @@ int main(int argc, char** argv)
 	}
 	nx::PfsHeader rootPfs;
 	rootPfs.importBinary(tmp.getBytes(), tmp.getSize());
-	printXciPartitionFs(rootPfs, "xci:");
+	printXciPartitionFs(rootPfs, hdr.partition_fs_header_address.get(), "xci:");
 
 	// read sub PFS
 	for (size_t i = 0; i < rootPfs.getFileList().getSize(); i++)
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
 		}
 		nx::PfsHeader pfs;
 		pfs.importBinary(tmp.getBytes(), tmp.getSize());
-		printXciPartitionFs(pfs, "xci:/" + rootPfs.getFileList()[i].name);
+		printXciPartitionFs(pfs, hdr.partition_fs_header_address.get() + rootPfs.getFileList()[i].offset, "xci:/" + rootPfs.getFileList()[i].name);
 	}
 
 	return 0;
