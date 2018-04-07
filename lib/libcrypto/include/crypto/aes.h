@@ -42,8 +42,31 @@ namespace aes
 
 	struct sAesXts128Key
 	{
-		sAes128Key key1;
-		sAes128Key key2;
+		uint8_t key[2][kAes128KeySize];
+
+		void set(const uint8_t key_0[kAes128KeySize], const uint8_t key_1[kAes128KeySize])
+		{
+			memcpy(this->key[0], key_0, kAes128KeySize);
+			memcpy(this->key[1], key_1, kAes128KeySize);
+		}
+
+		bool compare(const sAesXts128Key& other) const
+		{
+			return memcmp(this->key[0], other.key[0], kAes128KeySize) == 0 && memcmp(this->key[1], other.key[1], kAes128KeySize) == 0;
+		}
+
+		void operator=(const sAesXts128Key& other)
+		{
+			set(other.key[0], other.key[1]);
+		}
+		bool operator==(const sAesXts128Key& other) const
+		{
+			return compare(other);
+		}
+		bool operator!=(const sAesXts128Key& other) const
+		{
+			return !compare(other);
+		}
 	};
 
 	struct sAesIvCtr
