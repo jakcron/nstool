@@ -3,6 +3,18 @@
 		"__functional_base": "cpp",
 		"memory": "cpp",
 		"tuple": "cpp",
-		"utility": "cpp"
+		"utility": "cpp",
+		"__string": "cpp",
+		"string": "cpp",
+		"string_view": "cpp",
+		"__split_buffer": "cpp",
+		"initializer_list": "cpp",
+		"iterator": "cpp",
+		"vector": "cpp",
+		"__functional_base_03": "cpp",
+		"__tuple": "cpp",
+		"limits": "cpp",
+		"type_traits": "cpp",
+		"stdexcept": "cpp"
 	}
 }
