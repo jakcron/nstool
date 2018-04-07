@@ -128,6 +128,7 @@
     <ClInclude Include="include\fnd\ISerialiseableBinary.h" />
     <ClInclude Include="include\fnd\List.h" />
     <ClInclude Include="include\fnd\MemoryBlob.h" />
+    <ClInclude Include="include\fnd\SimpleTextOutput.h" />
     <ClInclude Include="include\fnd\StringConv.h" />
     <ClInclude Include="include\fnd\types.h" />
   </ItemGroup>
@@ -135,6 +136,7 @@
     <ClCompile Include="source\Exception.cpp" />
     <ClCompile Include="source\io.cpp" />
     <ClCompile Include="source\MemoryBlob.cpp" />
+    <ClCompile Include="source\SimpleTextOutput.cpp" />
     <ClCompile Include="source\StringConv.cpp" />
   </ItemGroup>
   <ItemGroup>

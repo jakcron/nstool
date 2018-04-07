@@ -108,7 +108,13 @@
     <ClInclude Include="include\nx\ThreadInfoHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nx\XciHeader.h">
+    <ClInclude Include="include\nx\nca.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\pfs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\xci.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -198,9 +204,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ThreadInfoHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\XciHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

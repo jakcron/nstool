@@ -39,10 +39,12 @@
     <ClInclude Include="include\nx\MiscFlagsHandler.h" />
     <ClInclude Include="include\nx\MiscParamsEntry.h" />
     <ClInclude Include="include\nx\MiscParamsHandler.h" />
+    <ClInclude Include="include\nx\nca.h" />
     <ClInclude Include="include\nx\NpdmBinary.h" />
     <ClInclude Include="include\nx\NpdmHeader.h" />
     <ClInclude Include="include\nx\NcaHeader.h" />
     <ClInclude Include="include\nx\NXCrypto.h" />
+    <ClInclude Include="include\nx\pfs.h" />
     <ClInclude Include="include\nx\PfsHeader.h" />
     <ClInclude Include="include\nx\SacBinary.h" />
     <ClInclude Include="include\nx\SacEntry.h" />
@@ -50,7 +52,7 @@
     <ClInclude Include="include\nx\SystemCallHandler.h" />
     <ClInclude Include="include\nx\ThreadInfoEntry.h" />
     <ClInclude Include="include\nx\ThreadInfoHandler.h" />
-    <ClInclude Include="include\nx\XciHeader.h" />
+    <ClInclude Include="include\nx\xci.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AciBinary.cpp" />
@@ -82,7 +84,6 @@
     <ClCompile Include="source\SystemCallHandler.cpp" />
     <ClCompile Include="source\ThreadInfoEntry.cpp" />
     <ClCompile Include="source\ThreadInfoHandler.cpp" />
-    <ClCompile Include="source\XciHeader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
