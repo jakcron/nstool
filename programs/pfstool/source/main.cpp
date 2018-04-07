@@ -11,6 +11,13 @@
 #include <sys/stat.h>
 #endif
 
+
+std::string kFsTypeStr[]
+{
+	"PFS0",
+	"HFS0"
+};
+
 int main(int argc, char** argv)
 {
 	if (argc < 2)
@@ -37,10 +44,18 @@ int main(int argc, char** argv)
 #endif
 		}
 
-		printf("[PFS]\n");
+		printf("[PartitionFS]\n");
+		printf("  Type:        %s\n", kFsTypeStr[pfs.getFsType()].c_str());
+		printf("  FileSystem:  (%d files)\n", pfs.getFileList().getSize());
 		for (size_t i = 0; i < pfs.getFileList().getSize(); i++)
 		{
-			printf("  %s (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", pfs.getFileList()[i].name.c_str(), pfs.getFileList()[i].offset, pfs.getFileList()[i].size);
+
+			printf("    %s", pfs.getFileList()[i].name.c_str());
+			if (pfs.getFsType() == pfs.TYPE_PFS0)
+				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", pfs.getFileList()[i].offset, pfs.getFileList()[i].size);
+			else
+				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", pfs.getFileList()[i].offset, pfs.getFileList()[i].size, pfs.getFileList()[i].hash_protected_size);
+			
 			if (argc == 3)
 			{
 #ifdef _WIN32

@@ -4,6 +4,7 @@
 #include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
 #include <fnd/ISerialiseableBinary.h>
+#include <nx/pfs.h>
 
 
 namespace nx
@@ -12,17 +13,27 @@ namespace nx
 		public fnd::ISerialiseableBinary
 	{
 	public:
+		enum FsType
+		{
+			TYPE_PFS0,
+			TYPE_HFS0
+		};
+
 		struct sFile
 		{
 			std::string name;
 			size_t offset;
 			size_t size;
+			size_t hash_protected_size;
+			crypto::sha::sSha256Hash hash;
 
 			sFile& operator=(const sFile& other)
 			{
 				name = other.name;
 				offset = other.offset;
 				size = other.size;
+				hash_protected_size = other.hash_protected_size;
+				hash = other.hash;
 				return *this;
 			}
 
@@ -30,7 +41,9 @@ namespace nx
 			{
 				return (name == other.name) \
 					&& (offset == other.offset) \
-					&& (size == other.size);
+					&& (size == other.size) \
+					&& (hash_protected_size == other.hash_protected_size) \
+					&& (hash == other.hash);
 			}
 
 			bool operator!=(const sFile& other) const
@@ -68,36 +81,24 @@ namespace nx
 		// variables
 		void clear();
 
+
+		FsType getFsType() const;
+		void setFsType(FsType type);
 		const fnd::List<sFile>& getFileList() const;
 		void addFile(const std::string& name, size_t size);
+		void addFile(const std::string& name, size_t size, size_t hash_protected_size, const crypto::sha::sSha256Hash& hash);
 
 	private:
 		const std::string kModuleName = "PFS_HEADER";
-		const std::string kPfsStructSig = "PFS0";
-		static const size_t kPfsAlign = 0x40;
-
-#pragma pack (push, 1)
-		struct sPfsFile
-		{
-			le_uint64_t data_offset;
-			le_uint64_t size;
-			le_uint64_t name_offset;
-		};
-
-		struct sPfsHeader
-		{
-			char signature[4];
-			le_uint32_t file_num;
-			le_uint64_t name_table_size;
-		};
-#pragma pack (pop)
 
 		// binary blob
 		fnd::MemoryBlob mBinaryBlob;
 
 		// variables
+		FsType mFsType;
 		fnd::List<sFile> mFileList;
 
+		size_t getFileEntrySize(FsType fs_type);
 		void calculateOffsets(size_t data_offset);
 		bool isEqual(const PfsHeader& other) const;
 		void copyFrom(const PfsHeader& other);
