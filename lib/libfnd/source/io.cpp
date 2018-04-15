@@ -1,5 +1,10 @@
 #include <fnd/io.h>
 #include <fstream>
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
 
 using namespace fnd;
 
@@ -124,4 +129,13 @@ void io::writeFile(const std::string & path, const byte_t * data, size_t len)
 	}
 
 	fclose(fp);
+}
+
+void io::makeDirectory(const std::string& path)
+{
+#ifdef _WIN32
+	_mkdir(path.c_str());
+#else
+	mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
 }
