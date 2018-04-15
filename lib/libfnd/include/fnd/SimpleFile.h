@@ -24,7 +24,9 @@ namespace fnd
 		size_t size();
 		void seek(size_t offset);
 		size_t pos();
+		void read(byte_t* out, size_t len);
 		void read(byte_t* out, size_t offset, size_t len);
+		void write(const byte_t* out, size_t len);
 		void write(const byte_t* out, size_t offset, size_t len);
 	
 	private:

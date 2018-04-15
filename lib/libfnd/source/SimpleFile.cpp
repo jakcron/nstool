@@ -60,16 +60,26 @@ size_t SimpleFile::pos()
 	return ftell(mFp);
 }
 
+void SimpleFile::read(byte_t* out, size_t len)
+{
+	fread(out, len, 1, mFp);
+}
+
 void SimpleFile::read(byte_t* out, size_t offset, size_t len)
 {
 	seek(offset);
-	fread(out, len, 1, mFp);
+	read(out, len);
+}
+
+void SimpleFile::write(const byte_t* out, size_t len)
+{
+	fwrite(out, len, 1, mFp);
 }
 
 void SimpleFile::write(const byte_t* out, size_t offset, size_t len)
 {
 	seek(offset);
-	fwrite(out, len, 1, mFp);
+	write(out, len);
 }
 
 const char* SimpleFile::getOpenModeStr(OpenMode mode)
