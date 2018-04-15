@@ -1,5 +1,6 @@
 #include <crypto/rsa.h>
 #include <polarssl/rsa.h>
+#include <polarssl/md.h>
 
 using namespace crypto::rsa;
 using namespace crypto::sha;
@@ -16,6 +17,23 @@ int getWrappedHashType(HashType type)
 		break;
 	default:
 		return SIG_RSA_RAW;
+		break;
+	}
+	return 0;
+}
+
+int getMdWrappedHashType(HashType type)
+{
+	switch (type)
+	{
+	case HASH_SHA1:
+		return POLARSSL_MD_SHA1;
+		break;
+	case HASH_SHA256:
+		return POLARSSL_MD_SHA256;
+		break;
+	default:
+		return POLARSSL_MD_NONE;
 		break;
 	}
 	return 0;
@@ -141,6 +159,25 @@ int crypto::rsa::pkcs::rsaVerify(const sRsa4096Key & key, HashType hash_type, co
 	mpi_read_binary(&ctx.N, key.modulus, ctx.len);
 
 	ret = rsa_rsassa_pkcs1_v15_verify(&ctx, RSA_PUBLIC, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
+
+	rsa_free(&ctx);
+
+	return ret;
+}
+
+int crypto::rsa::pss::rsaVerify(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa2048Size])
+{
+	static const uint8_t public_exponent[3] = { 0x01, 0x00, 0x01 };
+
+	int ret;
+	rsa_context ctx;
+	rsa_init(&ctx, RSA_PKCS_V21, getMdWrappedHashType(hash_type));
+
+	ctx.len = kRsa2048Size;
+	mpi_read_binary(&ctx.E, public_exponent, sizeof(public_exponent));
+	mpi_read_binary(&ctx.N, key.modulus, ctx.len);
+
+	ret = rsa_rsassa_pss_verify(&ctx, RSA_PUBLIC, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
 
 	rsa_free(&ctx);
 

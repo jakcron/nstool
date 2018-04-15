@@ -248,7 +248,7 @@
  * Enable support for PKCS#1 v2.1 encoding.
  * This enables support for RSAES-OAEP and RSASSA-PSS operations.
  */
-//#define POLARSSL_PKCS1_V21
+#define POLARSSL_PKCS1_V21
 
 /**
  * \def POLARSSL_RSA_NO_CRT
@@ -641,7 +641,7 @@
  *
  * Uncomment to enable generic message digest wrappers.
  */
-//#define POLARSSL_MD_C
+#define POLARSSL_MD_C
 
 /**
  * \def POLARSSL_MD2_C
