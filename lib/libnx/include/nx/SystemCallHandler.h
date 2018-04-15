@@ -7,6 +7,8 @@ namespace nx
 		public IKernelCapabilityHandler
 	{
 	public:
+		static const uint32_t kMaxSystemCall = (BIT(3) * 24) - 1;
+
 		SystemCallHandler();
 
 		bool operator==(const SystemCallHandler& other) const;
@@ -25,7 +27,6 @@ namespace nx
 
 	private:
 		const std::string kModuleName = "SYSTEM_CALL_HANDLER";
-		static const uint32_t kMaxSystemCall = (BIT(3) * 24) - 1;
 		static const size_t kSyscallTotalEntryNum = (kMaxSystemCall / 24) + 1;
 
 		bool mIsSet;
