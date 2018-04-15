@@ -1,9 +1,21 @@
 #include <fnd/io.h>
+#include <fstream>
 
 using namespace fnd;
 
 static const std::string kModuleName = "IO";
 static const size_t kBlockSize = 0x100000;
+
+size_t io::getFileSize(const std::string& path)
+{
+	std::ifstream f;
+	f.open(path, std::ios_base::binary | std::ios_base::in);
+	if (!f.good() || f.eof() || !f.is_open()) { return 0; }
+	f.seekg(0, std::ios_base::beg);
+	std::ifstream::pos_type begin_pos = f.tellg();
+	f.seekg(0, std::ios_base::end);
+	return static_cast<size_t>(f.tellg() - begin_pos);
+}
 
 void io::readFile(const std::string& path, MemoryBlob & blob)
 {
