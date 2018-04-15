@@ -24,7 +24,7 @@ void nx::PfsHeader::exportBinary()
 		name_table_size += mFileList[i].name.length() + 1;
 	}
 
-	size_t pfs_header_size = align(sizeof(sPfsHeader) + getFileEntrySize(mFsType) * mFileList.getSize() + name_table_size, pfs::kAlignLen);
+	size_t pfs_header_size = align(sizeof(sPfsHeader) + getFileEntrySize(mFsType) * mFileList.getSize() + name_table_size, pfs::kHeaderAlign);
 	
 	// align name_table_size
 	name_table_size = pfs_header_size - (sizeof(sPfsHeader) + getFileEntrySize(mFsType) * mFileList.getSize());

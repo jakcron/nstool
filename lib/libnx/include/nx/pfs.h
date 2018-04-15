@@ -9,7 +9,7 @@ namespace nx
 	{
 		const std::string kPfsSig = "PFS0";
 		const std::string kHashedPfsSig = "HFS0";
-		static const size_t kAlignLen = 64;
+		static const size_t kHeaderAlign = 64;
 	}
 	
 #pragma pack(push,1)
