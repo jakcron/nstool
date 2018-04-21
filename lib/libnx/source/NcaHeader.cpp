@@ -74,11 +74,12 @@ void NcaHeader::importBinary(const byte_t * bytes, size_t len)
 
 	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
-	if (memcmp(hdr->signature, nca::kNca2Sig.c_str(), 4) == 0)
+	std::string sig = std::string(hdr->signature, 4);
+	if (sig == nca::kNca2Sig)
 	{
 		mFormatVersion = NCA2_FORMAT;
 	}
-	else if (memcmp(hdr->signature, nca::kNca3Sig.c_str(), 4) == 0)
+	else if (sig == nca::kNca3Sig)
 	{
 		mFormatVersion = NCA3_FORMAT;
 	}
