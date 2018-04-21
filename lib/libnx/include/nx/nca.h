@@ -1,8 +1,10 @@
+#pragma once
 #include <string>
 #include <fnd/types.h>
 #include <crypto/aes.h>
 #include <crypto/sha.h>
 #include <fnd/ISerialiseableBinary.h>
+#include <nx/ivfc.h>
 
 namespace nx
 {
@@ -16,6 +18,14 @@ namespace nx
 		static const size_t kHeaderSize = kSectorSize * kHeaderSectorNum;
 		static const size_t kAesKeyNum = 16;
 		static const size_t kRightsIdLen = 0x10;
+		static const size_t kKeyAreaEncryptionKeyNum = 3;
+
+		enum ProgramPartitionId
+		{
+			PARTITION_CODE,
+			PARTITION_DATA,
+			PARTITION_LOGO,
+		};
 
 		enum DistributionType
 		{
@@ -59,7 +69,7 @@ namespace nx
 			HASH_AUTO,
 			HASH_UNK1,
 			HASH_HIERARCHICAL_SHA256,
-			HASH_HIERARCHICAL_INTERGRITY
+			HASH_HIERARCHICAL_INTERGRITY // IVFC
 		};
 
 		enum EncryptionType
@@ -107,7 +117,7 @@ namespace nx
 		byte_t reserved[3];
 	};
 
-	struct sPfsSuperBlock
+	struct sHierarchicalSha256Header
 	{
 		byte_t master_hash[0x20];
 		le_uint32_t hash_block_size;
@@ -119,23 +129,5 @@ namespace nx
 		} hash_data, hash_target;
 	};
 
-	static const size_t kMaxIvfcLevel = 4;
-
-	struct sIvfcHeader
-	{
-		le_uint32_t magic;
-		le_uint32_t id;
-		le_uint32_t master_hash_size;
-		le_uint32_t level_num;
-		struct sIvfcLevelHeader
-		{
-			uint64_t logical_offset;
-			uint64_t hash_data_size;
-			uint32_t block_size;
-			byte_t reserved[4];
-		} level_header[kMaxIvfcLevel];
-		byte_t unk_0xA0[0x20];
-		byte_t master_hash[0x20];
-	};
 #pragma pack(pop)
 }

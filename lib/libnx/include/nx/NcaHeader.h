@@ -92,15 +92,6 @@ namespace nx
 
 	private:
 		const std::string kModuleName = "NCA_HEADER";
-		
-		//static const uint32_t kDefaultSdkAddonVersion = 721920;
-
-		enum ProgramPartitionId
-		{
-			PARTITION_CODE,
-			PARTITION_DATA,
-			PARTITION_LOGO,
-		};
 
 		// binary
 		fnd::MemoryBlob mBinaryBlob;
