@@ -4,9 +4,9 @@ using namespace nx;
 
 void AciHeader::calculateSectionOffsets()
 {
-	mFac.offset = align(mHeaderOffset, kAciAlignSize) + align(sizeof(sAciHeader), kAciAlignSize);
-	mSac.offset = mFac.offset + align(mFac.size, kAciAlignSize);
-	mKc.offset = mSac.offset + align(mSac.size, kAciAlignSize);
+	mFac.offset = align(mHeaderOffset, aci::kAciAlignSize) + align(sizeof(sAciHeader), aci::kAciAlignSize);
+	mSac.offset = mFac.offset + align(mFac.size, aci::kAciAlignSize);
+	mKc.offset = mSac.offset + align(mSac.size, aci::kAciAlignSize);
 }
 
 bool AciHeader::isEqual(const AciHeader & other) const
@@ -87,10 +87,10 @@ void AciHeader::exportBinary()
 	switch (mType)
 	{
 	case (TYPE_ACI0):
-		hdr->set_signature(kAciStructSig.c_str());
+		hdr->set_signature(aci::kAciStructSig.c_str());
 		break;
 	case (TYPE_ACID):
-		hdr->set_signature(kAciDescStructSig.c_str());
+		hdr->set_signature(aci::kAciDescStructSig.c_str());
 		break;
 	default:
 		throw fnd::Exception(kModuleName, "Unexpected ACI type");
@@ -139,11 +139,11 @@ void AciHeader::importBinary(const byte_t * bytes, size_t len)
 
 	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.getBytes();
 
-	if (memcmp(hdr->signature(), kAciStructSig.c_str(), 4) == 0)
+	if (memcmp(hdr->signature(), aci::kAciStructSig.c_str(), 4) == 0)
 	{
 		mType = TYPE_ACI0;
 	}
-	else if (memcmp(hdr->signature(), kAciDescStructSig.c_str(), 4) == 0)
+	else if (memcmp(hdr->signature(), aci::kAciDescStructSig.c_str(), 4) == 0)
 	{
 		mType = TYPE_ACID;
 	}
@@ -171,7 +171,7 @@ void AciHeader::importBinary(const byte_t * bytes, size_t len)
 	}
 	
 	// the header offset is the MIN(sac.offset, fac.offset, kc.offset) - sizeof(sHeader)
-	mHeaderOffset = MAX(MIN(hdr->sac().offset(), MIN(hdr->fac().offset(), hdr->kc().offset())), align(sizeof(sAciHeader), kAciAlignSize)) - align(sizeof(sAciHeader), kAciAlignSize);
+	mHeaderOffset = MAX(MIN(hdr->sac().offset(), MIN(hdr->fac().offset(), hdr->kc().offset())), align(sizeof(sAciHeader), aci::kAciAlignSize)) - align(sizeof(sAciHeader), aci::kAciAlignSize);
 
 	mFac.offset = hdr->fac().offset() - mHeaderOffset;
 	mFac.size = hdr->fac().size();
