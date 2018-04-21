@@ -26,7 +26,7 @@ namespace nx
 		virtual void exportBinary();
 		void signBinary(const crypto::rsa::sRsa2048Key& key);
 		virtual void importBinary(const byte_t* bytes, size_t len);
-		void verifyBinary(const crypto::rsa::sRsa2048Key& key);
+		void verifyBinary(const crypto::rsa::sRsa2048Key& key) const;
 
 		// variables
 		virtual void clear();
