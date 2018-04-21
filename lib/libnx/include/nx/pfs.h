@@ -17,7 +17,8 @@ namespace nx
 	{
 		char signature[4];
 		le_uint32_t file_num;
-		le_uint64_t name_table_size;
+		le_uint32_t name_table_size;
+		byte_t padding[4];
 	};
 
 	struct sPfsFile
