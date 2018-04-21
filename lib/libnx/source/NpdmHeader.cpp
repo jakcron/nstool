@@ -44,8 +44,8 @@ size_t nx::NpdmHeader::getSize() const
 
 void nx::NpdmHeader::calculateOffsets()
 {
-	mAcidPos.offset = align(sizeof(sNpdmHeader), kNpdmAlignSize);
-	mAciPos.offset = mAcidPos.offset + align(mAcidPos.size, kNpdmAlignSize);
+	mAcidPos.offset = align(sizeof(sNpdmHeader), npdm::kNpdmAlignSize);
+	mAciPos.offset = mAcidPos.offset + align(mAcidPos.size, npdm::kNpdmAlignSize);
 }
 
 bool nx::NpdmHeader::isEqual(const NpdmHeader & other) const
@@ -88,7 +88,7 @@ void nx::NpdmHeader::exportBinary()
 	mBinaryBlob.alloc(sizeof(sNpdmHeader));
 	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
 
-	hdr->set_signature(kNpdmStructSig.c_str());
+	hdr->set_signature(npdm::kNpdmStructSig.c_str());
 	byte_t flag = ((byte_t)(mInstructionType & 1) | (byte_t)((mProcAddressSpaceType & 3) << 1)) & 0xf;
 	hdr->set_flags(flag);
 	hdr->set_main_thread_priority(mMainThreadPriority);
@@ -118,24 +118,24 @@ void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
 
-	if (memcmp(kNpdmStructSig.c_str(), hdr->signature(), 4) != 0)
+	if (memcmp(npdm::kNpdmStructSig.c_str(), hdr->signature(), 4) != 0)
 	{
 		throw fnd::Exception(kModuleName, "NPDM header corrupt");
 	}
 
 	byte_t flag = hdr->flags() & 0xf;
-	mInstructionType = (InstructionType)(flag & 1);
-	mProcAddressSpaceType = (ProcAddrSpaceType)((flag >> 1) & 3);
+	mInstructionType = (npdm::InstructionType)(flag & 1);
+	mProcAddressSpaceType = (npdm::ProcAddrSpaceType)((flag >> 1) & 3);
 	mMainThreadPriority = hdr->main_thread_priority();
 	mMainThreadCpuId = hdr->main_thread_cpu_id();
 	mVersion = hdr->version();
 	mMainThreadStackSize = hdr->main_thread_stack_size();
-	mName = std::string(hdr->name(), kNameMaxLen);
+	mName = std::string(hdr->name(), npdm::kNameMaxLen);
 	if (mName[0] == '\0')
 	{
 		mName.clear();
 	}
-	mProductCode = std::string(hdr->product_code(), kProductCodeMaxLen);
+	mProductCode = std::string(hdr->product_code(), npdm::kProductCodeMaxLen);
 	if (mProductCode[0] == '\0')
 	{
 		mProductCode.clear();
@@ -149,8 +149,8 @@ void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
 void nx::NpdmHeader::clear()
 {
 	mBinaryBlob.clear();
-	mInstructionType = INSTR_64BIT;
-	mProcAddressSpaceType = ADDR_SPACE_64BIT;
+	mInstructionType = npdm::INSTR_64BIT;
+	mProcAddressSpaceType = npdm::ADDR_SPACE_64BIT;
 	mMainThreadPriority = 0;
 	mMainThreadCpuId = 0;
 	mVersion = 0;
@@ -168,22 +168,22 @@ size_t nx::NpdmHeader::getNpdmSize() const
 	return MAX(mAcidPos.offset + mAcidPos.size, mAciPos.offset + mAciPos.size);
 }
 
-nx::NpdmHeader::InstructionType nx::NpdmHeader::getInstructionType() const
+nx::npdm::InstructionType nx::NpdmHeader::getInstructionType() const
 {
 	return mInstructionType;
 }
 
-void nx::NpdmHeader::setInstructionType(InstructionType type)
+void nx::NpdmHeader::setInstructionType(npdm::InstructionType type)
 {
 	mInstructionType = type;
 }
 
-nx::NpdmHeader::ProcAddrSpaceType nx::NpdmHeader::getProcAddressSpaceType() const
+nx::npdm::ProcAddrSpaceType nx::NpdmHeader::getProcAddressSpaceType() const
 {
 	return mProcAddressSpaceType;
 }
 
-void nx::NpdmHeader::setProcAddressSpaceType(ProcAddrSpaceType type)
+void nx::NpdmHeader::setProcAddressSpaceType(npdm::ProcAddrSpaceType type)
 {
 	mProcAddressSpaceType = type;
 }
@@ -195,7 +195,7 @@ byte_t nx::NpdmHeader::getMainThreadPriority() const
 
 void nx::NpdmHeader::setMainThreadPriority(byte_t priority)
 {
-	if (priority > kMaxPriority)
+	if (priority > npdm::kMaxPriority)
 	{
 		throw fnd::Exception(kModuleName, "Illegal main thread priority (range 0-63)");
 	}
@@ -240,7 +240,7 @@ const std::string & nx::NpdmHeader::getName() const
 
 void nx::NpdmHeader::setName(const std::string & name)
 {
-	if (name.length() > kNameMaxLen)
+	if (name.length() > npdm::kNameMaxLen)
 	{
 		throw fnd::Exception(kModuleName, "Name is too long");
 	}
@@ -255,7 +255,7 @@ const std::string & nx::NpdmHeader::getProductCode() const
 
 void nx::NpdmHeader::setProductCode(const std::string & product_code)
 {
-	if (product_code.length() > kProductCodeMaxLen)
+	if (product_code.length() > npdm::kProductCodeMaxLen)
 	{
 		throw fnd::Exception(kModuleName, "Product Code is too long");
 	}
