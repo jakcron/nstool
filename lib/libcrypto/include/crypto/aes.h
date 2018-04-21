@@ -78,9 +78,22 @@ namespace aes
 			memcpy(this->iv, iv, kAes128KeySize);
 		}
 
+		bool compare(const sAesIvCtr& other) const
+		{
+			return memcmp(this->iv, other.iv, kAesBlockSize) == 0;
+		}
+
 		void operator=(const sAesIvCtr& other)
 		{
 			set(other.iv);
+		}
+		bool operator==(const sAesIvCtr& other) const
+		{
+			return compare(other);
+		}
+		bool operator!=(const sAesIvCtr& other) const
+		{
+			return !compare(other);
 		}
 	};
 #pragma pack (pop)
