@@ -1,8 +1,10 @@
+#pragma once
 #include <string>
 #include <fnd/types.h>
 #include <fnd/List.h>
 #include <crypto/aes.h>
 #include <crypto/sha.h>
+#include <crypto/rsa.h>
 #include <fnd/ISerialiseableBinary.h>
 
 namespace nx
@@ -13,6 +15,7 @@ namespace nx
 		static const uint32_t kHeaderEncOffset = 0x90;
 		static const uint32_t kHeaderEncSize = 0x70;
 		static const uint32_t kPageSize = 0x200;
+		static const uint32_t kUppHashLen = 8;
 		static const uint32_t kCardKeyAreaPageCount = 8;
 		static const uint32_t kCardHeaderPageCount = 1;
 		static const uint32_t kReservedAreaPageCount = 55;
@@ -20,6 +23,12 @@ namespace nx
 		static const uint32_t kCertAreaPageCount = 64;
 		static const uint32_t kNormalAreaStartPageAddress = kReservedAreaPageCount + kCertAreaPageCount + kCardHeaderPageCount + kCardKeyAreaPageCount;
 
+
+		enum KekIndex
+		{
+			KEK_XCIE,
+			KEK_XCIR
+		};
 
 		enum RomSize
 		{
@@ -63,12 +72,12 @@ namespace nx
 		byte_t flags;
 		le_uint64_t package_id;
 		le_uint32_t valid_data_end_page;
-		byte_t reserved_01[4];
-		byte_t encryption_iv[16];
+		byte_t reserved_00[4];
+		crypto::aes::sAesIvCtr aescbc_iv;
 		le_uint64_t partition_fs_header_address;
 		le_uint64_t partition_fs_header_size;
-		byte_t partition_fs_header_hash[0x20];
-		byte_t initial_data_hash[0x20];
+		crypto::sha::sSha256Hash partition_fs_header_hash;
+		crypto::sha::sSha256Hash initial_data_hash;
 		le_uint32_t sel_sec;
 		le_uint32_t sel_t1_key;
 		le_uint32_t sel_key;
@@ -82,12 +91,18 @@ namespace nx
 		le_uint32_t wait_2_time_write;
 		le_uint32_t fw_mode;
 		le_uint32_t upp_version;
-		byte_t reserved_03[0x4];
-		byte_t upp_hash[8];
+		byte_t reserved_01[0x4];
+		byte_t upp_hash[xci::kUppHashLen];
 		le_uint64_t upp_id;
-		byte_t reserved_04[0x38];
+		byte_t reserved_02[0x38];
 		// END ENCRYPTION
 	};
+
+	struct sXciHeaderPage
+	{
+		byte_t signature[crypto::rsa::kRsa2048Size];
+		sXciHeader header;
+	}; // sizeof() = 512 (1 page)
 
 	struct sInitialData
 	{
