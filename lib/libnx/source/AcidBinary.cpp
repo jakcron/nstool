@@ -125,7 +125,7 @@ void nx::AcidBinary::importBinary(const byte_t * bytes, size_t len)
 	memcpy(mEmbeddedPublicKey.modulus, bytes + crypto::rsa::kRsa2048Size, crypto::rsa::kRsa2048Size);
 }
 
-void nx::AcidBinary::verifyBinary(const crypto::rsa::sRsa2048Key & key)
+void nx::AcidBinary::verifyBinary(const crypto::rsa::sRsa2048Key & key) const
 {
 	if (mBinaryBlob.getSize() == 0)
 	{
@@ -135,7 +135,7 @@ void nx::AcidBinary::verifyBinary(const crypto::rsa::sRsa2048Key & key)
 	byte_t hash[crypto::sha::kSha256HashLen];
 	crypto::sha::Sha256(mBinaryBlob.getBytes() + crypto::rsa::kRsa2048Size, mBinaryBlob.getSize() - crypto::rsa::kRsa2048Size, hash);
 
-	if (crypto::rsa::pkcs::rsaVerify(key, crypto::sha::HASH_SHA256, hash, mBinaryBlob.getBytes()) != 0)
+	if (crypto::rsa::pss::rsaVerify(key, crypto::sha::HASH_SHA256, hash, mBinaryBlob.getBytes()) != 0)
 	{
 		throw fnd::Exception(kModuleName, "Failed to verify ACID");
 	}
