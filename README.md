@@ -2,7 +2,7 @@
 
 Tools & Libraries for NX (Nintendo Switch).
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 # Tools
 
