@@ -268,25 +268,26 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		res.processFile(keyset_path);
 	}
 	
-	const std::string kMasterKeyBase = "master_key_";
-	const std::string kPackage1KeyBase = "package1_key_";
-	const std::string kPackage2KeyBase = "package2_key_";
-	const std::string kTicketCommonKeyBase[2] = { "titlekek_", "ticket_commonkey_" };
-	const std::string kNcaKeyAreaKeyBase[3] = {"key_area_key_application_", "key_area_key_ocean_", "key_area_key_system_"};
-	const std::string kKeySource = "source";
+	// suffix
+	const std::string kKeyStr = "key";
+	const std::string kKekStr = "kek";
+	const std::string kSourceStr = "source";
+	const std::string kRsaKeySuffix[2] = {"sign_key_private", "sign_key_modulus"};
 	const std::string kKeyIndex[kMasterKeyNum] = {"00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f","10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f"};
 
-	const std::string kNcaHeaderKey[2] = {"header_key", "nca_header_key"};
-	const std::string kXciHeaderKey = "xci_header_key";
-	const std::string kKekGenSource = "aes_kek_generation_";
-	const std::string kKeyGenSource = "aes_key_generation_";
+	// keyname bases
+	const std::string kMasterBase = "master";
+	const std::string kPackage1Base = "package1";
+	const std::string kPackage2Base = "package2";
+	const std::string kXciHeaderBase = "xci_header";
+	const std::string kNcaHeaderBase[2] = {"header", "nca_header"};
+	const std::string kKekGenSource = "aes_kek_generation";
+	const std::string kKeyGenSource = "aes_key_generation";
+	const std::string kAcidBase = "acid";
+	const std::string kTicketCommonKeyBase[2] = { "titlekek", "ticket_commonkey" };
+	const std::string kNcaKeyAreaKeyBase[3] = {"key_area_key_application", "key_area_key_ocean", "key_area_key_system"};	
 
-	const std::string kNcaHeaderSignKeyBase = "nca_header_sign_key_";
-	const std::string kXciHeaderSignKeyBase = "xci_header_sign_key_";
-	const std::string kAcidSignKeyBase = "acid_sign_key_";
-	const std::string kPackage2SignKeyBase = "package2_sign_key_";
-	const std::string kRsaKeyComponent[2] = {"private", "modulus"};
-	
+
 	// sources
 	crypto::aes::sAes128Key master_key[kMasterKeyNum] = { zeros_aes_key };
 	crypto::aes::sAes128Key package2_key_source = zeros_aes_key;
@@ -294,55 +295,68 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	crypto::aes::sAes128Key key_area_key_source[3] = { zeros_aes_key, zeros_aes_key, zeros_aes_key };
 	crypto::aes::sAes128Key aes_kek_generation_source = zeros_aes_key;
 	crypto::aes::sAes128Key aes_key_generation_source = zeros_aes_key;
+	crypto::aes::sAes128Key nca_header_kek_source = zeros_aes_key;
+	crypto::aes::sAesXts128Key nca_header_key_source = zeros_aes_xts_key;
 
-	std::string key;
+
+#define _CONCAT_2_STRINGS(str1, str2) ((str1) + "_" + (str2))
+#define _CONCAT_3_STRINGS(str1, str2, str3) ((str1) + "_"+ (str2) + "_" + (str3))
+
+	std::string key,val;
 
 #define _SAVE_KEYDATA(key_name, array, len) \
-	key = res[(key_name)]; \
-	if (key.empty() == false) { \
-		decodeHexStringToBytes((key_name), key, (byte_t*)array, len); \
+	key = (key_name); \
+	val = res[key]; \
+	if (val.empty() == false) { \
+		decodeHexStringToBytes(key, val, (byte_t*)array, len); \
 	}
-
-	_SAVE_KEYDATA(kPackage2KeyBase + kKeySource, package2_key_source.key, 0x10);
-	_SAVE_KEYDATA(kTicketCommonKeyBase[0] + kKeySource, ticket_titlekek_source.key, 0x10);
-	_SAVE_KEYDATA(kTicketCommonKeyBase[1] + kKeySource, ticket_titlekek_source.key, 0x10);
-	_SAVE_KEYDATA(kNcaKeyAreaKeyBase[0] + kKeySource, key_area_key_source[0].key, 0x10);
-	_SAVE_KEYDATA(kNcaKeyAreaKeyBase[1] + kKeySource, key_area_key_source[1].key, 0x10);
-	_SAVE_KEYDATA(kNcaKeyAreaKeyBase[2] + kKeySource, key_area_key_source[2].key, 0x10);
-	_SAVE_KEYDATA(kKekGenSource + kKeySource, aes_kek_generation_source.key, 0x10);
-	_SAVE_KEYDATA(kKeyGenSource + kKeySource, aes_key_generation_source.key, 0x10);
+	
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage2Base, kKeyStr, kSourceStr), package2_key_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kTicketCommonKeyBase[0], kKeyStr, kSourceStr), ticket_titlekek_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kTicketCommonKeyBase[1], kKeyStr, kSourceStr), ticket_titlekek_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[0], kSourceStr), key_area_key_source[0].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[1], kSourceStr), key_area_key_source[1].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[2], kSourceStr), key_area_key_source[2].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kKekGenSource, kSourceStr), aes_kek_generation_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kKeyGenSource, kSourceStr), aes_key_generation_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[0], kKekStr, kSourceStr), nca_header_kek_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[0], kKeyStr, kSourceStr), nca_header_key_source.key, 0x20);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[1], kKekStr, kSourceStr), nca_header_kek_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[1], kKeyStr, kSourceStr), nca_header_key_source.key, 0x20);
 
 	// Store Key Variants/Derivatives
 	for (size_t i = 0; i < kMasterKeyNum; i++)
 	{
-		_SAVE_KEYDATA(kMasterKeyBase + kKeyIndex[i], master_key[i].key, 0x10);
-		_SAVE_KEYDATA(kPackage1KeyBase + kKeyIndex[i], mKeyset.package1_key[i].key, 0x10);
-		_SAVE_KEYDATA(kPackage2KeyBase + kKeyIndex[i], mKeyset.package2_key[i].key, 0x10);
-		_SAVE_KEYDATA(kTicketCommonKeyBase[0] + kKeyIndex[i], mKeyset.ticket.titlekey_kek[i].key, 0x10);
-		_SAVE_KEYDATA(kTicketCommonKeyBase[1] + kKeyIndex[i], mKeyset.ticket.titlekey_kek[i].key, 0x10);
-		_SAVE_KEYDATA(kNcaKeyAreaKeyBase[0] + kKeyIndex[i], mKeyset.nca.key_area_key[0][i].key, 0x10);
-		_SAVE_KEYDATA(kNcaKeyAreaKeyBase[1] + kKeyIndex[i], mKeyset.nca.key_area_key[1][i].key, 0x10);
-		_SAVE_KEYDATA(kNcaKeyAreaKeyBase[2] + kKeyIndex[i], mKeyset.nca.key_area_key[2][i].key, 0x10);
+		
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kMasterBase, kKeyStr, kKeyIndex[i]), master_key[i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage1Base, kKeyStr, kKeyIndex[i]), mKeyset.package1_key[i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage2Base, kKeyStr, kKeyIndex[i]), mKeyset.package2_key[i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[0], kKeyIndex[i]), mKeyset.ticket.titlekey_kek[i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[1], kKeyIndex[i]), mKeyset.ticket.titlekey_kek[i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[0], kKeyIndex[i]), mKeyset.nca.key_area_key[0][i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[1], kKeyIndex[i]), mKeyset.nca.key_area_key[1][i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[2], kKeyIndex[i]), mKeyset.nca.key_area_key[2][i].key, 0x10);
 	}
 	
 	// store nca header key
-	_SAVE_KEYDATA(kNcaHeaderKey[0], mKeyset.nca.header_key.key[0], 0x20);
-	_SAVE_KEYDATA(kNcaHeaderKey[1], mKeyset.nca.header_key.key[0], 0x20);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[0], kKeyStr), mKeyset.nca.header_key.key[0], 0x20);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kKeyStr), mKeyset.nca.header_key.key[0], 0x20);
+
 	// store xci header key
-	_SAVE_KEYDATA(kXciHeaderKey, mKeyset.xci.header_key.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kKeyStr), mKeyset.xci.header_key.key, 0x10);
 
 	// store rsa keys
-	_SAVE_KEYDATA(kNcaHeaderSignKeyBase + kRsaKeyComponent[0], mKeyset.nca.header_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(kNcaHeaderSignKeyBase + kRsaKeyComponent[1], mKeyset.nca.header_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[0]), mKeyset.nca.header_sign_key.priv_exponent, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[1]), mKeyset.nca.header_sign_key.modulus, 0x100);
 	
-	_SAVE_KEYDATA(kXciHeaderSignKeyBase + kRsaKeyComponent[0], mKeyset.xci.header_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(kXciHeaderSignKeyBase + kRsaKeyComponent[1], mKeyset.xci.header_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[0]), mKeyset.xci.header_sign_key.priv_exponent, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[1]), mKeyset.xci.header_sign_key.modulus, 0x100);
 
-	_SAVE_KEYDATA(kAcidSignKeyBase + kRsaKeyComponent[0], mKeyset.acid_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(kAcidSignKeyBase + kRsaKeyComponent[1], mKeyset.acid_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[0]), mKeyset.acid_sign_key.priv_exponent, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[1]), mKeyset.acid_sign_key.modulus, 0x100);
 
-	_SAVE_KEYDATA(kPackage2SignKeyBase + kRsaKeyComponent[0], mKeyset.package2_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(kPackage2SignKeyBase + kRsaKeyComponent[1], mKeyset.package2_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, 0x100);
 
 	// save keydata from input args
 	if (args.nca_bodykey.isSet)
@@ -363,6 +377,8 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	}
 
 #undef _SAVE_KEYDATA
+#undef _CONCAT_3_STRINGS
+#undef _CONCAT_2_STRINGS
 	
 	// Derive keys 
 	for (size_t i = 0; i < kMasterKeyNum; i++)
@@ -371,6 +387,21 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		{
 			if (aes_kek_generation_source != zeros_aes_key && aes_key_generation_source != zeros_aes_key)
 			{
+				if (i == 0 && nca_header_kek_source != zeros_aes_key && nca_header_key_source != zeros_aes_xts_key)
+				{
+					if (mKeyset.nca.header_key == zeros_aes_xts_key)
+					{
+						crypto::aes::sAes128Key nca_header_kek;
+						nx::AesKeygen::generateKey(nca_header_kek.key, aes_kek_generation_source.key, nca_header_kek_source.key, aes_key_generation_source.key, master_key[i].key);
+						nx::AesKeygen::generateKey(mKeyset.nca.header_key.key[0], nca_header_key_source.key[0], nca_header_kek.key);
+						nx::AesKeygen::generateKey(mKeyset.nca.header_key.key[1], nca_header_key_source.key[1], nca_header_kek.key);
+						//printf("nca header key[0] ");
+						//fnd::SimpleTextOutput::hexDump(mKeyset.nca.header_key.key[0], 0x10);
+						//printf("nca header key[1] ");
+						//fnd::SimpleTextOutput::hexDump(mKeyset.nca.header_key.key[1], 0x10);
+					}
+				}
+
 				for (size_t j = 0; j < nx::nca::kKeyAreaEncryptionKeyNum; j++)
 				{
 					if (key_area_key_source[j] != zeros_aes_key && mKeyset.nca.key_area_key[j][i] == zeros_aes_key)
@@ -396,8 +427,6 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 			}
 		}
 	}
-
-	
 }
 
 void UserSettings::populateUserSettings(sCmdArgs& args)
