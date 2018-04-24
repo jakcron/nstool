@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/SimpleFile.h>
+#include <fnd/IFile.h>
 #include <nx/NpdmBinary.h>
 
 #include "nstool.h"

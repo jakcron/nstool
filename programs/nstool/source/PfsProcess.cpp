@@ -1,4 +1,5 @@
 #include "PfsProcess.h"
+#include <fnd/SimpleFile.h>
 #include <fnd/io.h>
 
 void PfsProcess::displayHeader()
