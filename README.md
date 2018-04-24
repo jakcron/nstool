@@ -6,16 +6,16 @@ Tools & Libraries for NX (Nintendo Switch).
 
 # Tools
 
-* (nstool)[/programs/nstool] - read *.npdm, read/extract PartitionFS (PFS0|HFS0) blobs (including *.nsp), read *.xci
-* (ncatool)[/programs/ncatool] - read/extract *.nca
-* (tiktool)[/programs/tiktool] - read ticket fields.
+* nstool - read *.npdm, read/extract PartitionFS (PFS0|HFS0) blobs (including *.nsp), read *.xci
+* ncatool - read/extract *.nca
+* tiktool - read ticket fields.
 
 # Libraries
 
-* (libfnd)[/lib/libfnd]	- Foundation library.
-* (libcrypto)[/lib/libcrypto]	- Cryptographic functions (AES,SHA,RSA). Wrapper for [mbedTLS](https://github.com/ARMmbed/mbedtls)
-* (libes)[/lib/libes]		- Handling of (NS relevant) eShop file type processing. (eTickets, etc)
-* (libnx)[/lib/libnx]		- Handling of NS file types
+* libfnd	- Foundation library.
+* libcrypto	- Cryptographic functions (AES,SHA,RSA). Wrapper for [mbedTLS](https://github.com/ARMmbed/mbedtls)
+* libes		- Handling of (NS relevant) eShop file type processing. (eTickets, etc)
+* libnx		- Handling of NS file types
 
 # External Keys
 
