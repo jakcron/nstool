@@ -285,7 +285,8 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	const std::string kKeyGenSource = "aes_key_generation";
 	const std::string kAcidBase = "acid";
 	const std::string kTicketCommonKeyBase[2] = { "titlekek", "ticket_commonkey" };
-	const std::string kNcaKeyAreaKeyBase[3] = {"key_area_key_application", "key_area_key_ocean", "key_area_key_system"};	
+	const std::string kNcaBodyBase[2] = {"key_area_key", "nca_body_keak"};
+	const std::string kNcaBodyKeakIndexName[3] = {"application", "ocean", "system"};
 
 
 	// sources
@@ -314,9 +315,12 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage2Base, kKeyStr, kSourceStr), package2_key_source.key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kTicketCommonKeyBase[0], kKeyStr, kSourceStr), ticket_titlekek_source.key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kTicketCommonKeyBase[1], kKeyStr, kSourceStr), ticket_titlekek_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[0], kSourceStr), key_area_key_source[0].key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[1], kSourceStr), key_area_key_source[1].key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[2], kSourceStr), key_area_key_source[2].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[0], kSourceStr), key_area_key_source[0].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[1], kSourceStr), key_area_key_source[1].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[2], kSourceStr), key_area_key_source[2].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[0], kSourceStr), key_area_key_source[0].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[1], kSourceStr), key_area_key_source[1].key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[2], kSourceStr), key_area_key_source[2].key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kKekGenSource, kSourceStr), aes_kek_generation_source.key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kKeyGenSource, kSourceStr), aes_key_generation_source.key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[0], kKekStr, kSourceStr), nca_header_kek_source.key, 0x10);
@@ -333,9 +337,12 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage2Base, kKeyStr, kKeyIndex[i]), mKeyset.package2_key[i].key, 0x10);
 		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[0], kKeyIndex[i]), mKeyset.ticket.titlekey_kek[i].key, 0x10);
 		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[1], kKeyIndex[i]), mKeyset.ticket.titlekey_kek[i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[0], kKeyIndex[i]), mKeyset.nca.key_area_key[0][i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[1], kKeyIndex[i]), mKeyset.nca.key_area_key[1][i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaKeyAreaKeyBase[2], kKeyIndex[i]), mKeyset.nca.key_area_key[2][i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[0], kKeyIndex[i]), mKeyset.nca.key_area_key[0][i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[1], kKeyIndex[i]), mKeyset.nca.key_area_key[1][i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[2], kKeyIndex[i]), mKeyset.nca.key_area_key[2][i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[0], kKeyIndex[i]), mKeyset.nca.key_area_key[0][i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[1], kKeyIndex[i]), mKeyset.nca.key_area_key[1][i].key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[2], kKeyIndex[i]), mKeyset.nca.key_area_key[2][i].key, 0x10);
 	}
 	
 	// store nca header key
@@ -426,6 +433,16 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 				//fnd::SimpleTextOutput::hexDump(mKeyset.package2_key[i].key, 0x10);
 			}
 		}
+		/*
+		for (size_t j = 0; j < nx::nca::kKeyAreaEncryptionKeyNum; j++)
+		{
+			if (mKeyset.nca.key_area_key[j][i] != zeros_aes_key)
+			{
+				printf("nca body keak %d/%02d ", j, i);
+				fnd::SimpleTextOutput::hexDump(mKeyset.nca.key_area_key[j][i].key, 0x10);
+			}
+		}
+		*/
 	}
 }
 
