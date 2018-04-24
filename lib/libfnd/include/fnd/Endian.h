@@ -37,6 +37,7 @@ static inline uint16_t le_hword(uint16_t a) { return __local_bswap16(a); }
 #error "What's the endianness of the platform you're targeting?"
 #endif
 
+/*
 template <class T, static T (*F)(T)>
 class ISerialiseablePrimative {
 public:
@@ -54,3 +55,64 @@ typedef ISerialiseablePrimative<uint32_t, le_word> le_uint32_t;
 typedef ISerialiseablePrimative<uint32_t, be_word> be_uint32_t;
 typedef ISerialiseablePrimative<uint64_t, le_dword> le_uint64_t;
 typedef ISerialiseablePrimative<uint64_t, be_dword> be_uint64_t;
+*/
+
+class le_uint16_t {
+public:
+	inline uint16_t get() const { return le_hword(mVar);}
+	inline void set(uint16_t var) { mVar = le_hword(var); }
+	inline uint16_t operator=(uint16_t var) { set(var); return get();}
+	inline uint16_t operator*() const { return get(); }
+private:
+	uint16_t mVar;
+};
+
+class be_uint16_t {
+public:
+	inline uint16_t get() const { return be_hword(mVar);}
+	inline void set(uint16_t var) { mVar = be_hword(var); }
+	inline uint16_t operator=(uint16_t var) { set(var); return get();}
+	inline uint16_t operator*() const { return get(); }
+private:
+	uint16_t mVar;
+};
+
+class le_uint32_t {
+public:
+	inline uint32_t get() const { return le_word(mVar);}
+	inline void set(uint32_t var) { mVar = le_word(var); }
+	inline uint32_t operator=(uint32_t var) { set(var); return get();}
+	inline uint32_t operator*() const { return get(); }
+private:
+	uint32_t mVar;
+};
+
+class be_uint32_t {
+public:
+	inline uint32_t get() const { return be_word(mVar);}
+	inline void set(uint32_t var) { mVar = be_word(var); }
+	inline uint32_t operator=(uint32_t var) { set(var); return get();}
+	inline uint32_t operator*() const { return get(); }
+private:
+	uint32_t mVar;
+};
+
+class le_uint64_t {
+public:
+	inline uint64_t get() const { return le_dword(mVar);}
+	inline void set(uint64_t var) { mVar = le_dword(var); }
+	inline uint64_t operator=(uint64_t var) { set(var); return get();}
+	inline uint64_t operator*() const { return get(); }
+private:
+	uint64_t mVar;
+};
+
+class be_uint64_t {
+public:
+	inline uint64_t get() const { return be_dword(mVar);}
+	inline void set(uint64_t var) { mVar = be_dword(var); }
+	inline uint64_t operator=(uint64_t var) { set(var); return get();}
+	inline uint64_t operator*() const { return get(); }
+private:
+	uint64_t mVar;
+};

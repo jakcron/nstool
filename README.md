@@ -3,9 +3,9 @@ Tools for NX (Nintendo Switch).
 
 == Tools ==
 * ncatool - read/extract *.nca
-* npdmtool - read *.npdm
-* pfstool - read/extract PartitionFS (PFS0|HFS0) blobs (including *.nsp).
-* xcitool - read *.xci
+* nstool - read *.npdm, read/extract PartitionFS (PFS0|HFS0) blobs (including *.nsp), read *.xci
+* tiktool - read ticket fields.
 
 == Issues ==
-* [ncatool] nca section crypto not implemented
+* [ncatool] nca section extraction not implemented
+* [nstool] romfs support not implemented

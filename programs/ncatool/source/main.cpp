@@ -5,6 +5,7 @@
 #include <fnd/SimpleTextOutput.h>
 #include <nx/NXCrypto.h>
 #include <nx/NcaHeader.h>
+#include <nx/NcaUtils.h>
 #include <nx/PfsHeader.h>
 #include <inttypes.h>
 #ifdef _WIN32
@@ -77,7 +78,7 @@ static const byte_t* kNcaHeaderKey[2][2] =
 	{ crypto::aes::nx::prod::nca_header_key[0], crypto::aes::nx::prod::nca_header_key[1] }
 };
 
-inline size_t sectorToOffset(size_t sector_index) { return sector_index * nx::nca::kSectorSize; }
+inline size_t sectorToOffset(size_t sector_index) { return nx::NcaUtils::sectorToOffset(sector_index); }
 
 void initNcaCtr(byte_t ctr[crypto::aes::kAesBlockSize], uint32_t generation)
 {
@@ -90,23 +91,9 @@ void initNcaCtr(byte_t ctr[crypto::aes::kAesBlockSize], uint32_t generation)
 
 void decryptNcaHeader(byte_t header[nx::nca::kHeaderSize], const byte_t* key[2])
 {
-	byte_t tweak[crypto::aes::kAesBlockSize];
-
-	// decrypt main header
-	byte_t raw_hdr[nx::nca::kSectorSize];
-	nx::NcaHeader hdr;
-	crypto::aes::AesXtsMakeTweak(tweak, 1);
-	crypto::aes::AesXtsDecryptSector(header + sectorToOffset(1), nx::nca::kSectorSize, key[0], key[1], tweak, raw_hdr);
-	hdr.importBinary(raw_hdr, nx::nca::kSectorSize);
-
-	bool useNca2SectorIndex = hdr.getFormatVersion() == nx::NcaHeader::NCA2_FORMAT;
-
-	// decrypt whole header
-	for (size_t i = 0; i < nx::nca::kHeaderSectorNum; i++)
-	{
-		crypto::aes::AesXtsMakeTweak(tweak, (i > 1 && useNca2SectorIndex)? 0 : i);
-		crypto::aes::AesXtsDecryptSector(header + sectorToOffset(i), nx::nca::kSectorSize, key[0], key[1], tweak, header + sectorToOffset(i));
-	}
+	crypto::aes::sAesXts128Key a;
+	a.set(key[0],key[1]);
+	nx::NcaUtils::decryptNcaHeader(header, header, a);
 }
 
 bool testNcaHeaderKey(const byte_t* header_src, const byte_t* key[2])
@@ -198,21 +185,25 @@ void printHeader(const byte_t* header)
 		printf("        Format Type: %s\n", kFormatTypeStr[fsHdr->format_type].c_str());
 		printf("        Hash Type:   %s\n", kHashTypeStr[fsHdr->hash_type].c_str());
 		printf("        Enc. Type:   %s\n", kEncryptionTypeStr[fsHdr->encryption_type].c_str());
-		if (fsHdr->format_type == nx::nca::FORMAT_ROMFS)
+		if (fsHdr->hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
 		{
-
+			const nx::sIvfcHeader* hash_hdr = (const nx::sIvfcHeader*)(header + sectorToOffset(sector_index) + sizeof(nx::sNcaFsHeader));
+			//printf("      HashHierarchicalIntegrity Header:\n");
+			//printf("        ")
+			
 		}
-		else if (fsHdr->format_type == nx::nca::FORMAT_PFS0)
+		else if (fsHdr->hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
 		{
-			const nx::sPfsSuperBlock* pfs0 = (const nx::sPfsSuperBlock*)(header + sectorToOffset(sector_index) + sizeof(nx::sNcaFsHeader));
-			printf("      PFS0 SuperBlock:\n");
-			printf("        Master Hash:       \n");
-			printf("        HashBlockSize:     0x%x\n", pfs0->hash_block_size.get());
-			printf("        Unknown:           0x%x\n", pfs0->unk_0x02.get());
-			printf("        HashDataOffset:    0x%" PRIx64 "\n", pfs0->hash_data.offset.get());
-			printf("        HashDataSize:      0x%" PRIx64 "\n", pfs0->hash_data.size.get());
-			printf("        HashTargetOffset:  0x%" PRIx64 "\n", pfs0->hash_target.offset.get());
-			printf("        HashTargetSize:    0x%" PRIx64 "\n", pfs0->hash_target.size.get());
+			const nx::sHierarchicalSha256Header* hash_hdr = (const nx::sHierarchicalSha256Header*)(header + sectorToOffset(sector_index) + sizeof(nx::sNcaFsHeader));
+			printf("      HashHierarchicalSha256 Header:\n");
+			printf("        Master Hash:       ");
+			fnd::SimpleTextOutput::hexDump(hash_hdr->master_hash, 0x20);
+			printf("        HashBlockSize:     0x%x\n", hash_hdr->hash_block_size.get());
+			printf("        Unknown:           0x%x\n", hash_hdr->unk_0x02.get());
+			printf("        HashDataOffset:    0x%" PRIx64 "\n", hash_hdr->hash_data.offset.get());
+			printf("        HashDataSize:      0x%" PRIx64 "\n", hash_hdr->hash_data.size.get());
+			printf("        HashTargetOffset:  0x%" PRIx64 "\n", hash_hdr->hash_target.offset.get());
+			printf("        HashTargetSize:    0x%" PRIx64 "\n", hash_hdr->hash_target.size.get());
 		
 		}
 		

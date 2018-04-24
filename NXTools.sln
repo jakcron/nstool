@@ -9,14 +9,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcrypto", "lib\libcrypto\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnx", "lib\libnx\nx.vcxproj", "{91BA9E79-8242-4F7D-B997-0DFEC95EA22B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncatool", "programs\ncatool\ncatool.vcxproj", "{7DA88C6F-4470-495D-995A-4F633F3370C1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{170B4A09-1B67-4A62-93AB-116EBCFF4A8C}"
 	ProjectSection(SolutionItems) = preProject
 		lib\makefile = lib\makefile
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "npdmtool", "programs\npdmtool\npdmtool.vcxproj", "{550C6AC3-EBE0-46CA-AE6C-EEEB59DDF35C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Programs", "Programs", "{E0863FCC-8E72-490D-BE1B-458F12CA8298}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,13 +26,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pfstool", "programs\pfstool\pfstool.vcxproj", "{BC2F2D07-BAB3-469C-9C25-8CC54F96F7AB}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libes", "lib\libes\es.vcxproj", "{7BE99936-0D40-410D-944B-4513C2EFF8DC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tiktool", "programs\tiktool\tiktool.vcxproj", "{2200B834-F15A-4C6E-9DDB-6012B9A5C246}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xcitool", "programs\xcitool\xcitool.vcxproj", "{007FF616-7B99-4CB3-84CD-39C47F64FC7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
