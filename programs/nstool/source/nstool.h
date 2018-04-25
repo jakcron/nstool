@@ -9,11 +9,6 @@
 static const size_t kMasterKeyNum = 0x20;
 static const size_t kNcaKeakNum = nx::nca::kKeyAreaEncryptionKeyNum;
 
-#ifdef _WIN32
-const std::string kPathSeparator = "\\";
-#else
-const std::string kPathSeparator = "/";
-#endif
 
 enum FileType
 {

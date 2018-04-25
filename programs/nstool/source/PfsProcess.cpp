@@ -73,9 +73,13 @@ void PfsProcess::extractFs()
 	fnd::SimpleFile outFile;
 	const fnd::List<nx::PfsHeader::sFile>& file = mPfs.getFileList();
 
+	std::string file_path;
 	for (size_t i = 0; i < file.getSize(); i++)
 	{
-		outFile.open(mExtractPath + kPathSeparator + file[i].name, outFile.Create);
+		file_path.clear();
+		fnd::io::appendToPath(file_path, mExtractPath);
+		fnd::io::appendToPath(file_path, file[i].name);
+		outFile.open(file_path, outFile.Create);
 		mReader->seek(mOffset + file[i].offset);
 		for (size_t j = 0; j < (file[i].size / kFileExportBlockSize); j++)
 		{
