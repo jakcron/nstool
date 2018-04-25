@@ -17,6 +17,8 @@ namespace nx
 			FILE_NODE_TABLE,
 			SECTION_NUM
 		};
+
+		static const uint64_t kRomfsHeaderAlign = 0x200;
 	}
 	
 #pragma pack(push,1)
