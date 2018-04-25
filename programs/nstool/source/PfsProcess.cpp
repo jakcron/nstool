@@ -109,6 +109,11 @@ PfsProcess::PfsProcess() :
 void PfsProcess::process()
 {
 	fnd::MemoryBlob scratch;
+
+	if (mReader == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
 	
 	// open minimum header to get full header size
 	scratch.alloc(sizeof(nx::sPfsHeader));
