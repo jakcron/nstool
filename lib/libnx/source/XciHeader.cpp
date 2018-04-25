@@ -2,35 +2,35 @@
 
 bool nx::XciHeader::isEqual(const XciHeader& other) const
 {
-	return 	( mRomAreaStartPage == other.mRomAreaStartPage \
-			& mBackupAreaStartPage == other.mBackupAreaStartPage \
-			& mKekIndex == other.mKekIndex \
-			& mTitleKeyDecIndex == other.mTitleKeyDecIndex \
-			& mRomSize == other.mRomSize \
-			& mCardHeaderVersion == other.mCardHeaderVersion \
-			& mFlags == other.mFlags \
-			& mPackageId == other.mPackageId \
-			& mValidDataEndPage == other.mValidDataEndPage \
-			& mAesCbcIv == other.mAesCbcIv \
-			& mPartitionFsHeaderAddress == other.mPartitionFsHeaderAddress \
-			& mPartitionFsHeaderSize == other.mPartitionFsHeaderSize \
-			& mPartitionFsHeaderHash == other.mPartitionFsHeaderHash \
-			& mInitialDataHash == other.mInitialDataHash \
-			& mSelSec == other.mSelSec \
-			& mSelT1Key == other.mSelT1Key \
-			& mSelKey == other.mSelKey \
-			& mLimAreaPage == other.mLimAreaPage \
-			& mFwVersion[0] == other.mFwVersion[0] \
-			& mFwVersion[1] == other.mFwVersion[1] \
-			& mAccCtrl1 == other.mAccCtrl1 \
-			& mWait1TimeRead == other.mWait1TimeRead \
-			& mWait2TimeRead == other.mWait2TimeRead \
-			& mWait1TimeWrite == other.mWait1TimeWrite \
-			& mWait2TimeWrite == other.mWait2TimeWrite \
-			& mFwMode == other.mFwMode \
-			& mUppVersion == other.mUppVersion \
-			& memcmp(mUppHash, other.mUppHash, xci::kUppHashLen) \
-			& mUppId == other.mUppId);
+	return	(  mRomAreaStartPage == other.mRomAreaStartPage \
+			&& mBackupAreaStartPage == other.mBackupAreaStartPage \
+			&& mKekIndex == other.mKekIndex \
+			&& mTitleKeyDecIndex == other.mTitleKeyDecIndex \
+			&& mRomSize == other.mRomSize \
+			&& mCardHeaderVersion == other.mCardHeaderVersion \
+			&& mFlags == other.mFlags \
+			&& mPackageId == other.mPackageId \
+			&& mValidDataEndPage == other.mValidDataEndPage \
+			&& mAesCbcIv == other.mAesCbcIv \
+			&& mPartitionFsHeaderAddress == other.mPartitionFsHeaderAddress \
+			&& mPartitionFsHeaderSize == other.mPartitionFsHeaderSize \
+			&& mPartitionFsHeaderHash == other.mPartitionFsHeaderHash \
+			&& mInitialDataHash == other.mInitialDataHash \
+			&& mSelSec == other.mSelSec \
+			&& mSelT1Key == other.mSelT1Key \
+			&& mSelKey == other.mSelKey \
+			&& mLimAreaPage == other.mLimAreaPage \
+			&& mFwVersion[0] == other.mFwVersion[0] \
+			&& mFwVersion[1] == other.mFwVersion[1] \
+			&& mAccCtrl1 == other.mAccCtrl1 \
+			&& mWait1TimeRead == other.mWait1TimeRead \
+			&& mWait2TimeRead == other.mWait2TimeRead \
+			&& mWait1TimeWrite == other.mWait1TimeWrite \
+			&& mWait2TimeWrite == other.mWait2TimeWrite \
+			&& mFwMode == other.mFwMode \
+			&& mUppVersion == other.mUppVersion \
+			&& memcmp(mUppHash, other.mUppHash, xci::kUppHashLen) \
+			&& mUppId == other.mUppId );
 }
 
 void nx::XciHeader::copyFrom(const XciHeader& other)
