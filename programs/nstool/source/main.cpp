@@ -3,7 +3,7 @@
 #include "UserSettings.h"
 #include "XciProcess.h"
 #include "PfsProcess.h"
-//#include "RomfsProcess.h"
+#include "RomfsProcess.h"
 //#include "NcaProcess.h"
 #include "NpdmProcess.h"
 
@@ -54,17 +54,20 @@ int main(int argc, char** argv)
 		}
 		else if (user_set.getFileType() == FILE_ROMFS)
 		{
-			/*
+			
 			RomfsProcess romfs;
 
-			romfs.setRomfsPath(user_set.getInputPath());
-			romfs.setExtractPath(user_set.getFsPath());
-			romfs.setKeyset(user_set.getKeyset());
+			romfs.setInputFile(inputFile);
+			romfs.setKeyset(&user_set.getKeyset());
 			romfs.setCliOutputMode(user_set.getCliOutputType());
 			romfs.setVerifyMode(user_set.isVerifyFile());
 
+			if (user_set.getFsPath().isSet)
+				romfs.setExtractPath(user_set.getFsPath().var);
+			romfs.setListFs(user_set.isListFs());
+
 			romfs.process();
-			*/
+			
 		}
 		else if (user_set.getFileType() == FILE_NCA)
 		{
