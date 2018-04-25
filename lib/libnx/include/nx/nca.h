@@ -88,7 +88,7 @@ namespace nx
 		char signature[4];
 		byte_t distribution_type;
 		byte_t content_type;
-		byte_t key_generation; // KeyGeneration
+		byte_t key_generation;
 		byte_t key_area_encryption_key_index;
 		le_uint64_t content_size;
 		le_uint64_t program_id;
@@ -106,6 +106,14 @@ namespace nx
 		} partition[nca::kPartitionNum];
 		crypto::sha::sSha256Hash partition_hash[nca::kPartitionNum];
 		crypto::aes::sAes128Key enc_aes_key[nca::kAesKeyNum];
+	};
+
+	struct sNcaHeaderBlock
+	{
+		byte_t signature_main[crypto::rsa::kRsa2048Size];
+		byte_t signature_acid[crypto::rsa::kRsa2048Size];
+		sNcaHeader header;
+		byte_t fs_header[nx::nca::kPartitionNum][nx::nca::kSectorSize];
 	};
 
 	struct sNcaFsHeader
