@@ -7,7 +7,7 @@
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -15,69 +15,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\fnd\elf.h">
+    <ClInclude Include="source\NcaProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\fnd\Exception.h">
+    <ClInclude Include="source\NpdmProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\fnd\io.h">
+    <ClInclude Include="source\nstool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\fnd\ISerialiseableBinary.h">
+    <ClInclude Include="source\PfsProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\fnd\List.h">
+    <ClInclude Include="source\RomfsProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\fnd\MemoryBlob.h">
+    <ClInclude Include="source\UserSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\fnd\StringConv.h">
+    <ClInclude Include="source\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\fnd\types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fnd\BitMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fnd\Endian.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fnd\SimpleTextOutput.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fnd\IFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fnd\ResourceFileReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fnd\SimpleFile.h">
+    <ClInclude Include="source\XciProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\Exception.cpp">
+    <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\io.cpp">
+    <ClCompile Include="source\NpdmProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\MemoryBlob.cpp">
+    <ClCompile Include="source\PfsProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\StringConv.cpp">
+    <ClCompile Include="source\UserSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\SimpleTextOutput.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ResourceFileReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SimpleFile.cpp">
+    <ClCompile Include="source\XciProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

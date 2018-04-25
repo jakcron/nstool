@@ -1,4 +1,4 @@
-PROGS = nstool ncatool tiktool
+PROGS = nstool
 BIN_DIR = "../bin"
 
 main: build

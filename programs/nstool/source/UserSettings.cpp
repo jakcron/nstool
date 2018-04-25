@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
+#include <fnd/io.h>
 #include <fnd/SimpleFile.h>
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/MemoryBlob.h>
@@ -256,16 +257,31 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	else
 	{
 		// open other resource files in $HOME/.switch/prod.keys (or $HOME/.switch/dev.keys if -d/--dev is set).
-		char* home = nullptr;
-		if (home == nullptr) home = getenv("HOME");
-		if (home == nullptr) home = getenv("USERPROFILE");
-		if (home == nullptr) return;
+		std::string home;
+		if (home.empty()) fnd::io::getEnvironVar(home, "HOME");
+		if (home.empty()) fnd::io::getEnvironVar(home, "USERPROFILE");
+		if (home.empty()) return;
 
 		const std::string kKeysetNameStr[2] = {"prod.keys", "dev.keys"};
+		const std::string kHomeSwitchDirStr = ".switch";
 
-		std::string keyset_path = std::string(home) + std::string("/") + ".switch" + std::string("/") + kKeysetNameStr[args.devkit_keys.isSet ? *args.devkit_keys : 0];
-		//std::cout << keyset_path << std::endl;
-		res.processFile(keyset_path);
+		std::vector<std::string> path_list;
+		path_list.push_back(home);
+		path_list.push_back(kHomeSwitchDirStr);
+		path_list.push_back(kKeysetNameStr[args.devkit_keys.isSet ? *args.devkit_keys : 0]);
+		
+		std::string keyset_path;
+		fnd::io::makePath(keyset_path, path_list);
+
+		try
+		{
+			res.processFile(keyset_path);
+		}
+		catch (const fnd::Exception&)
+		{
+			return;
+		}
+		
 	}
 	
 	// suffix
@@ -552,25 +568,25 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #define _ASSERT_SIZE(size) (blob.getSize() >= (size))
 
 	// test npdm
-	if (_ASSERT_SIZE(0x100 + sizeof(nx::sXciHeader)) && memcmp(_QUICK_CAST(nx::sXciHeader, 0x100)->signature, nx::xci::kXciSig.c_str(), 4) == 0)
+	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && std::string(_QUICK_CAST(nx::sXciHeaderPage, 0)->header.signature, 4) == nx::xci::kXciSig)
 		file_type = FILE_XCI;
 	// test pfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && memcmp(_QUICK_CAST(nx::sPfsHeader, 0)->signature, nx::pfs::kPfsSig.c_str(), 4) == 0)
+	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && std::string(_QUICK_CAST(nx::sPfsHeader, 0)->signature, 4) == nx::pfs::kPfsSig)
 		file_type = FILE_PARTITIONFS;
 	// test hfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && memcmp(_QUICK_CAST(nx::sPfsHeader, 0)->signature, nx::pfs::kHashedPfsSig.c_str(), 4) == 0)
+	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && std::string(_QUICK_CAST(nx::sPfsHeader, 0)->signature, 4) == nx::pfs::kHashedPfsSig)
 		file_type = FILE_PARTITIONFS;
 	// test romfs
 	else if (_ASSERT_SIZE(sizeof(nx::sRomfsHeader)) && _QUICK_CAST(nx::sRomfsHeader, 0)->header_size.get() == sizeof(nx::sRomfsHeader) && _QUICK_CAST(nx::sRomfsHeader, 0)->header_size.get() == _QUICK_CAST(nx::sRomfsHeader, 0)->sections[0].offset.get())
 		file_type = FILE_ROMFS;
 	// test nca2
-	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && memcmp(nca_header->signature, nx::nca::kNca2Sig.c_str(), 4) == 0)
+	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && std::string(nca_header->signature, 4) == nx::nca::kNca2Sig)
 		file_type = FILE_NCA;
 	// test nca3
-	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && memcmp(nca_header->signature, nx::nca::kNca3Sig.c_str(), 4) == 0)
+	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && std::string(nca_header->signature, 4) == nx::nca::kNca3Sig)
 		file_type = FILE_NCA;
 	// test npdm
-	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && memcmp(_QUICK_CAST(nx::sNpdmHeader, 0)->signature(), nx::npdm::kNpdmStructSig.c_str(), 4) == 0)
+	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && std::string(_QUICK_CAST(nx::sNpdmHeader, 0)->signature, 4) == nx::npdm::kNpdmStructSig)
 		file_type = FILE_NPDM;
 	// else unrecognised
 	else

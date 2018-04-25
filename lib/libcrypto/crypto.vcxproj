@@ -129,6 +129,8 @@
     <ClInclude Include="source\libpolarssl\include\polarssl\bignum.h" />
     <ClInclude Include="source\libpolarssl\include\polarssl\bn_mul.h" />
     <ClInclude Include="source\libpolarssl\include\polarssl\config.h" />
+    <ClInclude Include="source\libpolarssl\include\polarssl\md.h" />
+    <ClInclude Include="source\libpolarssl\include\polarssl\md_wrap.h" />
     <ClInclude Include="source\libpolarssl\include\polarssl\rsa.h" />
     <ClInclude Include="source\libpolarssl\include\polarssl\sha1.h" />
     <ClInclude Include="source\libpolarssl\include\polarssl\sha2.h" />
@@ -139,6 +141,8 @@
     <ClCompile Include="source\libpolarssl\source\polar_aes.c" />
     <ClCompile Include="source\libpolarssl\source\polar_base64.c" />
     <ClCompile Include="source\libpolarssl\source\polar_bignum.c" />
+    <ClCompile Include="source\libpolarssl\source\polar_md.c" />
+    <ClCompile Include="source\libpolarssl\source\polar_md_wrap.c" />
     <ClCompile Include="source\libpolarssl\source\polar_rsa.c" />
     <ClCompile Include="source\libpolarssl\source\polar_sha1.c" />
     <ClCompile Include="source\libpolarssl\source\polar_sha2.c" />

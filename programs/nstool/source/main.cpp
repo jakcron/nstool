@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <fnd/SimpleFile.h>
 #include "UserSettings.h"
 #include "XciProcess.h"
 #include "PfsProcess.h"

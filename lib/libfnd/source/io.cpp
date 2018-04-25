@@ -1,7 +1,9 @@
 #include <fnd/io.h>
+#include <fnd/SimpleFile.h>
 #include <fstream>
 #ifdef _WIN32
 #include <direct.h>
+#include <cstdlib>
 #else
 #include <sys/stat.h>
 #endif
@@ -24,54 +26,53 @@ size_t io::getFileSize(const std::string& path)
 
 void io::readFile(const std::string& path, MemoryBlob & blob)
 {
-	FILE* fp;
-	size_t filesz, filepos;
-
-	if ((fp = fopen(path.c_str(), "rb")) == NULL)
+	fnd::SimpleFile file;
+	try
 	{
-		throw Exception(kModuleName, "Failed to open \"" + path + "\"");
+		file.open(path, file.Read);
+	}
+	catch (const fnd::Exception&)
+	{
+		throw fnd::Exception(kModuleName, "Failed to open \"" + path + "\": does not exist");
 	}
 
-	fseek(fp, 0, SEEK_END);
-	filesz = ftell(fp);
-	rewind(fp);
+	size_t filesz, filepos;
+	filesz = file.size();
+
 
 	try {
 		blob.alloc(filesz);
 	}
 	catch (const fnd::Exception& e)
 	{
-		fclose(fp);
 		throw fnd::Exception(kModuleName, "Failed to allocate memory for file: " + std::string(e.what()));
 	}
 
 	for (filepos = 0; filesz > kBlockSize; filesz -= kBlockSize, filepos += kBlockSize)
 	{
-		fread(blob.getBytes() + filepos, 1, kBlockSize, fp);
+		file.read(blob.getBytes() + filepos, kBlockSize);
 	}
 
 	if (filesz)
 	{
-		fread(blob.getBytes() + filepos, 1, filesz, fp);
+		file.read(blob.getBytes() + filepos, filesz);
 	}
-
-	fclose(fp);
 }
 
 void fnd::io::readFile(const std::string& path, size_t offset, size_t len, MemoryBlob& blob)
 {
-	FILE* fp;
-	size_t filesz, filepos;
-
-	if ((fp = fopen(path.c_str(), "rb")) == NULL)
+	fnd::SimpleFile file;
+	try
 	{
-		throw Exception(kModuleName, "Failed to open \"" + path + "\": does not exist");
+		file.open(path, file.Read);
+	} catch (const fnd::Exception&)
+	{
+		throw fnd::Exception(kModuleName, "Failed to open \"" + path + "\": does not exist");
 	}
 
-	fseek(fp, 0, SEEK_END);
-	filesz = ftell(fp);
-	rewind(fp);
-	fseek(fp, offset, SEEK_SET);
+	size_t filesz, filepos;
+	filesz = file.size();
+	file.seek(offset);
 
 	if (filesz < len || filesz < offset || filesz < (offset + len))
 	{
@@ -80,24 +81,21 @@ void fnd::io::readFile(const std::string& path, size_t offset, size_t len, Memor
 
 	try
 	{
-		blob.alloc(len);
+		blob.alloc(filesz);
 	} catch (const fnd::Exception& e)
 	{
-		fclose(fp);
 		throw fnd::Exception(kModuleName, "Failed to allocate memory for file: " + std::string(e.what()));
 	}
 
-	for (filepos = 0; len > kBlockSize; len -= kBlockSize, filepos += kBlockSize)
+	for (filepos = 0; filesz > kBlockSize; filesz -= kBlockSize, filepos += kBlockSize)
 	{
-		fread(blob.getBytes() + filepos, 1, kBlockSize, fp);
+		file.read(blob.getBytes() + filepos, kBlockSize);
 	}
 
-	if (len)
+	if (filesz)
 	{
-		fread(blob.getBytes() + filepos, 1, len, fp);
+		file.read(blob.getBytes() + filepos, filesz);
 	}
-
-	fclose(fp);
 }
 
 void io::writeFile(const std::string& path, const MemoryBlob & blob)
@@ -107,28 +105,29 @@ void io::writeFile(const std::string& path, const MemoryBlob & blob)
 
 void io::writeFile(const std::string & path, const byte_t * data, size_t len)
 {
-	FILE* fp;
-	size_t filesz, filepos;
-
-	if ((fp = fopen(path.c_str(), "wb")) == NULL)
+	fnd::SimpleFile file;
+	try
 	{
-		throw Exception(kModuleName, "Failed to open \"" + path + "\"");
+		file.open(path, file.Create);
+	} catch (const fnd::Exception&)
+	{
+		throw fnd::Exception(kModuleName, "Failed to open \"" + path + "\": does not exist");
 	}
+
+	size_t filesz, filepos;
 
 	filesz = len;
 
 
 	for (filepos = 0; filesz > kBlockSize; filesz -= kBlockSize, filepos += kBlockSize)
 	{
-		fwrite(data + filepos, 1, kBlockSize, fp);
+		file.write(data + filepos, kBlockSize);
 	}
 
 	if (filesz)
 	{
-		fwrite(data + filepos, 1, filesz, fp);
+		file.write(data + filepos, filesz);
 	}
-
-	fclose(fp);
 }
 
 void io::makeDirectory(const std::string& path)
@@ -138,4 +137,46 @@ void io::makeDirectory(const std::string& path)
 #else
 	mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
+}
+
+void fnd::io::getEnvironVar(std::string & var, const std::string & key)
+{
+#ifdef _WIN32
+	char* var_tmp = nullptr;
+	size_t var_len = 0;
+	_dupenv_s(&var_tmp, &var_len, key.c_str());
+
+	if (var_len > 0)
+	{
+		var = std::string(var_tmp);
+		free(var_tmp);
+	}
+#else
+	char* var_tmp = nullptr;
+
+	var_tmp = getenv(key.c_str());
+
+	if (var_tmp != nullptr)
+	{
+		var = std::string(var_tmp);
+	}
+#endif
+}
+
+void fnd::io::makePath(std::string & out, const std::vector<std::string>& elements)
+{
+	out.clear();
+	out = "";
+	for (size_t i = 0; i < elements.size(); i++)
+	{
+		if (i > 0)
+		{
+#ifdef _WIN32
+			out += "\\";
+#else
+			out += "/";
+#endif
+		}
+		out += elements[i];
+	}
 }

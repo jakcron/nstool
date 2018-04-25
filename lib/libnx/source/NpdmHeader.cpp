@@ -88,21 +88,21 @@ void nx::NpdmHeader::exportBinary()
 	mBinaryBlob.alloc(sizeof(sNpdmHeader));
 	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
 
-	hdr->set_signature(npdm::kNpdmStructSig.c_str());
+	memcpy(hdr->signature, npdm::kNpdmStructSig.c_str(), 4);
 	byte_t flag = ((byte_t)(mInstructionType & 1) | (byte_t)((mProcAddressSpaceType & 3) << 1)) & 0xf;
-	hdr->set_flags(flag);
-	hdr->set_main_thread_priority(mMainThreadPriority);
-	hdr->set_main_thread_cpu_id(mMainThreadCpuId);
-	hdr->set_version(mVersion);
-	hdr->set_main_thread_stack_size(mMainThreadStackSize);
-	hdr->set_name(mName.c_str());
-	hdr->set_product_code(mProductCode.c_str());
+	hdr->flags = flag;
+	hdr->main_thread_priority = mMainThreadPriority;
+	hdr->main_thread_cpu_id = mMainThreadCpuId;
+	hdr->version = mVersion;
+	hdr->main_thread_stack_size = mMainThreadStackSize;
+	strncpy(hdr->name, mName.c_str(), npdm::kNameMaxLen);
+	strncpy(hdr->product_code, mProductCode.c_str(), npdm::kProductCodeMaxLen);
 	
 	calculateOffsets();
-	hdr->aci().set_offset(mAciPos.offset);
-	hdr->aci().set_size(mAciPos.size);
-	hdr->acid().set_offset(mAcidPos.offset);
-	hdr->acid().set_size(mAcidPos.size);
+	hdr->aci.offset = mAciPos.offset;
+	hdr->aci.size = mAciPos.size;
+	hdr->acid.offset = mAcidPos.offset;
+	hdr->acid.size = mAcidPos.size;
 }
 
 void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
@@ -118,32 +118,32 @@ void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
 
-	if (memcmp(npdm::kNpdmStructSig.c_str(), hdr->signature(), 4) != 0)
+	if (std::string(hdr->signature, 4) != npdm::kNpdmStructSig)
 	{
 		throw fnd::Exception(kModuleName, "NPDM header corrupt");
 	}
 
-	byte_t flag = hdr->flags() & 0xf;
+	byte_t flag = hdr->flags & 0xf;
 	mInstructionType = (npdm::InstructionType)(flag & 1);
 	mProcAddressSpaceType = (npdm::ProcAddrSpaceType)((flag >> 1) & 3);
-	mMainThreadPriority = hdr->main_thread_priority();
-	mMainThreadCpuId = hdr->main_thread_cpu_id();
-	mVersion = hdr->version();
-	mMainThreadStackSize = hdr->main_thread_stack_size();
-	mName = std::string(hdr->name(), npdm::kNameMaxLen);
+	mMainThreadPriority = hdr->main_thread_priority;
+	mMainThreadCpuId = hdr->main_thread_cpu_id;
+	mVersion = hdr->version.get();
+	mMainThreadStackSize = hdr->main_thread_stack_size.get();
+	mName = std::string(hdr->name, npdm::kNameMaxLen);
 	if (mName[0] == '\0')
 	{
 		mName.clear();
 	}
-	mProductCode = std::string(hdr->product_code(), npdm::kProductCodeMaxLen);
+	mProductCode = std::string(hdr->product_code, npdm::kProductCodeMaxLen);
 	if (mProductCode[0] == '\0')
 	{
 		mProductCode.clear();
 	}
-	mAciPos.offset = hdr->aci().offset();
-	mAciPos.size = hdr->aci().size();
-	mAcidPos.offset = hdr->acid().offset();
-	mAcidPos.size = hdr->acid().size();
+	mAciPos.offset = hdr->aci.offset.get();
+	mAciPos.size = hdr->aci.size.get();
+	mAcidPos.offset = hdr->acid.offset.get();
+	mAcidPos.size = hdr->acid.size.get();
 }
 
 void nx::NpdmHeader::clear()

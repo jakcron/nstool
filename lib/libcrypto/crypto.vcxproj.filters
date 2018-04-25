@@ -60,6 +60,12 @@
     <ClInclude Include="source\libpolarssl\include\polarssl\sha2.h">
       <Filter>Header Files\polarssl</Filter>
     </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\md.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\libpolarssl\include\polarssl\md_wrap.h">
+      <Filter>Header Files\polarssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\aes.cpp">
@@ -90,6 +96,12 @@
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
     <ClCompile Include="source\libpolarssl\source\polar_sha1.c">
+      <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\libpolarssl\source\polar_md.c">
+      <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\libpolarssl\source\polar_md_wrap.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
   </ItemGroup>

@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\nx\aci.h" />
     <ClInclude Include="include\nx\AciBinary.h" />
     <ClInclude Include="include\nx\AcidBinary.h" />
     <ClInclude Include="include\nx\AciHeader.h" />
+    <ClInclude Include="include\nx\AesKeygen.h" />
     <ClInclude Include="include\nx\FacBinary.h" />
     <ClInclude Include="include\nx\FacHeader.h" />
     <ClInclude Include="include\nx\HandleTableSizeEntry.h" />
@@ -29,6 +31,7 @@
     <ClInclude Include="include\nx\IKernelCapabilityHandler.h" />
     <ClInclude Include="include\nx\InteruptEntry.h" />
     <ClInclude Include="include\nx\InteruptHandler.h" />
+    <ClInclude Include="include\nx\ivfc.h" />
     <ClInclude Include="include\nx\KcBinary.h" />
     <ClInclude Include="include\nx\KernelCapability.h" />
     <ClInclude Include="include\nx\KernelVersionEntry.h" />
@@ -40,12 +43,15 @@
     <ClInclude Include="include\nx\MiscParamsEntry.h" />
     <ClInclude Include="include\nx\MiscParamsHandler.h" />
     <ClInclude Include="include\nx\nca.h" />
+    <ClInclude Include="include\nx\NcaUtils.h" />
+    <ClInclude Include="include\nx\npdm.h" />
     <ClInclude Include="include\nx\NpdmBinary.h" />
     <ClInclude Include="include\nx\NpdmHeader.h" />
     <ClInclude Include="include\nx\NcaHeader.h" />
     <ClInclude Include="include\nx\NXCrypto.h" />
     <ClInclude Include="include\nx\pfs.h" />
     <ClInclude Include="include\nx\PfsHeader.h" />
+    <ClInclude Include="include\nx\romfs.h" />
     <ClInclude Include="include\nx\SacBinary.h" />
     <ClInclude Include="include\nx\SacEntry.h" />
     <ClInclude Include="include\nx\SystemCallEntry.h" />
@@ -53,11 +59,14 @@
     <ClInclude Include="include\nx\ThreadInfoEntry.h" />
     <ClInclude Include="include\nx\ThreadInfoHandler.h" />
     <ClInclude Include="include\nx\xci.h" />
+    <ClInclude Include="include\nx\XciHeader.h" />
+    <ClInclude Include="include\nx\XciUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AciBinary.cpp" />
     <ClCompile Include="source\AcidBinary.cpp" />
     <ClCompile Include="source\AciHeader.cpp" />
+    <ClCompile Include="source\AesKeygen.cpp" />
     <ClCompile Include="source\FacBinary.cpp" />
     <ClCompile Include="source\FacHeader.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
@@ -74,6 +83,7 @@
     <ClCompile Include="source\MiscFlagsHandler.cpp" />
     <ClCompile Include="source\MiscParamsEntry.cpp" />
     <ClCompile Include="source\MiscParamsHandler.cpp" />
+    <ClCompile Include="source\NcaUtils.cpp" />
     <ClCompile Include="source\NpdmBinary.cpp" />
     <ClCompile Include="source\NpdmHeader.cpp" />
     <ClCompile Include="source\NcaHeader.cpp" />
@@ -84,6 +94,8 @@
     <ClCompile Include="source\SystemCallHandler.cpp" />
     <ClCompile Include="source\ThreadInfoEntry.cpp" />
     <ClCompile Include="source\ThreadInfoHandler.cpp" />
+    <ClCompile Include="source\XciHeader.cpp" />
+    <ClCompile Include="source\XciUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
