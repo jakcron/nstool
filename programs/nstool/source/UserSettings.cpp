@@ -264,14 +264,11 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 		const std::string kKeysetNameStr[2] = {"prod.keys", "dev.keys"};
 		const std::string kHomeSwitchDirStr = ".switch";
-
-		std::vector<std::string> path_list;
-		path_list.push_back(home);
-		path_list.push_back(kHomeSwitchDirStr);
-		path_list.push_back(kKeysetNameStr[args.devkit_keys.isSet ? *args.devkit_keys : 0]);
 		
 		std::string keyset_path;
-		fnd::io::makePath(keyset_path, path_list);
+		fnd::io::appendToPath(keyset_path, home);
+		fnd::io::appendToPath(keyset_path, kHomeSwitchDirStr);
+		fnd::io::appendToPath(keyset_path, kKeysetNameStr[args.devkit_keys.isSet ? *args.devkit_keys : 0]);
 
 		try
 		{
