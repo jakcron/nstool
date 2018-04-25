@@ -175,6 +175,7 @@
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\NpdmProcess.cpp" />
     <ClCompile Include="source\PfsProcess.cpp" />
+    <ClCompile Include="source\RomfsProcess.cpp" />
     <ClCompile Include="source\UserSettings.cpp" />
     <ClCompile Include="source\XciProcess.cpp" />
   </ItemGroup>
