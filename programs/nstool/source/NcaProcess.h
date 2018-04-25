@@ -2,7 +2,6 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/SimpleFile.h>
-#include <nx/nca.h>
 #include <nx/NcaHeader.h>
 
 #include "nstool.h"
@@ -11,7 +10,6 @@ class NcaProcess
 {
 public:
 	NcaProcess();
-	~NcaProcess();
 
 	void process();
 
@@ -27,7 +25,19 @@ public:
 private:
 	const std::string kModuleName = "NcaProcess";
 
-	byte_t mRawHeader[nx::nca::kHeaderSize];
-	std::string mPath;
+	fnd::IFile* mReader;
+	size_t mOffset;
 	const sKeyset* mKeyset;
+	CliOutputType mCliOutputType;
+	bool mVerify;
+
+	nx::sNcaHeaderBlock mHdrBlock;
+	nx::NcaHeader mHdr;
+
+	fnd::List<crypto::aes::sAes128Key> mBodyKeyList;
+
+
+	void displayHeader();
+
+	void decryptBodyKeyList();
 };
