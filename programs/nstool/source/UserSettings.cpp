@@ -577,7 +577,7 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && std::string(_QUICK_CAST(nx::sPfsHeader, 0)->signature, 4) == nx::pfs::kHashedPfsSig)
 		file_type = FILE_PARTITIONFS;
 	// test romfs
-	else if (_ASSERT_SIZE(sizeof(nx::sRomfsHeader)) && _QUICK_CAST(nx::sRomfsHeader, 0)->header_size.get() == sizeof(nx::sRomfsHeader) && _QUICK_CAST(nx::sRomfsHeader, 0)->header_size.get() == _QUICK_CAST(nx::sRomfsHeader, 0)->sections[0].offset.get())
+	else if (_ASSERT_SIZE(sizeof(nx::sRomfsHeader)) && _QUICK_CAST(nx::sRomfsHeader, 0)->header_size.get() == sizeof(nx::sRomfsHeader) && _QUICK_CAST(nx::sRomfsHeader, 0)->sections[1].offset.get() == (_QUICK_CAST(nx::sRomfsHeader, 0)->sections[0].offset.get() + _QUICK_CAST(nx::sRomfsHeader, 0)->sections[0].size.get()))
 		file_type = FILE_ROMFS;
 	// test nca2
 	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && std::string(nca_header->signature, 4) == nx::nca::kNca2Sig)
