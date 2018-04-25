@@ -135,7 +135,7 @@ void io::makeDirectory(const std::string& path)
 {
 #ifdef _WIN32
 	std::u16string wpath = fnd::StringConv::ConvertChar8ToChar16(path);
-	_wmkdir(wpath.c_str());
+	_wmkdir((wchar_t*)wpath.c_str());
 #else
 	mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
