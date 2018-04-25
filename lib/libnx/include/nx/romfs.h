@@ -19,6 +19,7 @@ namespace nx
 		};
 
 		static const uint64_t kRomfsHeaderAlign = 0x200;
+		static const uint32_t kInvalidAddr = 0xffffffff;
 	}
 	
 #pragma pack(push,1)
@@ -35,12 +36,13 @@ namespace nx
 
 	struct sRomfsDirEntry
 	{
+		le_uint32_t parent;
 		le_uint32_t sibling;
 		le_uint32_t child;
 		le_uint32_t file;
 		le_uint32_t hash;
 		le_uint32_t name_size;
-		le_uint16_t name[];
+		char name[];
 	};
 
 	struct sRomfsFileEntry
@@ -51,7 +53,7 @@ namespace nx
 		le_uint64_t size;
 		le_uint32_t hash;
 		le_uint32_t name_size;
-		le_uint16_t name[];
+		char name[];
 	};
 #pragma pack(pop)
 }
