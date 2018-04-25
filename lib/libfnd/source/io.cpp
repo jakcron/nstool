@@ -1,4 +1,5 @@
 #include <fnd/io.h>
+#include <fnd/StringConv.h>
 #include <fnd/SimpleFile.h>
 #include <fstream>
 #ifdef _WIN32
@@ -133,7 +134,8 @@ void io::writeFile(const std::string & path, const byte_t * data, size_t len)
 void io::makeDirectory(const std::string& path)
 {
 #ifdef _WIN32
-	_mkdir(path.c_str());
+	std::u16string wpath = fnd::StringConv::ConvertChar8ToChar16(path);
+	_wmkdir((wchar_t*)wpath.c_str());
 #else
 	mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
@@ -163,20 +165,19 @@ void fnd::io::getEnvironVar(std::string & var, const std::string & key)
 #endif
 }
 
-void fnd::io::makePath(std::string & out, const std::vector<std::string>& elements)
+void fnd::io::appendToPath(std::string& base, const std::string& add)
 {
-	out.clear();
-	out = "";
-	for (size_t i = 0; i < elements.size(); i++)
+	if (add.empty())
+		return;
+
+	if (base.empty())
 	{
-		if (i > 0)
-		{
-#ifdef _WIN32
-			out += "\\";
-#else
-			out += "/";
-#endif
-		}
-		out += elements[i];
+		base = add;
+	}
+	else
+	{
+		if (base[base.length()-1] != io::kPathDivider[0])
+			base += io::kPathDivider;
+		base += add;
 	}
 }

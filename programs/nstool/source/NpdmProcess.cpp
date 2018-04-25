@@ -627,6 +627,12 @@ NpdmProcess::NpdmProcess() :
 void NpdmProcess::process()
 {
 	fnd::MemoryBlob scratch;
+
+	if (mReader == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
 	scratch.alloc(mReader->size());
 	mReader->read(scratch.getBytes(), 0, scratch.getSize());
 

@@ -192,6 +192,11 @@ XciProcess::XciProcess() :
 void XciProcess::process()
 {
 	fnd::MemoryBlob scratch;
+
+	if (mReader == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
 	
 	// read header page
 	mReader->read((byte_t*)&mHdrPage, mOffset, sizeof(nx::sXciHeaderPage));
