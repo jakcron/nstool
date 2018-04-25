@@ -54,9 +54,63 @@ void RomfsProcess::displayFs()
 	displayDir(mRootDir, 1);
 }
 
+void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
+{
+	std::string dir_path;
+	std::string file_path;
+
+	// make dir path
+	fnd::io::appendToPath(dir_path, path);
+	if (dir.name.empty() == false)
+		fnd::io::appendToPath(dir_path, dir.name);
+
+	//printf("dirpath=[%s]\n", dir_path.c_str());
+
+	// make directory
+	fnd::io::makeDirectory(dir_path);
+
+
+	// allocate memory for file extraction
+	fnd::MemoryBlob scratch;
+	scratch.alloc(kFileExportBlockSize);
+
+	// extract files
+	fnd::SimpleFile outFile;
+	for (size_t i = 0; i < dir.file_list.getSize(); i++)
+	{
+		file_path.clear();
+		fnd::io::appendToPath(file_path, dir_path);
+		fnd::io::appendToPath(file_path, dir.file_list[i].name);
+
+		if (mCliOutputType >= OUTPUT_VERBOSE)
+			printf("extract=[%s]\n", file_path.c_str());
+		
+		
+		outFile.open(file_path, outFile.Create);
+		mReader->seek(mOffset + dir.file_list[i].offset);
+		for (size_t j = 0; j < (dir.file_list[i].size / kFileExportBlockSize); j++)
+		{
+			mReader->read(scratch.getBytes(), kFileExportBlockSize);
+			outFile.write(scratch.getBytes(), kFileExportBlockSize);
+		}
+		if (dir.file_list[i].size % kFileExportBlockSize)
+		{
+			mReader->read(scratch.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
+			outFile.write(scratch.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
+		}		
+		outFile.close();
+	}
+
+	for (size_t i = 0; i < dir.dir_list.getSize(); i++)
+	{
+		extractDir(dir_path, dir.dir_list[i]);
+	}
+}
+
+
 void RomfsProcess::extractFs()
 {
-	
+	extractDir(mExtractPath, mRootDir);
 }
 
 bool RomfsProcess::validateHeaderLayout(const nx::sRomfsHeader* hdr) const

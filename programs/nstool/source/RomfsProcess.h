@@ -137,6 +137,9 @@ private:
 
 	void displayHeader();
 	void displayFs();
+
+	void extractFile(const std::string& path, const sFile& file);
+	void extractDir(const std::string& path, const sDirectory& dir);
 	void extractFs();
 
 	bool validateHeaderLayout(const nx::sRomfsHeader* hdr) const;
