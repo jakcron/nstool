@@ -78,6 +78,8 @@ namespace nx
 		void setAciType(AciType type);
 		bool isProduction() const;
 		void setIsProduction(bool isProduction);
+		bool isUnqualifiedApproval() const;
+		void setIsUnqualifiedApproval(bool isUnqualifiedApproval);
 		const sSection& getFacPos() const;
 		void setFacSize(size_t size);
 		const sSection& getSacPos() const;
@@ -103,6 +105,7 @@ namespace nx
 		size_t mHeaderOffset;
 		AciType mType;
 		bool mIsProduction;
+		bool mIsUnqualifiedApproval;
 		sSection mFac, mSac, mKc;
 
 		void calculateSectionOffsets();

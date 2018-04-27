@@ -465,7 +465,9 @@ void NpdmProcess::displayAciHdr(const nx::AciHeader& aci)
 	{
 
 		printf("  ACID Size:       %" PRIx64 "\n", aci.getAcidSize());
-		printf("  Target:          %s\n", kAcidTarget[aci.isProduction()].c_str());
+		printf("  Flags:           \n");
+		printf("    Production:          %s\n", aci.isProduction() ? "TRUE" : "FALSE");
+		printf("    UnqualifiedApproval: %s\n", aci.isUnqualifiedApproval() ? "TRUE" : "FALSE");
 		printf("  ProgramID Restriction\n");
 		printf("    Min:           %016" PRIx64 "\n", aci.getProgramIdMin());
 		printf("    Max:           %016" PRIx64 "\n", aci.getProgramIdMax());

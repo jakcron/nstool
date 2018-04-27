@@ -13,7 +13,11 @@ bool AciHeader::isEqual(const AciHeader & other) const
 {
 	return (mHeaderOffset == other.mHeaderOffset) \
 		&& (mType == other.mType) \
+		&& (mIsProduction == other.mIsProduction) \
+		&& (mIsUnqualifiedApproval == other.mIsUnqualifiedApproval) \
 		&& (mAcidSize == other.mAcidSize) \
+		&& (mProgramIdMin == other.mProgramIdMin) \
+		&& (mProgramIdMax == other.mProgramIdMax) \
 		&& (mProgramId == other.mProgramId) \
 		&& (mFac == other.mFac) \
 		&& (mSac == other.mSac) \
@@ -30,7 +34,11 @@ void AciHeader::copyFrom(const AciHeader & other)
 	{
 		mHeaderOffset = other.mHeaderOffset;
 		mType = other.mType;
+		mIsProduction = other.mIsProduction;
+		mIsUnqualifiedApproval = other.mIsUnqualifiedApproval;
 		mAcidSize = other.mAcidSize;
+		mProgramIdMin = other.mProgramIdMin;
+		mProgramIdMax = other.mProgramIdMax;
 		mProgramId = other.mProgramId;
 		mFac = other.mFac;
 		mSac = other.mSac;
@@ -87,10 +95,10 @@ void AciHeader::exportBinary()
 	switch (mType)
 	{
 	case (TYPE_ACI0):
-		hdr->set_signature(aci::kAciStructSig.c_str());
+		memcpy(hdr->signature, aci::kAciStructSig.c_str(), 4);
 		break;
 	case (TYPE_ACID):
-		hdr->set_signature(aci::kAciDescStructSig.c_str());
+		memcpy(hdr->signature, aci::kAciDescStructSig.c_str(), 4);
 		break;
 	default:
 		throw fnd::Exception(kModuleName, "Unexpected ACI type");
@@ -98,30 +106,32 @@ void AciHeader::exportBinary()
 
 	// set offset/size
 	calculateSectionOffsets();
-	hdr->fac().set_offset(mFac.offset);
-	hdr->fac().set_size(mFac.size);
-	hdr->sac().set_offset(mSac.offset);
-	hdr->sac().set_size(mSac.size);
-	hdr->kc().set_offset(mKc.offset);
-	hdr->kc().set_size(mKc.size);
+	hdr->fac.offset = mFac.offset;
+	hdr->fac.size = mFac.size;
+	hdr->sac.offset = mSac.offset;
+	hdr->sac.size = mSac.size;
+	hdr->kc.offset = mKc.offset;
+	hdr->kc.size = mKc.size;
 
 	uint32_t flags = 0;
 	if (mIsProduction)
-		flags |= BIT(0);
+		flags |= _BIT(aci::FLAG_PRODUCTION);
+	if (mIsProduction)
+		flags |= _BIT(aci::FLAG_UNQUALIFIED_APPROVAL);
 
-	hdr->set_flags(flags);
+	hdr->flags = flags;
 
 	if (mType == TYPE_ACI0)
 	{
 		// set program
-		hdr->set_program_id(mProgramId);
+		hdr->program_id_info.program_id = mProgramId;
 	}
 	else if (mType == TYPE_ACID)
 	{
 		mAcidSize = getAciSize();
-		hdr->set_size(mAcidSize);
-		hdr->set_program_id_min(mProgramIdMin);
-		hdr->set_program_id_max(mProgramIdMax);	
+		hdr->size = mAcidSize;
+		hdr->program_id_info.program_id_restrict.min = mProgramIdMin;
+		hdr->program_id_info.program_id_restrict.max = mProgramIdMax;
 	}
 }
 
@@ -139,11 +149,11 @@ void AciHeader::importBinary(const byte_t * bytes, size_t len)
 
 	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.getBytes();
 
-	if (memcmp(hdr->signature(), aci::kAciStructSig.c_str(), 4) == 0)
+	if (std::string(hdr->signature, 4) == aci::kAciStructSig)
 	{
 		mType = TYPE_ACI0;
 	}
-	else if (memcmp(hdr->signature(), aci::kAciDescStructSig.c_str(), 4) == 0)
+	else if (std::string(hdr->signature, 4) == aci::kAciDescStructSig)
 	{
 		mType = TYPE_ACID;
 	}
@@ -155,8 +165,9 @@ void AciHeader::importBinary(const byte_t * bytes, size_t len)
 	
 	if (mType == TYPE_ACI0)
 	{
-		mProgramId = hdr->program_id();
+		mProgramId = hdr->program_id_info.program_id.get();
 		mIsProduction = false;
+		mIsUnqualifiedApproval = false;
 		mAcidSize = 0;
 		mProgramIdMin = 0;
 		mProgramIdMax = 0;
@@ -164,21 +175,22 @@ void AciHeader::importBinary(const byte_t * bytes, size_t len)
 	else if (mType == TYPE_ACID)
 	{
 		mProgramId = 0;
-		mIsProduction = (hdr->flags() & BIT(0)) == BIT(0);
-		mAcidSize = hdr->size();
-		mProgramIdMin = hdr->program_id_min();
-		mProgramIdMax = hdr->program_id_max();
+		mIsProduction = _HAS_BIT(hdr->flags.get(), aci::FLAG_PRODUCTION);
+		mIsUnqualifiedApproval = _HAS_BIT(hdr->flags.get(), aci::FLAG_UNQUALIFIED_APPROVAL);
+		mAcidSize = hdr->size.get();
+		mProgramIdMin = hdr->program_id_info.program_id_restrict.min.get();
+		mProgramIdMax = hdr->program_id_info.program_id_restrict.max.get();
 	}
 	
 	// the header offset is the MIN(sac.offset, fac.offset, kc.offset) - sizeof(sHeader)
-	mHeaderOffset = MAX(MIN(hdr->sac().offset(), MIN(hdr->fac().offset(), hdr->kc().offset())), align(sizeof(sAciHeader), aci::kAciAlignSize)) - align(sizeof(sAciHeader), aci::kAciAlignSize);
+	mHeaderOffset = MAX(MIN(hdr->sac.offset.get(), MIN(hdr->fac.offset.get(), hdr->kc.offset.get())), align(sizeof(sAciHeader), aci::kAciAlignSize)) - align(sizeof(sAciHeader), aci::kAciAlignSize);
 
-	mFac.offset = hdr->fac().offset() - mHeaderOffset;
-	mFac.size = hdr->fac().size();
-	mSac.offset = hdr->sac().offset() - mHeaderOffset;
-	mSac.size = hdr->sac().size();
-	mKc.offset = hdr->kc().offset() - mHeaderOffset;
-	mKc.size = hdr->kc().size();
+	mFac.offset = hdr->fac.offset.get() - mHeaderOffset;
+	mFac.size = hdr->fac.size.get();
+	mSac.offset = hdr->sac.offset.get() - mHeaderOffset;
+	mSac.size = hdr->sac.size.get();
+	mKc.offset = hdr->kc.offset.get() - mHeaderOffset;
+	mKc.size = hdr->kc.size.get();
 }
 
 void nx::AciHeader::clear()
@@ -191,6 +203,7 @@ void nx::AciHeader::clear()
 	mProgramIdMax = 0;
 	mAcidSize = 0;
 	mIsProduction = false;
+	mIsUnqualifiedApproval = false;
 	mFac.offset = 0;
 	mFac.size = 0;
 	mSac.offset = 0;
@@ -259,6 +272,16 @@ bool nx::AciHeader::isProduction() const
 void nx::AciHeader::setIsProduction(bool isProduction)
 {
 	mIsProduction = isProduction;
+}
+
+bool nx::AciHeader::isUnqualifiedApproval() const
+{
+	return mIsUnqualifiedApproval;
+}
+
+void nx::AciHeader::setIsUnqualifiedApproval(bool isUnqualifiedApproval)
+{
+	mIsUnqualifiedApproval = isUnqualifiedApproval;
 }
 
 uint64_t AciHeader::getProgramId() const
