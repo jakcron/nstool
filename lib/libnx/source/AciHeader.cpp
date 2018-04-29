@@ -116,7 +116,7 @@ void AciHeader::exportBinary()
 	uint32_t flags = 0;
 	if (mIsProduction)
 		flags |= _BIT(aci::FLAG_PRODUCTION);
-	if (mIsProduction)
+	if (mIsUnqualifiedApproval)
 		flags |= _BIT(aci::FLAG_UNQUALIFIED_APPROVAL);
 
 	hdr->flags = flags;
