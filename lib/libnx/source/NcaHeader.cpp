@@ -219,6 +219,19 @@ void nx::NcaHeader::setSdkAddonVersion(uint32_t version)
 	mSdkAddonVersion = version;
 }
 
+bool nx::NcaHeader::hasRightsId() const
+{
+	bool rightsIdIsSet = false;
+
+	for (size_t i = 0; i < nca::kRightsIdLen; i++)
+	{
+		if (mRightsId[i] != 0)
+			rightsIdIsSet = true;
+	}
+
+	return rightsIdIsSet;
+}
+
 const byte_t* nx::NcaHeader::getRightsId() const
 {
 	return mRightsId;
