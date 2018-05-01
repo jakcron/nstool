@@ -47,3 +47,11 @@ byte_t nx::NcaUtils::getMasterKeyRevisionFromKeyGeneration(byte_t key_generation
 
 	return masterkey_rev;
 }
+
+void nx::NcaUtils::getNcaPartitionAesCtr(const nx::sNcaFsHeader* hdr, byte_t* ctr)
+{
+	for (size_t i = 0; i < 16; i++)
+	{
+		ctr[15-i] = hdr->base_ctr.iv[i];
+	}
+}
