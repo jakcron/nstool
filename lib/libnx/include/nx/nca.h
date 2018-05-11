@@ -6,6 +6,7 @@
 #include <crypto/rsa.h>
 #include <fnd/ISerialiseableBinary.h>
 #include <nx/ivfc.h>
+#include <nx/hierarchicalsha256.h>
 
 namespace nx
 {
@@ -20,6 +21,8 @@ namespace nx
 		static const size_t kAesKeyNum = 16;
 		static const size_t kRightsIdLen = 0x10;
 		static const size_t kKeyAreaEncryptionKeyNum = 3;
+		static const size_t kFsHeaderHashSuperblockLen = 0x130;
+		static const uint16_t kDefaultFsHeaderVersion = 2;
 
 		enum ProgramPartitionId
 		{
@@ -41,6 +44,7 @@ namespace nx
 			TYPE_CONTROL,
 			TYPE_MANUAL,
 			TYPE_DATA,
+			TYPE_PUBLIC_DATA
 		};
 
 		enum KeyBankIndex
@@ -68,7 +72,7 @@ namespace nx
 		enum HashType
 		{
 			HASH_AUTO,
-			HASH_UNK1,
+			HASH_NONE,
 			HASH_HIERARCHICAL_SHA256,
 			HASH_HIERARCHICAL_INTERGRITY // IVFC
 		};
@@ -79,7 +83,7 @@ namespace nx
 			CRYPT_NONE,
 			CRYPT_AESXTS,
 			CRYPT_AESCTR,
-			CRYPT_BKTR
+			CRYPT_AESCTREX
 		};	
 	}
 	
@@ -109,33 +113,28 @@ namespace nx
 		crypto::aes::sAes128Key enc_aes_key[nca::kAesKeyNum];
 	};
 
+	struct sNcaFsHeader
+	{
+		le_uint16_t version;
+		byte_t format_type;
+		byte_t hash_type;
+		byte_t encryption_type;
+		byte_t reserved_0[3];
+		union {
+			byte_t hash_superblock[nca::kFsHeaderHashSuperblockLen];
+			nx::sHierarchicalSha256Header hierarchicalsha256_header;
+			nx::sIvfcHeader ivfc_header;
+		};
+		crypto::aes::sAesIvCtr base_ctr;
+		byte_t reserved_1[0xB8];
+	};
+
 	struct sNcaHeaderBlock
 	{
 		byte_t signature_main[crypto::rsa::kRsa2048Size];
 		byte_t signature_acid[crypto::rsa::kRsa2048Size];
 		sNcaHeader header;
-		byte_t fs_header[nx::nca::kPartitionNum][nx::nca::kSectorSize];
-	};
-
-	struct sNcaFsHeader
-	{
-		le_uint16_t version; // usually 0x0002
-		byte_t format_type; // RomFs(0x00), PartitionFs(0x01)
-		byte_t hash_type; // HashTypeAuto(0x00), HashTypeHierarchicalSha256(0x02), HashTypeHierarchicalIntegrity(0x03).RomFs uses (0x03) this is forced, PartitionFs uses (0x02).
-		byte_t encryption_type; // EncryptionTypeAuto(0x00), EncryptionTypeNone(0x01), EncryptionTypeAesCtr(0x03)
-		byte_t reserved[3];
-	};
-
-	struct sHierarchicalSha256Header
-	{
-		byte_t master_hash[0x20];
-		le_uint32_t hash_block_size;
-		le_uint32_t unk_0x02;
-		struct sLayout
-		{
-			le_uint64_t offset;
-			le_uint64_t size;
-		} hash_data, hash_target;
+		sNcaFsHeader fs_header[nx::nca::kPartitionNum];
 	};
 
 #pragma pack(pop)
