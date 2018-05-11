@@ -42,6 +42,11 @@ size_t PfsProcess::determineHeaderSize(const nx::sPfsHeader* hdr)
 	return sizeof(nx::sPfsHeader) + hdr->file_num.get() * fileEntrySize + hdr->name_table_size.get();
 }
 
+bool PfsProcess::validateHeaderMagic(const nx::sPfsHeader* hdr)
+{
+	return std::string(hdr->signature, 4) == nx::pfs::kPfsSig || std::string(hdr->signature, 4) == nx::pfs::kHashedPfsSig;
+}
+
 void PfsProcess::validateHfs()
 {
 	fnd::MemoryBlob scratch;
@@ -122,6 +127,10 @@ void PfsProcess::process()
 	// open minimum header to get full header size
 	scratch.alloc(sizeof(nx::sPfsHeader));
 	mReader->read(scratch.getBytes(), mOffset, scratch.getSize());
+	if (validateHeaderMagic(((nx::sPfsHeader*)scratch.getBytes())) == false)
+	{
+		throw fnd::Exception(kModuleName, "Corrupt Header");
+	}
 	size_t pfsHeaderSize = determineHeaderSize(((nx::sPfsHeader*)scratch.getBytes()));
 	
 	// open minimum header to get full header size

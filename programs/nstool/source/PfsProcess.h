@@ -48,6 +48,8 @@ private:
 	void displayHeader();
 	void displayFs();
 	size_t determineHeaderSize(const nx::sPfsHeader* hdr);
+	bool validateHeaderMagic(const nx::sPfsHeader* hdr);
 	void validateHfs();
 	void extractFs();
+	
 };
