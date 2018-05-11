@@ -429,7 +429,14 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 	if (args.nca_titlekey.isSet)
 	{
-		decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key.key, sizeof(crypto::aes::sAes128Key));
+		if (args.nca_bodykey.var.length() == (sizeof(crypto::aes::sAes128Key)*2))
+		{
+			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesctr.key, sizeof(crypto::aes::sAes128Key));
+		}
+		else
+		{
+			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesxts.key[0], sizeof(crypto::aes::sAesXts128Key));
+		}
 	}
 
 #undef _SAVE_KEYDATA
@@ -511,6 +518,10 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mNormalPath = args.normal_path;
 	mSecurePath = args.secure_path;
 	mFsPath = args.fs_path;
+	mPart0Path = args.part0_path;
+	mPart1Path = args.part1_path;
+	mPart2Path = args.part2_path;
+	mPart3Path = args.part3_path;
 
 	// determine output path
 	if (args.verbose_output.isSet)

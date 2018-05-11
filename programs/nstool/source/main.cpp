@@ -71,10 +71,21 @@ int main(int argc, char** argv)
 		{
 			NcaProcess nca;
 
-			nca.setInputFile(inputFile);
+			nca.setInputFile(&inputFile);
 			nca.setKeyset(&user_set.getKeyset());
 			nca.setCliOutputMode(user_set.getCliOutputType());
 			nca.setVerifyMode(user_set.isVerifyFile());
+
+
+			if (user_set.getPart0Path().isSet)
+				nca.setPartition0ExtractPath(user_set.getPart0Path().var);
+			if (user_set.getPart1Path().isSet)
+				nca.setPartition1ExtractPath(user_set.getPart1Path().var);
+			if (user_set.getPart2Path().isSet)
+				nca.setPartition2ExtractPath(user_set.getPart2Path().var);
+			if (user_set.getPart3Path().isSet)
+				nca.setPartition3ExtractPath(user_set.getPart3Path().var);
+			nca.setListFs(user_set.isListFs());
 
 			nca.process();
 		}
