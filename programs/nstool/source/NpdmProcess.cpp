@@ -665,9 +665,9 @@ void NpdmProcess::process()
 	}
 }
 
-void NpdmProcess::setInputFile(fnd::IFile& reader)
+void NpdmProcess::setInputFile(fnd::IFile* reader)
 {
-	mReader = &reader;
+	mReader = reader;
 }
 
 void NpdmProcess::setInputFileOffset(size_t offset)

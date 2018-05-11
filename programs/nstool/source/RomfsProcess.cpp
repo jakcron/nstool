@@ -256,9 +256,9 @@ void RomfsProcess::process()
 		extractFs();
 }
 
-void RomfsProcess::setInputFile(fnd::IFile& reader)
+void RomfsProcess::setInputFile(fnd::IFile* reader)
 {
-	mReader = &reader;
+	mReader = reader;
 }
 
 void RomfsProcess::setInputFileOffset(size_t offset)

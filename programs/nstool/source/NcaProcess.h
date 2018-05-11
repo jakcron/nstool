@@ -57,8 +57,7 @@ private:
 		sOptional<crypto::aes::sAes128Key> aes_ctr;
 		sOptional<crypto::aes::sAesXts128Key> aes_xts;
 	} mBodyKeys;
-	
-
+		
 
 	void displayHeader();
 

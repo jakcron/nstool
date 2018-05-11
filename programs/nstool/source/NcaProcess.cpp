@@ -249,7 +249,7 @@ void NcaProcess::processPartitions()
 		// create reader
 		fnd::IFile* partitionReader = nullptr;
 
-		AesCtrWrappedIFile aesCtrFile = AesCtrWrappedIFile(*mReader, mBodyKeys.aes_ctr.var, ctr);
+		AesCtrWrappedIFile aesCtrFile = AesCtrWrappedIFile(mReader, mBodyKeys.aes_ctr.var, ctr);
 		switch(fs_header.encryption_type)
 		{
 			case (nx::nca::CRYPT_AESXTS):
@@ -290,7 +290,7 @@ void NcaProcess::processPartitions()
 		if (fs_header.format_type == nx::nca::FORMAT_PFS0)
 		{
 			PfsProcess pfs;
-			pfs.setInputFile(*partitionReader);
+			pfs.setInputFile(partitionReader);
 			pfs.setInputFileOffset(partition.offset + data_offset);
 			pfs.setCliOutputMode(mCliOutputType);
 			pfs.setListFs(mListFs);
@@ -301,7 +301,7 @@ void NcaProcess::processPartitions()
 		else if (fs_header.format_type == nx::nca::FORMAT_ROMFS)
 		{
 			RomfsProcess romfs;
-			romfs.setInputFile(*partitionReader);
+			romfs.setInputFile(partitionReader);
 			romfs.setInputFileOffset(partition.offset + data_offset);
 			romfs.setCliOutputMode(mCliOutputType);
 			romfs.setListFs(mListFs);

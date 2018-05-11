@@ -139,9 +139,9 @@ void PfsProcess::process()
 		extractFs();
 }
 
-void PfsProcess::setInputFile(fnd::IFile& reader)
+void PfsProcess::setInputFile(fnd::IFile* reader)
 {
-	mReader = &reader;
+	mReader = reader;
 }
 
 void PfsProcess::setInputFileOffset(size_t offset)

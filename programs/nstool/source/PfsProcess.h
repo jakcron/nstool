@@ -14,7 +14,7 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile& reader);
+	void setInputFile(fnd::IFile* reader);
 	void setInputFileOffset(size_t offset);
 	void setKeyset(const sKeyset* keyset);
 	void setCliOutputMode(CliOutputType type);

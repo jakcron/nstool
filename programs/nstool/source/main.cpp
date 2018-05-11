@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 		{	
 			XciProcess xci;
 
-			xci.setInputFile(inputFile);
+			xci.setInputFile(&inputFile);
 			
 			xci.setKeyset(&user_set.getKeyset());
 			xci.setCliOutputMode(user_set.getCliOutputType());
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 		{
 			PfsProcess pfs;
 
-			pfs.setInputFile(inputFile);
+			pfs.setInputFile(&inputFile);
 			pfs.setKeyset(&user_set.getKeyset());
 			pfs.setCliOutputMode(user_set.getCliOutputType());
 			pfs.setVerifyMode(user_set.isVerifyFile());
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 		{
 			RomfsProcess romfs;
 
-			romfs.setInputFile(inputFile);
+			romfs.setInputFile(&inputFile);
 			romfs.setKeyset(&user_set.getKeyset());
 			romfs.setCliOutputMode(user_set.getCliOutputType());
 			romfs.setVerifyMode(user_set.isVerifyFile());
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 		{
 			NpdmProcess npdm;
 
-			npdm.setInputFile(inputFile);
+			npdm.setInputFile(&inputFile);
 			npdm.setKeyset(&user_set.getKeyset());
 			npdm.setCliOutputMode(user_set.getCliOutputType());
 			npdm.setVerifyMode(user_set.isVerifyFile());

@@ -141,7 +141,7 @@ void XciProcess::processRootPfs()
 			printf("[WARNING] XCI Root HFS0: FAIL (bad hash)\n");
 		}
 	}
-	mRootPfs.setInputFile(*mReader);
+	mRootPfs.setInputFile(mReader);
 	mRootPfs.setInputFileOffset(mOffset + mHdr.getPartitionFsAddress());
 	mRootPfs.setListFs(mListFs);
 	mRootPfs.setVerifyMode(mVerify);
@@ -156,7 +156,7 @@ void XciProcess::processPartitionPfs()
 	for (size_t i = 0; i < rootPartitions.getSize(); i++)
 	{	
 		PfsProcess tmp;
-		tmp.setInputFile(*mReader);
+		tmp.setInputFile(mReader);
 		tmp.setInputFileOffset(mOffset + mHdr.getPartitionFsAddress() + rootPartitions[i].offset);
 		tmp.setListFs(mListFs);
 		tmp.setVerifyMode(mVerify);
@@ -227,9 +227,9 @@ void XciProcess::process()
 	processPartitionPfs();
 }
 
-void XciProcess::setInputFile(fnd::IFile& reader)
+void XciProcess::setInputFile(fnd::IFile* reader)
 {
-	mReader = &reader;
+	mReader = reader;
 }
 
 void XciProcess::setInputFileOffset(size_t offset)
