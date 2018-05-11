@@ -587,14 +587,14 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	static const size_t kMaxReadSize = 0x1000;
 	FileType file_type = FILE_INVALID;
 	fnd::SimpleFile file;
-	fnd::MemoryBlob blob;
+	fnd::MemoryBlob scratch;
 
 	// open file
 	file.open(path, file.Read);
 
 	// read file
-	blob.alloc(MIN(kMaxReadSize, file.size()));
-	file.read(blob.getBytes(), 0, blob.getSize());
+	scratch.alloc(MIN(kMaxReadSize, file.size()));
+	file.read(scratch.getBytes(), 0, scratch.getSize());
 	// close file
 	file.close();
 
@@ -602,14 +602,14 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	byte_t nca_raw[nx::nca::kHeaderSize];
 	nx::sNcaHeader* nca_header = (nx::sNcaHeader*)(nca_raw + nx::NcaUtils::sectorToOffset(1));
 	
-	if (blob.getSize() >= nx::nca::kHeaderSize)
+	if (scratch.getSize() >= nx::nca::kHeaderSize)
 	{
-		nx::NcaUtils::decryptNcaHeader(blob.getBytes(), nca_raw, mKeyset.nca.header_key);
+		nx::NcaUtils::decryptNcaHeader(scratch.getBytes(), nca_raw, mKeyset.nca.header_key);
 	}
 
-	// _QUICK_CAST resolves to a pointer of type 'st' located at blob.getBytes() + 'oft'
-#define _QUICK_CAST(st, oft) ((st*)(blob.getBytes() + (oft)))
-#define _ASSERT_SIZE(size) (blob.getSize() >= (size))
+	// _QUICK_CAST resolves to a pointer of type 'st' located at scratch.getBytes() + 'oft'
+#define _QUICK_CAST(st, oft) ((st*)(scratch.getBytes() + (oft)))
+#define _ASSERT_SIZE(size) (scratch.getSize() >= (size))
 
 	// test npdm
 	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && std::string(_QUICK_CAST(nx::sXciHeaderPage, 0)->header.signature, 4) == nx::xci::kXciSig)
