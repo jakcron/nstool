@@ -429,7 +429,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 	if (args.nca_titlekey.isSet)
 	{
-		if (args.nca_bodykey.var.length() == (sizeof(crypto::aes::sAes128Key)*2))
+		if (args.nca_titlekey.var.length() == (sizeof(crypto::aes::sAes128Key)*2))
 		{
 			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesctr.key, sizeof(crypto::aes::sAes128Key));
 		}
