@@ -52,7 +52,6 @@ void UserSettings::showHelp()
 	printf("    nstool [--listfs] [--fsdir <dir>] <file>\n");
 	printf("      --listfs        Print file system\n");
 	printf("      --fsdir         Extract file system to directory\n");
-	/*
 	printf("\n  NCA (Nintendo Content Archive)\n");
 	printf("    nstool [--listfs] [--bodykey <key> --titlekey <key>] [--part0 <dir> ...] <.nca file>\n");
 	printf("      --listfs        Print file system in embedded partitions\n");
@@ -62,7 +61,6 @@ void UserSettings::showHelp()
 	printf("      --part1         Extract \"partition 1\" to directory \n");
 	printf("      --part2         Extract \"partition 2\" to directory \n");
 	printf("      --part3         Extract \"partition 3\" to directory \n");
-	*/
 }
 
 const std::string UserSettings::getInputPath() const
@@ -113,6 +111,26 @@ const sOptional<std::string>& UserSettings::getSecurePath() const
 const sOptional<std::string>& UserSettings::getFsPath() const
 {
 	return mFsPath;
+}
+
+const sOptional<std::string>& UserSettings::getPart0Path() const
+{
+	return mPart0Path;
+}
+
+const sOptional<std::string>& UserSettings::getPart1Path() const
+{
+	return mPart1Path;
+}
+
+const sOptional<std::string>& UserSettings::getPart2Path() const
+{
+	return mPart2Path;
+}
+
+const sOptional<std::string>& UserSettings::getPart3Path() const
+{
+	return mPart3Path;
 }
 
 
@@ -226,10 +244,28 @@ void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
 			cmd_args.nca_bodykey = args[i+1];
 		}
 
-		else if (args[i] == "-o")
+		else if (args[i] == "--part0")
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.output_path = args[i+1];
+			cmd_args.part0_path = args[i+1];
+		}
+
+		else if (args[i] == "--part1")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
+			cmd_args.part1_path = args[i+1];
+		}
+
+		else if (args[i] == "--part2")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
+			cmd_args.part2_path = args[i+1];
+		}
+
+		else if (args[i] == "--part3")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
+			cmd_args.part3_path = args[i+1];
 		}
 
 		else
@@ -393,7 +429,14 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 	if (args.nca_titlekey.isSet)
 	{
-		decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key.key, sizeof(crypto::aes::sAes128Key));
+		if (args.nca_bodykey.var.length() == (sizeof(crypto::aes::sAes128Key)*2))
+		{
+			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesctr.key, sizeof(crypto::aes::sAes128Key));
+		}
+		else
+		{
+			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesxts.key[0], sizeof(crypto::aes::sAesXts128Key));
+		}
 	}
 
 #undef _SAVE_KEYDATA
@@ -475,6 +518,10 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mNormalPath = args.normal_path;
 	mSecurePath = args.secure_path;
 	mFsPath = args.fs_path;
+	mPart0Path = args.part0_path;
+	mPart1Path = args.part1_path;
+	mPart2Path = args.part2_path;
+	mPart3Path = args.part3_path;
 
 	// determine output path
 	if (args.verbose_output.isSet)

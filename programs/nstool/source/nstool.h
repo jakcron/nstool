@@ -9,11 +9,6 @@
 static const size_t kMasterKeyNum = 0x20;
 static const size_t kNcaKeakNum = nx::nca::kKeyAreaEncryptionKeyNum;
 
-#ifdef _WIN32
-const std::string kPathSeparator = "\\";
-#else
-const std::string kPathSeparator = "/";
-#endif
 
 enum FileType
 {
@@ -63,7 +58,8 @@ struct sKeyset
 		crypto::aes::sAesXts128Key header_key;
 		crypto::aes::sAes128Key key_area_key[kNcaKeakNum][kMasterKeyNum];
 
-		crypto::aes::sAes128Key manual_title_key;
+		crypto::aes::sAes128Key manual_title_key_aesctr;
+		crypto::aes::sAesXts128Key manual_title_key_aesxts;
 		crypto::aes::sAes128Key manual_body_key_aesctr;
 		crypto::aes::sAesXts128Key manual_body_key_aesxts;
 	} nca;

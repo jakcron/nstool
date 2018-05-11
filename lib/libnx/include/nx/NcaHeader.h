@@ -83,6 +83,7 @@ namespace nx
 		void setContentIndex(uint32_t index);
 		uint32_t getSdkAddonVersion() const;
 		void setSdkAddonVersion(uint32_t version);
+		bool hasRightsId() const;
 		const byte_t* getRightsId() const;
 		void setRightsId(const byte_t* rights_id);
 		const fnd::List<sPartition>& getPartitions() const;

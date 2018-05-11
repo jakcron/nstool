@@ -26,6 +26,10 @@ public:
 	const sOptional<std::string>& getNormalPath() const;
 	const sOptional<std::string>& getSecurePath() const;
 	const sOptional<std::string>& getFsPath() const;
+	const sOptional<std::string>& getPart0Path() const;
+	const sOptional<std::string>& getPart1Path() const;
+	const sOptional<std::string>& getPart2Path() const;
+	const sOptional<std::string>& getPart3Path() const;
 
 private:
 	const std::string kModuleName = "UserSettings";
@@ -33,7 +37,6 @@ private:
 	struct sCmdArgs
 	{
 		sOptional<std::string> input_path;
-		sOptional<std::string> output_path;
 		sOptional<bool> devkit_keys;
 		sOptional<std::string> keyset_path;
 		sOptional<std::string> file_type;
@@ -47,11 +50,14 @@ private:
 		sOptional<std::string> fs_path;
 		sOptional<std::string> nca_titlekey;
 		sOptional<std::string> nca_bodykey;
+		sOptional<std::string> part0_path;
+		sOptional<std::string> part1_path;
+		sOptional<std::string> part2_path;
+		sOptional<std::string> part3_path;
 
 		void clear()
 		{
 			input_path.isSet = false;
-			output_path.isSet = false;
 			devkit_keys.isSet = false;
 			keyset_path.isSet = false;
 			file_type.isSet = false;
@@ -65,6 +71,10 @@ private:
 			fs_path.isSet = false;
 			nca_titlekey.isSet = false;
 			nca_bodykey.isSet = false;
+			part0_path.isSet = false;
+			part1_path.isSet = false;
+			part2_path.isSet = false;
+			part3_path.isSet = false;
 		}
 	};
 	
@@ -79,6 +89,11 @@ private:
 	sOptional<std::string> mNormalPath;
 	sOptional<std::string> mSecurePath;
 	sOptional<std::string> mFsPath;
+
+	sOptional<std::string> mPart0Path;
+	sOptional<std::string> mPart1Path;
+	sOptional<std::string> mPart2Path;
+	sOptional<std::string> mPart3Path;
 
 	void populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args);
 	void populateKeyset(sCmdArgs& args);
