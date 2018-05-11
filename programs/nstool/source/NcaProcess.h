@@ -30,6 +30,7 @@ public:
 
 private:
 	const std::string kModuleName = "NcaProcess";
+	const std::string kNpdmExefsPath = "main.npdm";
 
 	// user options
 	fnd::IFile* mReader;
@@ -57,11 +58,27 @@ private:
 		sOptional<crypto::aes::sAes128Key> aes_ctr;
 		sOptional<crypto::aes::sAesXts128Key> aes_xts;
 	} mBodyKeys;
-		
+	
+	struct sPartitionInfo
+	{
+		fnd::IFile* reader;
+		size_t offset;
+		size_t data_offset;
+		size_t size;
+		nx::nca::FormatType format_type;
+		nx::nca::HashType hash_type;
 
-	void displayHeader();
+		union {
+			byte_t hash_superblock[nx::nca::kFsHeaderHashSuperblockLen];
+			nx::sHierarchicalSha256Header hierarchicalsha256_header;
+			nx::sIvfcHeader ivfc_header;
+		};
+	} mPartitions[nx::nca::kPartitionNum];
 
 	void generateNcaBodyEncryptionKeys();
-
+	void generatePartitionConfiguration();
+	void validatePartitionHash();
+	void validateNcaSignatures();
+	void displayHeader();
 	void processPartitions();
 };

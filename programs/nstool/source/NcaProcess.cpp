@@ -1,11 +1,14 @@
+#include <sstream>
 #include <fnd/SimpleTextOutput.h>
 #include <nx/NcaUtils.h>
 #include <nx/AesKeygen.h>
+#include <nx/NpdmBinary.h>
 #include "NcaProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
 #include "OffsetAdjustedIFile.h"
 #include "AesCtrWrappedIFile.h"
+#include "CopiedIFile.h"
 
 std::string kFormatVersionStr[]
 {
@@ -58,6 +61,240 @@ std::string kKaekIndexStr[]
 	"Ocean",
 	"System"
 };
+
+void NcaProcess::generateNcaBodyEncryptionKeys()
+{
+	// create zeros key
+	crypto::aes::sAes128Key zero_aesctr_key;
+	memset(zero_aesctr_key.key, 0, sizeof(zero_aesctr_key));
+	crypto::aes::sAesXts128Key zero_aesxts_key;
+	memset(zero_aesxts_key.key, 0, sizeof(zero_aesxts_key));
+	
+	// get key data from header
+	byte_t masterkey_rev = nx::NcaUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
+	byte_t keak_index = mHdr.getKaekIndex();
+
+	// set flag to indicate that the keys are not available
+	mBodyKeys.aes_ctr.isSet = false;
+	mBodyKeys.aes_xts.isSet = false;
+
+	// if this has a rights id, the key needs to be sourced from a ticket
+	if (mHdr.hasRightsId() == true)
+	{
+		// if the titlekey_kek is available
+		if (mKeyset->ticket.titlekey_kek[masterkey_rev] != zero_aesctr_key)
+		{
+			crypto::aes::sAesIvCtr iv;
+			iv.set(mHdr.getRightsId());
+			// the title key is provided (sourced from ticket)
+			if (mKeyset->nca.manual_title_key_aesctr != zero_aesctr_key)
+			{
+				crypto::aes::AesCbcDecrypt(mKeyset->nca.manual_title_key_aesctr.key, 16, mKeyset->ticket.titlekey_kek[masterkey_rev].key, iv.iv, mBodyKeys.aes_ctr.var.key);
+				mBodyKeys.aes_ctr.isSet = true;
+			}
+			if (mKeyset->nca.manual_title_key_aesxts != zero_aesxts_key)
+			{
+				crypto::aes::AesCbcDecrypt(mKeyset->nca.manual_title_key_aesxts.key[0], 16, mKeyset->ticket.titlekey_kek[masterkey_rev].key, iv.iv, mBodyKeys.aes_xts.var.key[0]);
+				crypto::aes::AesCbcDecrypt(mKeyset->nca.manual_title_key_aesxts.key[1], 16, mKeyset->ticket.titlekey_kek[masterkey_rev].key, iv.iv, mBodyKeys.aes_xts.var.key[1]);
+				mBodyKeys.aes_xts.isSet = true;
+			}
+		}
+	}
+	// otherwise decrypt key area
+	else
+	{
+		// if the titlekey_kek is available
+		if (mKeyset->nca.key_area_key[keak_index][masterkey_rev] != zero_aesctr_key)
+		{
+			nx::AesKeygen::generateKey(mBodyKeys.aes_ctr.var.key, mHdr.getEncAesKeys()[nx::nca::KEY_AESCTR].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
+			mBodyKeys.aes_ctr.isSet = true;
+			
+			nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[0], mHdr.getEncAesKeys()[nx::nca::KEY_AESXTS_0].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
+			nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[1], mHdr.getEncAesKeys()[nx::nca::KEY_AESXTS_1].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
+			mBodyKeys.aes_xts.isSet = true;
+		}
+	}
+
+	// if the keys weren't generated, check if the keys were supplied by the user
+	if (mBodyKeys.aes_ctr.isSet == false && mKeyset->nca.manual_body_key_aesctr != zero_aesctr_key)
+	{
+		mBodyKeys.aes_ctr = mKeyset->nca.manual_body_key_aesctr;
+	}
+	if (mBodyKeys.aes_xts.isSet == false && mKeyset->nca.manual_body_key_aesxts != zero_aesxts_key)
+	{
+		mBodyKeys.aes_xts = mKeyset->nca.manual_body_key_aesxts;
+	}
+}
+
+void NcaProcess::generatePartitionConfiguration()
+{
+	std::stringstream error;
+
+	for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
+	{
+		// get reference to relevant structures
+		const nx::NcaHeader::sPartition& partition = mHdr.getPartitions()[i];
+		nx::sNcaFsHeader& fs_header = mHdrBlock.fs_header[partition.index];
+
+		// validate header hash
+		crypto::sha::sSha256Hash calc_hash;
+		crypto::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.index], sizeof(nx::sNcaFsHeader), calc_hash.bytes);
+		if (calc_hash.compare(partition.hash) == false)
+		{
+			error.clear();
+			error <<  "NCA FS Header [" << partition.index << "] Hash: FAIL \n";
+			throw fnd::Exception(kModuleName, error.str());
+		}
+			
+
+		// setup AES-CTR 
+		crypto::aes::sAesIvCtr ctr;
+		nx::NcaUtils::getNcaPartitionAesCtr(&fs_header, ctr.iv);
+
+		// save partition config
+		mPartitions[partition.index].reader = nullptr;
+		mPartitions[partition.index].offset = partition.offset;
+		mPartitions[partition.index].size = partition.size;
+		mPartitions[partition.index].format_type = (nx::nca::FormatType)fs_header.format_type;
+		mPartitions[partition.index].hash_type = (nx::nca::HashType)fs_header.hash_type;
+		memcpy(mPartitions[partition.index].hash_superblock, fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
+
+		// filter out unrecognised format types
+		switch (mPartitions[partition.index].format_type)
+		{
+			case (nx::nca::FORMAT_PFS0):
+			case (nx::nca::FORMAT_ROMFS):
+				break;
+			default:
+				continue;
+		}
+
+		// filter out unrecognised hash types
+		switch (mPartitions[partition.index].hash_type)
+		{
+			case (nx::nca::HASH_NONE):
+			case (nx::nca::HASH_HIERARCHICAL_SHA256):
+			case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
+				break;
+			default:
+				continue;
+		}
+
+		// create reader
+		switch(fs_header.encryption_type)
+		{
+			case (nx::nca::CRYPT_AESXTS):
+			case (nx::nca::CRYPT_AESCTREX):
+				mPartitions[partition.index].reader = nullptr;
+				break;
+			case (nx::nca::CRYPT_AESCTR):
+				mPartitions[partition.index].reader = mBodyKeys.aes_ctr.isSet? new AesCtrWrappedIFile(mReader, mBodyKeys.aes_ctr.var, ctr) : nullptr;
+				break;
+			case (nx::nca::CRYPT_NONE):
+				mPartitions[partition.index].reader = new CopiedIFile(mReader);
+				break;
+			default:
+				error.clear();
+				error <<  "NCA FS Header [" << partition.index << "] EncryptionType(" << fs_header.encryption_type << "): UNKNOWN \n";
+				throw fnd::Exception(kModuleName, error.str());
+		}
+
+		// determine the data offset
+		if (mPartitions[partition.index].hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
+		{
+			mPartitions[partition.index].data_offset = mPartitions[partition.index].hierarchicalsha256_header.hash_target.offset.get();
+		}
+		else if (mPartitions[partition.index].hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
+		{
+			for (size_t j = 0; j < nx::ivfc::kMaxIvfcLevel; j++)
+			{
+				if (mPartitions[partition.index].ivfc_header.level_header[nx::ivfc::kMaxIvfcLevel-1-j].logical_offset.get() != 0)
+				{
+					mPartitions[partition.index].data_offset = mPartitions[partition.index].ivfc_header.level_header[nx::ivfc::kMaxIvfcLevel-1-j].logical_offset.get();
+					break;
+				}
+			}
+		}
+		else if (mPartitions[partition.index].hash_type == nx::nca::HASH_NONE)
+		{
+			mPartitions[partition.index].data_offset = 0;
+		}
+	}
+}
+
+void NcaProcess::validatePartitionHash()
+{
+
+}
+
+void NcaProcess::validateNcaSignatures()
+{
+	// validate signature[0]
+	if (crypto::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
+	{
+		// this is minimal even though it's a warning because it's a validation method
+		if (mCliOutputType >= OUTPUT_MINIMAL)
+			printf("[WARNING] NCA Header Main Signature: FAIL \n");
+	}
+
+	// validate signature[1]
+	if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
+	{
+		if (mPartitions[0].format_type == nx::nca::FORMAT_PFS0)
+		{
+			if (mPartitions[0].reader != nullptr)
+			{
+				PfsProcess exefs;
+				exefs.setInputFile(mPartitions[0].reader);
+				exefs.setInputFileOffset(mPartitions[0].offset + mPartitions[0].data_offset);
+				exefs.setCliOutputMode(OUTPUT_MINIMAL);
+				exefs.process();
+
+				// open main.npdm
+				if (exefs.getPfsHeader().getFileList().hasElement(kNpdmExefsPath) == true)
+				{
+					const nx::PfsHeader::sFile& npdmFile = exefs.getPfsHeader().getFileList()[exefs.getPfsHeader().getFileList().getIndexOf(kNpdmExefsPath)];
+
+					fnd::MemoryBlob scratch;
+					scratch.alloc(npdmFile.size);
+					mPartitions[0].reader->read(scratch.getBytes(), mPartitions[0].offset + mPartitions[0].data_offset + npdmFile.offset, npdmFile.size);
+
+					nx::NpdmBinary npdmBinary;
+
+					npdmBinary.importBinary(scratch.getBytes(), scratch.getSize());
+
+					if (crypto::rsa::pss::rsaVerify(npdmBinary.getAcid().getNcaHeader2RsaKey(), crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					{
+						// this is minimal even though it's a warning because it's a validation method
+						if (mCliOutputType >= OUTPUT_MINIMAL)
+							printf("[WARNING] NCA Header ACID Signature: FAIL \n");
+					}
+									
+				}
+				else
+				{
+					// this is minimal even though it's a warning because it's a validation method
+					if (mCliOutputType >= OUTPUT_MINIMAL)
+						printf("[WARNING] NCA Header ACID Signature: FAIL (\"%s\" not present in ExeFs)\n", kNpdmExefsPath.c_str());
+				}
+				
+				
+			}
+			else
+			{
+				// this is minimal even though it's a warning because it's a validation method
+				if (mCliOutputType >= OUTPUT_MINIMAL)
+					printf("[WARNING] NCA Header ACID Signature: FAIL (ExeFs unreadable)\n");
+			}
+		}
+		else
+		{
+			// this is minimal even though it's a warning because it's a validation method
+			if (mCliOutputType >= OUTPUT_MINIMAL)
+				printf("[WARNING] NCA Header ACID Signature: FAIL (No ExeFs partition)\n");
+		}
+	}
+}
 
 void NcaProcess::displayHeader()
 {
@@ -174,144 +411,46 @@ void NcaProcess::displayHeader()
 	}
 }
 
-void NcaProcess::generateNcaBodyEncryptionKeys()
-{
-	// create zeros key
-	crypto::aes::sAes128Key zero_aesctr_key;
-	memset(zero_aesctr_key.key, 0, sizeof(zero_aesctr_key));
-	crypto::aes::sAesXts128Key zero_aesxts_key;
-	memset(zero_aesxts_key.key, 0, sizeof(zero_aesxts_key));
-	
-	// get key data from header
-	byte_t masterkey_rev = nx::NcaUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
-	byte_t keak_index = mHdr.getKaekIndex();
-
-	// set flag to indicate that the keys are not available
-	mBodyKeys.aes_ctr.isSet = false;
-	mBodyKeys.aes_xts.isSet = false;
-
-	// if this has a rights id, the key needs to be sourced from a ticket
-	if (mHdr.hasRightsId() == true)
-	{
-		// if the titlekey_kek is available
-		if (mKeyset->ticket.titlekey_kek[masterkey_rev] != zero_aesctr_key)
-		{
-			// the title key is provided (sourced from ticket)
-			if (mKeyset->nca.manual_title_key_aesctr != zero_aesctr_key)
-			{
-				nx::AesKeygen::generateKey(mBodyKeys.aes_ctr.var.key, mKeyset->nca.manual_title_key_aesctr.key, mKeyset->ticket.titlekey_kek[masterkey_rev].key);
-				mBodyKeys.aes_ctr.isSet = true;
-			}
-			if (mKeyset->nca.manual_title_key_aesxts != zero_aesxts_key)
-			{
-				nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[0], mKeyset->nca.manual_title_key_aesxts.key[0], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
-				nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[1], mKeyset->nca.manual_title_key_aesxts.key[1], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
-				mBodyKeys.aes_xts.isSet = true;
-			}
-		}
-	}
-	// otherwise decrypt key area
-	else
-	{
-		// if the titlekey_kek is available
-		if (mKeyset->nca.key_area_key[keak_index][masterkey_rev] != zero_aesctr_key)
-		{
-			nx::AesKeygen::generateKey(mBodyKeys.aes_ctr.var.key, mHdr.getEncAesKeys()[nx::nca::KEY_AESCTR].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
-			mBodyKeys.aes_ctr.isSet = true;
-			
-			nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[0], mHdr.getEncAesKeys()[nx::nca::KEY_AESXTS_0].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
-			nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[1], mHdr.getEncAesKeys()[nx::nca::KEY_AESXTS_1].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
-			mBodyKeys.aes_xts.isSet = true;
-		}
-	}
-
-	// if the keys weren't generated, check if the keys were supplied by the user
-	if (mBodyKeys.aes_ctr.isSet == false && mKeyset->nca.manual_body_key_aesctr != zero_aesctr_key)
-	{
-		mBodyKeys.aes_ctr = mKeyset->nca.manual_body_key_aesctr;
-	}
-	if (mBodyKeys.aes_xts.isSet == false && mKeyset->nca.manual_body_key_aesxts != zero_aesxts_key)
-	{
-		mBodyKeys.aes_xts = mKeyset->nca.manual_body_key_aesxts;
-	}
-}
 
 void NcaProcess::processPartitions()
 {
 	for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
 	{
-		const nx::NcaHeader::sPartition& partition = mHdr.getPartitions()[i];
-		nx::sNcaFsHeader& fs_header = mHdrBlock.fs_header[partition.index];
-
-		crypto::aes::sAesIvCtr ctr;
-		nx::NcaUtils::getNcaPartitionAesCtr(&fs_header, ctr.iv);
-
-		// create reader
-		fnd::IFile* partitionReader = nullptr;
-
-		AesCtrWrappedIFile aesCtrFile = AesCtrWrappedIFile(mReader, mBodyKeys.aes_ctr.var, ctr);
-		switch(fs_header.encryption_type)
-		{
-			case (nx::nca::CRYPT_AESXTS):
-			case (nx::nca::CRYPT_AESCTREX):
-				partitionReader = nullptr;
-				break;
-			case (nx::nca::CRYPT_AESCTR):
-				partitionReader = mBodyKeys.aes_ctr.isSet? &aesCtrFile : nullptr;
-				break;
-			case (nx::nca::CRYPT_NONE):
-				partitionReader = mReader;
-				break;
-		}
+		size_t index = mHdr.getPartitions()[i].index;
+		struct sPartitionInfo& partition = mPartitions[index];
 
 		// if the reader is null, skip
-		if (partitionReader == nullptr)
+		if (partition.reader == nullptr)
 		{
-			printf("[WARNING] NCA Partition %d not readable\n", partition.index);
+			printf("[WARNING] NCA Partition %d not readable\n", index);
 			continue;
 		}
 
-		size_t data_offset = 0;
-		switch (fs_header.hash_type)
-		{
-			case (nx::nca::HASH_HIERARCHICAL_SHA256):
-				data_offset = fs_header.hierarchicalsha256_header.hash_target.offset.get();
-				break;
-			case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
-				data_offset = fs_header.ivfc_header.level_header[5].logical_offset.get();
-				break;
-			case (nx::nca::HASH_NONE):
-				data_offset = 0;
-				break;
-			default:
-				throw fnd::Exception(kModuleName, "Unknown hash type");
-		}
-
-		if (fs_header.format_type == nx::nca::FORMAT_PFS0)
+		if (partition.format_type == nx::nca::FORMAT_PFS0)
 		{
 			PfsProcess pfs;
-			pfs.setInputFile(partitionReader);
-			pfs.setInputFileOffset(partition.offset + data_offset);
+			pfs.setInputFile(partition.reader);
+			pfs.setInputFileOffset(partition.offset + partition.data_offset);
 			pfs.setCliOutputMode(mCliOutputType);
 			pfs.setListFs(mListFs);
-			if (mPartitionPath[partition.index].doExtract)
-				pfs.setExtractPath(mPartitionPath[partition.index].path);
+			if (mPartitionPath[index].doExtract)
+				pfs.setExtractPath(mPartitionPath[index].path);
+			//printf("pfs.process(%lx)\n",partition.data_offset);
 			pfs.process();
+			//printf("pfs.process() end\n");
 		}
-		else if (fs_header.format_type == nx::nca::FORMAT_ROMFS)
+		else if (partition.format_type == nx::nca::FORMAT_ROMFS)
 		{
 			RomfsProcess romfs;
-			romfs.setInputFile(partitionReader);
-			romfs.setInputFileOffset(partition.offset + data_offset);
+			romfs.setInputFile(partition.reader);
+			romfs.setInputFileOffset(partition.offset + partition.data_offset);
 			romfs.setCliOutputMode(mCliOutputType);
 			romfs.setListFs(mListFs);
-			if (mPartitionPath[partition.index].doExtract)
-				romfs.setExtractPath(mPartitionPath[partition.index].path);
+			if (mPartitionPath[index].doExtract)
+				romfs.setExtractPath(mPartitionPath[index].path);
+			//printf("romfs.process(%lx)\n", partition.data_offset);
 			romfs.process();
-		}
-		else
-		{
-			throw fnd::Exception(kModuleName, "Unknown format type");
+			//printf("romfs.process() end\n");
 		}
 	}
 }
@@ -324,15 +463,22 @@ NcaProcess::NcaProcess() :
 	mVerify(false),
 	mListFs(false)
 {
-	mPartitionPath[0].doExtract = false;
-	mPartitionPath[1].doExtract = false;
-	mPartitionPath[2].doExtract = false;
-	mPartitionPath[3].doExtract = false;
+	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
+	{
+		mPartitionPath[i].doExtract = false;
+		mPartitions[i].reader = nullptr;
+	}
 }
 
 NcaProcess::~NcaProcess()
 {
-
+	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
+	{
+		if (mPartitions[i].reader != nullptr)
+		{
+			delete mPartitions[i].reader;
+		}
+	}
 }
 
 void NcaProcess::process()
@@ -353,42 +499,25 @@ void NcaProcess::process()
 	// generate header hash
 	crypto::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader), mHdrHash.bytes);
 
-	// validate signature[0]
-	if (mVerify)
-	{
-		if (crypto::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
-		{
-			// this is minimal even though it's a warning because it's a validation method
-			if (mCliOutputType >= OUTPUT_MINIMAL)
-				printf("[WARNING] NCA Header Main Signature: FAIL \n");
-		}
-	}
-
 	// proccess main header
 	mHdr.importBinary((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader));
 
-	// validate fs headers
-	if (mVerify)
-	{
-		crypto::sha::sSha256Hash calc_hash;
-
-		for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
-		{
-			const nx::NcaHeader::sPartition& partition = mHdr.getPartitions()[i];
-
-			crypto::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.index], sizeof(nx::sNcaFsHeader), calc_hash.bytes);
-
-			if (calc_hash.compare(partition.hash) == false)
-			{
-				// this is minimal even though it's a warning because it's a validation method
-				if (mCliOutputType >= OUTPUT_MINIMAL)
-					printf("[WARNING] NCA FsHeader[%d] Hash: FAIL \n", partition.index);
-			}
-		}
-	}
-
 	// determine keys
-	
+	generateNcaBodyEncryptionKeys();
+
+	// import/generate fs header data
+	generatePartitionConfiguration();
+
+	// validate signatures
+	if (mVerify)
+		validateNcaSignatures();
+
+	// display header
+	if (mCliOutputType >= OUTPUT_NORMAL)
+		displayHeader();
+
+	// process partition
+	processPartitions();
 
 	/*
 	NCA is a file container
@@ -413,12 +542,9 @@ void NcaProcess::process()
 
 
 	// decrypt key area
-	generateNcaBodyEncryptionKeys();
+	
 
-	if (mCliOutputType >= OUTPUT_NORMAL)
-		displayHeader();
-
-	processPartitions();
+	
 }
 
 void NcaProcess::setInputFile(fnd::IFile* reader)
