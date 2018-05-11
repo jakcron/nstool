@@ -6,7 +6,7 @@ namespace fnd
 	class IFile
 	{
 	public:
-		virtual ~IFile() = 0;
+		inline virtual ~IFile() {}
 
 		virtual size_t size() = 0;
 		virtual void seek(size_t offset) = 0;
