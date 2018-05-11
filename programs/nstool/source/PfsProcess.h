@@ -51,5 +51,4 @@ private:
 	bool validateHeaderMagic(const nx::sPfsHeader* hdr);
 	void validateHfs();
 	void extractFs();
-	
 };
