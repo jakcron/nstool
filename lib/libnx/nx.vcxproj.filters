@@ -144,6 +144,12 @@
     <ClInclude Include="include\nx\hierarchicalsha256.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nx\ContentMetaBinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\cmnt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AciBinary.cpp">
@@ -243,6 +249,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\XciUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ContentMetaBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

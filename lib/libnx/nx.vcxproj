@@ -24,6 +24,8 @@
     <ClInclude Include="include\nx\AcidBinary.h" />
     <ClInclude Include="include\nx\AciHeader.h" />
     <ClInclude Include="include\nx\AesKeygen.h" />
+    <ClInclude Include="include\nx\cmnt.h" />
+    <ClInclude Include="include\nx\ContentMetaBinary.h" />
     <ClInclude Include="include\nx\FacBinary.h" />
     <ClInclude Include="include\nx\FacHeader.h" />
     <ClInclude Include="include\nx\HandleTableSizeEntry.h" />
@@ -68,6 +70,7 @@
     <ClCompile Include="source\AcidBinary.cpp" />
     <ClCompile Include="source\AciHeader.cpp" />
     <ClCompile Include="source\AesKeygen.cpp" />
+    <ClCompile Include="source\ContentMetaBinary.cpp" />
     <ClCompile Include="source\FacBinary.cpp" />
     <ClCompile Include="source\FacHeader.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
