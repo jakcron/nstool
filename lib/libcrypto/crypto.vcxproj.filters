@@ -27,9 +27,6 @@
     <ClInclude Include="include\crypto\aes.h">
       <Filter>Header Files\crypto</Filter>
     </ClInclude>
-    <ClInclude Include="include\crypto\AesCtrStream.h">
-      <Filter>Header Files\crypto</Filter>
-    </ClInclude>
     <ClInclude Include="include\crypto\rsa.h">
       <Filter>Header Files\crypto</Filter>
     </ClInclude>
@@ -69,9 +66,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\aes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\AesCtrStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\rsa.cpp">
