@@ -104,7 +104,9 @@ void XciProcess::displayHeader()
 	printf("  Wait1TimeWrite:       0x%x\n", mHdr.getWait1TimeWrite());
 	printf("  Wait2TimeWrite:       0x%x\n", mHdr.getWait2TimeWrite());
 	printf("  FwMode:               0x%x\n", mHdr.getFwMode());
-	printf("  UppVersion:           %d\n", mHdr.getUppVersion());
+#define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
+	printf("  UppVersion:           v%" PRId32 " (%d.%d.%d.%d)\n", mHdr.getUppVersion(), _SPLIT_VER(mHdr.getUppVersion()));
+#undef _SPLIT_VER
 	printf("  UppHash:              ");
 	fnd::SimpleTextOutput::hexDump(mHdr.getUppHash(), 8);
 	printf("  UppId:                %016" PRIx64 "\n", mHdr.getUppId());

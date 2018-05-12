@@ -308,8 +308,9 @@ void NcaProcess::displayHeader()
 	printf("  Size:            0x%" PRIx64 "\n", mHdr.getContentSize());
 	printf("  ProgID:          0x%016" PRIx64 "\n", mHdr.getProgramId());
 	printf("  Content Index:   %" PRIu32 "\n", mHdr.getContentIndex());
-	uint32_t ver = mHdr.getSdkAddonVersion();
-	printf("  SdkAddon Ver.:   v%d.%d.%d (v%" PRIu32 ")\n", (ver>>24 & 0xff),(ver>>16 & 0xff),(ver>>8 & 0xff), ver);
+#define _SPLIT_VER(ver) ( (ver>>24) & 0xff), ( (ver>>16) & 0xff), ( (ver>>8) & 0xff)
+	printf("  SdkAddon Ver.:   v%" PRIu32 " (%d.%d.%d)\n", mHdr.getSdkAddonVersion(), _SPLIT_VER(mHdr.getSdkAddonVersion()));
+#undef _SPLIT_VER
 	printf("  RightsId:        ");
 	fnd::SimpleTextOutput::hexDump(mHdr.getRightsId(), nx::nca::kRightsIdLen);
 	printf("  Key Area Keys: (Encrypted)\n");

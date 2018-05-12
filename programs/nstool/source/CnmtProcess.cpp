@@ -16,7 +16,7 @@ const std::string kContentTypeStr[7] =
 const std::string kContentMetaTypeStr[2][0x80] =
 {
 	{
-		""
+		"",
 		"SystemProgram",
 		"SystemData",
 		"SystemUpdate",
@@ -56,33 +56,31 @@ inline const char* getBoolStr(bool isTrue)
 
 void CnmtProcess::displayCmnt()
 {
-#define _SPLIT_VER(ver) ( (ver>>24) & 0xff), ( (ver>>16) & 0xff), ( (ver>>8) & 0xff), (ver & 0xff)
+#define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
 
 	printf("[ContentMeta]\n");
-	printf("  TitleId:               0x%" PRIx64 "\n", mCnmt.getTitleId());
-	uint32_t ver = mCnmt.getTitleVersion();
-	printf("  Version:               v%d.%d.%d-%d (v%" PRId32 ")\n", _SPLIT_VER(ver), ver);
-	printf("  Type:                  %s\n", getContentMetaTypeStr(mCnmt.getType()).c_str());
+	printf("  TitleId:               0x%016" PRIx64 "\n", mCnmt.getTitleId());
+	printf("  Version:               v%" PRId32 " (%d.%d.%d.%d)\n", mCnmt.getTitleVersion(), _SPLIT_VER(mCnmt.getTitleVersion()));
+	printf("  Type:                  %s (%d)\n", getContentMetaTypeStr(mCnmt.getType()).c_str(), mCnmt.getType());
 	printf("  Attributes:            %x\n", mCnmt.getAttributes());
 	printf("    IncludesExFatDriver: %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nx::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)));
 	printf("    Rebootless:          %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nx::cnmt::ATTRIBUTE_REBOOTLESS)));
-	ver = mCnmt.getRequiredDownloadSystemVersion();
-	printf("  RequiredDownloadSystemVersion: v%d.%d.%d-%d (v%" PRId32 ")\n", _SPLIT_VER(ver), ver);
+	printf("  RequiredDownloadSystemVersion: v%" PRId32 " (%d.%d.%d.%d)\n", mCnmt.getRequiredDownloadSystemVersion(), _SPLIT_VER(mCnmt.getRequiredDownloadSystemVersion()));
 	switch(mCnmt.getType())
 	{
 		case (nx::cnmt::METATYPE_APPLICATION):
 			printf("  ApplicationExtendedHeader:\n");
-			printf("    RequiredSystemVersion: %" PRId32 "\n", mCnmt.getApplicationMetaExtendedHeader().required_system_version);
+			printf("    RequiredSystemVersion: v%" PRId32 " (%d.%d.%d.%d)\n", mCnmt.getApplicationMetaExtendedHeader().required_system_version, _SPLIT_VER(mCnmt.getApplicationMetaExtendedHeader().required_system_version));
 			printf("    PatchId:               0x%016" PRIx64 "\n", mCnmt.getApplicationMetaExtendedHeader().patch_id);
 			break;
 		case (nx::cnmt::METATYPE_PATCH):
 			printf("  PatchMetaExtendedHeader:\n");
-			printf("    RequiredSystemVersion: %" PRId32 "\n", mCnmt.getPatchMetaExtendedHeader().required_system_version);
+			printf("    RequiredSystemVersion: v%" PRId32 " (%d.%d.%d.%d))\n", mCnmt.getPatchMetaExtendedHeader().required_system_version, _SPLIT_VER(mCnmt.getPatchMetaExtendedHeader().required_system_version));
 			printf("    ApplicationId:         0x%016" PRIx64 "\n", mCnmt.getPatchMetaExtendedHeader().application_id);
 			break;
 		case (nx::cnmt::METATYPE_ADD_ON_CONTENT):
 			printf("  AddOnContentMetaExtendedHeader:\n");
-			printf("    RequiredSystemVersion: %" PRId32 "\n", mCnmt.getAddOnContentMetaExtendedHeader().required_system_version);
+			printf("    RequiredSystemVersion: v%" PRId32 " (%d.%d.%d.%d)\n", mCnmt.getAddOnContentMetaExtendedHeader().required_system_version, _SPLIT_VER(mCnmt.getAddOnContentMetaExtendedHeader().required_system_version));
 			printf("    ApplicationId:         0x%016" PRIx64 "\n", mCnmt.getAddOnContentMetaExtendedHeader().application_id);
 			break;
 		case (nx::cnmt::METATYPE_DELTA):
@@ -114,9 +112,8 @@ void CnmtProcess::displayCmnt()
 		{
 			const nx::ContentMetaBinary::ContentMetaInfo& info = mCnmt.getContentMetaInfo()[i];
 			printf("    %d\n", i);
-			printf("      Id:           0x%" PRIx64 "\n", info.id);
-			ver = info.version;
-			printf("      Version:      v%d.%d.%d-%d (v%" PRId32 ")\n", _SPLIT_VER(ver), ver);
+			printf("      Id:           0x%016" PRIx64 "\n", info.id);
+			printf("      Version:      v%" PRId32 " (%d.%d.%d.%d)\n", info.version, _SPLIT_VER(info.version));
 			printf("      Type:         %s\n", getContentMetaTypeStr(info.type).c_str());
 			printf("      Attributes:   %x\n", mCnmt.getAttributes());
 			printf("        IncludesExFatDriver: %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nx::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)));
