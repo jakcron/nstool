@@ -89,13 +89,12 @@ public:
 	};
 
 	RomfsProcess();
+	~RomfsProcess();
 
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* reader);
-	void setInputFileOffset(size_t offset);
-	void setKeyset(const sKeyset* keyset);
+	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
 
@@ -110,8 +109,6 @@ private:
 	static const size_t kFileExportBlockSize = 0x1000000;
 
 	fnd::IFile* mReader;
-	size_t mOffset;
-	const sKeyset* mKeyset;
 	CliOutputType mCliOutputType;
 	bool mVerify;
 

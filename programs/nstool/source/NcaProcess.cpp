@@ -2,10 +2,10 @@
 #include <fnd/SimpleTextOutput.h>
 #include <nx/NcaUtils.h>
 #include <nx/AesKeygen.h>
-#include <nx/NpdmBinary.h>
 #include "NcaProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
+#include "NpdmProcess.h"
 #include "OffsetAdjustedIFile.h"
 #include "AesCtrWrappedIFile.h"
 #include "CopiedIFile.h"
@@ -199,10 +199,11 @@ void NcaProcess::generatePartitionConfiguration()
 				throw fnd::Exception(kModuleName, error.str());
 		}
 
-		// determine the data offset
+		// determine the data offset & size
 		if (mPartitions[partition.index].hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
 		{
 			mPartitions[partition.index].data_offset = mPartitions[partition.index].hierarchicalsha256_header.hash_target.offset.get();
+			mPartitions[partition.index].data_size = mPartitions[partition.index].hierarchicalsha256_header.hash_target.size.get();
 		}
 		else if (mPartitions[partition.index].hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
 		{
@@ -211,6 +212,7 @@ void NcaProcess::generatePartitionConfiguration()
 				if (mPartitions[partition.index].ivfc_header.level_header[nx::ivfc::kMaxIvfcLevel-1-j].logical_offset.get() != 0)
 				{
 					mPartitions[partition.index].data_offset = mPartitions[partition.index].ivfc_header.level_header[nx::ivfc::kMaxIvfcLevel-1-j].logical_offset.get();
+					mPartitions[partition.index].data_size = mPartitions[partition.index].ivfc_header.level_header[nx::ivfc::kMaxIvfcLevel-1-j].hash_data_size.get();
 					break;
 				}
 			}
@@ -245,25 +247,21 @@ void NcaProcess::validateNcaSignatures()
 			if (mPartitions[0].reader != nullptr)
 			{
 				PfsProcess exefs;
-				exefs.setInputFile(mPartitions[0].reader);
-				exefs.setInputFileOffset(mPartitions[0].offset + mPartitions[0].data_offset);
+				exefs.setInputFile(mPartitions[0].reader, mPartitions[0].offset + mPartitions[0].data_offset, mPartitions[0].data_size);
 				exefs.setCliOutputMode(OUTPUT_MINIMAL);
 				exefs.process();
 
 				// open main.npdm
 				if (exefs.getPfsHeader().getFileList().hasElement(kNpdmExefsPath) == true)
 				{
-					const nx::PfsHeader::sFile& npdmFile = exefs.getPfsHeader().getFileList()[exefs.getPfsHeader().getFileList().getIndexOf(kNpdmExefsPath)];
+					const nx::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList()[exefs.getPfsHeader().getFileList().getIndexOf(kNpdmExefsPath)];
 
-					fnd::MemoryBlob scratch;
-					scratch.alloc(npdmFile.size);
-					mPartitions[0].reader->read(scratch.getBytes(), mPartitions[0].offset + mPartitions[0].data_offset + npdmFile.offset, npdmFile.size);
+					NpdmProcess npdm;
+					npdm.setInputFile(mPartitions[0].reader, mPartitions[0].offset + mPartitions[0].data_offset + file.offset, file.size);
+					npdm.setCliOutputMode(OUTPUT_MINIMAL);
+					npdm.process();
 
-					nx::NpdmBinary npdmBinary;
-
-					npdmBinary.importBinary(scratch.getBytes(), scratch.getSize());
-
-					if (crypto::rsa::pss::rsaVerify(npdmBinary.getAcid().getNcaHeader2RsaKey(), crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					if (crypto::rsa::pss::rsaVerify(npdm.getNpdmBinary().getAcid().getNcaHeader2RsaKey(), crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
 						// this is minimal even though it's a warning because it's a validation method
 						if (mCliOutputType >= OUTPUT_MINIMAL)
@@ -429,8 +427,7 @@ void NcaProcess::processPartitions()
 		if (partition.format_type == nx::nca::FORMAT_PFS0)
 		{
 			PfsProcess pfs;
-			pfs.setInputFile(partition.reader);
-			pfs.setInputFileOffset(partition.offset + partition.data_offset);
+			pfs.setInputFile(partition.reader, partition.offset + partition.data_offset, partition.data_size);
 			pfs.setCliOutputMode(mCliOutputType);
 			pfs.setListFs(mListFs);
 			if (mPartitionPath[index].doExtract)
@@ -442,8 +439,7 @@ void NcaProcess::processPartitions()
 		else if (partition.format_type == nx::nca::FORMAT_ROMFS)
 		{
 			RomfsProcess romfs;
-			romfs.setInputFile(partition.reader);
-			romfs.setInputFileOffset(partition.offset + partition.data_offset);
+			romfs.setInputFile(partition.reader, partition.offset + partition.data_offset, partition.data_size);
 			romfs.setCliOutputMode(mCliOutputType);
 			romfs.setListFs(mListFs);
 			if (mPartitionPath[index].doExtract)
@@ -457,7 +453,6 @@ void NcaProcess::processPartitions()
 
 NcaProcess::NcaProcess() :
 	mReader(nullptr),
-	mOffset(0),
 	mKeyset(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
@@ -472,6 +467,11 @@ NcaProcess::NcaProcess() :
 
 NcaProcess::~NcaProcess()
 {
+	if (mReader != nullptr)
+	{
+		delete mReader;
+	}
+
 	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
 	{
 		if (mPartitions[i].reader != nullptr)
@@ -491,7 +491,7 @@ void NcaProcess::process()
 	}
 	
 	// read header block
-	mReader->read((byte_t*)&mHdrBlock, mOffset, sizeof(nx::sNcaHeaderBlock));
+	mReader->read((byte_t*)&mHdrBlock, 0, sizeof(nx::sNcaHeaderBlock));
 	
 	// decrypt header block
 	nx::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
@@ -539,22 +539,11 @@ void NcaProcess::process()
 	  so the verification text can be presented without interuption
 
 	*/
-
-
-	// decrypt key area
-	
-
-	
 }
 
-void NcaProcess::setInputFile(fnd::IFile* reader)
+void NcaProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
 {
-	mReader = reader;
-}
-
-void NcaProcess::setInputFileOffset(size_t offset)
-{
-	mOffset = offset;
+	mReader = new OffsetAdjustedIFile(file, offset, size);
 }
 
 void NcaProcess::setKeyset(const sKeyset* keyset)

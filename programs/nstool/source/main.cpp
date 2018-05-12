@@ -6,6 +6,7 @@
 #include "RomfsProcess.h"
 #include "NcaProcess.h"
 #include "NpdmProcess.h"
+#include "CnmtProcess.h"
 
 
 int main(int argc, char** argv)
@@ -21,7 +22,7 @@ int main(int argc, char** argv)
 		{	
 			XciProcess xci;
 
-			xci.setInputFile(&inputFile);
+			xci.setInputFile(&inputFile, 0, inputFile.size());
 			
 			xci.setKeyset(&user_set.getKeyset());
 			xci.setCliOutputMode(user_set.getCliOutputType());
@@ -41,8 +42,7 @@ int main(int argc, char** argv)
 		{
 			PfsProcess pfs;
 
-			pfs.setInputFile(&inputFile);
-			pfs.setKeyset(&user_set.getKeyset());
+			pfs.setInputFile(&inputFile, 0, inputFile.size());
 			pfs.setCliOutputMode(user_set.getCliOutputType());
 			pfs.setVerifyMode(user_set.isVerifyFile());
 
@@ -56,8 +56,7 @@ int main(int argc, char** argv)
 		{
 			RomfsProcess romfs;
 
-			romfs.setInputFile(&inputFile);
-			romfs.setKeyset(&user_set.getKeyset());
+			romfs.setInputFile(&inputFile, 0, inputFile.size());
 			romfs.setCliOutputMode(user_set.getCliOutputType());
 			romfs.setVerifyMode(user_set.isVerifyFile());
 
@@ -71,7 +70,7 @@ int main(int argc, char** argv)
 		{
 			NcaProcess nca;
 
-			nca.setInputFile(&inputFile);
+			nca.setInputFile(&inputFile, 0, inputFile.size());
 			nca.setKeyset(&user_set.getKeyset());
 			nca.setCliOutputMode(user_set.getCliOutputType());
 			nca.setVerifyMode(user_set.isVerifyFile());
@@ -93,12 +92,22 @@ int main(int argc, char** argv)
 		{
 			NpdmProcess npdm;
 
-			npdm.setInputFile(&inputFile);
+			npdm.setInputFile(&inputFile, 0, inputFile.size());
 			npdm.setKeyset(&user_set.getKeyset());
 			npdm.setCliOutputMode(user_set.getCliOutputType());
 			npdm.setVerifyMode(user_set.isVerifyFile());
 
 			npdm.process();
+		}
+		else if (user_set.getFileType() == FILE_CNMT)
+		{
+			CnmtProcess cnmt;
+
+			cnmt.setInputFile(&inputFile, 0, inputFile.size());
+			cnmt.setCliOutputMode(user_set.getCliOutputType());
+			cnmt.setVerifyMode(user_set.isVerifyFile());
+
+			cnmt.process();
 		}
 	}
 	catch (const fnd::Exception& e) {

@@ -7,7 +7,7 @@
 
 namespace nx
 {
-	namespace cmnt
+	namespace cnmt
 	{
 		enum ContentType
 		{
@@ -43,7 +43,6 @@ namespace nx
 
 		enum ContentMetaAttribute
 		{
-			ATTRIBUTE_NONE,
 			ATTRIBUTE_INCLUDES_EX_FAT_DRIVER,
 			ATTRIBUTE_REBOOTLESS
 		};
@@ -79,14 +78,14 @@ namespace nx
 		le_uint16_t content_meta_count;
 		byte_t attributes;
 		byte_t reserved_1[3];
-		le_uint32_t required_system_version;
+		le_uint32_t required_download_system_version;
 		byte_t reserved_2[4];
 	};
 
 	struct sContentInfo
 	{
 		crypto::sha::sSha256Hash content_hash;
-		byte_t content_id[cmnt::kContentIdLen];
+		byte_t content_id[cnmt::kContentIdLen];
 		le_uint32_t size_lower;
 		le_uint16_t size_higher;
 		byte_t content_type;
@@ -104,14 +103,14 @@ namespace nx
 
 	struct sApplicationMetaExtendedHeader
 	{
-		le_uint64_t id;
+		le_uint64_t patch_id;
 		le_uint32_t required_system_version;
 		byte_t reserved[4];
 	};
 
 	struct sPatchMetaExtendedHeader
 	{
-		le_uint64_t id;
+		le_uint64_t application_id;
 		le_uint32_t required_system_version;
 		le_uint32_t extended_data_size;
 		byte_t reserved[8];
@@ -119,21 +118,21 @@ namespace nx
 
 	struct sAddOnContentMetaExtendedHeader
 	{
-		le_uint64_t id;
+		le_uint64_t application_id;
 		le_uint32_t required_system_version;
 		byte_t reserved[4];
 	};
 
 	struct sDeltaMetaExtendedHeader
 	{
-		le_uint64_t id;
+		le_uint64_t application_id;
 		le_uint32_t extended_data_size;
 		byte_t reserved[4];
 	};
 
 	struct sDigest
 	{
-		byte_t data[cmnt::kDigestLen];
+		byte_t data[cnmt::kDigestLen];
 	};
 #pragma pack(pop)
 }

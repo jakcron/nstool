@@ -1,6 +1,7 @@
-#include "PfsProcess.h"
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
+#include "OffsetAdjustedIFile.h"
+#include "PfsProcess.h"
 
 void PfsProcess::displayHeader()
 {
@@ -55,7 +56,7 @@ void PfsProcess::validateHfs()
 	for (size_t i = 0; i < file.getSize(); i++)
 	{
 		scratch.alloc(file[i].hash_protected_size);
-		mReader->read(scratch.getBytes(), mOffset + file[i].offset, file[i].hash_protected_size);
+		mReader->read(scratch.getBytes(), file[i].offset, file[i].hash_protected_size);
 		crypto::sha::Sha256(scratch.getBytes(), scratch.getSize(), hash.bytes);
 		if (hash != file[i].hash)
 		{
@@ -85,7 +86,7 @@ void PfsProcess::extractFs()
 		fnd::io::appendToPath(file_path, mExtractPath);
 		fnd::io::appendToPath(file_path, file[i].name);
 		outFile.open(file_path, outFile.Create);
-		mReader->seek(mOffset + file[i].offset);
+		mReader->seek(file[i].offset);
 		for (size_t j = 0; j < (file[i].size / kFileExportBlockSize); j++)
 		{
 			mReader->read(scratch.getBytes(), kFileExportBlockSize);
@@ -102,8 +103,6 @@ void PfsProcess::extractFs()
 
 PfsProcess::PfsProcess() :
 	mReader(nullptr),
-	mOffset(0),
-	mKeyset(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
 	mExtractPath(),
@@ -112,7 +111,14 @@ PfsProcess::PfsProcess() :
 	mListFs(false),
 	mPfs()
 {
+}
 
+PfsProcess::~PfsProcess()
+{
+	if (mReader != nullptr)
+	{
+		delete mReader;
+	}
 }
 
 void PfsProcess::process()
@@ -126,7 +132,7 @@ void PfsProcess::process()
 	
 	// open minimum header to get full header size
 	scratch.alloc(sizeof(nx::sPfsHeader));
-	mReader->read(scratch.getBytes(), mOffset, scratch.getSize());
+	mReader->read(scratch.getBytes(), 0, scratch.getSize());
 	if (validateHeaderMagic(((nx::sPfsHeader*)scratch.getBytes())) == false)
 	{
 		throw fnd::Exception(kModuleName, "Corrupt Header");
@@ -135,7 +141,7 @@ void PfsProcess::process()
 	
 	// open minimum header to get full header size
 	scratch.alloc(pfsHeaderSize);
-	mReader->read(scratch.getBytes(), mOffset, scratch.getSize());
+	mReader->read(scratch.getBytes(), 0, scratch.getSize());
 	mPfs.importBinary(scratch.getBytes(), scratch.getSize());
 
 	if (mCliOutputType >= OUTPUT_NORMAL)
@@ -148,19 +154,9 @@ void PfsProcess::process()
 		extractFs();
 }
 
-void PfsProcess::setInputFile(fnd::IFile* reader)
+void PfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
 {
-	mReader = reader;
-}
-
-void PfsProcess::setInputFileOffset(size_t offset)
-{
-	mOffset = offset;
-}
-
-void PfsProcess::setKeyset(const sKeyset* keyset)
-{
-	mKeyset = keyset;
+	mReader = new OffsetAdjustedIFile(file, offset, size);
 }
 
 void PfsProcess::setCliOutputMode(CliOutputType type)

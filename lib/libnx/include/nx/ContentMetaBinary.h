@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
-#include <nx/cmnt.h>
+#include <nx/cnmt.h>
 
 
 namespace nx
@@ -14,14 +14,14 @@ namespace nx
 		struct ContentInfo
 		{
 			crypto::sha::sSha256Hash hash;
-			byte_t nca_id[cmnt::kContentIdLen];
+			byte_t nca_id[cnmt::kContentIdLen];
 			size_t size;
-			cmnt::ContentType type;
+			cnmt::ContentType type;
 
 			ContentInfo& operator=(const ContentInfo& other)
 			{
 				hash = other.hash;
-				memcpy(nca_id, other.nca_id, cmnt::kContentIdLen);
+				memcpy(nca_id, other.nca_id, cnmt::kContentIdLen);
 				size = other.size;
 				type = other.type;
 				return *this;
@@ -30,7 +30,7 @@ namespace nx
 			bool operator==(const ContentInfo& other) const
 			{
 				return (hash == other.hash) \
-					&& (memcmp(nca_id, other.nca_id, cmnt::kContentIdLen) == 0) \
+					&& (memcmp(nca_id, other.nca_id, cnmt::kContentIdLen) == 0) \
 					&& (size == other.size) \
 					&& (type == other.type);
 			}
@@ -45,7 +45,7 @@ namespace nx
 		{
 			uint64_t id;
 			uint32_t version;
-			cmnt::ContentMetaType type;
+			cnmt::ContentMetaType type;
 			byte_t attributes;
 
 			ContentMetaInfo& operator=(const ContentMetaInfo& other)
@@ -66,6 +66,99 @@ namespace nx
 			}
 
 			bool operator!=(const ContentMetaInfo& other) const
+			{
+				return !operator==(other);
+			}
+		};
+
+		struct ApplicationMetaExtendedHeader
+		{
+			uint64_t patch_id;
+			uint32_t required_system_version;
+
+			ApplicationMetaExtendedHeader& operator=(const ApplicationMetaExtendedHeader& other)
+			{
+				patch_id = other.patch_id;
+				required_system_version = other.required_system_version;
+				return *this;
+			}
+
+			bool operator==(const ApplicationMetaExtendedHeader& other) const
+			{
+				return (patch_id == other.patch_id) \
+					&& (required_system_version == other.required_system_version);
+			}
+
+			bool operator!=(const ApplicationMetaExtendedHeader& other) const
+			{
+				return !operator==(other);
+			}
+		};
+
+		struct PatchMetaExtendedHeader
+		{
+			uint64_t application_id;
+			uint32_t required_system_version;
+
+			PatchMetaExtendedHeader& operator=(const PatchMetaExtendedHeader& other)
+			{
+				application_id = other.application_id;
+				required_system_version = other.required_system_version;
+				return *this;
+			}
+
+			bool operator==(const PatchMetaExtendedHeader& other) const
+			{
+				return (application_id == other.application_id) \
+					&& (required_system_version == other.required_system_version);
+			}
+
+			bool operator!=(const PatchMetaExtendedHeader& other) const
+			{
+				return !operator==(other);
+			}
+		};
+
+		struct AddOnContentMetaExtendedHeader
+		{
+			uint64_t application_id;
+			uint32_t required_system_version;
+
+			AddOnContentMetaExtendedHeader& operator=(const AddOnContentMetaExtendedHeader& other)
+			{
+				application_id = other.application_id;
+				required_system_version = other.required_system_version;
+				return *this;
+			}
+
+			bool operator==(const AddOnContentMetaExtendedHeader& other) const
+			{
+				return (application_id == other.application_id) \
+					&& (required_system_version == other.required_system_version);
+			}
+
+			bool operator!=(const AddOnContentMetaExtendedHeader& other) const
+			{
+				return !operator==(other);
+			}
+		};
+
+		struct DeltaMetaExtendedHeader
+		{
+			uint64_t application_id;
+
+			DeltaMetaExtendedHeader& operator=(const DeltaMetaExtendedHeader& other)
+			{
+				application_id = other.application_id;
+				return *this;
+			}
+
+			bool operator==(const DeltaMetaExtendedHeader& other) const
+			{
+				return (application_id == other.application_id);
+			}
+
+			bool operator!=(const DeltaMetaExtendedHeader& other) const
 			{
 				return !operator==(other);
 			}
@@ -92,14 +185,26 @@ namespace nx
 		uint32_t getTitleVersion() const;
 		void setTitleVersion(uint32_t version);
 
-		cmnt::ContentMetaType getType() const;
-		void setType(cmnt::ContentMetaType type);
+		cnmt::ContentMetaType getType() const;
+		void setType(cnmt::ContentMetaType type);
 
 		byte_t getAttributes() const;
 		void setAttributes(byte_t attributes);
 
-		uint32_t getRequiredSystemVersion() const;
-		void setRequiredSystemVersion(uint32_t version);
+		uint32_t getRequiredDownloadSystemVersion() const;
+		void setRequiredDownloadSystemVersion(uint32_t version);
+
+		const ApplicationMetaExtendedHeader& getApplicationMetaExtendedHeader() const;
+		void setApplicationMetaExtendedHeader(const ApplicationMetaExtendedHeader& exhdr);
+
+		const PatchMetaExtendedHeader& getPatchMetaExtendedHeader() const;
+		void setPatchMetaExtendedHeader(const PatchMetaExtendedHeader& exhdr);
+
+		const AddOnContentMetaExtendedHeader& getAddOnContentMetaExtendedHeader() const;
+		void setAddOnContentMetaExtendedHeader(const AddOnContentMetaExtendedHeader& exhdr);
+
+		const DeltaMetaExtendedHeader& getDeltaMetaExtendedHeader() const;
+		void setDeltaMetaExtendedHeader(const DeltaMetaExtendedHeader& exhdr);
 
 		const fnd::List<nx::ContentMetaBinary::ContentInfo>& getContentInfo() const;
 		void setContentInfo(const fnd::List<nx::ContentMetaBinary::ContentInfo>& info);
@@ -123,10 +228,16 @@ namespace nx
 		// variables
 		uint64_t mTitleId;
 		uint32_t mTitleVersion;
-		cmnt::ContentMetaType mType;
+		cnmt::ContentMetaType mType;
 		byte_t mAttributes;
-		uint32_t mRequiredSystemVersion;
+		uint32_t mRequiredDownloadSystemVersion;
 		fnd::MemoryBlob mExtendedHeader;
+
+		ApplicationMetaExtendedHeader mApplicationMetaExtendedHeader;
+		PatchMetaExtendedHeader mPatchMetaExtendedHeader;
+		AddOnContentMetaExtendedHeader mAddOnContentMetaExtendedHeader;
+		DeltaMetaExtendedHeader mDeltaMetaExtendedHeader;
+
 		fnd::List<nx::ContentMetaBinary::ContentInfo> mContentInfo;
 		fnd::List<nx::ContentMetaBinary::ContentMetaInfo> mContentMetaInfo;
 		fnd::MemoryBlob mExtendedData;
@@ -137,11 +248,11 @@ namespace nx
 		inline size_t getContentMetaInfoOffset(size_t exhdrSize, size_t contentInfoNum) const { return getContentInfoOffset(exhdrSize) + contentInfoNum * sizeof(sContentInfo); }
 		inline size_t getExtendedDataOffset(size_t exhdrSize, size_t contentInfoNum, size_t contentMetaNum) const { return getContentMetaInfoOffset(exhdrSize, contentInfoNum) + contentMetaNum * sizeof(sContentMetaInfo); }
 		inline size_t getDigestOffset(size_t exhdrSize, size_t contentInfoNum, size_t contentMetaNum, size_t exdataSize) const { return getExtendedDataOffset(exhdrSize, contentInfoNum, contentMetaNum) + exdataSize; }
-		inline size_t getTotalSize(size_t exhdrSize, size_t contentInfoNum, size_t contentMetaNum, size_t exdataSize) const { return getDigestOffset(exhdrSize, contentInfoNum, contentMetaNum, exdataSize) + cmnt::kDigestLen; }
+		inline size_t getTotalSize(size_t exhdrSize, size_t contentInfoNum, size_t contentMetaNum, size_t exdataSize) const { return getDigestOffset(exhdrSize, contentInfoNum, contentMetaNum, exdataSize) + cnmt::kDigestLen; }
 
-		bool validateExtendedHeaderSize(cmnt::ContentMetaType type, size_t exhdrSize);
-		size_t getExtendedDataSize(cmnt::ContentMetaType type, const byte_t* data);
-		void validateBinary(const byte_t* bytes, size_t len);
+		bool validateExtendedHeaderSize(cnmt::ContentMetaType type, size_t exhdrSize) const;
+		size_t getExtendedDataSize(cnmt::ContentMetaType type, const byte_t* data) const;
+		void validateBinary(const byte_t* bytes, size_t len) const;
 
 		bool isEqual(const ContentMetaBinary& other) const;
 		void copyFrom(const ContentMetaBinary& other);

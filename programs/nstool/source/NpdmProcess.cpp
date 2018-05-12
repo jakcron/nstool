@@ -1,6 +1,5 @@
+#include "OffsetAdjustedIFile.h"
 #include "NpdmProcess.h"
-#include <fnd/SimpleFile.h>
-#include <fnd/MemoryBlob.h>
 
 const std::string kInstructionType[2] = { "32Bit", "64Bit" };
 const std::string kProcAddrSpace[4] = { "Unknown", "64Bit", "32Bit", "32Bit no reserved" };
@@ -619,11 +618,18 @@ void NpdmProcess::displayKernelCap(const nx::KcBinary& kern)
 
 NpdmProcess::NpdmProcess() :
 	mReader(nullptr),
-	mOffset(0),
 	mKeyset(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false)
 {
+}
+
+NpdmProcess::~NpdmProcess()
+{
+	if (mReader != nullptr)
+	{
+		delete mReader;
+	}
 }
 
 void NpdmProcess::process()
@@ -665,14 +671,9 @@ void NpdmProcess::process()
 	}
 }
 
-void NpdmProcess::setInputFile(fnd::IFile* reader)
+void NpdmProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
 {
-	mReader = reader;
-}
-
-void NpdmProcess::setInputFileOffset(size_t offset)
-{
-	mOffset = offset;
+	mReader = new OffsetAdjustedIFile(file, offset, size);
 }
 
 void NpdmProcess::setKeyset(const sKeyset* keyset)
@@ -688,4 +689,9 @@ void NpdmProcess::setCliOutputMode(CliOutputType type)
 void NpdmProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
+}
+
+const nx::NpdmBinary& NpdmProcess::getNpdmBinary() const
+{
+	return mNpdm;
 }

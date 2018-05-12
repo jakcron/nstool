@@ -15,8 +15,7 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* reader);
-	void setInputFileOffset(size_t offset);
+	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
 	void setKeyset(const sKeyset* keyset);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
@@ -34,7 +33,6 @@ private:
 
 	// user options
 	fnd::IFile* mReader;
-	size_t mOffset;
 	const sKeyset* mKeyset;
 	CliOutputType mCliOutputType;
 	bool mVerify;
@@ -63,8 +61,9 @@ private:
 	{
 		fnd::IFile* reader;
 		size_t offset;
-		size_t data_offset;
 		size_t size;
+		size_t data_offset;
+		size_t data_size;
 		nx::nca::FormatType format_type;
 		nx::nca::HashType hash_type;
 

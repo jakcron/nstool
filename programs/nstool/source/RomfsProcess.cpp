@@ -1,7 +1,8 @@
-#include "RomfsProcess.h"
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
+#include "OffsetAdjustedIFile.h"
+#include "RomfsProcess.h"
 
 void RomfsProcess::printTab(size_t tab) const
 {
@@ -87,7 +88,7 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 		
 		
 		outFile.open(file_path, outFile.Create);
-		mReader->seek(mOffset + dir.file_list[i].offset);
+		mReader->seek(dir.file_list[i].offset);
 		for (size_t j = 0; j < (dir.file_list[i].size / kFileExportBlockSize); j++)
 		{
 			mReader->read(scratch.getBytes(), kFileExportBlockSize);
@@ -186,7 +187,7 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 void RomfsProcess::resolveRomfs()
 {
 	// read header
-	mReader->read((byte_t*)&mHdr, mOffset, sizeof(nx::sRomfsHeader));
+	mReader->read((byte_t*)&mHdr, 0, sizeof(nx::sRomfsHeader));
 
 	// logic check on the header layout
 	if (validateHeaderLayout(&mHdr) == false)
@@ -196,13 +197,13 @@ void RomfsProcess::resolveRomfs()
 
 	// read directory nodes
 	mDirNodes.alloc(mHdr.sections[nx::romfs::DIR_NODE_TABLE].size.get());
-	mReader->read(mDirNodes.getBytes(), mOffset + mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.getSize());
+	mReader->read(mDirNodes.getBytes(), mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.getSize());
 	//printf("[RAW DIR NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mDirNodes.getBytes(), mDirNodes.getSize());
 
 	// read file nodes
 	mFileNodes.alloc(mHdr.sections[nx::romfs::FILE_NODE_TABLE].size.get());
-	mReader->read(mFileNodes.getBytes(), mOffset + mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.getSize());
+	mReader->read(mFileNodes.getBytes(), mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.getSize());
 	//printf("[RAW FILE NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mFileNodes.getBytes(), mFileNodes.getSize());
 	
@@ -223,8 +224,6 @@ void RomfsProcess::resolveRomfs()
 
 RomfsProcess::RomfsProcess() :
 	mReader(nullptr),
-	mOffset(0),
-	mKeyset(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
 	mExtractPath(),
@@ -237,6 +236,14 @@ RomfsProcess::RomfsProcess() :
 	mRootDir.name.clear();
 	mRootDir.dir_list.clear();
 	mRootDir.file_list.clear();
+}
+
+RomfsProcess::~RomfsProcess()
+{
+	if (mReader != nullptr)
+	{
+		delete mReader;
+	}
 }
 
 void RomfsProcess::process()
@@ -256,19 +263,9 @@ void RomfsProcess::process()
 		extractFs();
 }
 
-void RomfsProcess::setInputFile(fnd::IFile* reader)
+void RomfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
 {
-	mReader = reader;
-}
-
-void RomfsProcess::setInputFileOffset(size_t offset)
-{
-	mOffset = offset;
-}
-
-void RomfsProcess::setKeyset(const sKeyset* keyset)
-{
-	mKeyset = keyset;
+	mReader = new OffsetAdjustedIFile(file, offset, size);
 }
 
 void RomfsProcess::setCliOutputMode(CliOutputType type)
