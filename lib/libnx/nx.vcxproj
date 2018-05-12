@@ -28,6 +28,7 @@
     <ClInclude Include="include\nx\FacHeader.h" />
     <ClInclude Include="include\nx\HandleTableSizeEntry.h" />
     <ClInclude Include="include\nx\HandleTableSizeHandler.h" />
+    <ClInclude Include="include\nx\hierarchicalsha256.h" />
     <ClInclude Include="include\nx\IKernelCapabilityHandler.h" />
     <ClInclude Include="include\nx\InteruptEntry.h" />
     <ClInclude Include="include\nx\InteruptHandler.h" />
