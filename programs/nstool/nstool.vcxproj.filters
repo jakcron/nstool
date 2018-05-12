@@ -48,6 +48,9 @@
     <ClInclude Include="source\OffsetAdjustedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\CmntProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
@@ -75,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\OffsetAdjustedIFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CmntProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

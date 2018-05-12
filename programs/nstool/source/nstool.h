@@ -17,6 +17,7 @@ enum FileType
 	FILE_ROMFS,
 	FILE_NCA,
 	FILE_NPDM,
+	FILE_CMNT,
 	FILE_INVALID = -1,
 };
 

@@ -38,7 +38,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset\n");
 	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm]\n");
+	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cmnt]\n");
 	printf("      -y, --verify    Verify file\n");
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
@@ -565,17 +565,19 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 	FileType type;
 	if (str == "xci")
 		type = FILE_XCI;
-	else if	(  str == "partitionfs" \
-			|| str == "pfs" || str == "pfs0" \
-			|| str == "hfs" || str == "hfs0" \
-			|| str == "nsp")
+	else if (str == "partitionfs" \
+			 || str == "pfs" || str == "pfs0" \
+			 || str == "hfs" || str == "hfs0" \
+			 || str == "nsp")
 		type = FILE_PARTITIONFS;
-	else if	(str == "romfs")
+	else if (str == "romfs")
 		type = FILE_ROMFS;
-	else if	(str == "nca")
+	else if (str == "nca")
 		type = FILE_NCA;
-	else if	(str == "npdm")
+	else if (str == "npdm")
 		type = FILE_NPDM;
+	else if (str == "cmnt")
+		type = FILE_CMNT;
 	else
 		type = FILE_INVALID;
 
