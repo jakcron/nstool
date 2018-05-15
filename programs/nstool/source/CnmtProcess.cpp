@@ -97,7 +97,7 @@ void CnmtProcess::displayCmnt()
 		{
 			const nx::ContentMetaBinary::ContentInfo& info = mCnmt.getContentInfo()[i];
 			printf("    %d\n", i);
-			printf("      Type:         %s\n", kContentTypeStr[info.type].c_str());
+			printf("      Type:         %s (%d)\n", kContentTypeStr[info.type].c_str(), info.type);
 			printf("      Id:           ");
 			fnd::SimpleTextOutput::hexDump(info.nca_id, nx::cnmt::kContentIdLen);
 			printf("      Size:         0x%" PRIx64 "\n", info.size);
@@ -114,7 +114,7 @@ void CnmtProcess::displayCmnt()
 			printf("    %d\n", i);
 			printf("      Id:           0x%016" PRIx64 "\n", info.id);
 			printf("      Version:      v%" PRId32 " (%d.%d.%d.%d)\n", info.version, _SPLIT_VER(info.version));
-			printf("      Type:         %s\n", getContentMetaTypeStr(info.type).c_str());
+			printf("      Type:         %s (%d)\n", getContentMetaTypeStr(info.type).c_str(), info.type);
 			printf("      Attributes:   %x\n", mCnmt.getAttributes());
 			printf("        IncludesExFatDriver: %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nx::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)));
 			printf("        Rebootless:          %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nx::cnmt::ATTRIBUTE_REBOOTLESS)));
