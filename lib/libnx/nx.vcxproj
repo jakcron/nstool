@@ -24,7 +24,7 @@
     <ClInclude Include="include\nx\AcidBinary.h" />
     <ClInclude Include="include\nx\AciHeader.h" />
     <ClInclude Include="include\nx\AesKeygen.h" />
-    <ClInclude Include="include\nx\cmnt.h" />
+    <ClInclude Include="include\nx\cnmt.h" />
     <ClInclude Include="include\nx\ContentMetaBinary.h" />
     <ClInclude Include="include\nx\FacBinary.h" />
     <ClInclude Include="include\nx\FacHeader.h" />

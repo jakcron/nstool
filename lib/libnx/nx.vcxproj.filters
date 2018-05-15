@@ -147,7 +147,7 @@
     <ClInclude Include="include\nx\ContentMetaBinary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nx\cmnt.h">
+    <ClInclude Include="include\nx\cnmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -163,7 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\AesCtrWrappedIFile.h" />
-    <ClInclude Include="source\CmntProcess.h" />
+    <ClInclude Include="source\CnmtProcess.h" />
     <ClInclude Include="source\CopiedIFile.h" />
     <ClInclude Include="source\NcaProcess.h" />
     <ClInclude Include="source\NpdmProcess.h" />
@@ -177,7 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AesCtrWrappedIFile.cpp" />
-    <ClCompile Include="source\CmntProcess.cpp" />
+    <ClCompile Include="source\CnmtProcess.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\NcaProcess.cpp" />
     <ClCompile Include="source\NpdmProcess.cpp" />
