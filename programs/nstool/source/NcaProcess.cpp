@@ -62,6 +62,23 @@ std::string kKaekIndexStr[]
 	"System"
 };
 
+std::string kContentTypeForMountStr[]
+{
+	"program",
+	"meta",
+	"control",
+	"manual",
+	"data",
+	"publicdata"
+};
+
+std::string kProgramPartitionNameStr[]
+{
+	"code",
+	"data",
+	"logo"
+};
+
 void NcaProcess::generateNcaBodyEncryptionKeys()
 {
 	// create zeros key
@@ -431,6 +448,15 @@ void NcaProcess::processPartitions()
 			pfs.setInputFile(partition.reader, partition.offset + partition.data_offset, partition.data_size);
 			pfs.setCliOutputMode(mCliOutputType);
 			pfs.setListFs(mListFs);
+			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
+			{
+				pfs.setMountPointName(kContentTypeForMountStr[mHdr.getContentType()] + ":/" + kProgramPartitionNameStr[i]);
+			}
+			else
+			{
+				pfs.setMountPointName(kContentTypeForMountStr[mHdr.getContentType()] + ":/");
+			}
+			
 			if (mPartitionPath[index].doExtract)
 				pfs.setExtractPath(mPartitionPath[index].path);
 			//printf("pfs.process(%lx)\n",partition.data_offset);
@@ -443,6 +469,15 @@ void NcaProcess::processPartitions()
 			romfs.setInputFile(partition.reader, partition.offset + partition.data_offset, partition.data_size);
 			romfs.setCliOutputMode(mCliOutputType);
 			romfs.setListFs(mListFs);
+			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
+			{
+				romfs.setMountPointName(kContentTypeForMountStr[mHdr.getContentType()] + ":/" + kProgramPartitionNameStr[i]);
+			}
+			else
+			{
+				romfs.setMountPointName(kContentTypeForMountStr[mHdr.getContentType()] + ":/");
+			}
+
 			if (mPartitionPath[index].doExtract)
 				romfs.setExtractPath(mPartitionPath[index].path);
 			//printf("romfs.process(%lx)\n", partition.data_offset);
