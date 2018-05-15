@@ -242,12 +242,12 @@ void NcaProcess::validateNcaSignatures()
 	// validate signature[1]
 	if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
 	{
-		if (mPartitions[0].format_type == nx::nca::FORMAT_PFS0)
+		if (mPartitions[nx::nca::PARTITION_CODE].format_type == nx::nca::FORMAT_PFS0)
 		{
-			if (mPartitions[0].reader != nullptr)
+			if (mPartitions[nx::nca::PARTITION_CODE].reader != nullptr)
 			{
 				PfsProcess exefs;
-				exefs.setInputFile(mPartitions[0].reader, mPartitions[0].offset + mPartitions[0].data_offset, mPartitions[0].data_size);
+				exefs.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, mPartitions[nx::nca::PARTITION_CODE].offset + mPartitions[nx::nca::PARTITION_CODE].data_offset, mPartitions[nx::nca::PARTITION_CODE].data_size);
 				exefs.setCliOutputMode(OUTPUT_MINIMAL);
 				exefs.process();
 
@@ -257,7 +257,7 @@ void NcaProcess::validateNcaSignatures()
 					const nx::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList()[exefs.getPfsHeader().getFileList().getIndexOf(kNpdmExefsPath)];
 
 					NpdmProcess npdm;
-					npdm.setInputFile(mPartitions[0].reader, mPartitions[0].offset + mPartitions[0].data_offset + file.offset, file.size);
+					npdm.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, mPartitions[nx::nca::PARTITION_CODE].offset + mPartitions[nx::nca::PARTITION_CODE].data_offset + file.offset, file.size);
 					npdm.setCliOutputMode(OUTPUT_MINIMAL);
 					npdm.process();
 
