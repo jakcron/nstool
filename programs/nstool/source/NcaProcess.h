@@ -70,7 +70,7 @@ private:
 		union {
 			byte_t hash_superblock[nx::nca::kFsHeaderHashSuperblockLen];
 			nx::sHierarchicalSha256Header hierarchicalsha256_header;
-			nx::sIvfcHeader ivfc_header;
+			nx::sHierarchicalIntegrityHeader hierarchicalintergrity_header;
 		};
 	} mPartitions[nx::nca::kPartitionNum];
 

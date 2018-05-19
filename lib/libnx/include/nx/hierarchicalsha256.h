@@ -9,6 +9,8 @@ namespace nx
 	namespace hierarchicalsha256
 	{
 		static const size_t kDefaultLevelNum = 2;
+
+		static const size_t kMaxLayoutNum = 2;
 	}
 	
 #pragma pack(push,1)
@@ -16,12 +18,12 @@ namespace nx
 	{
 		crypto::sha::sSha256Hash master_hash;
 		le_uint32_t hash_block_size;
-		le_uint32_t hash_level_num;
+		le_uint32_t layer_num;
 		struct sLayout
 		{
 			le_uint64_t offset;
 			le_uint64_t size;
-		} hash_data, hash_target;
+		} layer[hierarchicalsha256::kMaxLayoutNum];
 	};
 #pragma pack(pop)
 }

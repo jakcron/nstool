@@ -5,7 +5,7 @@
 #include <crypto/sha.h>
 #include <crypto/rsa.h>
 #include <fnd/ISerialiseableBinary.h>
-#include <nx/ivfc.h>
+#include <nx/hierarchicalintegrity.h>
 #include <nx/hierarchicalsha256.h>
 
 namespace nx
@@ -123,7 +123,7 @@ namespace nx
 		union {
 			byte_t hash_superblock[nca::kFsHeaderHashSuperblockLen];
 			nx::sHierarchicalSha256Header hierarchicalsha256_header;
-			nx::sIvfcHeader ivfc_header;
+			nx::sHierarchicalIntegrityHeader hierarchicalintergrity_header;
 		};
 		crypto::aes::sAesIvCtr base_ctr;
 		byte_t reserved_1[0xB8];

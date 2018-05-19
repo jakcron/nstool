@@ -123,9 +123,6 @@
     <ClInclude Include="include\nx\AesKeygen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nx\ivfc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\nx\NcaUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -148,6 +145,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nx\cnmt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\hierarchicalintegrity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\HierarchicalSha256Header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\HierarchicalIntergrityHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -252,6 +258,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ContentMetaBinary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\HierarchicalIntegrityHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\HierarchicalSha256Header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

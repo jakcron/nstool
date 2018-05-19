@@ -30,11 +30,13 @@
     <ClInclude Include="include\nx\FacHeader.h" />
     <ClInclude Include="include\nx\HandleTableSizeEntry.h" />
     <ClInclude Include="include\nx\HandleTableSizeHandler.h" />
+    <ClInclude Include="include\nx\HierarchicalIntergrityHeader.h" />
     <ClInclude Include="include\nx\hierarchicalsha256.h" />
+    <ClInclude Include="include\nx\HierarchicalSha256Header.h" />
     <ClInclude Include="include\nx\IKernelCapabilityHandler.h" />
     <ClInclude Include="include\nx\InteruptEntry.h" />
     <ClInclude Include="include\nx\InteruptHandler.h" />
-    <ClInclude Include="include\nx\ivfc.h" />
+    <ClInclude Include="include\nx\hierarchicalintegrity.h" />
     <ClInclude Include="include\nx\KcBinary.h" />
     <ClInclude Include="include\nx\KernelCapability.h" />
     <ClInclude Include="include\nx\KernelVersionEntry.h" />
@@ -75,6 +77,8 @@
     <ClCompile Include="source\FacHeader.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
     <ClCompile Include="source\HandleTableSizeHandler.cpp" />
+    <ClCompile Include="source\HierarchicalIntegrityHeader.cpp" />
+    <ClCompile Include="source\HierarchicalSha256Header.cpp" />
     <ClCompile Include="source\InteruptEntry.cpp" />
     <ClCompile Include="source\InteruptHandler.cpp" />
     <ClCompile Include="source\KcBinary.cpp" />
