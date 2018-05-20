@@ -1,5 +1,5 @@
 #pragma once
-#include <nx/hierarchicalsha256.h>
+#include <nx/hierarchicalintegrity.h>
 #include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
 #include <fnd/ISerialiseableBinary.h>
@@ -14,21 +14,21 @@ namespace nx
 		{
 			size_t offset;
 			size_t size;
-			size_t hash_block_size;
+			size_t block_size;
 
 			void operator=(const sLayer& other)
 			{
 				offset = other.offset;
 				size = other.size;
-				hash_block_size = other.hash_block_size;
+				block_size = other.block_size;
 			}
 
-			bool operator==(const sLayer& other)
+			bool operator==(const sLayer& other) const
 			{
-				return (offset == other.offset && size == other.size && hash_block_size == other.hash_block_size);
+				return (offset == other.offset && size == other.size && block_size == other.block_size);
 			}
 
-			bool operator!=(const sLayer& other)
+			bool operator!=(const sLayer& other) const
 			{
 				return !(*this == other);
 			}

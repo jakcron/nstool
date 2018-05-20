@@ -5,8 +5,6 @@
 #include <crypto/sha.h>
 #include <crypto/rsa.h>
 #include <fnd/ISerialiseableBinary.h>
-#include <nx/hierarchicalintegrity.h>
-#include <nx/hierarchicalsha256.h>
 
 namespace nx
 {
@@ -21,7 +19,7 @@ namespace nx
 		static const size_t kAesKeyNum = 16;
 		static const size_t kRightsIdLen = 0x10;
 		static const size_t kKeyAreaEncryptionKeyNum = 3;
-		static const size_t kFsHeaderHashSuperblockLen = 0x130;
+		static const size_t kFsHeaderHashSuperblockLen = 0x138;
 		static const uint16_t kDefaultFsHeaderVersion = 2;
 
 		enum ProgramPartitionId
@@ -120,12 +118,8 @@ namespace nx
 		byte_t hash_type;
 		byte_t encryption_type;
 		byte_t reserved_0[3];
-		union {
-			byte_t hash_superblock[nca::kFsHeaderHashSuperblockLen];
-			nx::sHierarchicalSha256Header hierarchicalsha256_header;
-			nx::sHierarchicalIntegrityHeader hierarchicalintergrity_header;
-		};
-		crypto::aes::sAesIvCtr base_ctr;
+		byte_t hash_superblock[nca::kFsHeaderHashSuperblockLen];
+		byte_t aes_ctr_upper[8];
 		byte_t reserved_1[0xB8];
 	};
 

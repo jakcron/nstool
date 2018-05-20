@@ -21,12 +21,12 @@ namespace nx
 				size = other.size;
 			}
 
-			bool operator==(const sLayer& other)
+			bool operator==(const sLayer& other) const
 			{
 				return (offset == other.offset && size == other.size);
 			}
 
-			bool operator!=(const sLayer& other)
+			bool operator!=(const sLayer& other) const
 			{
 				return !(*this == other);
 			}

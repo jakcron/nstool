@@ -10,9 +10,9 @@ namespace nx
 	namespace hierarchicalintegrity
 	{
 		const std::string kStructSig = "IVFC";
-		static const uint32_t kTypeId = 0x20000;
-		static const size_t kMaxLayerNum = 7;
-		static const size_t kMaxMasterHashNum = 3;
+		static const uint32_t kRomfsTypeId = 0x20000;
+		static const size_t kDefaultLayerNum = 6;
+		static const size_t kHeaderAlignLen = 0x20;
 	}
 	
 #pragma pack(push,1)
@@ -22,15 +22,14 @@ namespace nx
 		le_uint32_t type_id;
 		le_uint32_t master_hash_size;
 		le_uint32_t layer_num;
-		struct sLayer
-		{
-			le_uint64_t offset;
-			le_uint64_t size;
-			le_uint32_t block_size;
-			byte_t reserved[4];
-		} layer[hierarchicalintegrity::kMaxLayerNum];
-		byte_t reserved_00[0x8];
-		crypto::sha::sSha256Hash master_hash[hierarchicalintegrity::kMaxMasterHashNum];
+	};
+
+	struct sHierarchicalIntegrityLayerInfo // sizeof(0x18)
+	{
+		le_uint64_t offset;
+		le_uint64_t size;
+		le_uint32_t block_size;
+		byte_t reserved[4];
 	};
 #pragma pack(pop)
 }

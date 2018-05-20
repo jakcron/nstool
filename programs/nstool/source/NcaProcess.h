@@ -3,6 +3,9 @@
 #include <fnd/types.h>
 #include <fnd/SimpleFile.h>
 #include <nx/NcaHeader.h>
+#include <nx/HierarchicalSha256Header.h>
+#include <nx/HierarchicalIntegrityHeader.h>
+
 
 #include "nstool.h"
 
@@ -64,14 +67,15 @@ private:
 		size_t size;
 		size_t data_offset;
 		size_t data_size;
+
+		// meta data
+		uint16_t version;
 		nx::nca::FormatType format_type;
 		nx::nca::HashType hash_type;
-
-		union {
-			byte_t hash_superblock[nx::nca::kFsHeaderHashSuperblockLen];
-			nx::sHierarchicalSha256Header hierarchicalsha256_header;
-			nx::sHierarchicalIntegrityHeader hierarchicalintergrity_header;
-		};
+		nx::nca::EncryptionType enc_type;
+		nx::HierarchicalSha256Header hierarchicalsha256_header;
+		nx::HierarchicalIntegrityHeader hierarchicalintergrity_header;
+		crypto::aes::sAesIvCtr aes_ctr;
 	} mPartitions[nx::nca::kPartitionNum];
 
 	void generateNcaBodyEncryptionKeys();

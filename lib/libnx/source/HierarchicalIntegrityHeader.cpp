@@ -1,3 +1,4 @@
+#include <sstream>
 #include <nx/HierarchicalIntegrityHeader.h>
 
 nx::HierarchicalIntegrityHeader::HierarchicalIntegrityHeader()
@@ -47,7 +48,66 @@ void nx::HierarchicalIntegrityHeader::exportBinary()
 
 void nx::HierarchicalIntegrityHeader::importBinary(const byte_t * bytes, size_t len)
 {
-	throw fnd::Exception(kModuleName, "importBinary() not implemented");
+	std::stringstream error_str;
+
+	// validate size for at least header
+	if (len < sizeof(nx::sHierarchicalIntegrityHeader))
+	{
+		throw fnd::Exception(kModuleName, "Header too small");
+	}
+
+	const nx::sHierarchicalIntegrityHeader* hdr = (const nx::sHierarchicalIntegrityHeader*)bytes;
+
+	// Validate Header Sig "IVFC"
+	if (std::string(hdr->signature, 4) != hierarchicalintegrity::kStructSig)
+	{
+		throw fnd::Exception(kModuleName, "Invalid struct magic");
+	}
+
+	// Validate TypeId
+	if (hdr->type_id.get() != nx::hierarchicalintegrity::kRomfsTypeId)
+	{
+		error_str.clear();
+		error_str << "Unsupported type id (" << std::hex << hdr->type_id.get() << ")";
+		throw fnd::Exception(kModuleName, error_str.str());
+	}
+
+	// Validate Layer Num
+	if (hdr->layer_num.get() != hierarchicalintegrity::kDefaultLayerNum+1)
+	{
+		error_str.clear();
+		error_str << "Invalid layer count. ";
+		error_str << "(actual=" << std::dec << hdr->layer_num.get() << ", expected=" << nx::hierarchicalintegrity::kDefaultLayerNum+1 << ")";
+		throw fnd::Exception(kModuleName, error_str.str());
+	}
+	
+	// Get Sizes/Offsets
+	size_t master_hash_offset = align((sizeof(nx::sHierarchicalIntegrityHeader) + sizeof(nx::sHierarchicalIntegrityLayerInfo) * hdr->layer_num.get()), nx::hierarchicalintegrity::kHeaderAlignLen);
+	size_t total_size = master_hash_offset + hdr->master_hash_size.get();
+
+	// Validate total size
+	if (len < total_size)
+	{
+		throw fnd::Exception(kModuleName, "Header too small");
+	}
+
+	// copy to internal storage
+	mBinaryBlob.alloc(total_size);
+	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+
+	// save layer info
+	const nx::sHierarchicalIntegrityLayerInfo* layer_info = (const nx::sHierarchicalIntegrityLayerInfo*)(mBinaryBlob.getBytes() + sizeof(nx::sHierarchicalIntegrityHeader));
+	for (size_t i = 0; i < hierarchicalintegrity::kDefaultLayerNum; i++)
+	{
+		mLayerInfo.addElement({layer_info[i].offset.get(), layer_info[i].size.get(), layer_info[i].block_size.get()});
+	}
+
+	// save hash list
+	const crypto::sha::sSha256Hash* hash_list = (const crypto::sha::sSha256Hash*)(mBinaryBlob.getBytes() + master_hash_offset);
+	for (size_t i = 0; i < hdr->master_hash_size.get()/sizeof(crypto::sha::sSha256Hash); i++)
+	{
+		mMasterHashList.addElement(hash_list[i]);
+	}
 }
 
 void nx::HierarchicalIntegrityHeader::clear()

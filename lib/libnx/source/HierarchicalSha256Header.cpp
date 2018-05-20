@@ -49,6 +49,8 @@ void nx::HierarchicalSha256Header::exportBinary()
 
 void nx::HierarchicalSha256Header::importBinary(const byte_t * bytes, size_t len)
 {
+	std::stringstream error_str;
+
 	if (len < sizeof(nx::sHierarchicalSha256Header))
 	{
 		throw fnd::Exception(kModuleName, "Header too small");
@@ -56,13 +58,12 @@ void nx::HierarchicalSha256Header::importBinary(const byte_t * bytes, size_t len
 
 	const nx::sHierarchicalSha256Header* hdr = (const nx::sHierarchicalSha256Header*)bytes;
 
-	if (hdr->layer_num.get() != nx::hierarchicalsha256::kDefaultLevelNum)
+	if (hdr->layer_num.get() != nx::hierarchicalsha256::kDefaultLayerNum)
 	{
-		std::stringstream ss;
-		ss.clear();
-		ss << "Invalid layer count. ";
-		ss << "(actual=" << hdr->layer_num.get() << ", expected=" << nx::hierarchicalsha256::kDefaultLevelNum << ")";
-		throw fnd::Exception(kModuleName, ss.str());
+		error_str.clear();
+		error_str << "Invalid layer count. ";
+		error_str << "(actual=" << std::dec << hdr->layer_num.get() << ", expected=" << nx::hierarchicalsha256::kDefaultLayerNum << ")";
+		throw fnd::Exception(kModuleName, error_str.str());
 	}
 
 	mMasterHash = hdr->master_hash;
