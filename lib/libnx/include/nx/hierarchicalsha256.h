@@ -19,7 +19,7 @@ namespace nx
 		crypto::sha::sSha256Hash master_hash;
 		le_uint32_t hash_block_size;
 		le_uint32_t layer_num;
-		struct sLayout
+		struct sLayer
 		{
 			le_uint64_t offset;
 			le_uint64_t size;

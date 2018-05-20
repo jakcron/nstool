@@ -6,12 +6,12 @@
 
 namespace nx
 {
-	// Also known as HierarchicalIntegrity
+	// Also known to the public as IVFC
 	namespace hierarchicalintegrity
 	{
 		const std::string kStructSig = "IVFC";
-		static const size_t kMaxLayerNum = 7;
 		static const uint32_t kTypeId = 0x20000;
+		static const size_t kMaxLayerNum = 7;
 		static const size_t kMaxMasterHashNum = 3;
 	}
 	

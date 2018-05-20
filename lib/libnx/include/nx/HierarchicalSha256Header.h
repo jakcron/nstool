@@ -10,6 +10,27 @@ namespace nx
 		public fnd::ISerialiseableBinary
 	{
 	public:
+		struct sLayer
+		{
+			size_t offset;
+			size_t size;
+
+			void operator=(const sLayer& other)
+			{
+				offset = other.offset;
+				size = other.size;
+			}
+
+			bool operator==(const sLayer& other)
+			{
+				return (offset == other.offset && size == other.size);
+			}
+
+			bool operator!=(const sLayer& other)
+			{
+				return !(*this == other);
+			}
+		};
 
 		HierarchicalSha256Header();
 		HierarchicalSha256Header(const HierarchicalSha256Header& other);
@@ -30,7 +51,14 @@ namespace nx
 		// variables
 		void clear();
 
+		const crypto::sha::sSha256Hash& getMasterHash() const;
+		void setMasterHash(const crypto::sha::sSha256Hash& master_hash);
 
+		size_t getHashBlockSize() const;
+		void setHashBlockSize(size_t hash_block_size);
+
+		const fnd::List<sLayer>& getLayerInfo() const;
+		void setLayerInfo(const fnd::List<sLayer>& layer_info);
 	private:
 		const std::string kModuleName = "HIERARCHICAL_SHA256_HEADER";
 
@@ -38,10 +66,10 @@ namespace nx
 		fnd::MemoryBlob mBinaryBlob;
 
 		// data
+		crypto::sha::sSha256Hash mMasterHash;
+		size_t mHashBlockSize;
+		fnd::List<sLayer> mLayerInfo;
 
-
-		uint64_t blockNumToSize(uint32_t block_num) const;
-		uint32_t sizeToBlockNum(uint64_t real_size) const;
 		bool isEqual(const HierarchicalSha256Header& other) const;
 		void copyFrom(const HierarchicalSha256Header& other);
 	};
