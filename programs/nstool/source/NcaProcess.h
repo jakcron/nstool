@@ -64,8 +64,6 @@ private:
 		fnd::IFile* reader;
 		size_t offset;
 		size_t size;
-		size_t data_offset;
-		size_t data_size;
 
 		// meta data
 		nx::nca::FormatType format_type;

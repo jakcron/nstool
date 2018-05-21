@@ -9,6 +9,7 @@
 #include "OffsetAdjustedIFile.h"
 #include "AesCtrWrappedIFile.h"
 #include "CopiedIFile.h"
+#include "HashTreeWrappedIFile.h"
 
 std::string kFormatVersionStr[]
 {
@@ -205,10 +206,10 @@ void NcaProcess::generatePartitionConfiguration()
 				info.reader = nullptr;
 				break;
 			case (nx::nca::CRYPT_AESCTR):
-				info.reader = mBodyKeys.aes_ctr.isSet? new AesCtrWrappedIFile(mReader, mBodyKeys.aes_ctr.var, info.aes_ctr) : nullptr;
+				info.reader = mBodyKeys.aes_ctr.isSet? new OffsetAdjustedIFile(new AesCtrWrappedIFile(mReader, mBodyKeys.aes_ctr.var, info.aes_ctr), true, info.offset, info.size) : nullptr;
 				break;
 			case (nx::nca::CRYPT_NONE):
-				info.reader = new CopiedIFile(mReader);
+				info.reader = new OffsetAdjustedIFile(mReader, info.offset, info.size);
 				break;
 			default:
 				error.clear();
@@ -220,24 +221,36 @@ void NcaProcess::generatePartitionConfiguration()
 		switch (info.hash_type)
 		{
 			case (nx::nca::HASH_NONE):
-				info.data_offset = info.offset;
-				info.data_size = info.size;
 				break;
 			case (nx::nca::HASH_HIERARCHICAL_SHA256):
 				info.hash_tree_meta.importHierarchicalSha256Header(nx::HierarchicalSha256Header(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
-				info.data_offset = info.hash_tree_meta.getDataLayer().offset;
-				info.data_size = info.hash_tree_meta.getDataLayer().size;
+				//info.reader = (info.reader == nullptr) ? nullptr : new OffsetAdjustedIFile(info.reader, true, info.hash_tree_meta.getDataLayer().offset, info.hash_tree_meta.getDataLayer().size);
+				info.reader = (info.reader == nullptr) ? nullptr : new HashTreeWrappedIFile(info.reader, true, info.hash_tree_meta);
 				break;
 			case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
 				info.hash_tree_meta.importHierarchicalIntergityHeader(nx::HierarchicalIntegrityHeader(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
-				info.data_offset = info.hash_tree_meta.getDataLayer().offset;
-				info.data_size = info.hash_tree_meta.getDataLayer().size;
+				//info.reader = (info.reader == nullptr) ? nullptr : new OffsetAdjustedIFile(info.reader, true, info.hash_tree_meta.getDataLayer().offset, info.hash_tree_meta.getDataLayer().size);
+				info.reader = (info.reader == nullptr) ? nullptr : new HashTreeWrappedIFile(info.reader, true, info.hash_tree_meta);
 				break;
 			default:
 				error.clear();
 				error <<  "NCA FS Header [" << partition.index << "] HashType(" << info.hash_type << "): UNKNOWN \n";
 				throw fnd::Exception(kModuleName, error.str());
 		}
+
+		
+		/*
+		if (info.reader != nullptr)
+		{
+			fnd::MemoryBlob sss;
+			sss.alloc(info.reader->size());
+			info.reader->read(sss.getBytes(), sss.getSize());
+			printf("[%d] START\n", i);
+			fnd::SimpleTextOutput::hxdStyleDump(sss.getBytes(), 0x100);
+			printf("[%d] END\n", i);
+		}
+		*/
+		
 	}
 }
 
@@ -259,7 +272,7 @@ void NcaProcess::validateNcaSignatures()
 			if (mPartitions[nx::nca::PARTITION_CODE].reader != nullptr)
 			{
 				PfsProcess exefs;
-				exefs.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, mPartitions[nx::nca::PARTITION_CODE].offset + mPartitions[nx::nca::PARTITION_CODE].data_offset, mPartitions[nx::nca::PARTITION_CODE].data_size);
+				exefs.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, 0, mPartitions[nx::nca::PARTITION_CODE].reader->size());
 				exefs.setCliOutputMode(OUTPUT_MINIMAL);
 				exefs.process();
 
@@ -269,7 +282,7 @@ void NcaProcess::validateNcaSignatures()
 					const nx::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList()[exefs.getPfsHeader().getFileList().getIndexOf(kNpdmExefsPath)];
 
 					NpdmProcess npdm;
-					npdm.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, mPartitions[nx::nca::PARTITION_CODE].offset + mPartitions[nx::nca::PARTITION_CODE].data_offset + file.offset, file.size);
+					npdm.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, file.offset, file.size);
 					npdm.setCliOutputMode(OUTPUT_MINIMAL);
 					npdm.process();
 
@@ -431,7 +444,7 @@ void NcaProcess::processPartitions()
 		if (partition.format_type == nx::nca::FORMAT_PFS0)
 		{
 			PfsProcess pfs;
-			pfs.setInputFile(partition.reader, partition.offset + partition.data_offset, partition.data_size);
+			pfs.setInputFile(partition.reader, 0, partition.reader->size());
 			pfs.setCliOutputMode(mCliOutputType);
 			pfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
@@ -452,7 +465,7 @@ void NcaProcess::processPartitions()
 		else if (partition.format_type == nx::nca::FORMAT_ROMFS)
 		{
 			RomfsProcess romfs;
-			romfs.setInputFile(partition.reader, partition.offset + partition.data_offset, partition.data_size);
+			romfs.setInputFile(partition.reader, 0, partition.reader->size());
 			romfs.setCliOutputMode(mCliOutputType);
 			romfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
