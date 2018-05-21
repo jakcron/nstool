@@ -1,12 +1,31 @@
 #include "OffsetAdjustedIFile.h"
 
 OffsetAdjustedIFile::OffsetAdjustedIFile(fnd::IFile* file, size_t offset, size_t size) :
+	mOwnIFile(false),
 	mFile(file),
 	mBaseOffset(offset),
 	mCurrentOffset(0),
 	mSize(size)
 {
 
+}
+
+OffsetAdjustedIFile::OffsetAdjustedIFile(fnd::IFile* file, bool ownIFile, size_t offset, size_t size) :
+	mOwnIFile(ownIFile),
+	mFile(file),
+	mBaseOffset(offset),
+	mCurrentOffset(0),
+	mSize(size)
+{
+
+}
+
+OffsetAdjustedIFile::~OffsetAdjustedIFile()
+{
+	if (mOwnIFile)
+	{
+		delete mFile;
+	}
 }
 
 size_t OffsetAdjustedIFile::size()

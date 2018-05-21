@@ -1,11 +1,29 @@
 #include "AesCtrWrappedIFile.h"
 
 AesCtrWrappedIFile::AesCtrWrappedIFile(fnd::IFile* file, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr) :
+	mOwnIFile(false),
 	mFile(file),
 	mKey(key),
 	mBaseCtr(ctr)
 {
 	mScratch.alloc(kAesCtrScratchAllocSize);
+}
+
+AesCtrWrappedIFile::AesCtrWrappedIFile(fnd::IFile* file, bool ownIfile, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr) :
+	mOwnIFile(ownIfile),
+	mFile(file),
+	mKey(key),
+	mBaseCtr(ctr)
+{
+	mScratch.alloc(kAesCtrScratchAllocSize);
+}
+
+AesCtrWrappedIFile::~AesCtrWrappedIFile()
+{
+	if (mOwnIFile)
+	{
+		delete mFile;
+	}
 }
 
 size_t AesCtrWrappedIFile::size()

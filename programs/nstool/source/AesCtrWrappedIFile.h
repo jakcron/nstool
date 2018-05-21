@@ -6,6 +6,8 @@ class AesCtrWrappedIFile : public fnd::IFile
 {
 public:
 	AesCtrWrappedIFile(fnd::IFile* file, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr);
+	AesCtrWrappedIFile(fnd::IFile* file, bool ownIfile, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr);
+	~AesCtrWrappedIFile();
 
 	size_t size();
 	void seek(size_t offset);
@@ -18,6 +20,7 @@ private:
 	static const size_t kAesCtrScratchSize = 0x1000000;
 	static const size_t kAesCtrScratchAllocSize = kAesCtrScratchSize + crypto::aes::kAesBlockSize;
 
+	bool mOwnIFile;
 	fnd::IFile* mFile;
 	crypto::aes::sAes128Key mKey;
 	crypto::aes::sAesIvCtr mBaseCtr, mCurrentCtr;
