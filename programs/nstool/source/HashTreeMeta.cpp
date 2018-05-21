@@ -3,7 +3,8 @@
 HashTreeMeta::HashTreeMeta() :
 	mLayerInfo(),
 	mDataLayer(),
-	mMasterHashList()
+	mMasterHashList(),
+	mDoAlignHashToBlock(false)
 {
 
 }
@@ -11,7 +12,8 @@ HashTreeMeta::HashTreeMeta() :
 HashTreeMeta::HashTreeMeta(const nx::HierarchicalIntegrityHeader& hdr) :
 	mLayerInfo(),
 	mDataLayer(),
-	mMasterHashList()
+	mMasterHashList(),
+	mDoAlignHashToBlock(false)
 {
 	importHierarchicalIntergityHeader(hdr);
 }
@@ -19,7 +21,8 @@ HashTreeMeta::HashTreeMeta(const nx::HierarchicalIntegrityHeader& hdr) :
 HashTreeMeta::HashTreeMeta(const nx::HierarchicalSha256Header& hdr) :
 	mLayerInfo(),
 	mDataLayer(),
-	mMasterHashList()
+	mMasterHashList(),
+	mDoAlignHashToBlock(false)
 {
 	importHierarchicalSha256Header(hdr);
 }
@@ -41,6 +44,7 @@ void HashTreeMeta::operator=(const HashTreeMeta& other)
 
 void HashTreeMeta::importHierarchicalIntergityHeader(const nx::HierarchicalIntegrityHeader& hdr)
 {
+	mDoAlignHashToBlock = true;
 	for (size_t i = 0; i < hdr.getLayerInfo().getSize(); i++)
 	{
 		sLayer layer;
@@ -61,6 +65,7 @@ void HashTreeMeta::importHierarchicalIntergityHeader(const nx::HierarchicalInteg
 
 void HashTreeMeta::importHierarchicalSha256Header(const nx::HierarchicalSha256Header& hdr)
 {
+	mDoAlignHashToBlock = false;
 	for (size_t i = 0; i < hdr.getLayerInfo().getSize(); i++)
 	{
 		sLayer layer;
@@ -109,11 +114,22 @@ void  HashTreeMeta::setMasterHashList(const fnd::List<crypto::sha::sSha256Hash>&
 	mMasterHashList = master_hash_list;
 }
 
+bool HashTreeMeta::getAlignHashToBlock() const
+{
+	return mDoAlignHashToBlock;
+}
+
+void HashTreeMeta::setAlignHashToBlock(bool doAlign)
+{
+	mDoAlignHashToBlock = doAlign;
+}
+
 bool  HashTreeMeta::isEqual(const HashTreeMeta& other) const
 {
 	return (mLayerInfo == other.mLayerInfo) \
 		&& (mDataLayer == other.mDataLayer) \
-		&& (mMasterHashList == other.mMasterHashList);
+		&& (mMasterHashList == other.mMasterHashList) \
+		&& (mDoAlignHashToBlock == other.mDoAlignHashToBlock);
 }
 
 void  HashTreeMeta::copyFrom(const HashTreeMeta& other)
@@ -121,4 +137,5 @@ void  HashTreeMeta::copyFrom(const HashTreeMeta& other)
 	mLayerInfo = other.mLayerInfo;
 	mDataLayer = other.mDataLayer;
 	mMasterHashList = other.mMasterHashList;
+	mDoAlignHashToBlock = other.mDoAlignHashToBlock;
 }

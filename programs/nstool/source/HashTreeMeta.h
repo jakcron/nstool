@@ -48,12 +48,16 @@ public:
 
 	const fnd::List<crypto::sha::sSha256Hash>& getMasterHashList() const;
 	void setMasterHashList(const fnd::List<crypto::sha::sSha256Hash>& master_hash_list);
+
+	bool getAlignHashToBlock() const;
+	void setAlignHashToBlock(bool doAlign);
 private:
 
 	// data
 	fnd::List<sLayer> mLayerInfo;
 	sLayer mDataLayer;
-	fnd::List<crypto::sha::sSha256Hash> mMasterHashList;	
+	fnd::List<crypto::sha::sSha256Hash> mMasterHashList;
+	bool mDoAlignHashToBlock;	
 
 	bool isEqual(const HashTreeMeta& other) const;
 	void copyFrom(const HashTreeMeta& other);
