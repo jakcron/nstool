@@ -3,8 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/SimpleFile.h>
 #include <nx/NcaHeader.h>
-#include <nx/HierarchicalSha256Header.h>
-#include <nx/HierarchicalIntegrityHeader.h>
+#include "HashTreeMeta.h"
 
 
 #include "nstool.h"
@@ -72,8 +71,7 @@ private:
 		nx::nca::FormatType format_type;
 		nx::nca::HashType hash_type;
 		nx::nca::EncryptionType enc_type;
-		nx::HierarchicalSha256Header hash_sha256_header;
-		nx::HierarchicalIntegrityHeader hash_integ_header;
+		HashTreeMeta hash_tree_meta;
 		crypto::aes::sAesIvCtr aes_ctr;
 	} mPartitions[nx::nca::kPartitionNum];
 

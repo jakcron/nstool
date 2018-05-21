@@ -197,29 +197,6 @@ void NcaProcess::generatePartitionConfiguration()
 				throw fnd::Exception(kModuleName, error.str());
 		}
 
-		// filter out unrecognised hash types, and get data offsets
-		switch (info.hash_type)
-		{
-			case (nx::nca::HASH_NONE):
-				info.data_offset = info.offset;
-				info.data_size = info.size;
-				break;
-			case (nx::nca::HASH_HIERARCHICAL_SHA256):
-				info.hash_sha256_header.importBinary(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
-				info.data_offset = info.hash_sha256_header.getLayerInfo().atBack().offset;
-				info.data_size = info.hash_sha256_header.getLayerInfo().atBack().size;
-				break;
-			case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
-				info.hash_integ_header.importBinary(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
-				info.data_offset = info.hash_integ_header.getLayerInfo().atBack().offset;
-				info.data_size = info.hash_integ_header.getLayerInfo().atBack().size;
-				break;
-			default:
-				error.clear();
-				error <<  "NCA FS Header [" << partition.index << "] HashType(" << info.hash_type << "): UNKNOWN \n";
-				throw fnd::Exception(kModuleName, error.str());
-		}
-
 		// create reader based on encryption type0
 		switch(info.enc_type)
 		{
@@ -236,6 +213,29 @@ void NcaProcess::generatePartitionConfiguration()
 			default:
 				error.clear();
 				error <<  "NCA FS Header [" << partition.index << "] EncryptionType(" << info.enc_type << "): UNKNOWN \n";
+				throw fnd::Exception(kModuleName, error.str());
+		}
+
+		// filter out unrecognised hash types, and get data offsets
+		switch (info.hash_type)
+		{
+			case (nx::nca::HASH_NONE):
+				info.data_offset = info.offset;
+				info.data_size = info.size;
+				break;
+			case (nx::nca::HASH_HIERARCHICAL_SHA256):
+				info.hash_tree_meta.importHierarchicalSha256Header(nx::HierarchicalSha256Header(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
+				info.data_offset = info.hash_tree_meta.getDataLayer().offset;
+				info.data_size = info.hash_tree_meta.getDataLayer().size;
+				break;
+			case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
+				info.hash_tree_meta.importHierarchicalIntergityHeader(nx::HierarchicalIntegrityHeader(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
+				info.data_offset = info.hash_tree_meta.getDataLayer().offset;
+				info.data_size = info.hash_tree_meta.getDataLayer().size;
+				break;
+			default:
+				error.clear();
+				error <<  "NCA FS Header [" << partition.index << "] HashType(" << info.hash_type << "): UNKNOWN \n";
 				throw fnd::Exception(kModuleName, error.str());
 		}
 	}
@@ -367,18 +367,23 @@ void NcaProcess::displayHeader()
 		}
 		if (info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
 		{
-			nx::HierarchicalIntegrityHeader& hash_hdr = info.hash_integ_header;
+			HashTreeMeta& hash_hdr = info.hash_tree_meta;
 			printf("      HierarchicalIntegrity Header:\n");
 			//printf("        TypeId:            0x%x\n", hash_hdr.type_id.get());
 			//printf("        MasterHashSize:    0x%x\n", hash_hdr.master_hash_size.get());
 			//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
-			for (size_t j = 0; j < hash_hdr.getLayerInfo().getSize(); j++)
+			for (size_t j = 0; j < hash_hdr.getHashLayerInfo().getSize(); j++)
 			{
-				printf("        Layer %d:\n", j);
-				printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getLayerInfo()[j].offset);
-				printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getLayerInfo()[j].size);
-				printf("          BlockSize:       0x%" PRIx32 "\n", hash_hdr.getLayerInfo()[j].block_size);
+				printf("        Hash Layer %d:\n", j);
+				printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getHashLayerInfo()[j].offset);
+				printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getHashLayerInfo()[j].size);
+				printf("          BlockSize:       0x%" PRIx32 "\n", hash_hdr.getHashLayerInfo()[j].block_size);
 			}
+
+			printf("        Data Layer:\n");
+			printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getDataLayer().offset);
+			printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getDataLayer().size);
+			printf("          BlockSize:       0x%" PRIx32 "\n", hash_hdr.getDataLayer().block_size);
 			for (size_t j = 0; j < hash_hdr.getMasterHashList().getSize(); j++)
 			{
 				printf("        Master Hash %d:     ", j);
@@ -387,18 +392,18 @@ void NcaProcess::displayHeader()
 		}
 		else if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
 		{
-			nx::HierarchicalSha256Header& hash_hdr = info.hash_sha256_header;
+			HashTreeMeta& hash_hdr = info.hash_tree_meta;
 			printf("      HierarchicalSha256 Header:\n");
 			printf("        Master Hash:       ");
-			fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHash().bytes, sizeof(crypto::sha::sSha256Hash));
-			printf("        HashBlockSize:     0x%x\n", hash_hdr.getHashBlockSize());
+			fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(crypto::sha::sSha256Hash));
+			printf("        HashBlockSize:     0x%x\n", hash_hdr.getDataLayer().block_size);
 			//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
-			for (size_t i = 0; i < hash_hdr.getLayerInfo().getSize(); i++)
-			{
-				printf("        Layer %d:\n", i);
-				printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getLayerInfo()[i].offset);
-				printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getLayerInfo()[i].size);
-			}
+			printf("        Hash Layer:\n");
+			printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getHashLayerInfo()[0].offset);
+			printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getHashLayerInfo()[0].size);
+			printf("        Data Layer:\n");
+			printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getDataLayer().offset);
+			printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getDataLayer().size);
 		}
 		//else
 		//{
