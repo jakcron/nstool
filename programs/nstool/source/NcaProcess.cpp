@@ -167,6 +167,13 @@ void NcaProcess::generatePartitionConfiguration()
 		}
 			
 
+		if (fs_header.version.get() != nx::nca::kDefaultFsHeaderVersion)
+		{
+			error.clear();
+			error <<  "NCA FS Header [" << partition.index << "] Version(" << fs_header.version.get() << "): UNSUPPORTED\n";
+			throw fnd::Exception(kModuleName, error.str());
+		}
+
 		// setup AES-CTR 
 		nx::NcaUtils::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.iv);
 
@@ -174,7 +181,6 @@ void NcaProcess::generatePartitionConfiguration()
 		info.reader = nullptr;
 		info.offset = partition.offset;
 		info.size = partition.size;
-		info.version = fs_header.version.get();
 		info.format_type = (nx::nca::FormatType)fs_header.format_type;
 		info.hash_type = (nx::nca::HashType)fs_header.hash_type;
 		info.enc_type = (nx::nca::EncryptionType)fs_header.encryption_type;
@@ -186,7 +192,9 @@ void NcaProcess::generatePartitionConfiguration()
 			case (nx::nca::FORMAT_ROMFS):
 				break;
 			default:
-				continue;
+				error.clear();
+				error <<  "NCA FS Header [" << partition.index << "] FormatType(" << info.format_type << "): UNKNOWN \n";
+				throw fnd::Exception(kModuleName, error.str());
 		}
 
 		// filter out unrecognised hash types, and get data offsets
@@ -197,21 +205,23 @@ void NcaProcess::generatePartitionConfiguration()
 				info.data_size = info.size;
 				break;
 			case (nx::nca::HASH_HIERARCHICAL_SHA256):
-				info.hierarchicalsha256_header.importBinary(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
-				info.data_offset = info.hierarchicalsha256_header.getLayerInfo().atBack().offset;
-				info.data_size = info.hierarchicalsha256_header.getLayerInfo().atBack().size;
+				info.hash_sha256_header.importBinary(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
+				info.data_offset = info.hash_sha256_header.getLayerInfo().atBack().offset;
+				info.data_size = info.hash_sha256_header.getLayerInfo().atBack().size;
 				break;
 			case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
-				info.hierarchicalintergrity_header.importBinary(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
-				info.data_offset = info.hierarchicalintergrity_header.getLayerInfo().atBack().offset;
-				info.data_size = info.hierarchicalintergrity_header.getLayerInfo().atBack().size;
+				info.hash_integ_header.importBinary(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
+				info.data_offset = info.hash_integ_header.getLayerInfo().atBack().offset;
+				info.data_size = info.hash_integ_header.getLayerInfo().atBack().size;
 				break;
 			default:
-				continue;
+				error.clear();
+				error <<  "NCA FS Header [" << partition.index << "] HashType(" << info.hash_type << "): UNKNOWN \n";
+				throw fnd::Exception(kModuleName, error.str());
 		}
 
 		// create reader based on encryption type0
-		switch(fs_header.encryption_type)
+		switch(info.enc_type)
 		{
 			case (nx::nca::CRYPT_AESXTS):
 			case (nx::nca::CRYPT_AESCTREX):
@@ -225,15 +235,10 @@ void NcaProcess::generatePartitionConfiguration()
 				break;
 			default:
 				error.clear();
-				error <<  "NCA FS Header [" << partition.index << "] EncryptionType(" << fs_header.encryption_type << "): UNKNOWN \n";
+				error <<  "NCA FS Header [" << partition.index << "] EncryptionType(" << info.enc_type << "): UNKNOWN \n";
 				throw fnd::Exception(kModuleName, error.str());
 		}
 	}
-}
-
-void NcaProcess::validatePartitionHash()
-{
-
 }
 
 void NcaProcess::validateNcaSignatures()
@@ -350,12 +355,9 @@ void NcaProcess::displayHeader()
 		printf("    %lu:\n", i);
 		printf("      Offset:      0x%" PRIx64 "\n", info.offset);
 		printf("      Size:        0x%" PRIx64 "\n", info.size);
-		
-		printf("      FsHeader:\n");
-		printf("        Version:     0x%d\n", info.version);
-		printf("        Format Type: %s\n", kFormatTypeStr[info.format_type].c_str());
-		printf("        Hash Type:   %s\n", kHashTypeStr[info.hash_type].c_str());
-		printf("        Enc. Type:   %s\n", kEncryptionTypeStr[info.enc_type].c_str());
+		printf("      Format Type: %s\n", kFormatTypeStr[info.format_type].c_str());
+		printf("      Hash Type:   %s\n", kHashTypeStr[info.hash_type].c_str());
+		printf("      Enc. Type:   %s\n", kEncryptionTypeStr[info.enc_type].c_str());
 		if (info.enc_type == nx::nca::CRYPT_AESCTR)
 		{
 			printf("        AES-CTR:     ");
@@ -365,7 +367,7 @@ void NcaProcess::displayHeader()
 		}
 		if (info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
 		{
-			nx::HierarchicalIntegrityHeader& hash_hdr = info.hierarchicalintergrity_header;
+			nx::HierarchicalIntegrityHeader& hash_hdr = info.hash_integ_header;
 			printf("      HierarchicalIntegrity Header:\n");
 			//printf("        TypeId:            0x%x\n", hash_hdr.type_id.get());
 			//printf("        MasterHashSize:    0x%x\n", hash_hdr.master_hash_size.get());
@@ -385,7 +387,7 @@ void NcaProcess::displayHeader()
 		}
 		else if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
 		{
-			nx::HierarchicalSha256Header& hash_hdr = info.hierarchicalsha256_header;
+			nx::HierarchicalSha256Header& hash_hdr = info.hash_sha256_header;
 			printf("      HierarchicalSha256 Header:\n");
 			printf("        Master Hash:       ");
 			fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHash().bytes, sizeof(crypto::sha::sSha256Hash));

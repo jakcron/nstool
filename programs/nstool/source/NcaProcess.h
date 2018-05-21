@@ -69,18 +69,16 @@ private:
 		size_t data_size;
 
 		// meta data
-		uint16_t version;
 		nx::nca::FormatType format_type;
 		nx::nca::HashType hash_type;
 		nx::nca::EncryptionType enc_type;
-		nx::HierarchicalSha256Header hierarchicalsha256_header;
-		nx::HierarchicalIntegrityHeader hierarchicalintergrity_header;
+		nx::HierarchicalSha256Header hash_sha256_header;
+		nx::HierarchicalIntegrityHeader hash_integ_header;
 		crypto::aes::sAesIvCtr aes_ctr;
 	} mPartitions[nx::nca::kPartitionNum];
 
 	void generateNcaBodyEncryptionKeys();
 	void generatePartitionConfiguration();
-	void validatePartitionHash();
 	void validateNcaSignatures();
 	void displayHeader();
 	void processPartitions();
