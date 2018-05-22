@@ -362,8 +362,8 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	}
 	
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage2Base, kKeyStr, kSourceStr), package2_key_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kTicketCommonKeyBase[0], kKeyStr, kSourceStr), ticket_titlekek_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kTicketCommonKeyBase[1], kKeyStr, kSourceStr), ticket_titlekek_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[0], kSourceStr), ticket_titlekek_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[1], kSourceStr), ticket_titlekek_source.key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[0], kSourceStr), key_area_key_source[0].key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[1], kSourceStr), key_area_key_source[1].key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[2], kSourceStr), key_area_key_source[2].key, 0x10);
