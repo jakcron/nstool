@@ -565,7 +565,7 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 	FileType type;
 	if (str == "xci")
 		type = FILE_XCI;
-	else if (str == "nsp") // may become its own
+	else if (str == "nsp")
 		type = FILE_NSP;
 	else if (str == "partitionfs" || str == "hashedpartitionfs"  \
 			 || str == "pfs" || str == "pfs0" \
