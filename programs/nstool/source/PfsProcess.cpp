@@ -20,9 +20,9 @@ void PfsProcess::displayFs()
 		if (mCliOutputType >= OUTPUT_VERBOSE)
 		{
 			if (mPfs.getFsType() == mPfs.TYPE_PFS0)
-				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", mBaseOffset + mPfs.getFileList()[i].offset, mPfs.getFileList()[i].size);
+				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", mPfs.getFileList()[i].offset, mPfs.getFileList()[i].size);
 			else
-				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", mBaseOffset + mPfs.getFileList()[i].offset, mPfs.getFileList()[i].size, mPfs.getFileList()[i].hash_protected_size);
+				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", mPfs.getFileList()[i].offset, mPfs.getFileList()[i].size, mPfs.getFileList()[i].hash_protected_size);
 		}
 		else
 		{
@@ -105,7 +105,6 @@ PfsProcess::PfsProcess() :
 	mReader(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
-	mBaseOffset(0),
 	mExtractPath(),
 	mExtract(false),
 	mMountName(),
@@ -158,7 +157,6 @@ void PfsProcess::process()
 void PfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
 {
 	mReader = new OffsetAdjustedIFile(file, offset, size);
-	mBaseOffset = offset;
 }
 
 void PfsProcess::setCliOutputMode(CliOutputType type)

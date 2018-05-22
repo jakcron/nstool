@@ -34,8 +34,6 @@ private:
 	CliOutputType mCliOutputType;
 	bool mVerify;
 
-	size_t mBaseOffset;
-
 	std::string mExtractPath;
 	bool mExtract;
 	std::string mMountName;

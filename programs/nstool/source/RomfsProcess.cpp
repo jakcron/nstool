@@ -18,7 +18,7 @@ void RomfsProcess::displayFile(const sFile& file, size_t tab) const
 	printf("%s", file.name.c_str());
 	if (mCliOutputType >= OUTPUT_VERBOSE)
 	{
-		printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")", mBaseOffset + file.offset, file.size);
+		printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")", file.offset, file.size);
 	}
 	putchar('\n');
 }
@@ -226,7 +226,6 @@ RomfsProcess::RomfsProcess() :
 	mReader(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
-	mBaseOffset(0),
 	mExtractPath(),
 	mExtract(false),
 	mMountName(),
@@ -267,7 +266,6 @@ void RomfsProcess::process()
 void RomfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
 {
 	mReader = new OffsetAdjustedIFile(file, offset, size);
-	mBaseOffset = offset;
 }
 
 void RomfsProcess::setCliOutputMode(CliOutputType type)
