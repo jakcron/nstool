@@ -81,6 +81,146 @@ std::string kProgramPartitionNameStr[]
 	"logo"
 };
 
+
+NcaProcess::NcaProcess() :
+	mReader(nullptr),
+	mKeyset(nullptr),
+	mCliOutputType(OUTPUT_NORMAL),
+	mVerify(false),
+	mListFs(false)
+{
+	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
+	{
+		mPartitionPath[i].doExtract = false;
+		mPartitions[i].reader = nullptr;
+	}
+}
+
+NcaProcess::~NcaProcess()
+{
+	if (mReader != nullptr)
+	{
+		delete mReader;
+	}
+
+	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
+	{
+		if (mPartitions[i].reader != nullptr)
+		{
+			delete mPartitions[i].reader;
+		}
+	}
+}
+
+void NcaProcess::process()
+{
+	fnd::MemoryBlob scratch;
+
+	if (mReader == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+	
+	// read header block
+	mReader->read((byte_t*)&mHdrBlock, 0, sizeof(nx::sNcaHeaderBlock));
+	
+	// decrypt header block
+	nx::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
+
+	// generate header hash
+	crypto::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader), mHdrHash.bytes);
+
+	// proccess main header
+	mHdr.importBinary((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader));
+
+	// determine keys
+	generateNcaBodyEncryptionKeys();
+
+	// import/generate fs header data
+	generatePartitionConfiguration();
+
+	// validate signatures
+	if (mVerify)
+		validateNcaSignatures();
+
+	// display header
+	if (mCliOutputType >= OUTPUT_NORMAL)
+		displayHeader();
+
+	// process partition
+	processPartitions();
+
+	/*
+	NCA is a file container
+	A hashed and signed file container
+
+	To verify a NCA: (R=regular step)
+	1 - decrypt header (R)
+	2 - verify signature[0]
+	3 - validate hashes of fs_headers
+	4 - determine how to read/decrypt the partitions (R)
+	5 - validate the partitions depending on their hash method
+	6 - if this NCA is a Program or Patch, open main.npdm from partition0
+	7 - validate ACID
+	8 - use public key in ACID to verify NCA signature[1]
+
+	Things to consider
+	* because of the manditory steps between verifcation steps
+	  the NCA should be ready to be pulled to pieces before any printing is done
+	  so the verification text can be presented without interuption
+
+	*/
+}
+
+void NcaProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
+{
+	mReader = new OffsetAdjustedIFile(file, offset, size);
+}
+
+void NcaProcess::setKeyset(const sKeyset* keyset)
+{
+	mKeyset = keyset;
+}
+
+void NcaProcess::setCliOutputMode(CliOutputType type)
+{
+	mCliOutputType = type;
+}
+
+void NcaProcess::setVerifyMode(bool verify)
+{
+	mVerify = verify;
+}
+
+void NcaProcess::setPartition0ExtractPath(const std::string& path)
+{
+	mPartitionPath[0].path = path;
+	mPartitionPath[0].doExtract = true;
+}
+
+void NcaProcess::setPartition1ExtractPath(const std::string& path)
+{
+	mPartitionPath[1].path = path;
+	mPartitionPath[1].doExtract = true;
+}
+
+void NcaProcess::setPartition2ExtractPath(const std::string& path)
+{
+	mPartitionPath[2].path = path;
+	mPartitionPath[2].doExtract = true;
+}
+
+void NcaProcess::setPartition3ExtractPath(const std::string& path)
+{
+	mPartitionPath[3].path = path;
+	mPartitionPath[3].doExtract = true;
+}
+
+void NcaProcess::setListFs(bool list_fs)
+{
+	mListFs = list_fs;
+}
+
 void NcaProcess::generateNcaBodyEncryptionKeys()
 {
 	// create zeros key
@@ -147,6 +287,7 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 		printf("AES-CTR Key: ");
 		fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_ctr.var.key, sizeof(mBodyKeys.aes_ctr.var));
 	}
+	
 	if (mBodyKeys.aes_xts.isSet)
 	{
 		printf("AES-XTS Key0: ");
@@ -198,7 +339,13 @@ void NcaProcess::generatePartitionConfiguration()
 		info.format_type = (nx::nca::FormatType)fs_header.format_type;
 		info.hash_type = (nx::nca::HashType)fs_header.hash_type;
 		info.enc_type = (nx::nca::EncryptionType)fs_header.encryption_type;
+		if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
+			info.hash_tree_meta.importHierarchicalSha256Header(nx::HierarchicalSha256Header(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
+		else if (info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
+			info.hash_tree_meta.importHierarchicalIntergityHeader(nx::HierarchicalIntegrityHeader(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
+		
 
+		// create reader
 		try 
 		{
 			// filter out unrecognised format types
@@ -239,17 +386,7 @@ void NcaProcess::generatePartitionConfiguration()
 
 			// filter out unrecognised hash types, and hash based readers
 			if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256 || info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
-			{
-				switch(info.hash_type)
-				{
-				case (nx::nca::HASH_HIERARCHICAL_SHA256):
-					info.hash_tree_meta.importHierarchicalSha256Header(nx::HierarchicalSha256Header(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
-					break;
-				case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
-					info.hash_tree_meta.importHierarchicalIntergityHeader(nx::HierarchicalIntegrityHeader(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
-					break;	
-				}
-				
+			{	
 				fnd::IFile* tmp = info.reader;
 				info.reader = nullptr;
 				info.reader = new HashTreeWrappedIFile(tmp, true, info.hash_tree_meta);
@@ -263,24 +400,12 @@ void NcaProcess::generatePartitionConfiguration()
 		}
 		catch (const fnd::Exception& e)
 		{
+			printf("ugh\n");
 			info.fail_reason = std::string(e.error());
 			if (info.reader != nullptr)
 				delete info.reader;
 			info.reader = nullptr;
-			info.hash_tree_meta = HashTreeMeta();
 		}
-		/*
-		if (info.reader != nullptr)
-		{
-			fnd::MemoryBlob sss;
-			sss.alloc(0x100);
-			info.reader->read(sss.getBytes(), 0x100);
-			printf("[%d] START\n", i);
-			fnd::SimpleTextOutput::hxdStyleDump(sss.getBytes(), 0x100);
-			printf("[%d] END\n", i);
-		}
-		*/
-		
 	}
 }
 
@@ -519,143 +644,4 @@ void NcaProcess::processPartitions()
 			//printf("romfs.process() end\n");
 		}
 	}
-}
-
-NcaProcess::NcaProcess() :
-	mReader(nullptr),
-	mKeyset(nullptr),
-	mCliOutputType(OUTPUT_NORMAL),
-	mVerify(false),
-	mListFs(false)
-{
-	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
-	{
-		mPartitionPath[i].doExtract = false;
-		mPartitions[i].reader = nullptr;
-	}
-}
-
-NcaProcess::~NcaProcess()
-{
-	if (mReader != nullptr)
-	{
-		delete mReader;
-	}
-
-	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
-	{
-		if (mPartitions[i].reader != nullptr)
-		{
-			delete mPartitions[i].reader;
-		}
-	}
-}
-
-void NcaProcess::process()
-{
-	fnd::MemoryBlob scratch;
-
-	if (mReader == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-	
-	// read header block
-	mReader->read((byte_t*)&mHdrBlock, 0, sizeof(nx::sNcaHeaderBlock));
-	
-	// decrypt header block
-	nx::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
-
-	// generate header hash
-	crypto::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader), mHdrHash.bytes);
-
-	// proccess main header
-	mHdr.importBinary((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader));
-
-	// determine keys
-	generateNcaBodyEncryptionKeys();
-
-	// import/generate fs header data
-	generatePartitionConfiguration();
-
-	// validate signatures
-	if (mVerify)
-		validateNcaSignatures();
-
-	// display header
-	if (mCliOutputType >= OUTPUT_NORMAL)
-		displayHeader();
-
-	// process partition
-	processPartitions();
-
-	/*
-	NCA is a file container
-	A hashed and signed file container
-
-	To verify a NCA: (R=regular step)
-	1 - decrypt header (R)
-	2 - verify signature[0]
-	3 - validate hashes of fs_headers
-	4 - determine how to read/decrypt the partitions (R)
-	5 - validate the partitions depending on their hash method
-	6 - if this NCA is a Program or Patch, open main.npdm from partition0
-	7 - validate ACID
-	8 - use public key in ACID to verify NCA signature[1]
-
-	Things to consider
-	* because of the manditory steps between verifcation steps
-	  the NCA should be ready to be pulled to pieces before any printing is done
-	  so the verification text can be presented without interuption
-
-	*/
-}
-
-void NcaProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
-{
-	mReader = new OffsetAdjustedIFile(file, offset, size);
-}
-
-void NcaProcess::setKeyset(const sKeyset* keyset)
-{
-	mKeyset = keyset;
-}
-
-void NcaProcess::setCliOutputMode(CliOutputType type)
-{
-	mCliOutputType = type;
-}
-
-void NcaProcess::setVerifyMode(bool verify)
-{
-	mVerify = verify;
-}
-
-void NcaProcess::setPartition0ExtractPath(const std::string& path)
-{
-	mPartitionPath[0].path = path;
-	mPartitionPath[0].doExtract = true;
-}
-
-void NcaProcess::setPartition1ExtractPath(const std::string& path)
-{
-	mPartitionPath[1].path = path;
-	mPartitionPath[1].doExtract = true;
-}
-
-void NcaProcess::setPartition2ExtractPath(const std::string& path)
-{
-	mPartitionPath[2].path = path;
-	mPartitionPath[2].doExtract = true;
-}
-
-void NcaProcess::setPartition3ExtractPath(const std::string& path)
-{
-	mPartitionPath[3].path = path;
-	mPartitionPath[3].doExtract = true;
-}
-
-void NcaProcess::setListFs(bool list_fs)
-{
-	mListFs = list_fs;
 }
