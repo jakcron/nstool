@@ -102,18 +102,16 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 		// if the titlekey_kek is available
 		if (mKeyset->ticket.titlekey_kek[masterkey_rev] != zero_aesctr_key)
 		{
-			crypto::aes::sAesIvCtr iv;
-			iv.set(mHdr.getRightsId());
 			// the title key is provided (sourced from ticket)
 			if (mKeyset->nca.manual_title_key_aesctr != zero_aesctr_key)
 			{
-				crypto::aes::AesCbcDecrypt(mKeyset->nca.manual_title_key_aesctr.key, 16, mKeyset->ticket.titlekey_kek[masterkey_rev].key, iv.iv, mBodyKeys.aes_ctr.var.key);
+				nx::AesKeygen::generateKey(mBodyKeys.aes_ctr.var.key, mKeyset->nca.manual_title_key_aesctr.key, mKeyset->ticket.titlekey_kek[masterkey_rev].key);
 				mBodyKeys.aes_ctr.isSet = true;
 			}
 			if (mKeyset->nca.manual_title_key_aesxts != zero_aesxts_key)
 			{
-				crypto::aes::AesCbcDecrypt(mKeyset->nca.manual_title_key_aesxts.key[0], 16, mKeyset->ticket.titlekey_kek[masterkey_rev].key, iv.iv, mBodyKeys.aes_xts.var.key[0]);
-				crypto::aes::AesCbcDecrypt(mKeyset->nca.manual_title_key_aesxts.key[1], 16, mKeyset->ticket.titlekey_kek[masterkey_rev].key, iv.iv, mBodyKeys.aes_xts.var.key[1]);
+				nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[0], mKeyset->nca.manual_title_key_aesxts.key[0], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
+				nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[1], mKeyset->nca.manual_title_key_aesxts.key[1], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
 				mBodyKeys.aes_xts.isSet = true;
 			}
 		}
@@ -141,6 +139,19 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	if (mBodyKeys.aes_xts.isSet == false && mKeyset->nca.manual_body_key_aesxts != zero_aesxts_key)
 	{
 		mBodyKeys.aes_xts = mKeyset->nca.manual_body_key_aesxts;
+	}
+
+	if (mBodyKeys.aes_ctr.isSet)
+	{
+		printf("AES-CTR Key: ");
+		fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_ctr.var.key, sizeof(mBodyKeys.aes_ctr.var));
+	}
+	if (mBodyKeys.aes_xts.isSet)
+	{
+		printf("AES-XTS Key0: ");
+		fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[0], sizeof(mBodyKeys.aes_ctr.var));
+		printf("AES-XTS Key1: ");
+		fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[1], sizeof(mBodyKeys.aes_ctr.var));
 	}
 }
 
