@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
 			xci.process();
 		}
-		else if (user_set.getFileType() == FILE_PARTITIONFS)
+		else if (user_set.getFileType() == FILE_PARTITIONFS || user_set.getFileType() == FILE_NSP)
 		{
 			PfsProcess pfs;
 
