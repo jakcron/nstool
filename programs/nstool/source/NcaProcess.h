@@ -62,6 +62,7 @@ private:
 	struct sPartitionInfo
 	{
 		fnd::IFile* reader;
+		std::string fail_reason;
 		size_t offset;
 		size_t size;
 

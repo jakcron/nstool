@@ -1,3 +1,4 @@
+#include <iostream>
 #include <sstream>
 #include <fnd/SimpleTextOutput.h>
 #include <nx/NcaUtils.h>
@@ -140,7 +141,7 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	{
 		mBodyKeys.aes_xts = mKeyset->nca.manual_body_key_aesxts;
 	}
-
+	/*
 	if (mBodyKeys.aes_ctr.isSet)
 	{
 		printf("AES-CTR Key: ");
@@ -153,6 +154,7 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 		printf("AES-XTS Key1: ");
 		fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[1], sizeof(mBodyKeys.aes_ctr.var));
 	}
+	*/
 }
 
 void NcaProcess::generatePartitionConfiguration()
@@ -182,7 +184,7 @@ void NcaProcess::generatePartitionConfiguration()
 		if (fs_header.version.get() != nx::nca::kDefaultFsHeaderVersion)
 		{
 			error.clear();
-			error <<  "NCA FS Header [" << partition.index << "] Version(" << fs_header.version.get() << "): UNSUPPORTED\n";
+			error <<  "NCA FS Header [" << partition.index << "] Version(" << fs_header.version.get() << "): UNSUPPORTED";
 			throw fnd::Exception(kModuleName, error.str());
 		}
 
@@ -197,65 +199,82 @@ void NcaProcess::generatePartitionConfiguration()
 		info.hash_type = (nx::nca::HashType)fs_header.hash_type;
 		info.enc_type = (nx::nca::EncryptionType)fs_header.encryption_type;
 
-		// filter out unrecognised format types
-		switch (info.format_type)
+		try 
 		{
-			case (nx::nca::FORMAT_PFS0):
-			case (nx::nca::FORMAT_ROMFS):
-				break;
-			default:
-				error.clear();
-				error <<  "NCA FS Header [" << partition.index << "] FormatType(" << info.format_type << "): UNKNOWN \n";
-				throw fnd::Exception(kModuleName, error.str());
-		}
+			// filter out unrecognised format types
+			switch (info.format_type)
+			{
+				case (nx::nca::FORMAT_PFS0):
+				case (nx::nca::FORMAT_ROMFS):
+					break;
+				default:
+					error.clear();
+					error <<  "FormatType(" << info.format_type << "): UNKNOWN";
+					throw fnd::Exception(kModuleName, error.str());
+			}
 
-		// create reader based on encryption type0
-		switch(info.enc_type)
-		{
-			case (nx::nca::CRYPT_AESXTS):
-			case (nx::nca::CRYPT_AESCTREX):
-				info.reader = nullptr;
-				break;
-			case (nx::nca::CRYPT_AESCTR):
-				info.reader = mBodyKeys.aes_ctr.isSet? new OffsetAdjustedIFile(new AesCtrWrappedIFile(mReader, mBodyKeys.aes_ctr.var, info.aes_ctr), true, info.offset, info.size) : nullptr;
-				break;
-			case (nx::nca::CRYPT_NONE):
+			// create reader based on encryption type0
+			if (info.enc_type == nx::nca::CRYPT_NONE)
+			{
 				info.reader = new OffsetAdjustedIFile(mReader, info.offset, info.size);
-				break;
-			default:
+			}
+			else if (info.enc_type == nx::nca::CRYPT_AESCTR)
+			{
+				if (mBodyKeys.aes_ctr.isSet == false)
+					throw fnd::Exception(kModuleName, "AES-CTR Key was not determined");
+				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mReader, mBodyKeys.aes_ctr.var, info.aes_ctr), true, info.offset, info.size);
+			}
+			else if (info.enc_type == nx::nca::CRYPT_AESXTS || info.enc_type == nx::nca::CRYPT_AESCTREX)
+			{
 				error.clear();
-				error <<  "NCA FS Header [" << partition.index << "] EncryptionType(" << info.enc_type << "): UNKNOWN \n";
+				error <<  "EncryptionType(" << kEncryptionTypeStr[info.enc_type] << "): UNSUPPORTED";
 				throw fnd::Exception(kModuleName, error.str());
-		}
+			}
+			else
+			{
+				error.clear();
+				error <<  "EncryptionType(" << info.enc_type << "): UNKNOWN";
+				throw fnd::Exception(kModuleName, error.str());
+			}
 
-		// filter out unrecognised hash types, and get data offsets
-		switch (info.hash_type)
+			// filter out unrecognised hash types, and hash based readers
+			if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256 || info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
+			{
+				switch(info.hash_type)
+				{
+				case (nx::nca::HASH_HIERARCHICAL_SHA256):
+					info.hash_tree_meta.importHierarchicalSha256Header(nx::HierarchicalSha256Header(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
+					break;
+				case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
+					info.hash_tree_meta.importHierarchicalIntergityHeader(nx::HierarchicalIntegrityHeader(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
+					break;	
+				}
+				
+				fnd::IFile* tmp = info.reader;
+				info.reader = nullptr;
+				info.reader = new HashTreeWrappedIFile(tmp, true, info.hash_tree_meta);
+			}
+			else if (info.hash_type != nx::nca::HASH_NONE)
+			{
+				error.clear();
+				error <<  "HashType(" << info.hash_type << "): UNKNOWN";
+				throw fnd::Exception(kModuleName, error.str());
+			}
+		}
+		catch (const fnd::Exception& e)
 		{
-			case (nx::nca::HASH_NONE):
-				break;
-			case (nx::nca::HASH_HIERARCHICAL_SHA256):
-				info.hash_tree_meta.importHierarchicalSha256Header(nx::HierarchicalSha256Header(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
-				//info.reader = (info.reader == nullptr) ? nullptr : new OffsetAdjustedIFile(info.reader, true, info.hash_tree_meta.getDataLayer().offset, info.hash_tree_meta.getDataLayer().size);
-				info.reader = (info.reader == nullptr) ? nullptr : new HashTreeWrappedIFile(info.reader, true, info.hash_tree_meta);
-				break;
-			case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
-				info.hash_tree_meta.importHierarchicalIntergityHeader(nx::HierarchicalIntegrityHeader(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
-				//info.reader = (info.reader == nullptr) ? nullptr : new OffsetAdjustedIFile(info.reader, true, info.hash_tree_meta.getDataLayer().offset, info.hash_tree_meta.getDataLayer().size);
-				info.reader = (info.reader == nullptr) ? nullptr : new HashTreeWrappedIFile(info.reader, true, info.hash_tree_meta);
-				break;
-			default:
-				error.clear();
-				error <<  "NCA FS Header [" << partition.index << "] HashType(" << info.hash_type << "): UNKNOWN \n";
-				throw fnd::Exception(kModuleName, error.str());
+			info.fail_reason = std::string(e.error());
+			if (info.reader != nullptr)
+				delete info.reader;
+			info.reader = nullptr;
+			info.hash_tree_meta = HashTreeMeta();
 		}
-
-		
 		/*
 		if (info.reader != nullptr)
 		{
 			fnd::MemoryBlob sss;
-			sss.alloc(info.reader->size());
-			info.reader->read(sss.getBytes(), sss.getSize());
+			sss.alloc(0x100);
+			info.reader->read(sss.getBytes(), 0x100);
 			printf("[%d] START\n", i);
 			fnd::SimpleTextOutput::hxdStyleDump(sss.getBytes(), 0x100);
 			printf("[%d] END\n", i);
@@ -448,7 +467,12 @@ void NcaProcess::processPartitions()
 		// if the reader is null, skip
 		if (partition.reader == nullptr)
 		{
-			printf("[WARNING] NCA Partition %d not readable\n", index);
+			printf("[WARNING] NCA Partition %d not readable.", index);
+			if (partition.fail_reason.empty() == false)
+			{
+				printf(" (%s)", partition.fail_reason.c_str());
+			}
+			printf("\n");
 			continue;
 		}
 
