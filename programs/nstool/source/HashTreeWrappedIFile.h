@@ -24,9 +24,7 @@ private:
 	std::stringstream mErrorSs;
 
 	bool mOwnIFile;
-	fnd::IFile* mFile;
-	
-
+	fnd::IFile* mFile;	
 
 	// data file
 	fnd::IFile* mData;
