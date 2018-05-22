@@ -1,19 +1,16 @@
 #include "AesCtrWrappedIFile.h"
 
 AesCtrWrappedIFile::AesCtrWrappedIFile(fnd::IFile* file, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr) :
-	mOwnIFile(false),
-	mFile(file),
-	mKey(key),
-	mBaseCtr(ctr)
+	AesCtrWrappedIFile(file, false, key, ctr)
 {
-	mScratch.alloc(kAesCtrScratchAllocSize);
 }
 
 AesCtrWrappedIFile::AesCtrWrappedIFile(fnd::IFile* file, bool ownIfile, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr) :
 	mOwnIFile(ownIfile),
 	mFile(file),
 	mKey(key),
-	mBaseCtr(ctr)
+	mBaseCtr(ctr),
+	mFileOffset(0)
 {
 	mScratch.alloc(kAesCtrScratchAllocSize);
 }
@@ -33,13 +30,13 @@ size_t AesCtrWrappedIFile::size()
 
 void AesCtrWrappedIFile::seek(size_t offset)
 {
-	mFile->seek(offset);
-	crypto::aes::AesIncrementCounter(mBaseCtr.iv, offset>>4, mCurrentCtr.iv);
-	mBlockOffset = offset & 0xf;
+	mFileOffset = offset;
 }
 
 void AesCtrWrappedIFile::read(byte_t* out, size_t len)
 {
+	internalSeek();
+
 	for (size_t i = 0; i < (len / kAesCtrScratchSize); i++)
 	{
 		mFile->read(mScratch.getBytes() + mBlockOffset, kAesCtrScratchSize);
@@ -55,6 +52,8 @@ void AesCtrWrappedIFile::read(byte_t* out, size_t len)
 		crypto::aes::AesCtr(mScratch.getBytes(), kAesCtrScratchAllocSize, mKey.key, mCurrentCtr.iv, mScratch.getBytes());
 		memcpy(out + read_pos, mScratch.getBytes() + mBlockOffset, read_len);
 	}
+
+	seek(mFileOffset + len);
 }
 
 void AesCtrWrappedIFile::read(byte_t* out, size_t offset, size_t len)
@@ -65,6 +64,8 @@ void AesCtrWrappedIFile::read(byte_t* out, size_t offset, size_t len)
 
 void AesCtrWrappedIFile::write(const byte_t* out, size_t len)
 {
+	internalSeek();
+
 	for (size_t i = 0; i < (len / kAesCtrScratchSize); i++)
 	{
 		memcpy(mScratch.getBytes() + mBlockOffset, out + (i * kAesCtrScratchSize), kAesCtrScratchSize);
@@ -80,10 +81,19 @@ void AesCtrWrappedIFile::write(const byte_t* out, size_t len)
 		crypto::aes::AesCtr(mScratch.getBytes(), kAesCtrScratchAllocSize, mKey.key, mCurrentCtr.iv, mScratch.getBytes());
 		mFile->write(mScratch.getBytes() + mBlockOffset, write_len);
 	}
+
+	seek(mFileOffset + len);
 }
 
 void AesCtrWrappedIFile::write(const byte_t* out, size_t offset, size_t len)
 {
 	seek(offset);
 	write(out, len);
+}
+
+void AesCtrWrappedIFile::internalSeek()
+{
+	mFile->seek(mFileOffset);
+	crypto::aes::AesIncrementCounter(mBaseCtr.iv, mFileOffset>>4, mCurrentCtr.iv);
+	mBlockOffset = mFileOffset & 0xf;
 }

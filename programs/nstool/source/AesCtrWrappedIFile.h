@@ -25,6 +25,9 @@ private:
 	crypto::aes::sAes128Key mKey;
 	crypto::aes::sAesIvCtr mBaseCtr, mCurrentCtr;
 	size_t mBlockOffset;
+	size_t mFileOffset;
 
 	fnd::MemoryBlob mScratch;
+
+	void internalSeek();
 };

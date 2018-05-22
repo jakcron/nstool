@@ -43,7 +43,7 @@ void OffsetAdjustedIFile::read(byte_t* out, size_t len)
 	// assert proper position in file
 	mFile->seek(mCurrentOffset + mBaseOffset);
 	mFile->read(out, len);
-	mCurrentOffset += len;
+	seek(mCurrentOffset + len);
 }
 
 void OffsetAdjustedIFile::read(byte_t* out, size_t offset, size_t len)
@@ -57,7 +57,7 @@ void OffsetAdjustedIFile::write(const byte_t* out, size_t len)
 	// assert proper position in file
 	mFile->seek(mCurrentOffset + mBaseOffset);
 	mFile->write(out, len);
-	mCurrentOffset += len;
+	seek(mCurrentOffset + len);
 }
 
 void OffsetAdjustedIFile::write(const byte_t* out, size_t offset, size_t len)
