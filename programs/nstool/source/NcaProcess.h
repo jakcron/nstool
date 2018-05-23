@@ -55,6 +55,36 @@ private:
 	// crypto
 	struct sKeys
 	{
+		struct sKeyAreaKey
+		{
+			byte_t index;
+			bool decrypted;
+			crypto::aes::sAes128Key enc;
+			crypto::aes::sAes128Key dec;
+
+			void operator=(const sKeyAreaKey& other)
+			{
+				index = other.index;
+				decrypted = other.decrypted;
+				enc = other.enc;
+				dec = other.dec;
+			}
+
+			bool operator==(const sKeyAreaKey& other) const
+			{
+				return (index == other.index) \
+					&& (decrypted == other.decrypted) \
+					&& (enc == other.enc) \
+					&& (dec == other.dec);
+			}
+
+			bool operator!=(const sKeyAreaKey& other) const
+			{
+				return !(*this == other);
+			}
+		};
+		fnd::List<sKeyAreaKey> keak_list;
+
 		sOptional<crypto::aes::sAes128Key> aes_ctr;
 		sOptional<crypto::aes::sAesXts128Key> aes_xts;
 	} mBodyKeys;

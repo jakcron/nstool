@@ -233,6 +233,27 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	byte_t masterkey_rev = nx::NcaUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
 	byte_t keak_index = mHdr.getKaekIndex();
 
+	// process key area
+	sKeys::sKeyAreaKey keak;
+	for (size_t i = 0; i < nx::nca::kAesKeyNum; i++)
+	{
+		if (mHdr.getEncAesKeys()[i] != zero_aesctr_key)
+		{
+			keak.index = (byte_t)i;
+			keak.enc = mHdr.getEncAesKeys()[i];
+			if (i < 4 && mKeyset->nca.key_area_key[keak_index][masterkey_rev] != zero_aesctr_key)
+			{
+				keak.decrypted = true;
+				nx::AesKeygen::generateKey(keak.dec.key, keak.enc.key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
+			}
+			else
+			{
+				keak.decrypted = false;
+			}
+			mBodyKeys.keak_list.addElement(keak);
+		}
+	}
+
 	// set flag to indicate that the keys are not available
 	mBodyKeys.aes_ctr.isSet = false;
 	mBodyKeys.aes_xts.isSet = false;
@@ -260,15 +281,31 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	// otherwise decrypt key area
 	else
 	{
-		// if the key_area_key is available
-		if (mKeyset->nca.key_area_key[keak_index][masterkey_rev] != zero_aesctr_key)
+		crypto::aes::sAes128Key keak_aesctr_key = zero_aesctr_key;
+		crypto::aes::sAesXts128Key keak_aesxts_key = zero_aesxts_key;
+		for (size_t i = 0; i < mBodyKeys.keak_list.getSize(); i++)
 		{
-			nx::AesKeygen::generateKey(mBodyKeys.aes_ctr.var.key, mHdr.getEncAesKeys()[nx::nca::KEY_AESCTR].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
-			mBodyKeys.aes_ctr.isSet = true;
-			
-			nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[0], mHdr.getEncAesKeys()[nx::nca::KEY_AESXTS_0].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
-			nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[1], mHdr.getEncAesKeys()[nx::nca::KEY_AESXTS_1].key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
-			mBodyKeys.aes_xts.isSet = true;
+			if (mBodyKeys.keak_list[i].index == nx::nca::KEY_AESCTR && mBodyKeys.keak_list[i].decrypted)
+			{
+				keak_aesctr_key = mBodyKeys.keak_list[i].dec;
+			}
+			else if (mBodyKeys.keak_list[i].index == nx::nca::KEY_AESXTS_0 && mBodyKeys.keak_list[i].decrypted)
+			{
+				memcpy(keak_aesxts_key.key[0], mBodyKeys.keak_list[i].dec.key, sizeof(crypto::aes::sAes128Key));
+			}
+			else if (mBodyKeys.keak_list[i].index == nx::nca::KEY_AESXTS_1 && mBodyKeys.keak_list[i].decrypted)
+			{
+				memcpy(keak_aesxts_key.key[1], mBodyKeys.keak_list[i].dec.key, sizeof(crypto::aes::sAes128Key));
+			}
+		}
+
+		if (keak_aesctr_key != zero_aesctr_key)
+		{
+			mBodyKeys.aes_ctr = keak_aesctr_key;
+		}
+		if (keak_aesxts_key != zero_aesxts_key)
+		{
+			mBodyKeys.aes_xts = keak_aesxts_key;
 		}
 	}
 
@@ -400,7 +437,6 @@ void NcaProcess::generatePartitionConfiguration()
 		}
 		catch (const fnd::Exception& e)
 		{
-			printf("ugh\n");
 			info.fail_reason = std::string(e.error());
 			if (info.reader != nullptr)
 				delete info.reader;
@@ -476,9 +512,6 @@ void NcaProcess::validateNcaSignatures()
 
 void NcaProcess::displayHeader()
 {
-	crypto::aes::sAes128Key zero_key;
-	memset(zero_key.key, 0, sizeof(zero_key));
-
 	printf("[NCA Header]\n");
 	printf("  Format Type:     %s\n", kFormatVersionStr[mHdr.getFormatVersion()].c_str());
 	printf("  Dist. Type:      %s\n", kDistributionTypeStr[mHdr.getDistributionType()].c_str());
@@ -493,15 +526,31 @@ void NcaProcess::displayHeader()
 #undef _SPLIT_VER
 	printf("  RightsId:        ");
 	fnd::SimpleTextOutput::hexDump(mHdr.getRightsId(), nx::nca::kRightsIdLen);
-	printf("  Key Area Keys: (Encrypted)\n");
-	for (size_t i = 0; i < mHdr.getEncAesKeys().getSize(); i++)
+
+	if (mBodyKeys.keak_list.getSize() > 0)
 	{
-		if (mHdr.getEncAesKeys()[i] != zero_key)
+		printf("  Key Area: \n");
+		printf("    <--------------------------------------------------------------------------->\n");
+		printf("    | IDX | ENCRYPTED KEY                    | DECRYPTED KEY                    |\n");
+		printf("    |-----|----------------------------------|----------------------------------|\n");
+		for (size_t i = 0; i < mBodyKeys.keak_list.getSize(); i++)
 		{
-			printf("    %2lu: ", i);
-			fnd::SimpleTextOutput::hexDump(mHdr.getEncAesKeys()[i].key, crypto::aes::kAes128KeySize);
+			printf("    | %3lu | ", mBodyKeys.keak_list[i].index);
+			
+			for (size_t j = 0; j < 16; j++) printf("%02x", mBodyKeys.keak_list[i].enc.key[j]);
+			
+			printf(" | ");
+			
+			if (mBodyKeys.keak_list[i].decrypted)
+				for (size_t j = 0; j < 16; j++) printf("%02x", mBodyKeys.keak_list[i].dec.key[j]);
+			else
+				printf("<unable to decrypt>             ");
+			
+			printf(" |\n");
 		}
+		printf("    <--------------------------------------------------------------------------->\n");
 	}
+	
 
 	/*
 	if (mBodyKeyList.getSize() > 0)
