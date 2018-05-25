@@ -1,7 +1,11 @@
 #pragma once
 #include <fnd/IFile.h>
 #include <string>
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #include <cstdio>
+#endif
 
 namespace fnd
 {
@@ -34,9 +38,16 @@ namespace fnd
 
 		bool mOpen;
 		OpenMode mMode;
-		FILE* mFp;
 
-		const char* getOpenModeStr(OpenMode mMode);
+#ifdef _WIN32
+		HANDLE mFileHandle;
+		DWORD getOpenModeFlag(OpenMode mode) const;
+		DWORD getShareModeFlag(OpenMode mode) const;
+		DWORD getCreationModeFlag(OpenMode mode) const;
+#else
+		FILE* mFp;
+		const char* getOpenModeStr(OpenMode mode);
+#endif
 	};
 }
 
