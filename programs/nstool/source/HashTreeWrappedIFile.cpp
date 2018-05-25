@@ -89,7 +89,7 @@ void HashTreeWrappedIFile::read(byte_t* out, size_t len)
 	}
 
 	// update offset
-	mDataOffset += len;
+	seek(mDataOffset + len);
 }
 
 void HashTreeWrappedIFile::read(byte_t* out, size_t offset, size_t len)
@@ -169,7 +169,7 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 
 void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 {
-	seek(block_offset * mDataBlockSize);
+	mData->seek(block_offset * mDataBlockSize);
 	crypto::sha::sSha256Hash hash;
 
 	// determine read size
