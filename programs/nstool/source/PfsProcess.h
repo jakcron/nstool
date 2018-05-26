@@ -39,6 +39,8 @@ private:
 	std::string mMountName;
 	bool mListFs;
 
+	fnd::MemoryBlob mFileExtractBlock;
+
 	nx::PfsHeader mPfs;
 
 	void displayHeader();

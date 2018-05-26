@@ -164,7 +164,8 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 	mDataBlockSize = hdr.getDataLayer().block_size;
 
 	// allocate scratchpad
-	mScratch.alloc(mDataBlockSize * 0x10);
+	//mScratch.alloc(mDataBlockSize * 0x10);
+	mScratch.alloc(align(kFileExportBlockSize, mDataBlockSize));
 }
 
 void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)

@@ -21,6 +21,7 @@ public:
 	void write(const byte_t* out, size_t offset, size_t len);
 private:
 	const std::string kModuleName = "HashTreeWrappedIFile";
+	static const size_t kFileExportBlockSize = 0x1000000;
 	std::stringstream mErrorSs;
 
 	bool mOwnIFile;

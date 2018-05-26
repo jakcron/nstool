@@ -4,6 +4,83 @@
 #include "OffsetAdjustedIFile.h"
 #include "RomfsProcess.h"
 
+RomfsProcess::RomfsProcess() :
+	mReader(nullptr),
+	mCliOutputType(OUTPUT_NORMAL),
+	mVerify(false),
+	mExtractPath(),
+	mExtract(false),
+	mMountName(),
+	mListFs(false),
+	mDirNum(0),
+	mFileNum(0)
+{
+	mRootDir.name.clear();
+	mRootDir.dir_list.clear();
+	mRootDir.file_list.clear();
+}
+
+RomfsProcess::~RomfsProcess()
+{
+	if (mReader != nullptr)
+	{
+		delete mReader;
+	}
+}
+
+void RomfsProcess::process()
+{
+	if (mReader == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
+	resolveRomfs();	
+
+	if (mCliOutputType >= OUTPUT_NORMAL)
+		displayHeader();
+	if (mListFs || mCliOutputType >= OUTPUT_VERBOSE)
+		displayFs();
+	if (mExtract)
+		extractFs();
+}
+
+void RomfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
+{
+	mReader = new OffsetAdjustedIFile(file, offset, size);
+}
+
+void RomfsProcess::setCliOutputMode(CliOutputType type)
+{
+	mCliOutputType = type;
+}
+
+void RomfsProcess::setVerifyMode(bool verify)
+{
+	mVerify = verify;
+}
+
+void RomfsProcess::setMountPointName(const std::string& mount_name)
+{
+	mMountName = mount_name;
+}
+
+void RomfsProcess::setExtractPath(const std::string& path)
+{
+	mExtract = true;
+	mExtractPath = path;
+}
+
+void RomfsProcess::setListFs(bool list_fs)
+{
+	mListFs = list_fs;
+}
+
+const RomfsProcess::sDirectory& RomfsProcess::getRootDir() const
+{
+	return mRootDir;
+}
+
 void RomfsProcess::printTab(size_t tab) const
 {
 	for (size_t i = 0; i < tab; i++)
@@ -72,8 +149,10 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 
 
 	// allocate memory for file extraction
+#ifdef NSTOOL_ALLOC_UNIQUE_SCRATCH
 	fnd::MemoryBlob scratch;
 	scratch.alloc(kFileExportBlockSize);
+#endif
 
 	// extract files
 	fnd::SimpleFile outFile;
@@ -91,13 +170,13 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 		mReader->seek(dir.file_list[i].offset);
 		for (size_t j = 0; j < (dir.file_list[i].size / kFileExportBlockSize); j++)
 		{
-			mReader->read(scratch.getBytes(), kFileExportBlockSize);
-			outFile.write(scratch.getBytes(), kFileExportBlockSize);
+			mReader->read(mFileExtractBlock.getBytes(), kFileExportBlockSize);
+			outFile.write(mFileExtractBlock.getBytes(), kFileExportBlockSize);
 		}
 		if (dir.file_list[i].size % kFileExportBlockSize)
 		{
-			mReader->read(scratch.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
-			outFile.write(scratch.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
+			mReader->read(mFileExtractBlock.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
+			outFile.write(mFileExtractBlock.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
 		}		
 		outFile.close();
 	}
@@ -111,6 +190,8 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 
 void RomfsProcess::extractFs()
 {
+	// allocate only when extractDir is invoked
+	mFileExtractBlock.alloc(kFileExportBlockSize);
 	extractDir(mExtractPath, mRootDir);
 }
 
@@ -220,81 +301,4 @@ void RomfsProcess::resolveRomfs()
 	mDirNum = 0;
 	mFileNum = 0;
 	importDirectory(0, mRootDir);
-}
-
-RomfsProcess::RomfsProcess() :
-	mReader(nullptr),
-	mCliOutputType(OUTPUT_NORMAL),
-	mVerify(false),
-	mExtractPath(),
-	mExtract(false),
-	mMountName(),
-	mListFs(false),
-	mDirNum(0),
-	mFileNum(0)
-{
-	mRootDir.name.clear();
-	mRootDir.dir_list.clear();
-	mRootDir.file_list.clear();
-}
-
-RomfsProcess::~RomfsProcess()
-{
-	if (mReader != nullptr)
-	{
-		delete mReader;
-	}
-}
-
-void RomfsProcess::process()
-{
-	if (mReader == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
-	resolveRomfs();	
-
-	if (mCliOutputType >= OUTPUT_NORMAL)
-		displayHeader();
-	if (mListFs || mCliOutputType >= OUTPUT_VERBOSE)
-		displayFs();
-	if (mExtract)
-		extractFs();
-}
-
-void RomfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
-{
-	mReader = new OffsetAdjustedIFile(file, offset, size);
-}
-
-void RomfsProcess::setCliOutputMode(CliOutputType type)
-{
-	mCliOutputType = type;
-}
-
-void RomfsProcess::setVerifyMode(bool verify)
-{
-	mVerify = verify;
-}
-
-void RomfsProcess::setMountPointName(const std::string& mount_name)
-{
-	mMountName = mount_name;
-}
-
-void RomfsProcess::setExtractPath(const std::string& path)
-{
-	mExtract = true;
-	mExtractPath = path;
-}
-
-void RomfsProcess::setListFs(bool list_fs)
-{
-	mListFs = list_fs;
-}
-
-const RomfsProcess::sDirectory& RomfsProcess::getRootDir() const
-{
-	return mRootDir;
 }

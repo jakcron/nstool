@@ -107,6 +107,7 @@ public:
 private:
 	const std::string kModuleName = "RomfsProcess";
 	static const size_t kFileExportBlockSize = 0x1000000;
+	//static const size_t kFileExportBlockSize = 0x1000000;
 
 	fnd::IFile* mReader;
 	CliOutputType mCliOutputType;
@@ -116,6 +117,8 @@ private:
 	bool mExtract;
 	std::string mMountName;
 	bool mListFs;
+
+	fnd::MemoryBlob mFileExtractBlock;
 
 	size_t mDirNum;
 	size_t mFileNum;
