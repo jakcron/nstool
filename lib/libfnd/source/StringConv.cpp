@@ -41,7 +41,7 @@ std::u16string StringConv::ConvertChar8ToChar16(const std::string & in)
 					throw std::logic_error("not a UTF-8 string");
 				}
 
-				uni <= 6;
+				uni <<= 6;
 				uni |= get_utf8_data(1, in[i + j]);
 			}
 
@@ -67,7 +67,7 @@ std::u16string StringConv::ConvertChar8ToChar16(const std::string & in)
 		char32_t uni = unicode[i];
 		if (uni < kUtf16NonNativeStart)
 		{
-			utf16.push_back(uni);
+			utf16.push_back((char16_t)uni);
 		}
 		else
 		{
@@ -117,25 +117,25 @@ std::string StringConv::ConvertChar16ToChar8(const std::u16string & in)
 	{
 		if (unicode[i] <= kUtf8AsciiEnd)
 		{
-			utf8.push_back(unicode[i]);
+			utf8.push_back((char)unicode[i]);
 		}
 		else if (unicode[i] <= kUtf82ByteEnd)
 		{
-			utf8.push_back(make_utf8(2, (unicode[i] >> 6)));
-			utf8.push_back(make_utf8(1, (unicode[i] >> 0)));
+			utf8.push_back(make_utf8(2, (uint8_t)(unicode[i] >> 6)));
+			utf8.push_back(make_utf8(1, (uint8_t)(unicode[i] >> 0)));
 		}
 		else if (unicode[i] <= kUtf83ByteEnd)
 		{
-			utf8.push_back(make_utf8(3, (unicode[i] >> 12)));
-			utf8.push_back(make_utf8(1, (unicode[i] >> 6)));
-			utf8.push_back(make_utf8(1, (unicode[i] >> 0)));
+			utf8.push_back(make_utf8(3, (uint8_t)(unicode[i] >> 12)));
+			utf8.push_back(make_utf8(1, (uint8_t)(unicode[i] >> 6)));
+			utf8.push_back(make_utf8(1, (uint8_t)(unicode[i] >> 0)));
 		}
 		else if (unicode[i] <= kUtf84ByteEnd)
 		{
-			utf8.push_back(make_utf8(4, (unicode[i] >> 18)));
-			utf8.push_back(make_utf8(1, (unicode[i] >> 12)));
-			utf8.push_back(make_utf8(1, (unicode[i] >> 6)));
-			utf8.push_back(make_utf8(1, (unicode[i] >> 0)));
+			utf8.push_back(make_utf8(4, (uint8_t)(unicode[i] >> 18)));
+			utf8.push_back(make_utf8(1, (uint8_t)(unicode[i] >> 12)));
+			utf8.push_back(make_utf8(1, (uint8_t)(unicode[i] >> 6)));
+			utf8.push_back(make_utf8(1, (uint8_t)(unicode[i] >> 0)));
 		}
 		else
 		{

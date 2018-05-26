@@ -64,10 +64,10 @@ void nx::FacHeader::exportBinary()
 	hdr->fac_flags = (flag);
 
 	calculateOffsets();
-	hdr->content_owner_ids.start = (mContentOwnerIdPos.offset);
-	hdr->content_owner_ids.end = (mContentOwnerIdPos.offset + mContentOwnerIdPos.size);
-	hdr->save_data_owner_ids.start = (mSaveDataOwnerIdPos.offset);
-	hdr->save_data_owner_ids.end = (mSaveDataOwnerIdPos.offset + mSaveDataOwnerIdPos.size);
+	hdr->content_owner_ids.start = (uint32_t)(mContentOwnerIdPos.offset);
+	hdr->content_owner_ids.end = (uint32_t)(mContentOwnerIdPos.offset + mContentOwnerIdPos.size);
+	hdr->save_data_owner_ids.start = (uint32_t)(mSaveDataOwnerIdPos.offset);
+	hdr->save_data_owner_ids.end = (uint32_t)(mSaveDataOwnerIdPos.offset + mSaveDataOwnerIdPos.size);
 }
 
 void nx::FacHeader::importBinary(const byte_t * bytes, size_t len)

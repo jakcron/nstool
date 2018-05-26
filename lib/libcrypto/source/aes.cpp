@@ -62,7 +62,7 @@ void crypto::aes::AesIncrementCounter(const uint8_t in[kAesBlockSize], size_t bl
 		uint64_t total = ctr[i] + block_num;
 		// if there wasn't a wrap around, add the two together and exit
 		if (total <= 0xffffffff) {
-			ctr[i] += block_num;
+			ctr[i] += (uint32_t)block_num;
 			break;
 		}
 

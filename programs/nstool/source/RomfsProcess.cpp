@@ -44,8 +44,8 @@ void RomfsProcess::displayDir(const sDirectory& dir, size_t tab) const
 void RomfsProcess::displayHeader()
 {
 	printf("[RomFS]\n");
-	printf("  DirNum:      %u\n", mDirNum);
-	printf("  FileNum:     %u\n", mFileNum);
+	printf("  DirNum:      %" PRId64 "\n", mDirNum);
+	printf("  FileNum:     %" PRId64 "\n", mFileNum);
 	if (mMountName.empty() == false)	
 		printf("  MountPoint:  %s%s\n", mMountName.c_str(), mMountName.at(mMountName.length()-1) != '/' ? "/" : "");
 }

@@ -7,7 +7,7 @@ void PfsProcess::displayHeader()
 {
 	printf("[PartitionFS]\n");
 	printf("  Type:        %s\n", mPfs.getFsType() == mPfs.TYPE_PFS0? "PFS0" : "HFS0");
-	printf("  FileNum:     %u\n", mPfs.getFileList().getSize());
+	printf("  FileNum:     %" PRId64 "\n", mPfs.getFileList().getSize());
 	if (mMountName.empty() == false)	
 		printf("  MountPoint:  %s%s\n", mMountName.c_str(), mMountName.at(mMountName.length()-1) != '/' ? "/" : "");
 }

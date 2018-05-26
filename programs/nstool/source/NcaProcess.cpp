@@ -12,74 +12,213 @@
 #include "CopiedIFile.h"
 #include "HashTreeWrappedIFile.h"
 
-std::string kFormatVersionStr[]
+const char* getFormatVersionStr(nx::NcaHeader::FormatVersion format_ver)
 {
-	"NCA2",
-	"NCA3"
-};
+	const char* str;
+	switch (format_ver)
+	{
+		case (nx::NcaHeader::NCA2_FORMAT):
+			str = "NCA2";
+			break;
+		case (nx::NcaHeader::NCA3_FORMAT):
+			str = "NCA3";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+	return str;
+}
 
-std::string kDistributionTypeStr[]
+const char* getDistributionTypeStr(nx::nca::DistributionType dist_type)
 {
-	"Download",
-	"Game Card"
-};
+	const char* str;
+	switch (dist_type)
+	{
+		case (nx::nca::DIST_DOWNLOAD):
+			str = "Download";
+			break;
+		case (nx::nca::DIST_GAME_CARD):
+			str = "Game Card";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+	return str;
+}
 
-std::string kContentTypeStr[]
-{
-	"Program",
-	"Meta",
-	"Control",
-	"Manual",
-	"Data",
-	"PublicData"
-};
 
-std::string kEncryptionTypeStr[]
+ const char* getContentTypeStr(nx::nca::ContentType cont_type)
 {
-	"Auto",
-	"None",
-	"AesXts",
-	"AesCtr",
-	"AesCtrEx"
-};
+	const char* str;
+	switch (cont_type)
+	{
+		case (nx::nca::TYPE_PROGRAM):
+			str = "Program";
+			break;
+		case (nx::nca::TYPE_META):
+			str = "Meta";
+			break;
+		case (nx::nca::TYPE_CONTROL):
+			str = "Control";
+			break;
+		case (nx::nca::TYPE_MANUAL):
+			str = "Manual";
+			break;
+		case (nx::nca::TYPE_DATA):
+			str = "Data";
+			break;
+		case (nx::nca::TYPE_PUBLIC_DATA):
+			str = "PublicData";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+	return str;
+}
 
-std::string kHashTypeStr[]
+const char* getEncryptionTypeStr(nx::nca::EncryptionType enc_type)
 {
-	"Auto",
-	"None",
-	"HierarchicalSha256",
-	"HierarchicalIntegrity"
-};
+	const char* str;
+	switch (enc_type)
+	{
+		case (nx::nca::CRYPT_AUTO):
+			str = "Auto";
+			break;
+		case (nx::nca::CRYPT_NONE):
+			str = "None";
+			break;
+		case (nx::nca::CRYPT_AESXTS):
+			str = "AesXts";
+			break;
+		case (nx::nca::CRYPT_AESCTR):
+			str = "AesCtr";
+			break;
+		case (nx::nca::CRYPT_AESCTREX):
+			str = "AesCtrEx";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+	return str;
+}
 
-std::string kFormatTypeStr[]
+inline const char* getHashTypeStr(nx::nca::HashType hash_type)
 {
-	"RomFs",
-	"PartitionFs"
-};
+	const char* str;
+	switch (hash_type)
+	{
+		case (nx::nca::HASH_AUTO):
+			str = "Auto";
+			break;
+		case (nx::nca::HASH_NONE):
+			str = "None";
+			break;
+		case (nx::nca::HASH_HIERARCHICAL_SHA256):
+			str = "HierarchicalSha256";
+			break;
+		case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
+			str = "HierarchicalIntegrity";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+	return str;
+}
 
-std::string kKaekIndexStr[]
+inline const char* getFormatTypeStr(nx::nca::FormatType format_type)
 {
-	"Application",
-	"Ocean",
-	"System"
-};
+	const char* str;
+	switch (format_type)
+	{
+		case (nx::nca::FORMAT_ROMFS):
+			str = "RomFs";
+			break;
+		case (nx::nca::FORMAT_PFS0):
+			str = "PartitionFs";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+	return str;
+}
 
-std::string kContentTypeForMountStr[]
+inline const char* getKaekIndexStr(nx::nca::KeyAreaEncryptionKeyIndex keak_index)
 {
-	"program",
-	"meta",
-	"control",
-	"manual",
-	"data",
-	"publicdata"
-};
+	const char* str;
+	switch (keak_index)
+	{
+		case (nx::nca::KAEK_IDX_APPLICATION):
+			str = "Application";
+			break;
+		case (nx::nca::KAEK_IDX_OCEAN):
+			str = "Ocean";
+			break;
+		case (nx::nca::KAEK_IDX_SYSTEM):
+			str = "System";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+	return str;
+}
 
-std::string kProgramPartitionNameStr[]
+inline const char* getContentTypeForMountStr(nx::nca::ContentType cont_type)
 {
-	"code",
-	"data",
-	"logo"
-};
+	const char* str;
+	switch (cont_type)
+	{
+		case (nx::nca::TYPE_PROGRAM):
+			str = "program";
+			break;
+		case (nx::nca::TYPE_META):
+			str = "meta";
+			break;
+		case (nx::nca::TYPE_CONTROL):
+			str = "control";
+			break;
+		case (nx::nca::TYPE_MANUAL):
+			str = "manual";
+			break;
+		case (nx::nca::TYPE_DATA):
+			str = "data";
+			break;
+		case (nx::nca::TYPE_PUBLIC_DATA):
+			str = "publicData";
+			break;
+		default:
+			str = "";
+			break;
+	}
+	return str;
+}
+
+const char* getProgramPartitionNameStr(size_t i)
+{
+	const char* str;
+	switch (i)
+	{
+		case (nx::nca::PARTITION_CODE):
+			str = "code";
+			break;
+		case (nx::nca::PARTITION_DATA):
+			str = "data";
+			break;
+		case (nx::nca::PARTITION_LOGO):
+			str = "logo";
+			break;
+		default:
+			str = "";
+			break;
+	}
+	return str;
+}
 
 
 NcaProcess::NcaProcess() :
@@ -411,7 +550,7 @@ void NcaProcess::generatePartitionConfiguration()
 			else if (info.enc_type == nx::nca::CRYPT_AESXTS || info.enc_type == nx::nca::CRYPT_AESCTREX)
 			{
 				error.clear();
-				error <<  "EncryptionType(" << kEncryptionTypeStr[info.enc_type] << "): UNSUPPORTED";
+				error <<  "EncryptionType(" << getEncryptionTypeStr(info.enc_type) << "): UNSUPPORTED";
 				throw fnd::Exception(kModuleName, error.str());
 			}
 			else
@@ -512,20 +651,27 @@ void NcaProcess::validateNcaSignatures()
 
 void NcaProcess::displayHeader()
 {
+#define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
+#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
+
 	printf("[NCA Header]\n");
-	printf("  Format Type:     %s\n", kFormatVersionStr[mHdr.getFormatVersion()].c_str());
-	printf("  Dist. Type:      %s\n", kDistributionTypeStr[mHdr.getDistributionType()].c_str());
-	printf("  Content Type:    %s\n", kContentTypeStr[mHdr.getContentType()].c_str());
+	printf("  Format Type:     %s\n", getFormatVersionStr(mHdr.getFormatVersion()));
+	printf("  Dist. Type:      %s\n", getDistributionTypeStr(mHdr.getDistributionType()));
+	printf("  Content Type:    %s\n", getContentTypeStr(mHdr.getContentType()));
 	printf("  Key Generation:  %d\n", mHdr.getKeyGeneration());
-	printf("  Kaek Index:      %s (%d)\n", kKaekIndexStr[mHdr.getKaekIndex()].c_str(), mHdr.getKaekIndex());
+	printf("  Kaek Index:      %s (%d)\n", getKaekIndexStr((nx::nca::KeyAreaEncryptionKeyIndex)mHdr.getKaekIndex()), mHdr.getKaekIndex());
 	printf("  Size:            0x%" PRIx64 "\n", mHdr.getContentSize());
 	printf("  ProgID:          0x%016" PRIx64 "\n", mHdr.getProgramId());
 	printf("  Content Index:   %" PRIu32 "\n", mHdr.getContentIndex());
 #define _SPLIT_VER(ver) ( (ver>>24) & 0xff), ( (ver>>16) & 0xff), ( (ver>>8) & 0xff)
 	printf("  SdkAddon Ver.:   v%" PRIu32 " (%d.%d.%d)\n", mHdr.getSdkAddonVersion(), _SPLIT_VER(mHdr.getSdkAddonVersion()));
 #undef _SPLIT_VER
-	printf("  RightsId:        ");
-	fnd::SimpleTextOutput::hexDump(mHdr.getRightsId(), nx::nca::kRightsIdLen);
+	if (mHdr.hasRightsId())
+	{
+		printf("  RightsId:        ");
+		fnd::SimpleTextOutput::hexDump(mHdr.getRightsId(), nx::nca::kRightsIdLen);
+	}
+	
 
 	if (mBodyKeys.keak_list.getSize() > 0)
 	{
@@ -537,12 +683,13 @@ void NcaProcess::displayHeader()
 		{
 			printf("    | %3lu | ", mBodyKeys.keak_list[i].index);
 			
-			for (size_t j = 0; j < 16; j++) printf("%02x", mBodyKeys.keak_list[i].enc.key[j]);
+			_HEXDUMP_L(mBodyKeys.keak_list[i].enc.key, 16);
+			//for (size_t j = 0; j < 16; j++) printf("%02x", mBodyKeys.keak_list[i].enc.key[j]);
 			
 			printf(" | ");
 			
 			if (mBodyKeys.keak_list[i].decrypted)
-				for (size_t j = 0; j < 16; j++) printf("%02x", mBodyKeys.keak_list[i].dec.key[j]);
+				_HEXDUMP_L(mBodyKeys.keak_list[i].dec.key, 16);
 			else
 				printf("<unable to decrypt>             ");
 			
@@ -550,31 +697,18 @@ void NcaProcess::displayHeader()
 		}
 		printf("    <--------------------------------------------------------------------------->\n");
 	}
-	
-
-	/*
-	if (mBodyKeyList.getSize() > 0)
-	{
-		printf("  Key Area Keys:\n");
-		for (size_t i = 0; i < mBodyKeyList.getSize(); i++)
-		{
-			printf("    %2lu: ", i);
-			fnd::SimpleTextOutput::hexDump(mBodyKeyList[i].key, crypto::aes::kAes128KeySize);
-		}
-	}
-	*/
 
 	printf("  Partitions:\n");
 	for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
 	{
 		sPartitionInfo& info = mPartitions[i];
 
-		printf("    %lu:\n", i);
-		printf("      Offset:      0x%" PRIx64 "\n", info.offset);
-		printf("      Size:        0x%" PRIx64 "\n", info.size);
-		printf("      Format Type: %s\n", kFormatTypeStr[info.format_type].c_str());
-		printf("      Hash Type:   %s\n", kHashTypeStr[info.hash_type].c_str());
-		printf("      Enc. Type:   %s\n", kEncryptionTypeStr[info.enc_type].c_str());
+		printf("    %d:\n", (int)i);
+		printf("      Offset:      0x%" PRIx64 "\n", (uint64_t)info.offset);
+		printf("      Size:        0x%" PRIx64 "\n", (uint64_t)info.size);
+		printf("      Format Type: %s\n", getFormatTypeStr(info.format_type));
+		printf("      Hash Type:   %s\n", getHashTypeStr(info.hash_type));
+		printf("      Enc. Type:   %s\n", getEncryptionTypeStr(info.enc_type));
 		if (info.enc_type == nx::nca::CRYPT_AESCTR)
 		{
 			printf("        AES-CTR:     ");
@@ -591,19 +725,19 @@ void NcaProcess::displayHeader()
 			//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
 			for (size_t j = 0; j < hash_hdr.getHashLayerInfo().getSize(); j++)
 			{
-				printf("        Hash Layer %d:\n", j);
-				printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getHashLayerInfo()[j].offset);
-				printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getHashLayerInfo()[j].size);
-				printf("          BlockSize:       0x%" PRIx32 "\n", hash_hdr.getHashLayerInfo()[j].block_size);
+				printf("        Hash Layer %d:\n", (int)j);
+				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].offset);
+				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].size);
+				printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getHashLayerInfo()[j].block_size);
 			}
 
 			printf("        Data Layer:\n");
-			printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getDataLayer().offset);
-			printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getDataLayer().size);
-			printf("          BlockSize:       0x%" PRIx32 "\n", hash_hdr.getDataLayer().block_size);
+			printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
+			printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
+			printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
 			for (size_t j = 0; j < hash_hdr.getMasterHashList().getSize(); j++)
 			{
-				printf("        Master Hash %d:     ", j);
+				printf("        Master Hash %d:     ", (int)j);
 				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(crypto::sha::sSha256Hash));
 			}
 		}
@@ -613,14 +747,14 @@ void NcaProcess::displayHeader()
 			printf("      HierarchicalSha256 Header:\n");
 			printf("        Master Hash:       ");
 			fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(crypto::sha::sSha256Hash));
-			printf("        HashBlockSize:     0x%x\n", hash_hdr.getDataLayer().block_size);
+			printf("        HashBlockSize:     0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
 			//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
 			printf("        Hash Layer:\n");
-			printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getHashLayerInfo()[0].offset);
-			printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getHashLayerInfo()[0].size);
+			printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].offset);
+			printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].size);
 			printf("        Data Layer:\n");
-			printf("          Offset:          0x%" PRIx64 "\n", hash_hdr.getDataLayer().offset);
-			printf("          Size:            0x%" PRIx64 "\n", hash_hdr.getDataLayer().size);
+			printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
+			printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
 		}
 		//else
 		//{
@@ -628,6 +762,8 @@ void NcaProcess::displayHeader()
 		//	fnd::SimpleTextOutput::hxdStyleDump(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
 		//}
 	}
+#undef _HEXDUMP_U
+#undef _HEXDUMP_L
 }
 
 
@@ -641,7 +777,7 @@ void NcaProcess::processPartitions()
 		// if the reader is null, skip
 		if (partition.reader == nullptr)
 		{
-			printf("[WARNING] NCA Partition %d not readable.", index);
+			printf("[WARNING] NCA Partition %d not readable.", (int)index);
 			if (partition.fail_reason.empty() == false)
 			{
 				printf(" (%s)", partition.fail_reason.c_str());
@@ -658,11 +794,11 @@ void NcaProcess::processPartitions()
 			pfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
 			{
-				pfs.setMountPointName(kContentTypeForMountStr[mHdr.getContentType()] + ":/" + kProgramPartitionNameStr[i]);
+				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + std::string(getProgramPartitionNameStr(i)));
 			}
 			else
 			{
-				pfs.setMountPointName(kContentTypeForMountStr[mHdr.getContentType()] + ":/");
+				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
 			}
 			
 			if (mPartitionPath[index].doExtract)
@@ -679,11 +815,11 @@ void NcaProcess::processPartitions()
 			romfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
 			{
-				romfs.setMountPointName(kContentTypeForMountStr[mHdr.getContentType()] + ":/" + kProgramPartitionNameStr[i]);
+				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + std::string(getProgramPartitionNameStr(i)));
 			}
 			else
 			{
-				romfs.setMountPointName(kContentTypeForMountStr[mHdr.getContentType()] + ":/");
+				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
 			}
 
 			if (mPartitionPath[index].doExtract)

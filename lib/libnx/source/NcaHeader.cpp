@@ -273,7 +273,7 @@ uint64_t NcaHeader::blockNumToSize(uint32_t block_num) const
 
 uint32_t NcaHeader::sizeToBlockNum(uint64_t real_size) const
 {
-	return align(real_size, nca::kSectorSize) / nca::kSectorSize;
+	return (uint32_t)(align(real_size, nca::kSectorSize) / nca::kSectorSize);
 }
 
 bool NcaHeader::isEqual(const NcaHeader & other) const
