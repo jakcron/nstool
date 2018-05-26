@@ -166,7 +166,7 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 		printf("  name=%s\n", f_node->name);
 		*/
 
-		dir.file_list.addElement({std::string(f_node->name, f_node->name_size.get()), mHdr.data_offset.get() + f_node->offset.get(), f_node->size.get()});
+		dir.file_list.addElement({std::string(f_node->name(), f_node->name_size.get()), mHdr.data_offset.get() + f_node->offset.get(), f_node->size.get()});
 
 		file_addr = f_node->sibling.get();
 		mFileNum++;
@@ -176,7 +176,7 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 	{
 		nx::sRomfsDirEntry* c_node = get_dir_node(child_addr);
 
-		dir.dir_list.addElement({std::string(c_node->name, c_node->name_size.get())});
+		dir.dir_list.addElement({std::string(c_node->name(), c_node->name_size.get())});
 		importDirectory(child_addr, dir.dir_list.atBack());
 
 		child_addr = c_node->sibling.get();
