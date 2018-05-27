@@ -38,7 +38,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset\n");
 	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm]\n");
+	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt]\n");
 	printf("      -y, --verify    Verify file\n");
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
@@ -362,8 +362,8 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	}
 	
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage2Base, kKeyStr, kSourceStr), package2_key_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kTicketCommonKeyBase[0], kKeyStr, kSourceStr), ticket_titlekek_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kTicketCommonKeyBase[1], kKeyStr, kSourceStr), ticket_titlekek_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[0], kSourceStr), ticket_titlekek_source.key, 0x10);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[1], kSourceStr), ticket_titlekek_source.key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[0], kSourceStr), key_area_key_source[0].key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[1], kSourceStr), key_area_key_source[1].key, 0x10);
 	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[2], kSourceStr), key_area_key_source[2].key, 0x10);
@@ -429,7 +429,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 	if (args.nca_titlekey.isSet)
 	{
-		if (args.nca_bodykey.var.length() == (sizeof(crypto::aes::sAes128Key)*2))
+		if (args.nca_titlekey.var.length() == (sizeof(crypto::aes::sAes128Key)*2))
 		{
 			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesctr.key, sizeof(crypto::aes::sAes128Key));
 		}
@@ -565,17 +565,20 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 	FileType type;
 	if (str == "xci")
 		type = FILE_XCI;
-	else if	(  str == "partitionfs" \
-			|| str == "pfs" || str == "pfs0" \
-			|| str == "hfs" || str == "hfs0" \
-			|| str == "nsp")
+	else if (str == "nsp")
+		type = FILE_NSP;
+	else if (str == "partitionfs" || str == "hashedpartitionfs"  \
+			 || str == "pfs" || str == "pfs0" \
+			 || str == "hfs" || str == "hfs0")
 		type = FILE_PARTITIONFS;
-	else if	(str == "romfs")
+	else if (str == "romfs")
 		type = FILE_ROMFS;
-	else if	(str == "nca")
+	else if (str == "nca")
 		type = FILE_NCA;
-	else if	(str == "npdm")
+	else if (str == "npdm")
 		type = FILE_NPDM;
+	else if (str == "cnmt")
+		type = FILE_CNMT;
 	else
 		type = FILE_INVALID;
 
@@ -587,14 +590,14 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	static const size_t kMaxReadSize = 0x1000;
 	FileType file_type = FILE_INVALID;
 	fnd::SimpleFile file;
-	fnd::MemoryBlob blob;
+	fnd::MemoryBlob scratch;
 
 	// open file
 	file.open(path, file.Read);
 
 	// read file
-	blob.alloc(MIN(kMaxReadSize, file.size()));
-	file.read(blob.getBytes(), 0, blob.getSize());
+	scratch.alloc(MIN(kMaxReadSize, file.size()));
+	file.read(scratch.getBytes(), 0, scratch.getSize());
 	// close file
 	file.close();
 
@@ -602,14 +605,14 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	byte_t nca_raw[nx::nca::kHeaderSize];
 	nx::sNcaHeader* nca_header = (nx::sNcaHeader*)(nca_raw + nx::NcaUtils::sectorToOffset(1));
 	
-	if (blob.getSize() >= nx::nca::kHeaderSize)
+	if (scratch.getSize() >= nx::nca::kHeaderSize)
 	{
-		nx::NcaUtils::decryptNcaHeader(blob.getBytes(), nca_raw, mKeyset.nca.header_key);
+		nx::NcaUtils::decryptNcaHeader(scratch.getBytes(), nca_raw, mKeyset.nca.header_key);
 	}
 
-	// _QUICK_CAST resolves to a pointer of type 'st' located at blob.getBytes() + 'oft'
-#define _QUICK_CAST(st, oft) ((st*)(blob.getBytes() + (oft)))
-#define _ASSERT_SIZE(size) (blob.getSize() >= (size))
+	// _QUICK_CAST resolves to a pointer of type 'st' located at scratch.getBytes() + 'oft'
+#define _QUICK_CAST(st, oft) ((st*)(scratch.getBytes() + (oft)))
+#define _ASSERT_SIZE(size) (scratch.getSize() >= (size))
 
 	// test npdm
 	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && std::string(_QUICK_CAST(nx::sXciHeaderPage, 0)->header.signature, 4) == nx::xci::kXciSig)

@@ -1,7 +1,85 @@
-#include "RomfsProcess.h"
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
+#include "OffsetAdjustedIFile.h"
+#include "RomfsProcess.h"
+
+RomfsProcess::RomfsProcess() :
+	mReader(nullptr),
+	mCliOutputType(OUTPUT_NORMAL),
+	mVerify(false),
+	mExtractPath(),
+	mExtract(false),
+	mMountName(),
+	mListFs(false),
+	mDirNum(0),
+	mFileNum(0)
+{
+	mRootDir.name.clear();
+	mRootDir.dir_list.clear();
+	mRootDir.file_list.clear();
+}
+
+RomfsProcess::~RomfsProcess()
+{
+	if (mReader != nullptr)
+	{
+		delete mReader;
+	}
+}
+
+void RomfsProcess::process()
+{
+	if (mReader == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
+	resolveRomfs();	
+
+	if (mCliOutputType >= OUTPUT_NORMAL)
+		displayHeader();
+	if (mListFs || mCliOutputType >= OUTPUT_VERBOSE)
+		displayFs();
+	if (mExtract)
+		extractFs();
+}
+
+void RomfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
+{
+	mReader = new OffsetAdjustedIFile(file, offset, size);
+}
+
+void RomfsProcess::setCliOutputMode(CliOutputType type)
+{
+	mCliOutputType = type;
+}
+
+void RomfsProcess::setVerifyMode(bool verify)
+{
+	mVerify = verify;
+}
+
+void RomfsProcess::setMountPointName(const std::string& mount_name)
+{
+	mMountName = mount_name;
+}
+
+void RomfsProcess::setExtractPath(const std::string& path)
+{
+	mExtract = true;
+	mExtractPath = path;
+}
+
+void RomfsProcess::setListFs(bool list_fs)
+{
+	mListFs = list_fs;
+}
+
+const RomfsProcess::sDirectory& RomfsProcess::getRootDir() const
+{
+	return mRootDir;
+}
 
 void RomfsProcess::printTab(size_t tab) const
 {
@@ -43,8 +121,8 @@ void RomfsProcess::displayDir(const sDirectory& dir, size_t tab) const
 void RomfsProcess::displayHeader()
 {
 	printf("[RomFS]\n");
-	printf("  DirNum:      %u\n", mDirNum);
-	printf("  FileNum:     %u\n", mFileNum);
+	printf("  DirNum:      %" PRId64 "\n", (uint64_t)mDirNum);
+	printf("  FileNum:     %" PRId64 "\n", (uint64_t)mFileNum);
 	if (mMountName.empty() == false)	
 		printf("  MountPoint:  %s%s\n", mMountName.c_str(), mMountName.at(mMountName.length()-1) != '/' ? "/" : "");
 }
@@ -64,15 +142,8 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 	if (dir.name.empty() == false)
 		fnd::io::appendToPath(dir_path, dir.name);
 
-	//printf("dirpath=[%s]\n", dir_path.c_str());
-
 	// make directory
 	fnd::io::makeDirectory(dir_path);
-
-
-	// allocate memory for file extraction
-	fnd::MemoryBlob scratch;
-	scratch.alloc(kFileExportBlockSize);
 
 	// extract files
 	fnd::SimpleFile outFile;
@@ -87,17 +158,12 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 		
 		
 		outFile.open(file_path, outFile.Create);
-		mReader->seek(mOffset + dir.file_list[i].offset);
-		for (size_t j = 0; j < (dir.file_list[i].size / kFileExportBlockSize); j++)
+		mReader->seek(dir.file_list[i].offset);
+		for (size_t j = 0; j < ((dir.file_list[i].size / kCacheSize) + ((dir.file_list[i].size % kCacheSize) != 0)); j++)
 		{
-			mReader->read(scratch.getBytes(), kFileExportBlockSize);
-			outFile.write(scratch.getBytes(), kFileExportBlockSize);
-		}
-		if (dir.file_list[i].size % kFileExportBlockSize)
-		{
-			mReader->read(scratch.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
-			outFile.write(scratch.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
-		}		
+			mReader->read(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
+			outFile.write(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
+		}	
 		outFile.close();
 	}
 
@@ -110,6 +176,8 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 
 void RomfsProcess::extractFs()
 {
+	// allocate only when extractDir is invoked
+	mCache.alloc(kCacheSize);
 	extractDir(mExtractPath, mRootDir);
 }
 
@@ -165,7 +233,7 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 		printf("  name=%s\n", f_node->name);
 		*/
 
-		dir.file_list.addElement({std::string(f_node->name, f_node->name_size.get()), mHdr.data_offset.get() + f_node->offset.get(), f_node->size.get()});
+		dir.file_list.addElement({std::string(f_node->name(), f_node->name_size.get()), mHdr.data_offset.get() + f_node->offset.get(), f_node->size.get()});
 
 		file_addr = f_node->sibling.get();
 		mFileNum++;
@@ -175,7 +243,7 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 	{
 		nx::sRomfsDirEntry* c_node = get_dir_node(child_addr);
 
-		dir.dir_list.addElement({std::string(c_node->name, c_node->name_size.get())});
+		dir.dir_list.addElement({std::string(c_node->name(), c_node->name_size.get())});
 		importDirectory(child_addr, dir.dir_list.atBack());
 
 		child_addr = c_node->sibling.get();
@@ -186,7 +254,7 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 void RomfsProcess::resolveRomfs()
 {
 	// read header
-	mReader->read((byte_t*)&mHdr, mOffset, sizeof(nx::sRomfsHeader));
+	mReader->read((byte_t*)&mHdr, 0, sizeof(nx::sRomfsHeader));
 
 	// logic check on the header layout
 	if (validateHeaderLayout(&mHdr) == false)
@@ -196,13 +264,13 @@ void RomfsProcess::resolveRomfs()
 
 	// read directory nodes
 	mDirNodes.alloc(mHdr.sections[nx::romfs::DIR_NODE_TABLE].size.get());
-	mReader->read(mDirNodes.getBytes(), mOffset + mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.getSize());
+	mReader->read(mDirNodes.getBytes(), mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.getSize());
 	//printf("[RAW DIR NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mDirNodes.getBytes(), mDirNodes.getSize());
 
 	// read file nodes
 	mFileNodes.alloc(mHdr.sections[nx::romfs::FILE_NODE_TABLE].size.get());
-	mReader->read(mFileNodes.getBytes(), mOffset + mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.getSize());
+	mReader->read(mFileNodes.getBytes(), mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.getSize());
 	//printf("[RAW FILE NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mFileNodes.getBytes(), mFileNodes.getSize());
 	
@@ -219,85 +287,4 @@ void RomfsProcess::resolveRomfs()
 	mDirNum = 0;
 	mFileNum = 0;
 	importDirectory(0, mRootDir);
-}
-
-RomfsProcess::RomfsProcess() :
-	mReader(nullptr),
-	mOffset(0),
-	mKeyset(nullptr),
-	mCliOutputType(OUTPUT_NORMAL),
-	mVerify(false),
-	mExtractPath(),
-	mExtract(false),
-	mMountName(),
-	mListFs(false),
-	mDirNum(0),
-	mFileNum(0)
-{
-	mRootDir.name.clear();
-	mRootDir.dir_list.clear();
-	mRootDir.file_list.clear();
-}
-
-void RomfsProcess::process()
-{
-	if (mReader == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
-	resolveRomfs();	
-
-	if (mCliOutputType >= OUTPUT_NORMAL)
-		displayHeader();
-	if (mListFs || mCliOutputType >= OUTPUT_VERBOSE)
-		displayFs();
-	if (mExtract)
-		extractFs();
-}
-
-void RomfsProcess::setInputFile(fnd::IFile& reader)
-{
-	mReader = &reader;
-}
-
-void RomfsProcess::setInputFileOffset(size_t offset)
-{
-	mOffset = offset;
-}
-
-void RomfsProcess::setKeyset(const sKeyset* keyset)
-{
-	mKeyset = keyset;
-}
-
-void RomfsProcess::setCliOutputMode(CliOutputType type)
-{
-	mCliOutputType = type;
-}
-
-void RomfsProcess::setVerifyMode(bool verify)
-{
-	mVerify = verify;
-}
-
-void RomfsProcess::setMountPointName(const std::string& mount_name)
-{
-	mMountName = mount_name;
-}
-
-void RomfsProcess::setExtractPath(const std::string& path)
-{
-	mExtract = true;
-	mExtractPath = path;
-}
-
-void RomfsProcess::setListFs(bool list_fs)
-{
-	mListFs = list_fs;
-}
-
-const RomfsProcess::sDirectory& RomfsProcess::getRootDir() const
-{
-	return mRootDir;
 }

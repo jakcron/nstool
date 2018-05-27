@@ -46,7 +46,7 @@ acid_sign_key_private            : RSA2048 Private Exponent (0x100 bytes)
 # Compatibility with hactool keyset files
 NXTools keyset files share the same keyset file format as [hactool](https://github.com/SciresM/hactool/blob/master/KEYS.md), but names of keys may differ. For compatibility, hactool names for equivalent keys are accepted.
 ```
-titlekey_source                  : hactool alias for ticket_commonkey_source
+titlekek_source                  : hactool alias for ticket_commonkey_source
 header_key_source                : hactool alias for nca_header_key_source
 header_kek_source                : hactool alias for nca_header_kek_source
 key_area_key_application_source  : hactool alias for nca_body_keak_application_source

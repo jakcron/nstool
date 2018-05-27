@@ -13,10 +13,12 @@ static const size_t kNcaKeakNum = nx::nca::kKeyAreaEncryptionKeyNum;
 enum FileType
 {
 	FILE_XCI,
+	FILE_NSP,
 	FILE_PARTITIONFS,
 	FILE_ROMFS,
 	FILE_NCA,
 	FILE_NPDM,
+	FILE_CNMT,
 	FILE_INVALID = -1,
 };
 

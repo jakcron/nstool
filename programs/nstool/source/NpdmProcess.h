@@ -10,20 +10,21 @@ class NpdmProcess
 {
 public:
 	NpdmProcess();
+	~NpdmProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile& reader);
-	void setInputFileOffset(size_t offset);
+	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
 	void setKeyset(const sKeyset* keyset);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
+
+	const nx::NpdmBinary& getNpdmBinary() const;
 
 private:
 	const std::string kModuleName = "NpdmProcess";
 
 	fnd::IFile* mReader;
-	size_t mOffset;
 	const sKeyset* mKeyset;
 	CliOutputType mCliOutputType;
 	bool mVerify;

@@ -56,7 +56,7 @@ void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapabilit
 	fnd::List<SystemCallEntry> entries;
 	for (size_t i = 0; i < kSyscallTotalEntryNum; i++)
 	{
-		entries[i].setSystemCallUpperBits(i);
+		entries[i].setSystemCallUpperBits((uint32_t)i);
 		entries[i].setSystemCallLowerBits(0);
 	}
 

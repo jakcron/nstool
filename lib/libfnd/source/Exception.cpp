@@ -44,5 +44,5 @@ const char* Exception::module() const noexcept
 
 const char * fnd::Exception::error() const noexcept
 {
-	return nullptr;
+	return error_.c_str();
 }

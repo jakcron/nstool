@@ -115,9 +115,11 @@ namespace nx
 	struct sKeyDataArea
 	{
 		sInitialData initial_data; // AES128-CCM encrypted {titlekey[16]}
-		byte_t encrypted_00[0x200*6]; // AES128-CTR encrypted {titlekey[16]}
-		byte_t encrypted_00_aesctr_data[0x100]; // RSA2048-OAEP-SHA256 encrypted AES-CTR data used for encrypted_00 {key[16],iv[16]}
-		byte_t reserved_01[0x100];
+		byte_t reserved_00[xci::kPageSize - sizeof(sInitialData)];
+		byte_t encrypted_00[xci::kPageSize * 6]; // AES128-CTR encrypted {titlekey[16]}
+		byte_t encrypted_00_aesctr_data[crypto::rsa::kRsa2048Size]; // RSA2048-OAEP-SHA256 encrypted AES-CTR data used for encrypted_00 {key[16],iv[16]}
+		byte_t reserved_01[xci::kPageSize - crypto::rsa::kRsa2048Size];
 	}; // sizeof() = 512*8 (8 pages)
+
 #pragma pack(pop)
 }

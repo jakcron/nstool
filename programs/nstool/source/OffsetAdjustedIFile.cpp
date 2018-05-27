@@ -1,12 +1,31 @@
 #include "OffsetAdjustedIFile.h"
 
-OffsetAdjustedIFile::OffsetAdjustedIFile(fnd::IFile& file, size_t offset, size_t size) :
+OffsetAdjustedIFile::OffsetAdjustedIFile(fnd::IFile* file, size_t offset, size_t size) :
+	mOwnIFile(false),
 	mFile(file),
 	mBaseOffset(offset),
 	mCurrentOffset(0),
 	mSize(size)
 {
 
+}
+
+OffsetAdjustedIFile::OffsetAdjustedIFile(fnd::IFile* file, bool ownIFile, size_t offset, size_t size) :
+	mOwnIFile(ownIFile),
+	mFile(file),
+	mBaseOffset(offset),
+	mCurrentOffset(0),
+	mSize(size)
+{
+
+}
+
+OffsetAdjustedIFile::~OffsetAdjustedIFile()
+{
+	if (mOwnIFile)
+	{
+		delete mFile;
+	}
 }
 
 size_t OffsetAdjustedIFile::size()
@@ -16,14 +35,15 @@ size_t OffsetAdjustedIFile::size()
 
 void OffsetAdjustedIFile::seek(size_t offset)
 {
-	mCurrentOffset = offset;
-	mFile.seek(offset + mBaseOffset);
+	mCurrentOffset = MIN(offset, mSize);
 }
 
 void OffsetAdjustedIFile::read(byte_t* out, size_t len)
 {
-	seek(mCurrentOffset);
-	mFile.read(out, len);
+	// assert proper position in file
+	mFile->seek(mCurrentOffset + mBaseOffset);
+	mFile->read(out, len);
+	seek(mCurrentOffset + len);
 }
 
 void OffsetAdjustedIFile::read(byte_t* out, size_t offset, size_t len)
@@ -34,8 +54,10 @@ void OffsetAdjustedIFile::read(byte_t* out, size_t offset, size_t len)
 
 void OffsetAdjustedIFile::write(const byte_t* out, size_t len)
 {
-	seek(mCurrentOffset);
-	mFile.write(out, len);
+	// assert proper position in file
+	mFile->seek(mCurrentOffset + mBaseOffset);
+	mFile->write(out, len);
+	seek(mCurrentOffset + len);
 }
 
 void OffsetAdjustedIFile::write(const byte_t* out, size_t offset, size_t len)

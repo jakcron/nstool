@@ -10,13 +10,12 @@ class PfsProcess
 {
 public:
 	PfsProcess();
+	~PfsProcess();
 
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile& reader);
-	void setInputFileOffset(size_t offset);
-	void setKeyset(const sKeyset* keyset);
+	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
 
@@ -29,25 +28,25 @@ public:
 
 private:
 	const std::string kModuleName = "PfsProcess";
-	static const size_t kFileExportBlockSize = 0x1000000;
+	static const size_t kCacheSize = 0x10000;
 
 	fnd::IFile* mReader;
-	size_t mOffset;
-	const sKeyset* mKeyset;
 	CliOutputType mCliOutputType;
 	bool mVerify;
-
 
 	std::string mExtractPath;
 	bool mExtract;
 	std::string mMountName;
 	bool mListFs;
 
+	fnd::MemoryBlob mCache;
+
 	nx::PfsHeader mPfs;
 
 	void displayHeader();
 	void displayFs();
 	size_t determineHeaderSize(const nx::sPfsHeader* hdr);
+	bool validateHeaderMagic(const nx::sPfsHeader* hdr);
 	void validateHfs();
 	void extractFs();
 };

@@ -50,8 +50,9 @@ byte_t nx::NcaUtils::getMasterKeyRevisionFromKeyGeneration(byte_t key_generation
 
 void nx::NcaUtils::getNcaPartitionAesCtr(const nx::sNcaFsHeader* hdr, byte_t* ctr)
 {
-	for (size_t i = 0; i < 16; i++)
+	for (size_t i = 0; i < 8; i++)
 	{
-		ctr[15-i] = hdr->base_ctr.iv[i];
+		ctr[7-i] = hdr->aes_ctr_upper[i];
+		ctr[15-i] = 0;
 	}
 }

@@ -44,8 +44,8 @@ void nx::PfsHeader::exportBinary()
 			break;
 	}
 	
-	hdr->file_num = mFileList.getSize();
-	hdr->name_table_size = name_table_size;
+	hdr->file_num = (uint32_t)mFileList.getSize();
+	hdr->name_table_size = (uint32_t)name_table_size;
 
 	// set file entries
 	if (mFsType == TYPE_PFS0)
@@ -59,10 +59,10 @@ void nx::PfsHeader::exportBinary()
 		{
 			raw_files[i].data_offset = (mFileList[i].offset - pfs_header_size);
 			raw_files[i].size = mFileList[i].size;
-			raw_files[i].name_offset = raw_name_table_pos;
+			raw_files[i].name_offset = (uint32_t)raw_name_table_pos;
 
 			strcpy(raw_name_table + raw_name_table_pos, mFileList[i].name.c_str());
-			raw_name_table_pos += mFileList[i].name.length() + 1;
+			raw_name_table_pos += (uint32_t)(mFileList[i].name.length() + 1);
 		}
 	}
 	else if (mFsType == TYPE_HFS0)
@@ -76,8 +76,8 @@ void nx::PfsHeader::exportBinary()
 		{
 			raw_files[i].data_offset = (mFileList[i].offset - pfs_header_size);
 			raw_files[i].size = mFileList[i].size;
-			raw_files[i].name_offset = raw_name_table_pos;
-			raw_files[i].hash_protected_size = mFileList[i].hash_protected_size;
+			raw_files[i].name_offset = (uint32_t)raw_name_table_pos;
+			raw_files[i].hash_protected_size = (uint32_t)mFileList[i].hash_protected_size;
 			raw_files[i].hash = mFileList[i].hash;
 
 			strcpy(raw_name_table + raw_name_table_pos, mFileList[i].name.c_str());

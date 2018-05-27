@@ -162,9 +162,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\AesCtrWrappedIFile.h" />
+    <ClInclude Include="source\CnmtProcess.h" />
+    <ClInclude Include="source\CopiedIFile.h" />
+    <ClInclude Include="source\HashTreeMeta.h" />
+    <ClInclude Include="source\HashTreeWrappedIFile.h" />
     <ClInclude Include="source\NcaProcess.h" />
     <ClInclude Include="source\NpdmProcess.h" />
     <ClInclude Include="source\nstool.h" />
+    <ClInclude Include="source\OffsetAdjustedIFile.h" />
     <ClInclude Include="source\PfsProcess.h" />
     <ClInclude Include="source\RomfsProcess.h" />
     <ClInclude Include="source\UserSettings.h" />
@@ -172,8 +178,14 @@
     <ClInclude Include="source\XciProcess.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\AesCtrWrappedIFile.cpp" />
+    <ClCompile Include="source\CnmtProcess.cpp" />
+    <ClCompile Include="source\HashTreeMeta.cpp" />
+    <ClCompile Include="source\HashTreeWrappedIFile.cpp" />
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\NcaProcess.cpp" />
     <ClCompile Include="source\NpdmProcess.cpp" />
+    <ClCompile Include="source\OffsetAdjustedIFile.cpp" />
     <ClCompile Include="source\PfsProcess.cpp" />
     <ClCompile Include="source\RomfsProcess.cpp" />
     <ClCompile Include="source\UserSettings.cpp" />

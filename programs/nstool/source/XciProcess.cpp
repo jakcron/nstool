@@ -1,6 +1,7 @@
-#include "XciProcess.h"
 #include <fnd/SimpleTextOutput.h>
 #include <nx/XciUtils.h>
+#include "OffsetAdjustedIFile.h"
+#include "XciProcess.h"
 
 inline const char* getBoolStr(bool isTrue)
 {
@@ -103,7 +104,9 @@ void XciProcess::displayHeader()
 	printf("  Wait1TimeWrite:       0x%x\n", mHdr.getWait1TimeWrite());
 	printf("  Wait2TimeWrite:       0x%x\n", mHdr.getWait2TimeWrite());
 	printf("  FwMode:               0x%x\n", mHdr.getFwMode());
-	printf("  UppVersion:           %d\n", mHdr.getUppVersion());
+#define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
+	printf("  UppVersion:           v%" PRId32 " (%d.%d.%d.%d)\n", mHdr.getUppVersion(), _SPLIT_VER(mHdr.getUppVersion()));
+#undef _SPLIT_VER
 	printf("  UppHash:              ");
 	fnd::SimpleTextOutput::hexDump(mHdr.getUppHash(), 8);
 	printf("  UppId:                %016" PRIx64 "\n", mHdr.getUppId());
@@ -136,13 +139,12 @@ void XciProcess::processRootPfs()
 {
 	if (mVerify)
 	{
-		if (validateRegionOfFile(mOffset + mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize(), mHdr.getPartitionFsHash().bytes) == false)
+		if (validateRegionOfFile(mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize(), mHdr.getPartitionFsHash().bytes) == false)
 		{
 			printf("[WARNING] XCI Root HFS0: FAIL (bad hash)\n");
 		}
 	}
-	mRootPfs.setInputFile(*mReader);
-	mRootPfs.setInputFileOffset(mOffset + mHdr.getPartitionFsAddress());
+	mRootPfs.setInputFile(mReader, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize());
 	mRootPfs.setListFs(mListFs);
 	mRootPfs.setVerifyMode(mVerify);
 	mRootPfs.setCliOutputMode(mCliOutputType);
@@ -156,8 +158,7 @@ void XciProcess::processPartitionPfs()
 	for (size_t i = 0; i < rootPartitions.getSize(); i++)
 	{	
 		PfsProcess tmp;
-		tmp.setInputFile(*mReader);
-		tmp.setInputFileOffset(mOffset + mHdr.getPartitionFsAddress() + rootPartitions[i].offset);
+		tmp.setInputFile(mReader, mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].size);
 		tmp.setListFs(mListFs);
 		tmp.setVerifyMode(mVerify);
 		tmp.setCliOutputMode(mCliOutputType);
@@ -174,7 +175,6 @@ void XciProcess::processPartitionPfs()
 
 XciProcess::XciProcess() :
 	mReader(nullptr),
-	mOffset(0),
 	mKeyset(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
@@ -189,6 +189,14 @@ XciProcess::XciProcess() :
 	mSecurePath.doExtract = false;
 }
 
+XciProcess::~XciProcess()
+{
+	if (mReader != nullptr)
+	{
+		delete mReader;
+	}
+}
+
 void XciProcess::process()
 {
 	fnd::MemoryBlob scratch;
@@ -199,7 +207,7 @@ void XciProcess::process()
 	}
 	
 	// read header page
-	mReader->read((byte_t*)&mHdrPage, mOffset, sizeof(nx::sXciHeaderPage));
+	mReader->read((byte_t*)&mHdrPage, 0, sizeof(nx::sXciHeaderPage));
 
 	// allocate memory for and decrypt sXciHeader
 	scratch.alloc(sizeof(nx::sXciHeader));
@@ -227,14 +235,9 @@ void XciProcess::process()
 	processPartitionPfs();
 }
 
-void XciProcess::setInputFile(fnd::IFile& reader)
+void XciProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
 {
-	mReader = &reader;
-}
-
-void XciProcess::setInputFileOffset(size_t offset)
-{
-	mOffset = offset;
+	mReader = new OffsetAdjustedIFile(file, offset, size);
 }
 
 void XciProcess::setKeyset(const sKeyset* keyset)

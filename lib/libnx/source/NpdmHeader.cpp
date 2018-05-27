@@ -99,10 +99,10 @@ void nx::NpdmHeader::exportBinary()
 	strncpy(hdr->product_code, mProductCode.c_str(), npdm::kProductCodeMaxLen);
 	
 	calculateOffsets();
-	hdr->aci.offset = mAciPos.offset;
-	hdr->aci.size = mAciPos.size;
-	hdr->acid.offset = mAcidPos.offset;
-	hdr->acid.size = mAcidPos.size;
+	hdr->aci.offset = (uint32_t)mAciPos.offset;
+	hdr->aci.size = (uint32_t)mAciPos.size;
+	hdr->acid.offset = (uint32_t)mAcidPos.offset;
+	hdr->acid.size = (uint32_t)mAcidPos.size;
 }
 
 void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)

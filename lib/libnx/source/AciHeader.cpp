@@ -106,12 +106,12 @@ void AciHeader::exportBinary()
 
 	// set offset/size
 	calculateSectionOffsets();
-	hdr->fac.offset = mFac.offset;
-	hdr->fac.size = mFac.size;
-	hdr->sac.offset = mSac.offset;
-	hdr->sac.size = mSac.size;
-	hdr->kc.offset = mKc.offset;
-	hdr->kc.size = mKc.size;
+	hdr->fac.offset = (uint32_t)mFac.offset;
+	hdr->fac.size = (uint32_t)mFac.size;
+	hdr->sac.offset = (uint32_t)mSac.offset;
+	hdr->sac.size = (uint32_t)mSac.size;
+	hdr->kc.offset = (uint32_t)mKc.offset;
+	hdr->kc.size = (uint32_t)mKc.size;
 
 	uint32_t flags = 0;
 	if (mIsProduction)
@@ -129,7 +129,7 @@ void AciHeader::exportBinary()
 	else if (mType == TYPE_ACID)
 	{
 		mAcidSize = getAciSize();
-		hdr->size = mAcidSize;
+		hdr->size = (uint32_t)mAcidSize;
 		hdr->program_id_info.program_id_restrict.min = mProgramIdMin;
 		hdr->program_id_info.program_id_restrict.max = mProgramIdMax;
 	}
