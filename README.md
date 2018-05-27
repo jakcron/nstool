@@ -6,7 +6,7 @@ Tools & Libraries for NX (Nintendo Switch).
 
 # Tools
 
-* __nstool__ - read *.npdm, read/extract PartitionFS (PFS0|HFS0) blobs (including *.nsp), read/extract *.xci, read/extract *.nca
+* __nstool__ - read *.npdm, read/extract PartitionFS (PFS0|HFS0) blobs (including *.nsp), read/extract *.xci, read/extract *.nca, read *.cnmt
 
 # Libraries
 
