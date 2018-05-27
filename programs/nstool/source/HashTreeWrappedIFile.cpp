@@ -50,12 +50,9 @@ void HashTreeWrappedIFile::read(byte_t* out, size_t len)
 	size_t start_block = getOffsetBlock(mDataOffset);
 	size_t block_num = align(offset_in_start_block + len, mDataBlockSize) / mDataBlockSize;
 
-	size_t scratch_block_capacity = mScratch.getSize() / mDataBlockSize;
-
-	size_t partial_last_block_num = block_num % scratch_block_capacity;
+	size_t partial_last_block_num = block_num % mCacheBlockNum;
 	bool has_partial_block_num = partial_last_block_num > 0;
-	size_t read_iterations = (block_num / scratch_block_capacity) + has_partial_block_num;
-
+	size_t read_iterations = (block_num / mCacheBlockNum) + has_partial_block_num;
 
 	size_t block_read_len;
 	size_t block_export_offset;
@@ -64,7 +61,7 @@ void HashTreeWrappedIFile::read(byte_t* out, size_t len)
 	for (size_t i = 0; i < read_iterations; i++)
 	{
 		// how many blocks to read from source file
-		block_read_len = (i+1 == read_iterations && has_partial_block_num) ? partial_last_block_num : scratch_block_capacity;
+		block_read_len = (i+1 == read_iterations && has_partial_block_num) ? partial_last_block_num : mCacheBlockNum;
 
 		// offset in this current read to copy from
 		block_export_offset = (i == 0) ? offset_in_start_block : 0;
@@ -79,10 +76,10 @@ void HashTreeWrappedIFile::read(byte_t* out, size_t len)
 		}
 
 		// read the blocks
-		readData(start_block + (i * scratch_block_capacity), block_read_len);
+		readData(start_block + (i * mCacheBlockNum), block_read_len);
 
 		// export the section of data that is relevant
-		memcpy(out + block_export_pos, mScratch.getBytes() + block_export_offset, block_export_size);
+		memcpy(out + block_export_pos, mCache.getBytes() + block_export_offset, block_export_size);
 
 		// update export position
 		block_export_pos += block_export_size;
@@ -165,7 +162,11 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 
 	// allocate scratchpad
 	//mScratch.alloc(mDataBlockSize * 0x10);
-	mScratch.alloc(align(kFileExportBlockSize, mDataBlockSize));
+	size_t cache_size = align(kDefaultCacheSize, mDataBlockSize);
+	mCacheBlockNum = cache_size / mDataBlockSize;
+	//printf("Block Size: 0x%" PRIx64 "\n", mDataBlockSize);
+	//printf("Cache size: 0x%" PRIx64 ", (block_num: %" PRId64 ")\n", cache_size, mCacheBlockNum);
+	mCache.alloc(cache_size);
 }
 
 void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
@@ -178,7 +179,7 @@ void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 	if ((block_offset + block_num) == getBlockNum(mData->size()))
 	{
 		read_len = (block_num-1) * mDataBlockSize + getRemanderBlockReadSize(mData->size());
-		memset(mScratch.getBytes(), 0, block_num * mDataBlockSize);
+		memset(mCache.getBytes(), 0, block_num * mDataBlockSize);
 	}
 	else if ((block_offset + block_num) < getBlockNum(mData->size()))
 	{
@@ -190,19 +191,24 @@ void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 	}
 
 	// read
-	mData->read(mScratch.getBytes(), block_offset * mDataBlockSize, read_len);
+	mData->read(mCache.getBytes(), block_offset * mDataBlockSize, read_len);
 
+	if (block_num > mCacheBlockNum)
+	{
+		throw fnd::Exception(kModuleName, "Read excessive of cache size");
+	}
 
+	//printf("readlen=0x%" PRIx64 "\n", read_len);
 
 	// validate blocks
 	size_t validate_size;
 	for (size_t i = 0; i < block_num; i++)
 	{
 		validate_size = mAlignHashCalcToBlock? mDataBlockSize : MIN(read_len - (i * mDataBlockSize), mDataBlockSize);
-		crypto::sha::Sha256(mScratch.getBytes() + (i * mDataBlockSize), validate_size, hash.bytes);
+		crypto::sha::Sha256(mCache.getBytes() + (i * mDataBlockSize), validate_size, hash.bytes);
 		if (hash != mDataHashLayer[block_offset + i])
 		{
-			mErrorSs << "Hash tree layer verification failed (layer: data, block: " << (block_offset + i) << ", offset: 0x" << std::hex << ((block_offset + i) * mDataBlockSize) << ", size: 0x" << std::hex <<  validate_size <<")";
+			mErrorSs << "Hash tree layer verification failed (layer: data, block: " << (block_offset + i) << " ( " << i << "/" << block_num-1 << " ), offset: 0x" << std::hex << ((block_offset + i) * mDataBlockSize) << ", size: 0x" << std::hex <<  validate_size <<")";
 			throw fnd::Exception(kModuleName, mErrorSs.str());
 		}
 	}

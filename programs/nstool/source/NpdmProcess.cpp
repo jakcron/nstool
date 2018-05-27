@@ -463,7 +463,7 @@ void NpdmProcess::displayAciHdr(const nx::AciHeader& aci)
 	else if (aci.getAciType() == nx::AciBinary::TYPE_ACID)
 	{
 
-		printf("  ACID Size:       %" PRIx64 "\n", aci.getAcidSize());
+		printf("  ACID Size:       %" PRIx64 "\n", (uint64_t)aci.getAcidSize());
 		printf("  Flags:           \n");
 		printf("    Production:          %s\n", aci.isProduction() ? "TRUE" : "FALSE");
 		printf("    UnqualifiedApproval: %s\n", aci.isUnqualifiedApproval() ? "TRUE" : "FALSE");

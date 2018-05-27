@@ -21,7 +21,7 @@ public:
 	void write(const byte_t* out, size_t offset, size_t len);
 private:
 	const std::string kModuleName = "HashTreeWrappedIFile";
-	static const size_t kFileExportBlockSize = 0x1000000;
+	static const size_t kDefaultCacheSize = 0x10000;
 	std::stringstream mErrorSs;
 
 	bool mOwnIFile;
@@ -34,7 +34,8 @@ private:
 	fnd::List<crypto::sha::sSha256Hash> mDataHashLayer;
 	bool mAlignHashCalcToBlock;
 
-	fnd::MemoryBlob mScratch;
+	fnd::MemoryBlob mCache;
+	size_t mCacheBlockNum;
 
 	inline size_t getOffsetBlock(size_t offset) const { return offset / mDataBlockSize; }
 	inline size_t getOffsetInBlock(size_t offset) const { return offset % mDataBlockSize; }

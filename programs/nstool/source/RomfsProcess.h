@@ -106,8 +106,7 @@ public:
 	const sDirectory& getRootDir() const;
 private:
 	const std::string kModuleName = "RomfsProcess";
-	static const size_t kFileExportBlockSize = 0x1000000;
-	//static const size_t kFileExportBlockSize = 0x1000000;
+	static const size_t kCacheSize = 0x10000;
 
 	fnd::IFile* mReader;
 	CliOutputType mCliOutputType;
@@ -118,7 +117,7 @@ private:
 	std::string mMountName;
 	bool mListFs;
 
-	fnd::MemoryBlob mFileExtractBlock;
+	fnd::MemoryBlob mCache;
 
 	size_t mDirNum;
 	size_t mFileNum;

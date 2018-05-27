@@ -96,7 +96,7 @@ void PfsProcess::displayHeader()
 {
 	printf("[PartitionFS]\n");
 	printf("  Type:        %s\n", mPfs.getFsType() == mPfs.TYPE_PFS0? "PFS0" : "HFS0");
-	printf("  FileNum:     %" PRId64 "\n", mPfs.getFileList().getSize());
+	printf("  FileNum:     %" PRId64 "\n", (uint64_t)mPfs.getFileList().getSize());
 	if (mMountName.empty() == false)	
 		printf("  MountPoint:  %s%s\n", mMountName.c_str(), mMountName.at(mMountName.length()-1) != '/' ? "/" : "");
 }
@@ -109,9 +109,9 @@ void PfsProcess::displayFs()
 		if (mCliOutputType >= OUTPUT_VERBOSE)
 		{
 			if (mPfs.getFsType() == mPfs.TYPE_PFS0)
-				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", mPfs.getFileList()[i].offset, mPfs.getFileList()[i].size);
+				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", (uint64_t)mPfs.getFileList()[i].offset, (uint64_t)mPfs.getFileList()[i].size);
 			else
-				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", mPfs.getFileList()[i].offset, mPfs.getFileList()[i].size, mPfs.getFileList()[i].hash_protected_size);
+				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", (uint64_t)mPfs.getFileList()[i].offset, (uint64_t)mPfs.getFileList()[i].size, (uint64_t)mPfs.getFileList()[i].hash_protected_size);
 		}
 		else
 		{
@@ -139,16 +139,13 @@ bool PfsProcess::validateHeaderMagic(const nx::sPfsHeader* hdr)
 
 void PfsProcess::validateHfs()
 {
-	// allocate when validate is invoked
-	mFileExtractBlock.alloc(kFileExportBlockSize);
-
 	crypto::sha::sSha256Hash hash;
 	const fnd::List<nx::PfsHeader::sFile>& file = mPfs.getFileList();
 	for (size_t i = 0; i < file.getSize(); i++)
 	{
-		mFileExtractBlock.alloc(file[i].hash_protected_size);
-		mReader->read(mFileExtractBlock.getBytes(), file[i].offset, file[i].hash_protected_size);
-		crypto::sha::Sha256(mFileExtractBlock.getBytes(), mFileExtractBlock.getSize(), hash.bytes);
+		mCache.alloc(file[i].hash_protected_size);
+		mReader->read(mCache.getBytes(), file[i].offset, file[i].hash_protected_size);
+		crypto::sha::Sha256(mCache.getBytes(), mCache.getSize(), hash.bytes);
 		if (hash != file[i].hash)
 		{
 			if (mCliOutputType >= OUTPUT_MINIMAL)
@@ -161,7 +158,7 @@ void PfsProcess::validateHfs()
 void PfsProcess::extractFs()
 {
 	// allocate only when extractDir is invoked
-	mFileExtractBlock.alloc(kFileExportBlockSize);
+	mCache.alloc(kCacheSize);
 
 	// make extract dir
 	fnd::io::makeDirectory(mExtractPath);
@@ -181,15 +178,10 @@ void PfsProcess::extractFs()
 
 		outFile.open(file_path, outFile.Create);
 		mReader->seek(file[i].offset);
-		for (size_t j = 0; j < (file[i].size / kFileExportBlockSize); j++)
+		for (size_t j = 0; j < ((file[i].size / kCacheSize) + ((file[i].size % kCacheSize) != 0)); j++)
 		{
-			mReader->read(mFileExtractBlock.getBytes(), kFileExportBlockSize);
-			outFile.write(mFileExtractBlock.getBytes(), kFileExportBlockSize);
-		}
-		if (file[i].size % kFileExportBlockSize)
-		{
-			mReader->read(mFileExtractBlock.getBytes(), file[i].size % kFileExportBlockSize);
-			outFile.write(mFileExtractBlock.getBytes(), file[i].size % kFileExportBlockSize);
+			mReader->read(mCache.getBytes(), MIN(file[i].size - (kCacheSize * j),kCacheSize));
+			outFile.write(mCache.getBytes(), MIN(file[i].size - (kCacheSize * j),kCacheSize));
 		}		
 		outFile.close();
 	}

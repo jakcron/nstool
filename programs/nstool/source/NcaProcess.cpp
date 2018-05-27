@@ -681,7 +681,7 @@ void NcaProcess::displayHeader()
 		printf("    |-----|----------------------------------|----------------------------------|\n");
 		for (size_t i = 0; i < mBodyKeys.keak_list.getSize(); i++)
 		{
-			printf("    | %3lu | ", mBodyKeys.keak_list[i].index);
+			printf("    | %3d | ", mBodyKeys.keak_list[i].index);
 			
 			_HEXDUMP_L(mBodyKeys.keak_list[i].enc.key, 16);
 			//for (size_t j = 0; j < 16; j++) printf("%02x", mBodyKeys.keak_list[i].enc.key[j]);

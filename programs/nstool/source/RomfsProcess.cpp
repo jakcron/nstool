@@ -121,8 +121,8 @@ void RomfsProcess::displayDir(const sDirectory& dir, size_t tab) const
 void RomfsProcess::displayHeader()
 {
 	printf("[RomFS]\n");
-	printf("  DirNum:      %" PRId64 "\n", mDirNum);
-	printf("  FileNum:     %" PRId64 "\n", mFileNum);
+	printf("  DirNum:      %" PRId64 "\n", (uint64_t)mDirNum);
+	printf("  FileNum:     %" PRId64 "\n", (uint64_t)mFileNum);
 	if (mMountName.empty() == false)	
 		printf("  MountPoint:  %s%s\n", mMountName.c_str(), mMountName.at(mMountName.length()-1) != '/' ? "/" : "");
 }
@@ -142,17 +142,8 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 	if (dir.name.empty() == false)
 		fnd::io::appendToPath(dir_path, dir.name);
 
-	//printf("dirpath=[%s]\n", dir_path.c_str());
-
 	// make directory
 	fnd::io::makeDirectory(dir_path);
-
-
-	// allocate memory for file extraction
-#ifdef NSTOOL_ALLOC_UNIQUE_SCRATCH
-	fnd::MemoryBlob scratch;
-	scratch.alloc(kFileExportBlockSize);
-#endif
 
 	// extract files
 	fnd::SimpleFile outFile;
@@ -168,16 +159,11 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 		
 		outFile.open(file_path, outFile.Create);
 		mReader->seek(dir.file_list[i].offset);
-		for (size_t j = 0; j < (dir.file_list[i].size / kFileExportBlockSize); j++)
+		for (size_t j = 0; j < ((dir.file_list[i].size / kCacheSize) + ((dir.file_list[i].size % kCacheSize) != 0)); j++)
 		{
-			mReader->read(mFileExtractBlock.getBytes(), kFileExportBlockSize);
-			outFile.write(mFileExtractBlock.getBytes(), kFileExportBlockSize);
-		}
-		if (dir.file_list[i].size % kFileExportBlockSize)
-		{
-			mReader->read(mFileExtractBlock.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
-			outFile.write(mFileExtractBlock.getBytes(), dir.file_list[i].size % kFileExportBlockSize);
-		}		
+			mReader->read(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
+			outFile.write(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
+		}	
 		outFile.close();
 	}
 
@@ -191,7 +177,7 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 void RomfsProcess::extractFs()
 {
 	// allocate only when extractDir is invoked
-	mFileExtractBlock.alloc(kFileExportBlockSize);
+	mCache.alloc(kCacheSize);
 	extractDir(mExtractPath, mRootDir);
 }
 
