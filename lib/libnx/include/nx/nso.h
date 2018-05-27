@@ -21,7 +21,7 @@ namespace nx
 			FLAG_TEXT_HASH,
 			FLAG_RO_HASH,
 			FLAG_DATA_HASH
-		}
+		};
 
 		static const size_t kModuleIdLen = 32;
 	}
@@ -38,7 +38,7 @@ namespace nx
 	{
 		le_uint32_t offset;
 		le_uint32_t size;
-	}
+	};
 
 	struct sNsoHeader
 	{
