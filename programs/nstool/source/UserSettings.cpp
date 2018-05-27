@@ -17,6 +17,7 @@
 #include <nx/nca.h>
 #include <nx/npdm.h>
 #include <nx/romfs.h>
+#include <nx/nso.h>
 
 UserSettings::UserSettings()
 {}
@@ -635,6 +636,8 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test npdm
 	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && std::string(_QUICK_CAST(nx::sNpdmHeader, 0)->signature, 4) == nx::npdm::kNpdmStructSig)
 		file_type = FILE_NPDM;
+	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && std::string(_QUICK_CAST(nx::sNsoHeader, 0)->signature, 4) == nx::nso::kNsoSig)
+		file_type = FILE_NSO;
 	// else unrecognised
 	else
 		file_type = FILE_INVALID;
