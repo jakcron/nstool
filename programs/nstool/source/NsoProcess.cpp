@@ -78,59 +78,64 @@ void NsoProcess::displayHeader()
 	printf("  ModuleId:           ");
 	_HEXDUMP_L(mNso.module_id, 32);
 	printf("\n");
-	printf("  .text:\n");
-	printf("    FileOffset:       0x%" PRIx32 "\n", mNso.text.file_offset.get());
-	printf("    FileSize:         0x%" PRIx32 "\n", mNso.text_file_size.get());
-	printf("    FileCompressed:   %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_COMPRESS)));
-	printf("    MemoryOffset:     0x%" PRIx32 "\n", mNso.text.memory_offset.get());
-	printf("    MemorySize:       0x%" PRIx32 "\n", mNso.text.size.get());
-	printf("    MemBlobHashed:    %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_HASH)));
+	printf("  Program Segments:\n");
+	printf("     .module_id:\n");
+	printf("      FileOffset:     0x%" PRIx32 "\n", mNso.module_name_offset.get());
+	printf("      FileSize:       0x%" PRIx32 "\n", mNso.module_name_size.get());
+	printf("    .text:\n");
+	printf("      FileOffset:     0x%" PRIx32 "\n", mNso.text.file_offset.get());
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mNso.text_file_size.get(), _HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_COMPRESS)? " (COMPRESSED)" : "");
+	//printf("      Compressed:     %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_COMPRESS)));
+	printf("    .ro:\n");
+	printf("      FileOffset:     0x%" PRIx32 "\n", mNso.ro.file_offset.get());
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mNso.ro_file_size.get(), _HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_COMPRESS)? " (COMPRESSED)" : "");
+	//printf("      Compressed:     %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_COMPRESS)));
+	printf("    .data:\n");
+	printf("      FileOffset:     0x%" PRIx32 "\n", mNso.data.file_offset.get());
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mNso.data_file_size.get(), _HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_COMPRESS)? " (COMPRESSED)" : "");
+	//printf("      Compressed:     %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_COMPRESS)));
+	printf("  Program Sections:\n");
+	printf("     .text:\n");
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.text.memory_offset.get());
+	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.text.size.get());
+	//printf("      Hashed:         %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_HASH)));
 	if (_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_HASH))
 	{
-		printf("    MemBlobHash:      ");
+		printf("      Hash:           ");
 		_HEXDUMP_L(mNso.text_hash, 32);
 		printf("\n");
 	}
-	printf("  .ro:\n");
-	printf("    FileOffset:       0x%" PRIx32 "\n", mNso.ro.file_offset.get());
-	printf("    FileSize:         0x%" PRIx32 "\n", mNso.ro_file_size.get());
-	printf("    FileCompressed:   %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_COMPRESS)));
-	printf("    MemoryOffset:     0x%" PRIx32 "\n", mNso.ro.memory_offset.get());
-	printf("    MemorySize:       0x%" PRIx32 "\n", mNso.ro.size.get());
-	printf("    MemBlobHashed:    %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_HASH)));
+	printf("    .ro:\n");
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.ro.memory_offset.get());
+	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.ro.size.get());
+	//printf("      Hashed:           %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_HASH)));
 	if (_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_HASH))
 	{
-		printf("    MemBlobHash:      ");
+		printf("      Hash:           ");
 		_HEXDUMP_L(mNso.ro_hash, 32);
 		printf("\n");
 	}
 	printf("    .api_info:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.embedded.offset.get());
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.ro.memory_offset.get() + mNso.embedded.offset.get());
 	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.embedded.size.get());
 	printf("    .dynstr:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.dyn_str.offset.get());
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.ro.memory_offset.get() + mNso.dyn_str.offset.get());
 	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.dyn_str.size.get());
 	printf("    .dynsym:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.dyn_sym.offset.get());
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.ro.memory_offset.get() + mNso.dyn_sym.offset.get());
 	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.dyn_sym.size.get());
-	printf("  .data:\n");
-	printf("    FileOffset:       0x%" PRIx32 "\n", mNso.data.file_offset.get());
-	printf("    FileSize:         0x%" PRIx32 "\n", mNso.data_file_size.get());
-	printf("    FileCompressed:   %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_COMPRESS)));
-	printf("    MemoryOffset:     0x%" PRIx32 "\n", mNso.data.memory_offset.get());
-	printf("    MemorySize:       0x%" PRIx32 "\n", mNso.data.size.get());
-	printf("    MemBlobHashed:    %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_HASH)));
+	printf("    .data:\n");
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.data.memory_offset.get());
+	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.data.size.get());
+	//printf("      Hashed:         %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_HASH)));
 	if (_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_HASH))
 	{
-		printf("    MemBlobHash:      ");
+		printf("      Hash:           ");
 		_HEXDUMP_L(mNso.data_hash, 32);
 		printf("\n");
 	}
-	printf("  .bss:\n");
-	printf("    MemorySize:       0x%" PRIx32 "\n", mNso.bss_size.get());
-	printf("  .module_id:\n");
-	printf("    FileOffset:       0x%" PRIx32 "\n", mNso.module_name_offset.get());
-	printf("    FileSize:         0x%" PRIx32 "\n", mNso.module_name_size.get());
+	printf("    .bss:\n");
+	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.bss_size.get());
 
 #undef _HEXDUMP_L
 }
