@@ -40,6 +40,7 @@ void NsoProcess::process()
 	if (mCliOutputType >= OUTPUT_NORMAL)
 	{
 		displayHeader();
+		displayRoApiList();
 	}
 }
 
@@ -266,6 +267,13 @@ void NsoProcess::displayHeader()
 	}
 	printf("    .bss:\n");
 	printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getBssSize());
+	
+#undef _HEXDUMP_L
+}
+
+void NsoProcess::displayRoApiList()
+{
+	printf("[NSO RO Segment]\n");
 	if (mApiList.size() > 0)
 	{
 		printf("  API List:\n");
@@ -274,8 +282,4 @@ void NsoProcess::displayHeader()
 			printf("    %s\n", mApiList[i].c_str());
 		}
 	}
-	
-
-
-#undef _HEXDUMP_L
 }

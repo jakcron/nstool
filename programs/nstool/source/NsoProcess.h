@@ -41,4 +41,5 @@ private:
 	void importCodeSegments();
 	void importApiList();
 	void displayHeader();
+	void displayRoApiList();
 };
