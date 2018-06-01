@@ -39,7 +39,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset\n");
 	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt]\n");
+	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso]\n");
 	printf("      -y, --verify    Verify file\n");
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
@@ -580,6 +580,8 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_NPDM;
 	else if (str == "cnmt")
 		type = FILE_CNMT;
+	else if (str == "nso")
+		type = FILE_NSO;
 	else
 		type = FILE_INVALID;
 
