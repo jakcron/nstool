@@ -41,11 +41,7 @@ void NsoProcess::process()
 	scratch.alloc(sizeof(nx::sNsoHeader));
 	mReader->read(scratch.getBytes(), 0, scratch.getSize());
 
-	memcpy(&mNso, scratch.getBytes(), sizeof(nx::sNsoHeader));
-	if (std::string(mNso.signature, 4) != nx::nso::kNsoSig)
-	{
-		throw fnd::Exception(kModuleName, "Corrupt NSO header");
-	}
+	mHdr.importBinary(scratch.getBytes(), scratch.getSize());
 
 	if (mCliOutputType >= OUTPUT_NORMAL)
 	{
@@ -73,70 +69,61 @@ void NsoProcess::displayHeader()
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
 
 	printf("[NSO Header]\n");
-	printf("  Format Version:     %" PRId32 "\n", mNso.version.get());
-	printf("  Flags:              0x%" PRIx32 "\n", mNso.flags.get());
 	printf("  ModuleId:           ");
-	_HEXDUMP_L(mNso.module_id, 32);
+	_HEXDUMP_L(mHdr.getModuleId().data, nx::nso::kModuleIdLen);
 	printf("\n");
 	printf("  Program Segments:\n");
 	printf("     .module_id:\n");
-	printf("      FileOffset:     0x%" PRIx32 "\n", mNso.module_name_offset.get());
-	printf("      FileSize:       0x%" PRIx32 "\n", mNso.module_name_size.get());
+	printf("      FileOffset:     0x%" PRIx32 "\n", mHdr.getModuleNameInfo().offset);
+	printf("      FileSize:       0x%" PRIx32 "\n", mHdr.getModuleNameInfo().size);
 	printf("    .text:\n");
-	printf("      FileOffset:     0x%" PRIx32 "\n", mNso.text.file_offset.get());
-	printf("      FileSize:       0x%" PRIx32 "%s\n", mNso.text_file_size.get(), _HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_COMPRESS)? " (COMPRESSED)" : "");
-	//printf("      Compressed:     %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_COMPRESS)));
+	printf("      FileOffset:     0x%" PRIx32 "\n", mHdr.getTextSegmentInfo().file_layout.offset);
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mHdr.getTextSegmentInfo().file_layout.size, mHdr.getTextSegmentInfo().is_compressed? " (COMPRESSED)" : "");
 	printf("    .ro:\n");
-	printf("      FileOffset:     0x%" PRIx32 "\n", mNso.ro.file_offset.get());
-	printf("      FileSize:       0x%" PRIx32 "%s\n", mNso.ro_file_size.get(), _HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_COMPRESS)? " (COMPRESSED)" : "");
-	//printf("      Compressed:     %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_COMPRESS)));
+	printf("      FileOffset:     0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().file_layout.offset);
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mHdr.getRoSegmentInfo().file_layout.size, mHdr.getRoSegmentInfo().is_compressed? " (COMPRESSED)" : "");
 	printf("    .data:\n");
-	printf("      FileOffset:     0x%" PRIx32 "\n", mNso.data.file_offset.get());
-	printf("      FileSize:       0x%" PRIx32 "%s\n", mNso.data_file_size.get(), _HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_COMPRESS)? " (COMPRESSED)" : "");
-	//printf("      Compressed:     %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_COMPRESS)));
+	printf("      FileOffset:     0x%" PRIx32 "\n", mHdr.getDataSegmentInfo().file_layout.offset);
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mHdr.getDataSegmentInfo().file_layout.size, mHdr.getDataSegmentInfo().is_compressed? " (COMPRESSED)" : "");
 	printf("  Program Sections:\n");
 	printf("     .text:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.text.memory_offset.get());
-	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.text.size.get());
-	//printf("      Hashed:         %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_HASH)));
-	if (_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_TEXT_HASH))
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getTextSegmentInfo().memory_layout.offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getTextSegmentInfo().memory_layout.size);
+	if (mHdr.getTextSegmentInfo().is_hashed)
 	{
 		printf("      Hash:           ");
-		_HEXDUMP_L(mNso.text_hash, 32);
+		_HEXDUMP_L(mHdr.getTextSegmentInfo().hash.bytes, 32);
 		printf("\n");
 	}
 	printf("    .ro:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.ro.memory_offset.get());
-	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.ro.size.get());
-	//printf("      Hashed:           %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_HASH)));
-	if (_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_RO_HASH))
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().memory_layout.offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().memory_layout.size);
+	if (mHdr.getRoSegmentInfo().is_hashed)
 	{
 		printf("      Hash:           ");
-		_HEXDUMP_L(mNso.ro_hash, 32);
+		_HEXDUMP_L(mHdr.getRoSegmentInfo().hash.bytes, 32);
 		printf("\n");
 	}
 	printf("    .api_info:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.ro.memory_offset.get() + mNso.embedded.offset.get());
-	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.embedded.size.get());
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().memory_layout.offset + mHdr.getRoEmbeddedInfo().offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getRoEmbeddedInfo().size);
 	printf("    .dynstr:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.ro.memory_offset.get() + mNso.dyn_str.offset.get());
-	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.dyn_str.size.get());
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().memory_layout.offset + mHdr.getRoDynStrInfo().offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().size);
 	printf("    .dynsym:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.ro.memory_offset.get() + mNso.dyn_sym.offset.get());
-	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.dyn_sym.size.get());
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().memory_layout.offset + mHdr.getRoDynSymInfo().offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().size);
 	printf("    .data:\n");
-	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNso.data.memory_offset.get());
-	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.data.size.get());
-	//printf("      Hashed:         %s\n", getBoolStr(_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_HASH)));
-	if (_HAS_BIT(mNso.flags.get(), nx::nso::FLAG_DATA_HASH))
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getDataSegmentInfo().memory_layout.offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getDataSegmentInfo().memory_layout.size);
+	if (mHdr.getDataSegmentInfo().is_hashed)
 	{
 		printf("      Hash:           ");
-		_HEXDUMP_L(mNso.data_hash, 32);
+		_HEXDUMP_L(mHdr.getDataSegmentInfo().hash.bytes, 32);
 		printf("\n");
 	}
 	printf("    .bss:\n");
-	printf("      MemorySize:     0x%" PRIx32 "\n", mNso.bss_size.get());
+	printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getBssSize());
 
 #undef _HEXDUMP_L
 }
-

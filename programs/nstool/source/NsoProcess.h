@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
-#include <nx/nso.h>
+#include <nx/NsoHeader.h>
 
 #include "nstool.h"
 
@@ -26,7 +26,7 @@ private:
 	CliOutputType mCliOutputType;
 	bool mVerify;
 
-	nx::sNsoHeader mNso;
+	nx::NsoHeader mHdr;
 
 	void displayHeader();
 };

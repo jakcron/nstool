@@ -2,9 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/List.h>
-#include <crypto/aes.h>
 #include <crypto/sha.h>
-#include <crypto/rsa.h>
 #include <fnd/ISerialiseableBinary.h>
 
 namespace nx
@@ -23,6 +21,7 @@ namespace nx
 			FLAG_DATA_HASH
 		};
 
+		static const uint32_t kDefaultFormatVersion = 0;
 		static const size_t kModuleIdLen = 32;
 	}
 	
@@ -43,7 +42,7 @@ namespace nx
 	struct sNsoHeader
 	{
 		char signature[4];
-		le_uint32_t version;
+		le_uint32_t format_version;
 		byte_t reserved_1[4];
 		le_uint32_t flags;
 		sNsoCodeSegment text;
@@ -60,9 +59,9 @@ namespace nx
 		sNsoSection embedded;
 		sNsoSection dyn_str;
 		sNsoSection dyn_sym;
-		byte_t text_hash[crypto::sha::kSha256HashLen];
-		byte_t ro_hash[crypto::sha::kSha256HashLen];
-		byte_t data_hash[crypto::sha::kSha256HashLen];
+		crypto::sha::sSha256Hash text_hash;
+		crypto::sha::sSha256Hash ro_hash;
+		crypto::sha::sSha256Hash data_hash;
 	};
 
 #pragma pack(pop)
