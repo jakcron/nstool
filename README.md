@@ -10,10 +10,11 @@ Tools & Libraries for NX (Nintendo Switch).
 
 # Libraries
 
-* __libfnd__	- Foundation library.
-* __libcrypto__	- Cryptographic functions (AES,SHA,RSA). Wrapper for [mbedTLS](https://github.com/ARMmbed/mbedtls)
-* __libes__		- Handling of (NX relevant) eShop file type processing. (eTickets, etc)
-* __libnx__		- Handling of NX file types
+* __libfnd__		- Foundation library.
+* __libcrypto__		- Cryptographic functions (AES,SHA,RSA). Wrapper for [mbedTLS](https://github.com/ARMmbed/mbedtls)
+* __libcompress__	- Compression algorithms (LZ4). Wrapper for [lz4](https://github.com/lz4/lz4)
+* __libes__			- Handling of (NX relevant) eShop file type processing. (eTickets, etc)
+* __libnx__			- Handling of NX file types
 
 # Building
 
