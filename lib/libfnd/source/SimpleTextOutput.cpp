@@ -19,7 +19,7 @@ void fnd::SimpleTextOutput::hxdStyleDump(const byte_t* data, size_t len, size_t 
 		printf(" ");
 		for (size_t j = 0; j < row_len; j++)
 		{
-			printf("%c", isalnum(data[(i * row_len) + j]) ? data[(i * row_len) + j] : '.');
+			printf("%c", iscntrl(data[(i * row_len) + j]) ? '.' : data[(i * row_len) + j]);
 		}
 		printf("\n");
 	}
@@ -43,7 +43,7 @@ void fnd::SimpleTextOutput::hxdStyleDump(const byte_t* data, size_t len, size_t 
 		for (size_t j = 0; j < row_len; j++)
 		{
 			if (j < (len % row_len))
-				printf("%c", isalnum(data[(i * row_len) + j]) ? data[(i * row_len) + j] : '.');
+				printf("%c", iscntrl(data[(i * row_len) + j]) ? '.' : data[(i * row_len) + j]);
 			else
 				printf(" ");
 		}
