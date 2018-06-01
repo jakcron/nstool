@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
@@ -18,6 +19,12 @@ public:
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
 
+	// processed data
+	const nx::NsoHeader& getNsoHeader() const;
+	const fnd::MemoryBlob& getTextBlob() const;
+	const fnd::MemoryBlob& getRoBlob() const;
+	const fnd::MemoryBlob& getDataBlob() const;
+	const std::vector<std::string>& getApiList() const;
 
 private:
 	const std::string kModuleName = "NsoProcess";
@@ -27,6 +34,11 @@ private:
 	bool mVerify;
 
 	nx::NsoHeader mHdr;
+	fnd::MemoryBlob mTextBlob, mRoBlob, mDataBlob;
+	std::vector<std::string> mApiList;
 
+	void importHeader();
+	void importCodeSegments();
+	void importApiList();
 	void displayHeader();
 };
