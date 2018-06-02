@@ -17,6 +17,7 @@
 #include <nx/nca.h>
 #include <nx/npdm.h>
 #include <nx/romfs.h>
+#include <nx/nso.h>
 
 UserSettings::UserSettings()
 {}
@@ -38,7 +39,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset\n");
 	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt]\n");
+	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso]\n");
 	printf("      -y, --verify    Verify file\n");
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
@@ -61,6 +62,10 @@ void UserSettings::showHelp()
 	printf("      --part1         Extract \"partition 1\" to directory \n");
 	printf("      --part2         Extract \"partition 2\" to directory \n");
 	printf("      --part3         Extract \"partition 3\" to directory \n");
+	printf("\n  NSO (Nintendo Software Object)\n");
+	printf("    nstool [--arch <architecture>] <.nso>\n");
+	printf("      --arch          Specify code architecture [32bit, 64bit]\n");
+
 }
 
 const std::string UserSettings::getInputPath() const
@@ -91,6 +96,11 @@ CliOutputType UserSettings::getCliOutputType() const
 bool UserSettings::isListFs() const
 {
 	return mListFs;
+}
+
+const sOptional<nx::npdm::InstructionType>& UserSettings::getArchType() const
+{
+	return mArchType;
 }
 
 const sOptional<std::string>& UserSettings::getUpdatePath() const
@@ -266,6 +276,12 @@ void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
 			cmd_args.part3_path = args[i+1];
+		}
+
+		else if (args[i] == "--arch")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
+			cmd_args.arch_type = args[i + 1];
 		}
 
 		else
@@ -523,6 +539,12 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mPart2Path = args.part2_path;
 	mPart3Path = args.part3_path;
 
+	// determine the architecture type for NSO
+	if (args.arch_type.isSet)
+		mArchType = getInstructionTypeFromString(*args.arch_type);
+	else
+		mArchType.isSet = false;
+
 	// determine output path
 	if (args.verbose_output.isSet)
 		mOutputType = OUTPUT_VERBOSE;
@@ -579,6 +601,8 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_NPDM;
 	else if (str == "cnmt")
 		type = FILE_CNMT;
+	else if (str == "nso")
+		type = FILE_NSO;
 	else
 		type = FILE_INVALID;
 
@@ -635,6 +659,8 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test npdm
 	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && std::string(_QUICK_CAST(nx::sNpdmHeader, 0)->signature, 4) == nx::npdm::kNpdmStructSig)
 		file_type = FILE_NPDM;
+	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && std::string(_QUICK_CAST(nx::sNsoHeader, 0)->signature, 4) == nx::nso::kNsoSig)
+		file_type = FILE_NSO;
 	// else unrecognised
 	else
 		file_type = FILE_INVALID;
@@ -643,4 +669,20 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #undef _QUICK_CAST
 
 	return file_type;
+}
+
+nx::npdm::InstructionType UserSettings::getInstructionTypeFromString(const std::string & type_str)
+{
+	std::string str = type_str;
+	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+
+	nx::npdm::InstructionType type;
+	if (str == "32bit")
+		type = nx::npdm::INSTR_32BIT;
+	else if (str == "64bit")
+		type = nx::npdm::INSTR_64BIT;
+	else
+		throw fnd::Exception(kModuleName, "Unsupported architecture type: " + str);
+
+	return type;
 }

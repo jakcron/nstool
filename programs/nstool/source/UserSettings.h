@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
+#include <nx/npdm.h>
 #include "nstool.h"
 
 class UserSettings
@@ -20,6 +21,7 @@ public:
 	
 	// specialised toggles
 	bool isListFs() const;
+	const sOptional<nx::npdm::InstructionType>& getArchType() const;
 
 	// specialised paths
 	const sOptional<std::string>& getUpdatePath() const;
@@ -54,6 +56,7 @@ private:
 		sOptional<std::string> part1_path;
 		sOptional<std::string> part2_path;
 		sOptional<std::string> part3_path;
+		sOptional<std::string> arch_type;
 
 		void clear()
 		{
@@ -75,6 +78,7 @@ private:
 			part1_path.isSet = false;
 			part2_path.isSet = false;
 			part3_path.isSet = false;
+			arch_type.isSet = false;
 		}
 	};
 	
@@ -95,10 +99,13 @@ private:
 	sOptional<std::string> mPart2Path;
 	sOptional<std::string> mPart3Path;
 
+	sOptional<nx::npdm::InstructionType> mArchType;
+
 	void populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args);
 	void populateKeyset(sCmdArgs& args);
 	void populateUserSettings(sCmdArgs& args);
 	void decodeHexStringToBytes(const std::string& name, const std::string& str, byte_t* out, size_t out_len);
 	FileType getFileTypeFromString(const std::string& type_str);
 	FileType determineFileTypeFromFile(const std::string& path);
+	nx::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
 };

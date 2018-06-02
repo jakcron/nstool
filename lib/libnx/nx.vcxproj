@@ -26,6 +26,7 @@
     <ClInclude Include="include\nx\AesKeygen.h" />
     <ClInclude Include="include\nx\cnmt.h" />
     <ClInclude Include="include\nx\ContentMetaBinary.h" />
+    <ClInclude Include="include\nx\dynamic_symbol.h" />
     <ClInclude Include="include\nx\FacBinary.h" />
     <ClInclude Include="include\nx\FacHeader.h" />
     <ClInclude Include="include\nx\HandleTableSizeEntry.h" />
@@ -53,6 +54,8 @@
     <ClInclude Include="include\nx\NpdmBinary.h" />
     <ClInclude Include="include\nx\NpdmHeader.h" />
     <ClInclude Include="include\nx\NcaHeader.h" />
+    <ClInclude Include="include\nx\nso.h" />
+    <ClInclude Include="include\nx\NsoHeader.h" />
     <ClInclude Include="include\nx\NXCrypto.h" />
     <ClInclude Include="include\nx\pfs.h" />
     <ClInclude Include="include\nx\PfsHeader.h" />
@@ -66,6 +69,9 @@
     <ClInclude Include="include\nx\xci.h" />
     <ClInclude Include="include\nx\XciHeader.h" />
     <ClInclude Include="include\nx\XciUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AciBinary.cpp" />
@@ -91,10 +97,11 @@
     <ClCompile Include="source\MiscFlagsHandler.cpp" />
     <ClCompile Include="source\MiscParamsEntry.cpp" />
     <ClCompile Include="source\MiscParamsHandler.cpp" />
+    <ClCompile Include="source\NcaHeader.cpp" />
     <ClCompile Include="source\NcaUtils.cpp" />
     <ClCompile Include="source\NpdmBinary.cpp" />
     <ClCompile Include="source\NpdmHeader.cpp" />
-    <ClCompile Include="source\NcaHeader.cpp" />
+    <ClCompile Include="source\NsoHeader.cpp" />
     <ClCompile Include="source\PfsHeader.cpp" />
     <ClCompile Include="source\SacBinary.cpp" />
     <ClCompile Include="source\SacEntry.cpp" />
@@ -104,9 +111,6 @@
     <ClCompile Include="source\ThreadInfoHandler.cpp" />
     <ClCompile Include="source\XciHeader.cpp" />
     <ClCompile Include="source\XciUtils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="makefile" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

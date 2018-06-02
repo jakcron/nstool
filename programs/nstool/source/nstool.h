@@ -19,6 +19,7 @@ enum FileType
 	FILE_NCA,
 	FILE_NPDM,
 	FILE_CNMT,
+	FILE_NSO,
 	FILE_INVALID = -1,
 };
 

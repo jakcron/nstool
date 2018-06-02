@@ -156,6 +156,18 @@
     <ClInclude Include="include\nx\HierarchicalIntegrityHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nx\nso.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\NsoHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\dynamic_symbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AciBinary.cpp">
@@ -165,6 +177,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\AciHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\AesKeygen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ContentMetaBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\FacBinary.cpp">
@@ -177,6 +195,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\HandleTableSizeHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\HierarchicalIntegrityHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\HierarchicalSha256Header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\InteruptEntry.cpp">
@@ -215,13 +239,19 @@
     <ClCompile Include="source\MiscParamsHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\NcaHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\NcaUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\NpdmBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NpdmHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\NcaHeader.cpp">
+    <ClCompile Include="source\NsoHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\PfsHeader.cpp">
@@ -245,29 +275,11 @@
     <ClCompile Include="source\ThreadInfoHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\AesKeygen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\NcaUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\XciHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\XciUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\ContentMetaBinary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\HierarchicalIntegrityHeader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\HierarchicalSha256Header.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="makefile" />
   </ItemGroup>
 </Project>

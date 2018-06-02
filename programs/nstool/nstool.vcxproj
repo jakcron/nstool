@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,7 +141,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,6 +151,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\lib\libcompress\libcompress.vcxproj">
+      <Project>{cf01b5b7-730a-447f-9bb2-5eda9b082177}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\lib\libcrypto\crypto.vcxproj">
       <Project>{6adbb60d-dba0-411d-bd2d-a355ef8e0fe1}</Project>
     </ProjectReference>
@@ -165,10 +168,12 @@
     <ClInclude Include="source\AesCtrWrappedIFile.h" />
     <ClInclude Include="source\CnmtProcess.h" />
     <ClInclude Include="source\CopiedIFile.h" />
+    <ClInclude Include="source\DynamicSymbolParser.h" />
     <ClInclude Include="source\HashTreeMeta.h" />
     <ClInclude Include="source\HashTreeWrappedIFile.h" />
     <ClInclude Include="source\NcaProcess.h" />
     <ClInclude Include="source\NpdmProcess.h" />
+    <ClInclude Include="source\NsoProcess.h" />
     <ClInclude Include="source\nstool.h" />
     <ClInclude Include="source\OffsetAdjustedIFile.h" />
     <ClInclude Include="source\PfsProcess.h" />
@@ -180,11 +185,13 @@
   <ItemGroup>
     <ClCompile Include="source\AesCtrWrappedIFile.cpp" />
     <ClCompile Include="source\CnmtProcess.cpp" />
+    <ClCompile Include="source\DynamicSymbolParser.cpp" />
     <ClCompile Include="source\HashTreeMeta.cpp" />
     <ClCompile Include="source\HashTreeWrappedIFile.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\NcaProcess.cpp" />
     <ClCompile Include="source\NpdmProcess.cpp" />
+    <ClCompile Include="source\NsoProcess.cpp" />
     <ClCompile Include="source\OffsetAdjustedIFile.cpp" />
     <ClCompile Include="source\PfsProcess.cpp" />
     <ClCompile Include="source\RomfsProcess.cpp" />
