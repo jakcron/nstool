@@ -35,6 +35,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libes", "lib\libes\es.vcxproj", "{7BE99936-0D40-410D-944B-4513C2EFF8DC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nstool", "programs\nstool\nstool.vcxproj", "{AF09FA96-4463-417D-8FE6-526063F41349}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177} = {CF01B5B7-730A-447F-9BB2-5EDA9B082177}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcompress", "lib\libcompress\libcompress.vcxproj", "{CF01B5B7-730A-447F-9BB2-5EDA9B082177}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +89,14 @@ Global
 		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x64.Build.0 = Release|x64
 		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x86.ActiveCfg = Release|Win32
 		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x86.Build.0 = Release|Win32
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177}.Debug|x64.ActiveCfg = Debug|x64
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177}.Debug|x64.Build.0 = Debug|x64
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177}.Debug|x86.ActiveCfg = Debug|Win32
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177}.Debug|x86.Build.0 = Debug|Win32
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177}.Release|x64.ActiveCfg = Release|x64
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177}.Release|x64.Build.0 = Release|x64
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177}.Release|x86.ActiveCfg = Release|Win32
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,6 +107,7 @@ Global
 		{91BA9E79-8242-4F7D-B997-0DFEC95EA22B} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 		{7BE99936-0D40-410D-944B-4513C2EFF8DC} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 		{AF09FA96-4463-417D-8FE6-526063F41349} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
+		{CF01B5B7-730A-447F-9BB2-5EDA9B082177} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07DCCACC-D10D-47C9-85AE-FB9C54DB7D62}

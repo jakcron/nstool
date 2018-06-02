@@ -65,37 +65,37 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\aes.cpp">
+    <ClCompile Include="source\aes_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\rsa.cpp">
+    <ClCompile Include="source\rsa_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\sha.cpp">
+    <ClCompile Include="source\sha_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\libpolarssl\source\polar_aes.c">
+    <ClCompile Include="source\libpolarssl\source\aes.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
-    <ClCompile Include="source\libpolarssl\source\polar_base64.c">
+    <ClCompile Include="source\libpolarssl\source\base64.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
-    <ClCompile Include="source\libpolarssl\source\polar_bignum.c">
+    <ClCompile Include="source\libpolarssl\source\bignum.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
-    <ClCompile Include="source\libpolarssl\source\polar_rsa.c">
+    <ClCompile Include="source\libpolarssl\source\md.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
-    <ClCompile Include="source\libpolarssl\source\polar_sha2.c">
+    <ClCompile Include="source\libpolarssl\source\md_wrap.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
-    <ClCompile Include="source\libpolarssl\source\polar_sha1.c">
+    <ClCompile Include="source\libpolarssl\source\rsa.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
-    <ClCompile Include="source\libpolarssl\source\polar_md.c">
+    <ClCompile Include="source\libpolarssl\source\sha1.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
-    <ClCompile Include="source\libpolarssl\source\polar_md_wrap.c">
+    <ClCompile Include="source\libpolarssl\source\sha2.c">
       <Filter>Source Files\polarssl</Filter>
     </ClCompile>
   </ItemGroup>

@@ -20,37 +20,36 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{AF09FA96-4463-417D-8FE6-526063F41349}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <RootNamespace>nstool</RootNamespace>
+    <ProjectGuid>{CF01B5B7-730A-447F-9BB2-5EDA9B082177}</ProjectGuid>
+    <RootNamespace>libcompress</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -70,131 +69,62 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libcompress\include;..\libcompress\source\lz4;</AdditionalIncludeDirectories>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libcompress\include;..\libcompress\source\lz4;</AdditionalIncludeDirectories>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libcompress\include;..\libcompress\source\lz4;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libcompress\include;..\libcompress\source\lz4;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\libcompress\libcompress.vcxproj">
-      <Project>{cf01b5b7-730a-447f-9bb2-5eda9b082177}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\lib\libcrypto\crypto.vcxproj">
-      <Project>{6adbb60d-dba0-411d-bd2d-a355ef8e0fe1}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\lib\libfnd\fnd.vcxproj">
-      <Project>{4d27edb9-5110-44fe-8ce2-d46c5ad3c55b}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\lib\libnx\nx.vcxproj">
-      <Project>{91ba9e79-8242-4f7d-b997-0dfec95ea22b}</Project>
-    </ProjectReference>
+    <ClInclude Include="include\compress\lz4.h" />
+    <ClInclude Include="source\lz4\lz4.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\AesCtrWrappedIFile.h" />
-    <ClInclude Include="source\CnmtProcess.h" />
-    <ClInclude Include="source\CopiedIFile.h" />
-    <ClInclude Include="source\HashTreeMeta.h" />
-    <ClInclude Include="source\HashTreeWrappedIFile.h" />
-    <ClInclude Include="source\NcaProcess.h" />
-    <ClInclude Include="source\NpdmProcess.h" />
-    <ClInclude Include="source\NsoProcess.h" />
-    <ClInclude Include="source\nstool.h" />
-    <ClInclude Include="source\OffsetAdjustedIFile.h" />
-    <ClInclude Include="source\PfsProcess.h" />
-    <ClInclude Include="source\RomfsProcess.h" />
-    <ClInclude Include="source\UserSettings.h" />
-    <ClInclude Include="source\version.h" />
-    <ClInclude Include="source\XciProcess.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="source\AesCtrWrappedIFile.cpp" />
-    <ClCompile Include="source\CnmtProcess.cpp" />
-    <ClCompile Include="source\HashTreeMeta.cpp" />
-    <ClCompile Include="source\HashTreeWrappedIFile.cpp" />
-    <ClCompile Include="source\main.cpp" />
-    <ClCompile Include="source\NcaProcess.cpp" />
-    <ClCompile Include="source\NpdmProcess.cpp" />
-    <ClCompile Include="source\NsoProcess.cpp" />
-    <ClCompile Include="source\OffsetAdjustedIFile.cpp" />
-    <ClCompile Include="source\PfsProcess.cpp" />
-    <ClCompile Include="source\RomfsProcess.cpp" />
-    <ClCompile Include="source\UserSettings.cpp" />
-    <ClCompile Include="source\XciProcess.cpp" />
+    <ClCompile Include="source\lz4_wrapper.cpp" />
+    <ClCompile Include="source\lz4\lz4.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
