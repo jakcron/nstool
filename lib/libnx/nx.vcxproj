@@ -26,6 +26,7 @@
     <ClInclude Include="include\nx\AesKeygen.h" />
     <ClInclude Include="include\nx\cnmt.h" />
     <ClInclude Include="include\nx\ContentMetaBinary.h" />
+    <ClInclude Include="include\nx\dynamic_symbol.h" />
     <ClInclude Include="include\nx\FacBinary.h" />
     <ClInclude Include="include\nx\FacHeader.h" />
     <ClInclude Include="include\nx\HandleTableSizeEntry.h" />
