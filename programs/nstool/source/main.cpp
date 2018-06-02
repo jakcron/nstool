@@ -117,6 +117,9 @@ int main(int argc, char** argv)
 			nso.setInputFile(&inputFile, 0, inputFile.size());
 			nso.setCliOutputMode(user_set.getCliOutputType());
 			nso.setVerifyMode(user_set.isVerifyFile());
+			
+			if (user_set.getArchType().isSet)
+				nso.setArchType(user_set.getArchType().var);
 
 			nso.process();
 		}

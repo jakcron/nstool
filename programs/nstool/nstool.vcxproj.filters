@@ -60,6 +60,9 @@
     <ClInclude Include="source\NsoProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\DynamicSymbolParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
@@ -99,6 +102,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NsoProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\DynamicSymbolParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

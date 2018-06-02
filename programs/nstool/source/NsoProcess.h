@@ -6,6 +6,7 @@
 #include <nx/NsoHeader.h>
 
 #include "nstool.h"
+#include "DynamicSymbolParser.h"
 
 class NsoProcess
 {
@@ -18,6 +19,8 @@ public:
 	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
+
+	void setArchType(nx::npdm::InstructionType type);
 
 	// processed data
 	const nx::NsoHeader& getNsoHeader() const;
@@ -32,10 +35,12 @@ private:
 	fnd::IFile* mReader;
 	CliOutputType mCliOutputType;
 	bool mVerify;
+	sOptional<nx::npdm::InstructionType> mArchType;
 
 	nx::NsoHeader mHdr;
 	fnd::MemoryBlob mTextBlob, mRoBlob, mDataBlob;
 	std::vector<std::string> mApiList;
+	DynamicSymbolParser mDynSymbolList;
 
 	void importHeader();
 	void importCodeSegments();

@@ -5,17 +5,12 @@
 #include "OffsetAdjustedIFile.h"
 #include "NsoProcess.h"
 
-inline const char* getBoolStr(bool isTrue)
-{
-	return isTrue? "TRUE" : "FALSE";
-}
-
 NsoProcess::NsoProcess():
 	mReader(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false)
 {
-
+	mArchType.isSet = false;
 }
 
 NsoProcess::~NsoProcess()
@@ -57,6 +52,11 @@ void NsoProcess::setCliOutputMode(CliOutputType type)
 void NsoProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
+}
+
+void NsoProcess::setArchType(nx::npdm::InstructionType type)
+{
+	mArchType = type;
 }
 
 const nx::NsoHeader& NsoProcess::getNsoHeader() const
@@ -192,7 +192,7 @@ void NsoProcess::importApiList()
 		std::stringstream list_stream(std::string((char*)mRoBlob.getBytes() + mHdr.getRoEmbeddedInfo().offset, mHdr.getRoEmbeddedInfo().size));
 		std::string api;
 
-		while(std::getline(list_stream, api, '+'))
+		while(std::getline(list_stream, api, (char)0x00))
 		{
 			mApiList.push_back(api);
 		}
@@ -200,6 +200,11 @@ void NsoProcess::importApiList()
 	else
 	{
 		mApiList.clear();
+	}
+
+	if (mHdr.getRoDynSymInfo().size > 0 && mArchType.isSet == true)
+	{
+		mDynSymbolList.parseData(mRoBlob.getBytes() + mHdr.getRoDynSymInfo().offset, mHdr.getRoDynSymInfo().size, mRoBlob.getBytes() + mHdr.getRoDynStrInfo().offset, mHdr.getRoDynStrInfo().size, *mArchType == nx::npdm::INSTR_64BIT);
 	}
 }
 
@@ -246,13 +251,13 @@ void NsoProcess::displayHeader()
 	if (mCliOutputType >= OUTPUT_VERBOSE)
 	{
 		printf("    .api_info:\n");
-		printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().memory_layout.offset + mHdr.getRoEmbeddedInfo().offset);
+		printf("      MemoryOffset:   0x%" PRIx32 "\n",  mHdr.getRoEmbeddedInfo().offset);
 		printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getRoEmbeddedInfo().size);
 		printf("    .dynstr:\n");
-		printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().memory_layout.offset + mHdr.getRoDynStrInfo().offset);
+		printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().offset);
 		printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().size);
 		printf("    .dynsym:\n");
-		printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoSegmentInfo().memory_layout.offset + mHdr.getRoDynSymInfo().offset);
+		printf("      MemoryOffset:   0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().offset);
 		printf("      MemorySize:     0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().size);
 	}
 	
@@ -273,13 +278,25 @@ void NsoProcess::displayHeader()
 
 void NsoProcess::displayRoApiList()
 {
-	printf("[NSO RO Segment]\n");
-	if (mApiList.size() > 0)
+	if (mApiList.size() > 0 || mDynSymbolList.getDynamicSymbolList().getSize() > 0)
 	{
-		printf("  API List:\n");
-		for (size_t i = 0; i < mApiList.size(); i++)
+		printf("[NSO RO Segment]\n");
+		if (mApiList.size() > 0)
 		{
-			printf("    %s\n", mApiList[i].c_str());
+			printf("  API List:\n");
+			for (size_t i = 0; i < mApiList.size(); i++)
+			{
+				printf("    %s\n", mApiList[i].c_str());
+			}
+		}
+		if (mDynSymbolList.getDynamicSymbolList().getSize() > 0)
+		{
+			printf("  Undefined Symbol List:\n");
+			for (size_t i = 0; i < mDynSymbolList.getDynamicSymbolList().getSize(); i++)
+			{
+				if (mDynSymbolList.getDynamicSymbolList()[i].shn_index == nx::dynsym::SHN_UNDEF && (mDynSymbolList.getDynamicSymbolList()[i].symbol_type == nx::dynsym::STT_FUNC || mDynSymbolList.getDynamicSymbolList()[i].symbol_type == nx::dynsym::STT_NOTYPE))
+					printf("    %s\n", mDynSymbolList.getDynamicSymbolList()[i].name.c_str());
+			}
 		}
 	}
 }

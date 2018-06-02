@@ -168,6 +168,7 @@
     <ClInclude Include="source\AesCtrWrappedIFile.h" />
     <ClInclude Include="source\CnmtProcess.h" />
     <ClInclude Include="source\CopiedIFile.h" />
+    <ClInclude Include="source\DynamicSymbolParser.h" />
     <ClInclude Include="source\HashTreeMeta.h" />
     <ClInclude Include="source\HashTreeWrappedIFile.h" />
     <ClInclude Include="source\NcaProcess.h" />
@@ -184,6 +185,7 @@
   <ItemGroup>
     <ClCompile Include="source\AesCtrWrappedIFile.cpp" />
     <ClCompile Include="source\CnmtProcess.cpp" />
+    <ClCompile Include="source\DynamicSymbolParser.cpp" />
     <ClCompile Include="source\HashTreeMeta.cpp" />
     <ClCompile Include="source\HashTreeWrappedIFile.cpp" />
     <ClCompile Include="source\main.cpp" />
