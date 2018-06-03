@@ -37,10 +37,10 @@ void nx::PfsHeader::exportBinary()
 	switch (mFsType)
 	{
 		case (TYPE_PFS0):
-			strncpy(hdr->signature, pfs::kPfsSig.c_str(), 4);
+			hdr->signature = pfs::kPfsSig;
 			break;
 		case (TYPE_HFS0):
-			strncpy(hdr->signature, pfs::kHashedPfsSig.c_str(), 4);
+			hdr->signature = pfs::kHashedPfsSig;
 			break;
 	}
 	
@@ -102,12 +102,17 @@ void nx::PfsHeader::importBinary(const byte_t * bytes, size_t len)
 
 	// check struct signature
 	FsType fs_type;
-	if (memcmp(hdr->signature, pfs::kPfsSig.c_str(), 4) == 0)
-		fs_type = TYPE_PFS0;
-	else if (memcmp(hdr->signature, pfs::kHashedPfsSig.c_str(), 4) == 0)
-		fs_type = TYPE_HFS0;
-	else
-		throw fnd::Exception(kModuleName, "PFS header corrupt");
+	switch(hdr->signature.get())
+	{
+		case (pfs::kPfsSig):
+			fs_type = TYPE_PFS0;
+			break;
+		case (pfs::kHashedPfsSig):
+			fs_type = TYPE_HFS0;
+			break;	
+		default:
+			throw fnd::Exception(kModuleName, "PFS header corrupt");
+	}
 
 	// determine complete header size
 	size_t pfs_full_header_size = sizeof(sPfsHeader) + getFileEntrySize(fs_type) * hdr->file_num.get() + hdr->name_table_size.get();

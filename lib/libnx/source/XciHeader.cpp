@@ -129,7 +129,7 @@ void nx::XciHeader::importBinary(const byte_t* bytes, size_t len)
 	const nx::sXciHeader* hdr = (const nx::sXciHeader*)mBinaryBlob.getBytes();
 	
 	// check XCI signature
-	if (std::string(hdr->signature, 4) != xci::kXciSig)
+	if (hdr->signature.get() != xci::kXciSig)
 	{
 		throw fnd::Exception(kModuleName, "XCI header corrupt");
 	}

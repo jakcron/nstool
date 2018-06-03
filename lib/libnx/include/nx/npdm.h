@@ -4,12 +4,13 @@
 #include <crypto/aes.h>
 #include <crypto/sha.h>
 #include <fnd/ISerialiseableBinary.h>
+#include <nx/macro.h>
 
 namespace nx
 {
 	namespace npdm
 	{
-		const std::string kNpdmStructSig = "META";
+		static const uint32_t kNpdmStructSig = _MAKE_STRUCT_SIGNATURE("META");
 		static const size_t kNameMaxLen = 0x10;
 		static const size_t kProductCodeMaxLen = 0x10;
 		static const uint32_t kMaxPriority = BIT(6) -1 ;
@@ -33,7 +34,7 @@ namespace nx
 
 	struct sNpdmHeader
 	{
-		char signature[4];
+		le_uint32_t signature;
 		byte_t reserved_0[8];
 		byte_t flags;
 		byte_t reserved_1;

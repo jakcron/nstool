@@ -46,7 +46,7 @@ void nx::NsoHeader::exportBinary()
 	nx::sNsoHeader* hdr = (nx::sNsoHeader*)mBinaryBlob.getBytes();
 
 	// set header identifers
-	memcpy(hdr->signature, nso::kNsoSig.c_str(), 4);
+	hdr->signature = nso::kNsoSig;
 	hdr->format_version = nso::kDefaultFormatVersion;
 	
 	// variable to store flags before commiting to header
@@ -141,7 +141,7 @@ void nx::NsoHeader::importBinary(const byte_t* bytes, size_t len)
 	const nx::sNsoHeader* hdr = (const nx::sNsoHeader*)mBinaryBlob.getBytes();
 	
 	// check NSO signature
-	if (std::string(hdr->signature, 4) != nso::kNsoSig)
+	if (hdr->signature.get() != nso::kNsoSig)
 	{
 		throw fnd::Exception(kModuleName, "NSO header corrupt (unrecognised header signature)");
 	}

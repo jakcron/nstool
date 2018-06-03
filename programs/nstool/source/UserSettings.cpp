@@ -650,27 +650,28 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #define _ASSERT_SIZE(size) (scratch.getSize() >= (size))
 
 	// test npdm
-	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && std::string(_QUICK_CAST(nx::sXciHeaderPage, 0)->header.signature, 4) == nx::xci::kXciSig)
+	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && _QUICK_CAST(nx::sXciHeaderPage, 0)->header.signature.get() == nx::xci::kXciSig)
 		file_type = FILE_XCI;
 	// test pfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && std::string(_QUICK_CAST(nx::sPfsHeader, 0)->signature, 4) == nx::pfs::kPfsSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _QUICK_CAST(nx::sPfsHeader, 0)->signature.get() == nx::pfs::kPfsSig)
 		file_type = FILE_PARTITIONFS;
 	// test hfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && std::string(_QUICK_CAST(nx::sPfsHeader, 0)->signature, 4) == nx::pfs::kHashedPfsSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _QUICK_CAST(nx::sPfsHeader, 0)->signature.get() == nx::pfs::kHashedPfsSig)
 		file_type = FILE_PARTITIONFS;
 	// test romfs
 	else if (_ASSERT_SIZE(sizeof(nx::sRomfsHeader)) && _QUICK_CAST(nx::sRomfsHeader, 0)->header_size.get() == sizeof(nx::sRomfsHeader) && _QUICK_CAST(nx::sRomfsHeader, 0)->sections[1].offset.get() == (_QUICK_CAST(nx::sRomfsHeader, 0)->sections[0].offset.get() + _QUICK_CAST(nx::sRomfsHeader, 0)->sections[0].size.get()))
 		file_type = FILE_ROMFS;
 	// test nca2
-	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && std::string(nca_header->signature, 4) == nx::nca::kNca2Sig)
+	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && nca_header->signature.get() == nx::nca::kNca2Sig)
 		file_type = FILE_NCA;
 	// test nca3
-	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && std::string(nca_header->signature, 4) == nx::nca::kNca3Sig)
+	else if (_ASSERT_SIZE(nx::nca::kHeaderSize) && nca_header->signature.get() == nx::nca::kNca3Sig)
 		file_type = FILE_NCA;
 	// test npdm
-	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && std::string(_QUICK_CAST(nx::sNpdmHeader, 0)->signature, 4) == nx::npdm::kNpdmStructSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && _QUICK_CAST(nx::sNpdmHeader, 0)->signature.get() == nx::npdm::kNpdmStructSig)
 		file_type = FILE_NPDM;
-	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && std::string(_QUICK_CAST(nx::sNsoHeader, 0)->signature, 4) == nx::nso::kNsoSig)
+	// test nso
+	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && _QUICK_CAST(nx::sNsoHeader, 0)->signature.get() == nx::nso::kNsoSig)
 		file_type = FILE_NSO;
 	// else unrecognised
 	else
