@@ -9,7 +9,7 @@ void nx::NcaUtils::decryptNcaHeader(const byte_t* src, byte_t* dst, const crypto
 	crypto::aes::AesXtsMakeTweak(tweak, 1);
 	crypto::aes::AesXtsDecryptSector(src + sectorToOffset(1), nx::nca::kSectorSize, key.key[0], key.key[1], tweak, raw_hdr);
 
-	bool useNca2SectorIndex = memcmp(((nx::sNcaHeader*)(raw_hdr))->signature, nx::nca::kNca2Sig.c_str(), 4) == 0;
+	bool useNca2SectorIndex = ((nx::sNcaHeader*)(raw_hdr))->signature.get() == nx::nca::kNca2Sig;
 
 	// decrypt whole header
 	for (size_t i = 0; i < nx::nca::kHeaderSectorNum; i++)

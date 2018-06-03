@@ -4,13 +4,14 @@
 #include <crypto/aes.h>
 #include <crypto/sha.h>
 #include <fnd/ISerialiseableBinary.h>
+#include <nx/macro.h>
 
 namespace nx
 {
 	namespace aci
 	{
-		const std::string kAciStructSig = "ACI0";
-		const std::string kAciDescStructSig = "ACID";
+		static const uint32_t kAciStructSig = _MAKE_STRUCT_SIGNATURE("ACI0");
+		static const uint32_t kAciDescStructSig = _MAKE_STRUCT_SIGNATURE("ACID");
 		static const size_t kAciAlignSize = 0x10;
 
 		enum Flags
@@ -22,7 +23,7 @@ namespace nx
 #pragma pack(push,1)
 	struct sAciHeader
 	{
-		char signature[4];
+		le_uint32_t signature;
 		le_uint32_t size; // includes prefacing signature, set only in ACID made by SDK (it enables easy resigning)
 		byte_t reserved_0[4];
 		le_uint32_t flags; // set in ACID only

@@ -95,10 +95,10 @@ void AciHeader::exportBinary()
 	switch (mType)
 	{
 	case (TYPE_ACI0):
-		memcpy(hdr->signature, aci::kAciStructSig.c_str(), 4);
+		hdr->signature = aci::kAciStructSig;
 		break;
 	case (TYPE_ACID):
-		memcpy(hdr->signature, aci::kAciDescStructSig.c_str(), 4);
+		hdr->signature = aci::kAciDescStructSig;
 		break;
 	default:
 		throw fnd::Exception(kModuleName, "Unexpected ACI type");
@@ -149,16 +149,15 @@ void AciHeader::importBinary(const byte_t * bytes, size_t len)
 
 	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.getBytes();
 
-	if (std::string(hdr->signature, 4) == aci::kAciStructSig)
+	switch (hdr->signature.get())
 	{
+	case (aci::kAciStructSig):
 		mType = TYPE_ACI0;
-	}
-	else if (std::string(hdr->signature, 4) == aci::kAciDescStructSig)
-	{
+		break;
+	case (aci::kAciDescStructSig):
 		mType = TYPE_ACID;
-	}
-	else
-	{
+		break;
+	default:
 		throw fnd::Exception(kModuleName, "ACI header corrupt");
 	}
 

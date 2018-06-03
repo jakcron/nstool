@@ -4,12 +4,13 @@
 #include <fnd/List.h>
 #include <crypto/sha.h>
 #include <fnd/ISerialiseableBinary.h>
+#include <nx/macro.h>
 
 namespace nx
 {
 	namespace nso
 	{
-		const std::string kNsoSig = "NSO0";
+		static const uint32_t kNsoSig = _MAKE_STRUCT_SIGNATURE("NSO0");
 
 		enum HeaderFlags
 		{
@@ -41,7 +42,7 @@ namespace nx
 
 	struct sNsoHeader
 	{
-		char signature[4];
+		le_uint32_t signature;
 		le_uint32_t format_version;
 		byte_t reserved_1[4];
 		le_uint32_t flags;

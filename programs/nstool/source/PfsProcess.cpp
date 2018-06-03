@@ -124,7 +124,7 @@ void PfsProcess::displayFs()
 size_t PfsProcess::determineHeaderSize(const nx::sPfsHeader* hdr)
 {
 	size_t fileEntrySize = 0;
-	if (std::string(hdr->signature, 4) == nx::pfs::kPfsSig)
+	if (hdr->signature.get() == nx::pfs::kPfsSig)
 		fileEntrySize = sizeof(nx::sPfsFile);
 	else
 		fileEntrySize = sizeof(nx::sHashedPfsFile);
@@ -134,7 +134,7 @@ size_t PfsProcess::determineHeaderSize(const nx::sPfsHeader* hdr)
 
 bool PfsProcess::validateHeaderMagic(const nx::sPfsHeader* hdr)
 {
-	return std::string(hdr->signature, 4) == nx::pfs::kPfsSig || std::string(hdr->signature, 4) == nx::pfs::kHashedPfsSig;
+	return hdr->signature.get() == nx::pfs::kPfsSig || hdr->signature.get() == nx::pfs::kHashedPfsSig;
 }
 
 void PfsProcess::validateHfs()

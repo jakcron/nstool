@@ -12,10 +12,10 @@ void NcaHeader::exportBinary()
 	switch(mFormatVersion)
 	{
 	case (NCA2_FORMAT):
-		strncpy(hdr->signature, nca::kNca2Sig.c_str(), 4);
+		hdr->signature = nca::kNca2Sig;
 		break;
 	case (NCA3_FORMAT):
-		strncpy(hdr->signature, nca::kNca3Sig.c_str(), 4);
+		hdr->signature = nca::kNca3Sig;
 		break;
 	default:
 		throw fnd::Exception(kModuleName, "Unsupported format version");
@@ -74,17 +74,14 @@ void NcaHeader::importBinary(const byte_t * bytes, size_t len)
 
 	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
 
-	std::string sig = std::string(hdr->signature, 4);
-	if (sig == nca::kNca2Sig)
+	switch(hdr->signature.get())
 	{
-		mFormatVersion = NCA2_FORMAT;
-	}
-	else if (sig == nca::kNca3Sig)
-	{
-		mFormatVersion = NCA3_FORMAT;
-	}
-	else
-	{
+		case (nca::kNca2Sig) :
+			mFormatVersion = NCA2_FORMAT;
+			break;
+		case (nca::kNca3Sig) :
+			mFormatVersion = NCA3_FORMAT;
+			break;
 		throw fnd::Exception(kModuleName, "NCA header corrupt");
 	}
 

@@ -5,13 +5,14 @@
 #include <crypto/sha.h>
 #include <crypto/rsa.h>
 #include <fnd/ISerialiseableBinary.h>
+#include <nx/macro.h>
 
 namespace nx
 {
 	namespace nca
 	{
-		const std::string kNca2Sig = "NCA2";
-		const std::string kNca3Sig = "NCA3";
+		static const uint32_t kNca2Sig = _MAKE_STRUCT_SIGNATURE("NCA2");
+		static const uint32_t kNca3Sig = _MAKE_STRUCT_SIGNATURE("NCA3");
 		static const size_t kSectorSize = 0x200;
 		static const size_t kPartitionNum = 4;
 		static const size_t kHeaderSectorNum = 6;
@@ -88,7 +89,7 @@ namespace nx
 #pragma pack(push,1)
 	struct sNcaHeader
 	{
-		char signature[4];
+		le_uint32_t signature;
 		byte_t distribution_type;
 		byte_t content_type;
 		byte_t key_generation;

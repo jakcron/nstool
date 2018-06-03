@@ -88,7 +88,7 @@ void nx::NpdmHeader::exportBinary()
 	mBinaryBlob.alloc(sizeof(sNpdmHeader));
 	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
 
-	memcpy(hdr->signature, npdm::kNpdmStructSig.c_str(), 4);
+	hdr->signature = npdm::kNpdmStructSig;
 	byte_t flag = ((byte_t)(mInstructionType & 1) | (byte_t)((mProcAddressSpaceType & 3) << 1)) & 0xf;
 	hdr->flags = flag;
 	hdr->main_thread_priority = mMainThreadPriority;
@@ -118,7 +118,7 @@ void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
 	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
 	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
 
-	if (std::string(hdr->signature, 4) != npdm::kNpdmStructSig)
+	if (hdr->signature.get() != npdm::kNpdmStructSig)
 	{
 		throw fnd::Exception(kModuleName, "NPDM header corrupt");
 	}

@@ -6,12 +6,13 @@
 #include <crypto/sha.h>
 #include <crypto/rsa.h>
 #include <fnd/ISerialiseableBinary.h>
+#include <nx/macro.h>
 
 namespace nx
 {
 	namespace xci
 	{
-		const std::string kXciSig = "HEAD";
+		static const uint32_t kXciSig = _MAKE_STRUCT_SIGNATURE("HEAD");
 		static const uint32_t kHeaderEncOffset = 0x90;
 		static const uint32_t kHeaderEncSize = 0x70;
 		static const uint32_t kPageSize = 0x200;
@@ -68,7 +69,7 @@ namespace nx
 #pragma pack(push,1)
 	struct sXciHeader
 	{
-		char signature[4];
+		le_uint32_t signature;
 		le_uint32_t rom_area_start_page;
 		le_uint32_t backup_area_start_page;
 		byte_t key_flag;
