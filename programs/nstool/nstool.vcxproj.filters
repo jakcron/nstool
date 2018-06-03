@@ -42,9 +42,6 @@
     <ClInclude Include="source\AesCtrWrappedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\CopiedIFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\OffsetAdjustedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
