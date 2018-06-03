@@ -9,7 +9,6 @@
 #include "CnmtProcess.h"
 #include "NsoProcess.h"
 
-
 int main(int argc, char** argv)
 {
 	UserSettings user_set;
@@ -29,12 +28,14 @@ int main(int argc, char** argv)
 			xci.setCliOutputMode(user_set.getCliOutputType());
 			xci.setVerifyMode(user_set.isVerifyFile());
 
-			if (user_set.getUpdatePath().isSet)
-				xci.setUpdateExtractPath(user_set.getUpdatePath().var);
-			if (user_set.getNormalPath().isSet)
-				xci.setNormalExtractPath(user_set.getNormalPath().var);
-			if (user_set.getSecurePath().isSet)
-				xci.setSecureExtractPath(user_set.getSecurePath().var);
+			if (user_set.getXciUpdatePath().isSet)
+				xci.setPartitionForExtract(nx::xci::kUpdatePartitionStr, user_set.getXciUpdatePath().var);
+			if (user_set.getXciNormalPath().isSet)
+				xci.setPartitionForExtract(nx::xci::kNormalPartitionStr, user_set.getXciNormalPath().var);
+			if (user_set.getXciSecurePath().isSet)
+				xci.setPartitionForExtract(nx::xci::kSecurePartitionStr, user_set.getXciSecurePath().var);
+			if (user_set.getXciLogoPath().isSet)
+				xci.setPartitionForExtract(nx::xci::kLogoPartitionStr, user_set.getXciLogoPath().var);
 			xci.setListFs(user_set.isListFs());
 
 			xci.process();
@@ -77,14 +78,14 @@ int main(int argc, char** argv)
 			nca.setVerifyMode(user_set.isVerifyFile());
 
 
-			if (user_set.getPart0Path().isSet)
-				nca.setPartition0ExtractPath(user_set.getPart0Path().var);
-			if (user_set.getPart1Path().isSet)
-				nca.setPartition1ExtractPath(user_set.getPart1Path().var);
-			if (user_set.getPart2Path().isSet)
-				nca.setPartition2ExtractPath(user_set.getPart2Path().var);
-			if (user_set.getPart3Path().isSet)
-				nca.setPartition3ExtractPath(user_set.getPart3Path().var);
+			if (user_set.getNcaPart0Path().isSet)
+				nca.setPartition0ExtractPath(user_set.getNcaPart0Path().var);
+			if (user_set.getNcaPart1Path().isSet)
+				nca.setPartition1ExtractPath(user_set.getNcaPart1Path().var);
+			if (user_set.getNcaPart2Path().isSet)
+				nca.setPartition2ExtractPath(user_set.getNcaPart2Path().var);
+			if (user_set.getNcaPart3Path().isSet)
+				nca.setPartition3ExtractPath(user_set.getNcaPart3Path().var);
 			nca.setListFs(user_set.isListFs());
 
 			nca.process();

@@ -23,6 +23,11 @@ namespace nx
 		static const uint32_t kCertAreaPageCount = 64;
 		static const uint32_t kNormalAreaStartPageAddress = kReservedAreaPageCount + kCertAreaPageCount + kCardHeaderPageCount + kCardKeyAreaPageCount;
 
+		const std::string kUpdatePartitionStr = "update"; 
+		const std::string kNormalPartitionStr = "normal"; 
+		const std::string kSecurePartitionStr = "secure"; 
+		const std::string kLogoPartitionStr = "logo"; 
+
 
 		enum KekIndex
 		{

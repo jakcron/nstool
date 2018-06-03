@@ -35,6 +35,7 @@ struct sOptional
 {
 	bool isSet;
 	T var;
+	inline sOptional() : isSet(false) {}
 	inline const T& operator=(const T& other) { isSet = true; var = other; return var; }
 	inline const sOptional<T>& operator=(const sOptional<T>& other) 
 	{

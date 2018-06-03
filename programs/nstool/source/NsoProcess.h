@@ -3,6 +3,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <nx/npdm.h>
 #include <nx/NsoHeader.h>
 
 #include "nstool.h"

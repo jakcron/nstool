@@ -48,6 +48,7 @@ void UserSettings::showHelp()
 	printf("      --listfs        Print file system in embedded partitions\n");
 	printf("      --update        Extract \"update\" partition to directory\n");
 	printf("      --normal        Extract \"normal\" partition to directory\n");
+	printf("      --logo          Extract \"logo\" partition to directory\n");
 	printf("      --secure        Extract \"secure\" partition to directory\n");
 	printf("\n  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)\n");
 	printf("    nstool [--listfs] [--fsdir <dir>] <file>\n");
@@ -103,19 +104,24 @@ const sOptional<nx::npdm::InstructionType>& UserSettings::getArchType() const
 	return mArchType;
 }
 
-const sOptional<std::string>& UserSettings::getUpdatePath() const
+const sOptional<std::string>& UserSettings::getXciUpdatePath() const
 {
-	return mUpdatePath;
+	return mXciUpdatePath;
 }
 
-const sOptional<std::string>& UserSettings::getNormalPath() const
+const sOptional<std::string>& UserSettings::getXciNormalPath() const
 {
-	return mNormalPath;
+	return mXciNormalPath;
 }
 
-const sOptional<std::string>& UserSettings::getSecurePath() const
+const sOptional<std::string>& UserSettings::getXciSecurePath() const
 {
-	return mSecurePath;
+	return mXciSecurePath;
+}
+
+const sOptional<std::string>& UserSettings::getXciLogoPath() const
+{
+	return mXciLogoPath;
 }
 
 const sOptional<std::string>& UserSettings::getFsPath() const
@@ -123,24 +129,24 @@ const sOptional<std::string>& UserSettings::getFsPath() const
 	return mFsPath;
 }
 
-const sOptional<std::string>& UserSettings::getPart0Path() const
+const sOptional<std::string>& UserSettings::getNcaPart0Path() const
 {
-	return mPart0Path;
+	return mNcaPart0Path;
 }
 
-const sOptional<std::string>& UserSettings::getPart1Path() const
+const sOptional<std::string>& UserSettings::getNcaPart1Path() const
 {
-	return mPart1Path;
+	return mNcaPart1Path;
 }
 
-const sOptional<std::string>& UserSettings::getPart2Path() const
+const sOptional<std::string>& UserSettings::getNcaPart2Path() const
 {
-	return mPart2Path;
+	return mNcaPart2Path;
 }
 
-const sOptional<std::string>& UserSettings::getPart3Path() const
+const sOptional<std::string>& UserSettings::getNcaPart3Path() const
 {
-	return mPart3Path;
+	return mNcaPart3Path;
 }
 
 
@@ -160,7 +166,6 @@ void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
 		throw fnd::Exception(kModuleName, "Not enough arguments.");
 	}
 
-	cmd_args.clear();
 	cmd_args.input_path = args.back();
 
 	for (size_t i = 1; i < args.size(); i++)
@@ -234,6 +239,12 @@ void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
 			cmd_args.secure_path = args[i+1];
+		}
+
+		else if (args[i] == "--logo")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
+			cmd_args.logo_path = args[i+1];
 		}
 
 		else if (args[i] == "--fsdir")
@@ -530,20 +541,20 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mInputPath = *args.input_path;
 	mVerifyFile = args.verify_file.isSet;
 	mListFs = args.list_fs.isSet;
-	mUpdatePath = args.update_path;
-	mNormalPath = args.normal_path;
-	mSecurePath = args.secure_path;
+	mXciUpdatePath = args.update_path;
+	mXciNormalPath = args.normal_path;
+	mXciSecurePath = args.secure_path;
+	mXciLogoPath = args.logo_path;
+
 	mFsPath = args.fs_path;
-	mPart0Path = args.part0_path;
-	mPart1Path = args.part1_path;
-	mPart2Path = args.part2_path;
-	mPart3Path = args.part3_path;
+	mNcaPart0Path = args.part0_path;
+	mNcaPart1Path = args.part1_path;
+	mNcaPart2Path = args.part2_path;
+	mNcaPart3Path = args.part3_path;
 
 	// determine the architecture type for NSO
 	if (args.arch_type.isSet)
 		mArchType = getInstructionTypeFromString(*args.arch_type);
-	else
-		mArchType.isSet = false;
 
 	// determine output path
 	if (args.verbose_output.isSet)
