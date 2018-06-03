@@ -5,7 +5,6 @@
 class AesCtrWrappedIFile : public fnd::IFile
 {
 public:
-	AesCtrWrappedIFile(fnd::IFile* file, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr);
 	AesCtrWrappedIFile(fnd::IFile* file, bool ownIfile, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr);
 	~AesCtrWrappedIFile();
 

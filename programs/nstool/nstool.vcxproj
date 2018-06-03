@@ -167,7 +167,6 @@
   <ItemGroup>
     <ClInclude Include="source\AesCtrWrappedIFile.h" />
     <ClInclude Include="source\CnmtProcess.h" />
-    <ClInclude Include="source\CopiedIFile.h" />
     <ClInclude Include="source\DynamicSymbolParser.h" />
     <ClInclude Include="source\HashTreeMeta.h" />
     <ClInclude Include="source\HashTreeWrappedIFile.h" />

@@ -14,7 +14,7 @@ public:
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
+	void setInputFile(fnd::IFile* file, bool ownIFile);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
 
@@ -23,7 +23,8 @@ public:
 private:
 	const std::string kModuleName = "CnmtProcess";
 
-	fnd::IFile* mReader;
+	fnd::IFile* mFile;
+	bool mOwnIFile;
 	CliOutputType mCliOutputType;
 	bool mVerify;
 

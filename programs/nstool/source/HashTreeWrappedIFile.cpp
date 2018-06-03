@@ -1,17 +1,6 @@
+#include "nstool.h"
 #include "HashTreeWrappedIFile.h"
-#include "CopiedIFile.h"
 #include "OffsetAdjustedIFile.h"
-
-
-HashTreeWrappedIFile::HashTreeWrappedIFile(fnd::IFile* file, const HashTreeMeta& hdr) :
-	mOwnIFile(true),
-	mFile(file),
-	mData(nullptr),
-	mDataHashLayer(),
-	mAlignHashCalcToBlock(false)
-{
-	initialiseDataLayer(hdr);
-}
 
 HashTreeWrappedIFile::HashTreeWrappedIFile(fnd::IFile* file, bool ownIFile, const HashTreeMeta& hdr) :
 	mOwnIFile(ownIFile),
@@ -156,7 +145,7 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 	}
 
 	// generate reader for data layer
-	mData = new OffsetAdjustedIFile(mFile, false, hdr.getDataLayer().offset, hdr.getDataLayer().size);
+	mData = new OffsetAdjustedIFile(mFile, SHARED_IFILE, hdr.getDataLayer().offset, hdr.getDataLayer().size);
 	mDataOffset = 0;
 	mDataBlockSize = hdr.getDataLayer().block_size;
 

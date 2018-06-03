@@ -18,7 +18,7 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
+	void setInputFile(fnd::IFile* file, bool ownIFile);
 	void setKeyset(const sKeyset* keyset);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
@@ -32,7 +32,8 @@ private:
 	const std::string kXciMountPointName = "gamecard:/";
 	static const size_t kFileExportBlockSize = 0x1000000;
 
-	fnd::IFile* mReader;
+	fnd::IFile* mFile;
+	bool mOwnIFile;
 	const sKeyset* mKeyset;
 	CliOutputType mCliOutputType;
 	bool mVerify;

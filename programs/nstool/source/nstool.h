@@ -9,6 +9,11 @@
 static const size_t kMasterKeyNum = 0x20;
 static const size_t kNcaKeakNum = nx::nca::kKeyAreaEncryptionKeyNum;
 
+enum IFileOwnershipMode
+{
+	SHARED_IFILE = false,
+	OWN_IFILE = true
+};
 
 enum FileType
 {

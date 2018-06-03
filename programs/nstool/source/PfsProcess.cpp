@@ -1,10 +1,10 @@
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
-#include "OffsetAdjustedIFile.h"
 #include "PfsProcess.h"
 
 PfsProcess::PfsProcess() :
-	mReader(nullptr),
+	mFile(nullptr),
+	mOwnIFile(false),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
 	mExtractPath(),
@@ -17,9 +17,9 @@ PfsProcess::PfsProcess() :
 
 PfsProcess::~PfsProcess()
 {
-	if (mReader != nullptr)
+	if (mOwnIFile)
 	{
-		delete mReader;
+		delete mFile;
 	}
 }
 
@@ -27,14 +27,14 @@ void PfsProcess::process()
 {
 	fnd::MemoryBlob scratch;
 
-	if (mReader == nullptr)
+	if (mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 	
 	// open minimum header to get full header size
 	scratch.alloc(sizeof(nx::sPfsHeader));
-	mReader->read(scratch.getBytes(), 0, scratch.getSize());
+	mFile->read(scratch.getBytes(), 0, scratch.getSize());
 	if (validateHeaderMagic(((nx::sPfsHeader*)scratch.getBytes())) == false)
 	{
 		throw fnd::Exception(kModuleName, "Corrupt Header");
@@ -43,7 +43,7 @@ void PfsProcess::process()
 	
 	// open minimum header to get full header size
 	scratch.alloc(pfsHeaderSize);
-	mReader->read(scratch.getBytes(), 0, scratch.getSize());
+	mFile->read(scratch.getBytes(), 0, scratch.getSize());
 	mPfs.importBinary(scratch.getBytes(), scratch.getSize());
 
 	if (mCliOutputType >= OUTPUT_NORMAL)
@@ -56,9 +56,10 @@ void PfsProcess::process()
 		extractFs();
 }
 
-void PfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
+void PfsProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 {
-	mReader = new OffsetAdjustedIFile(file, offset, size);
+	mFile = file;
+	mOwnIFile = ownIFile;
 }
 
 void PfsProcess::setCliOutputMode(CliOutputType type)
@@ -144,7 +145,7 @@ void PfsProcess::validateHfs()
 	for (size_t i = 0; i < file.getSize(); i++)
 	{
 		mCache.alloc(file[i].hash_protected_size);
-		mReader->read(mCache.getBytes(), file[i].offset, file[i].hash_protected_size);
+		mFile->read(mCache.getBytes(), file[i].offset, file[i].hash_protected_size);
 		crypto::sha::Sha256(mCache.getBytes(), mCache.getSize(), hash.bytes);
 		if (hash != file[i].hash)
 		{
@@ -177,10 +178,10 @@ void PfsProcess::extractFs()
 			printf("extract=[%s]\n", file_path.c_str());
 
 		outFile.open(file_path, outFile.Create);
-		mReader->seek(file[i].offset);
+		mFile->seek(file[i].offset);
 		for (size_t j = 0; j < ((file[i].size / kCacheSize) + ((file[i].size % kCacheSize) != 0)); j++)
 		{
-			mReader->read(mCache.getBytes(), MIN(file[i].size - (kCacheSize * j),kCacheSize));
+			mFile->read(mCache.getBytes(), MIN(file[i].size - (kCacheSize * j),kCacheSize));
 			outFile.write(mCache.getBytes(), MIN(file[i].size - (kCacheSize * j),kCacheSize));
 		}		
 		outFile.close();

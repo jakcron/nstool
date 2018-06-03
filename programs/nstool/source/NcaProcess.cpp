@@ -9,7 +9,6 @@
 #include "NpdmProcess.h"
 #include "OffsetAdjustedIFile.h"
 #include "AesCtrWrappedIFile.h"
-#include "CopiedIFile.h"
 #include "HashTreeWrappedIFile.h"
 
 const char* getFormatVersionStr(nx::NcaHeader::FormatVersion format_ver)
@@ -222,7 +221,8 @@ const char* getProgramPartitionNameStr(size_t i)
 
 
 NcaProcess::NcaProcess() :
-	mReader(nullptr),
+	mFile(nullptr),
+	mOwnIFile(false),
 	mKeyset(nullptr),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
@@ -237,9 +237,9 @@ NcaProcess::NcaProcess() :
 
 NcaProcess::~NcaProcess()
 {
-	if (mReader != nullptr)
+	if (mOwnIFile)
 	{
-		delete mReader;
+		delete mFile;
 	}
 
 	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
@@ -255,13 +255,13 @@ void NcaProcess::process()
 {
 	fnd::MemoryBlob scratch;
 
-	if (mReader == nullptr)
+	if (mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 	
 	// read header block
-	mReader->read((byte_t*)&mHdrBlock, 0, sizeof(nx::sNcaHeaderBlock));
+	mFile->read((byte_t*)&mHdrBlock, 0, sizeof(nx::sNcaHeaderBlock));
 	
 	// decrypt header block
 	nx::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
@@ -311,9 +311,10 @@ void NcaProcess::process()
 	*/
 }
 
-void NcaProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
+void NcaProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 {
-	mReader = new OffsetAdjustedIFile(file, offset, size);
+	mFile = file;
+	mOwnIFile = ownIFile;
 }
 
 void NcaProcess::setKeyset(const sKeyset* keyset)
@@ -539,13 +540,13 @@ void NcaProcess::generatePartitionConfiguration()
 			// create reader based on encryption type0
 			if (info.enc_type == nx::nca::CRYPT_NONE)
 			{
-				info.reader = new OffsetAdjustedIFile(mReader, info.offset, info.size);
+				info.reader = new OffsetAdjustedIFile(mFile, SHARED_IFILE, info.offset, info.size);
 			}
 			else if (info.enc_type == nx::nca::CRYPT_AESCTR)
 			{
 				if (mBodyKeys.aes_ctr.isSet == false)
 					throw fnd::Exception(kModuleName, "AES-CTR Key was not determined");
-				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mReader, mBodyKeys.aes_ctr.var, info.aes_ctr), true, info.offset, info.size);
+				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mFile, SHARED_IFILE, mBodyKeys.aes_ctr.var, info.aes_ctr), OWN_IFILE, info.offset, info.size);
 			}
 			else if (info.enc_type == nx::nca::CRYPT_AESXTS || info.enc_type == nx::nca::CRYPT_AESCTREX)
 			{
@@ -565,7 +566,7 @@ void NcaProcess::generatePartitionConfiguration()
 			{	
 				fnd::IFile* tmp = info.reader;
 				info.reader = nullptr;
-				info.reader = new HashTreeWrappedIFile(tmp, true, info.hash_tree_meta);
+				info.reader = new HashTreeWrappedIFile(tmp, OWN_IFILE, info.hash_tree_meta);
 			}
 			else if (info.hash_type != nx::nca::HASH_NONE)
 			{
@@ -602,7 +603,7 @@ void NcaProcess::validateNcaSignatures()
 			if (mPartitions[nx::nca::PARTITION_CODE].reader != nullptr)
 			{
 				PfsProcess exefs;
-				exefs.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, 0, mPartitions[nx::nca::PARTITION_CODE].reader->size());
+				exefs.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, SHARED_IFILE);
 				exefs.setCliOutputMode(OUTPUT_MINIMAL);
 				exefs.process();
 
@@ -612,7 +613,7 @@ void NcaProcess::validateNcaSignatures()
 					const nx::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList()[exefs.getPfsHeader().getFileList().getIndexOf(kNpdmExefsPath)];
 
 					NpdmProcess npdm;
-					npdm.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, file.offset, file.size);
+					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nx::nca::PARTITION_CODE].reader, SHARED_IFILE, file.offset, file.size), OWN_IFILE);
 					npdm.setCliOutputMode(OUTPUT_MINIMAL);
 					npdm.process();
 
@@ -789,7 +790,7 @@ void NcaProcess::processPartitions()
 		if (partition.format_type == nx::nca::FORMAT_PFS0)
 		{
 			PfsProcess pfs;
-			pfs.setInputFile(partition.reader, 0, partition.reader->size());
+			pfs.setInputFile(partition.reader, SHARED_IFILE);
 			pfs.setCliOutputMode(mCliOutputType);
 			pfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
@@ -810,7 +811,7 @@ void NcaProcess::processPartitions()
 		else if (partition.format_type == nx::nca::FORMAT_ROMFS)
 		{
 			RomfsProcess romfs;
-			romfs.setInputFile(partition.reader, 0, partition.reader->size());
+			romfs.setInputFile(partition.reader, SHARED_IFILE);
 			romfs.setCliOutputMode(mCliOutputType);
 			romfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)

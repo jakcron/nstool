@@ -9,7 +9,6 @@
 class HashTreeWrappedIFile : public fnd::IFile
 {
 public:
-	HashTreeWrappedIFile(fnd::IFile* file, const HashTreeMeta& hdr);
 	HashTreeWrappedIFile(fnd::IFile* file, bool ownIFile, const HashTreeMeta& hdr);
 	~HashTreeWrappedIFile();
 

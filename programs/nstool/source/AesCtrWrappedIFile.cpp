@@ -1,10 +1,5 @@
 #include "AesCtrWrappedIFile.h"
 
-AesCtrWrappedIFile::AesCtrWrappedIFile(fnd::IFile* file, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr) :
-	AesCtrWrappedIFile(file, false, key, ctr)
-{
-}
-
 AesCtrWrappedIFile::AesCtrWrappedIFile(fnd::IFile* file, bool ownIfile, const crypto::aes::sAes128Key& key, const crypto::aes::sAesIvCtr& ctr) :
 	mOwnIFile(ownIfile),
 	mFile(file),

@@ -1,11 +1,11 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
-#include "OffsetAdjustedIFile.h"
 #include "RomfsProcess.h"
 
 RomfsProcess::RomfsProcess() :
-	mReader(nullptr),
+	mFile(nullptr),
+	mOwnIFile(false),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false),
 	mExtractPath(),
@@ -22,15 +22,15 @@ RomfsProcess::RomfsProcess() :
 
 RomfsProcess::~RomfsProcess()
 {
-	if (mReader != nullptr)
+	if (mOwnIFile)
 	{
-		delete mReader;
+		delete mFile;
 	}
 }
 
 void RomfsProcess::process()
 {
-	if (mReader == nullptr)
+	if (mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
@@ -45,9 +45,10 @@ void RomfsProcess::process()
 		extractFs();
 }
 
-void RomfsProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
+void RomfsProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 {
-	mReader = new OffsetAdjustedIFile(file, offset, size);
+	mFile = file;
+	mOwnIFile = ownIFile;
 }
 
 void RomfsProcess::setCliOutputMode(CliOutputType type)
@@ -158,10 +159,10 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 		
 		
 		outFile.open(file_path, outFile.Create);
-		mReader->seek(dir.file_list[i].offset);
+		mFile->seek(dir.file_list[i].offset);
 		for (size_t j = 0; j < ((dir.file_list[i].size / kCacheSize) + ((dir.file_list[i].size % kCacheSize) != 0)); j++)
 		{
-			mReader->read(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
+			mFile->read(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
 			outFile.write(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
 		}	
 		outFile.close();
@@ -254,7 +255,7 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 void RomfsProcess::resolveRomfs()
 {
 	// read header
-	mReader->read((byte_t*)&mHdr, 0, sizeof(nx::sRomfsHeader));
+	mFile->read((byte_t*)&mHdr, 0, sizeof(nx::sRomfsHeader));
 
 	// logic check on the header layout
 	if (validateHeaderLayout(&mHdr) == false)
@@ -264,13 +265,13 @@ void RomfsProcess::resolveRomfs()
 
 	// read directory nodes
 	mDirNodes.alloc(mHdr.sections[nx::romfs::DIR_NODE_TABLE].size.get());
-	mReader->read(mDirNodes.getBytes(), mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.getSize());
+	mFile->read(mDirNodes.getBytes(), mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.getSize());
 	//printf("[RAW DIR NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mDirNodes.getBytes(), mDirNodes.getSize());
 
 	// read file nodes
 	mFileNodes.alloc(mHdr.sections[nx::romfs::FILE_NODE_TABLE].size.get());
-	mReader->read(mFileNodes.getBytes(), mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.getSize());
+	mFile->read(mFileNodes.getBytes(), mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.getSize());
 	//printf("[RAW FILE NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mFileNodes.getBytes(), mFileNodes.getSize());
 	
