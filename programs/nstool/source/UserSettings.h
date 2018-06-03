@@ -24,20 +24,22 @@ public:
 	const sOptional<nx::npdm::InstructionType>& getArchType() const;
 
 	// specialised paths
-	const sOptional<std::string>& getUpdatePath() const;
-	const sOptional<std::string>& getNormalPath() const;
-	const sOptional<std::string>& getSecurePath() const;
+	const sOptional<std::string>& getXciUpdatePath() const;
+	const sOptional<std::string>& getXciNormalPath() const;
+	const sOptional<std::string>& getXciSecurePath() const;
+	const sOptional<std::string>& getXciLogoPath() const;
 	const sOptional<std::string>& getFsPath() const;
-	const sOptional<std::string>& getPart0Path() const;
-	const sOptional<std::string>& getPart1Path() const;
-	const sOptional<std::string>& getPart2Path() const;
-	const sOptional<std::string>& getPart3Path() const;
+	const sOptional<std::string>& getNcaPart0Path() const;
+	const sOptional<std::string>& getNcaPart1Path() const;
+	const sOptional<std::string>& getNcaPart2Path() const;
+	const sOptional<std::string>& getNcaPart3Path() const;
 
 private:
 	const std::string kModuleName = "UserSettings";
 	
 	struct sCmdArgs
 	{
+		sCmdArgs() {}
 		sOptional<std::string> input_path;
 		sOptional<bool> devkit_keys;
 		sOptional<std::string> keyset_path;
@@ -49,6 +51,7 @@ private:
 		sOptional<std::string> update_path;
 		sOptional<std::string> normal_path;
 		sOptional<std::string> secure_path;
+		sOptional<std::string> logo_path;
 		sOptional<std::string> fs_path;
 		sOptional<std::string> nca_titlekey;
 		sOptional<std::string> nca_bodykey;
@@ -57,29 +60,6 @@ private:
 		sOptional<std::string> part2_path;
 		sOptional<std::string> part3_path;
 		sOptional<std::string> arch_type;
-
-		void clear()
-		{
-			input_path.isSet = false;
-			devkit_keys.isSet = false;
-			keyset_path.isSet = false;
-			file_type.isSet = false;
-			verify_file.isSet = false;
-			verbose_output.isSet = false;
-			minimal_output.isSet = false;
-			list_fs.isSet = false;
-			update_path.isSet = false;
-			normal_path.isSet = false;
-			secure_path.isSet = false;
-			fs_path.isSet = false;
-			nca_titlekey.isSet = false;
-			nca_bodykey.isSet = false;
-			part0_path.isSet = false;
-			part1_path.isSet = false;
-			part2_path.isSet = false;
-			part3_path.isSet = false;
-			arch_type.isSet = false;
-		}
 	};
 	
 	std::string mInputPath;
@@ -89,15 +69,16 @@ private:
 	CliOutputType mOutputType;
 
 	bool mListFs;
-	sOptional<std::string> mUpdatePath;
-	sOptional<std::string> mNormalPath;
-	sOptional<std::string> mSecurePath;
+	sOptional<std::string> mXciUpdatePath;
+	sOptional<std::string> mXciNormalPath;
+	sOptional<std::string> mXciSecurePath;
+	sOptional<std::string> mXciLogoPath;
 	sOptional<std::string> mFsPath;
 
-	sOptional<std::string> mPart0Path;
-	sOptional<std::string> mPart1Path;
-	sOptional<std::string> mPart2Path;
-	sOptional<std::string> mPart3Path;
+	sOptional<std::string> mNcaPart0Path;
+	sOptional<std::string> mNcaPart1Path;
+	sOptional<std::string> mNcaPart2Path;
+	sOptional<std::string> mNcaPart3Path;
 
 	sOptional<nx::npdm::InstructionType> mArchType;
 

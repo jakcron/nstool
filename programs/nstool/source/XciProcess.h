@@ -24,9 +24,7 @@ public:
 	void setVerifyMode(bool verify);
 
 	// xci specific
-	void setUpdateExtractPath(const std::string& path);
-	void setNormalExtractPath(const std::string& path);
-	void setSecureExtractPath(const std::string& path);
+	void setPartitionForExtract(const std::string& partition_name, const std::string& extract_path);
 	void setListFs(bool list_fs);
 
 private:
@@ -39,17 +37,18 @@ private:
 	CliOutputType mCliOutputType;
 	bool mVerify;
 
-	struct sExtract
+	struct sExtractInfo
 	{
-		std::string path;
-		bool doExtract;
-	} mUpdatePath, mNormalPath, mSecurePath;
+		std::string partition_name;
+		std::string extract_path;
+	};
 
 	bool mListFs;
 
 	nx::sXciHeaderPage mHdrPage;
 	nx::XciHeader mHdr;
-	PfsProcess mRootPfs, mUpdatePfs, mNormalPfs, mSecurePfs;
+	PfsProcess mRootPfs;
+	std::vector<sExtractInfo> mExtractInfo;
 
 	void displayHeader();
 	bool validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash);

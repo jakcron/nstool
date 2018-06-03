@@ -163,12 +163,13 @@ void XciProcess::processPartitionPfs()
 		tmp.setVerifyMode(mVerify);
 		tmp.setCliOutputMode(mCliOutputType);
 		tmp.setMountPointName(kXciMountPointName + rootPartitions[i].name);
-		if (mUpdatePath.doExtract && rootPartitions[i].name == "update")
-			tmp.setExtractPath(mUpdatePath.path);
-		if (mNormalPath.doExtract && rootPartitions[i].name == "normal")
-			tmp.setExtractPath(mNormalPath.path);
-		if (mSecurePath.doExtract && rootPartitions[i].name == "secure")
-			tmp.setExtractPath(mSecurePath.path);
+		for (size_t j = 0; j < mExtractInfo.size(); j++)
+		{
+			if (mExtractInfo[j].partition_name == rootPartitions[i].name)
+			{
+				tmp.setExtractPath(mExtractInfo[j].extract_path);
+			}
+		}
 		tmp.process();
 	}
 }
@@ -180,13 +181,8 @@ XciProcess::XciProcess() :
 	mVerify(false),
 	mListFs(false),
 	mRootPfs(),
-	mUpdatePfs(),
-	mNormalPfs(),
-	mSecurePfs()
+	mExtractInfo()
 {
-	mUpdatePath.doExtract = false;
-	mNormalPath.doExtract = false;
-	mSecurePath.doExtract = false;
 }
 
 XciProcess::~XciProcess()
@@ -255,22 +251,9 @@ void XciProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void XciProcess::setUpdateExtractPath(const std::string& path)
+void XciProcess::setPartitionForExtract(const std::string& partition_name, const std::string& extract_path)
 {
-	mUpdatePath.path = path;
-	mUpdatePath.doExtract = true;
-}
-
-void XciProcess::setNormalExtractPath(const std::string& path)
-{
-	mNormalPath.path = path;
-	mNormalPath.doExtract = true;
-}
-
-void XciProcess::setSecureExtractPath(const std::string& path)
-{
-	mSecurePath.path = path;
-	mSecurePath.doExtract = true;
+	mExtractInfo.push_back({partition_name, extract_path});
 }
 
 void XciProcess::setListFs(bool list_fs)
