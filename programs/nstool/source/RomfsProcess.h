@@ -94,7 +94,7 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
+	void setInputFile(fnd::IFile* file, bool ownIFile);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
 
@@ -108,7 +108,8 @@ private:
 	const std::string kModuleName = "RomfsProcess";
 	static const size_t kCacheSize = 0x10000;
 
-	fnd::IFile* mReader;
+	fnd::IFile* mFile;
+	bool mOwnIFile;
 	CliOutputType mCliOutputType;
 	bool mVerify;
 

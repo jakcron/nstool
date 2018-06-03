@@ -143,7 +143,8 @@ void CnmtProcess::displayCmnt()
 }
 
 CnmtProcess::CnmtProcess() :
-	mReader(nullptr),
+	mFile(nullptr),
+	mOwnIFile(false),
 	mCliOutputType(OUTPUT_NORMAL),
 	mVerify(false)
 {
@@ -151,9 +152,9 @@ CnmtProcess::CnmtProcess() :
 
 CnmtProcess::~CnmtProcess()
 {
-	if (mReader != nullptr)
+	if (mOwnIFile)
 	{
-		delete mReader;
+		delete mFile;
 	}
 }
 
@@ -161,13 +162,13 @@ void CnmtProcess::process()
 {
 	fnd::MemoryBlob scratch;
 
-	if (mReader == nullptr)
+	if (mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	scratch.alloc(mReader->size());
-	mReader->read(scratch.getBytes(), 0, scratch.getSize());
+	scratch.alloc(mFile->size());
+	mFile->read(scratch.getBytes(), 0, scratch.getSize());
 
 	mCnmt.importBinary(scratch.getBytes(), scratch.getSize());
 
@@ -177,9 +178,10 @@ void CnmtProcess::process()
 	}
 }
 
-void CnmtProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
+void CnmtProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 {
-	mReader = new OffsetAdjustedIFile(file, offset, size);
+	mFile = file;
+	mOwnIFile = ownIFile;
 }
 
 void CnmtProcess::setCliOutputMode(CliOutputType type)

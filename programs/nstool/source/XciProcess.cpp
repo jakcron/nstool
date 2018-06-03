@@ -3,6 +3,95 @@
 #include "OffsetAdjustedIFile.h"
 #include "XciProcess.h"
 
+XciProcess::XciProcess() :
+	mFile(nullptr),
+	mOwnIFile(false),
+	mKeyset(nullptr),
+	mCliOutputType(OUTPUT_NORMAL),
+	mVerify(false),
+	mListFs(false),
+	mRootPfs(),
+	mExtractInfo()
+{
+}
+
+XciProcess::~XciProcess()
+{
+	if (mOwnIFile)
+	{
+		delete mFile;
+	}
+}
+
+void XciProcess::process()
+{
+	fnd::MemoryBlob scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+	
+	// read header page
+	mFile->read((byte_t*)&mHdrPage, 0, sizeof(nx::sXciHeaderPage));
+
+	// allocate memory for and decrypt sXciHeader
+	scratch.alloc(sizeof(nx::sXciHeader));
+	nx::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.getBytes(), mKeyset->xci.header_key.key);
+
+	// validate header signature
+	if (mVerify)
+	{
+		validateXciSignature();
+	}
+
+	// deserialise header
+	mHdr.importBinary(scratch.getBytes(), scratch.getSize());
+
+	// display header
+	if (mCliOutputType >= OUTPUT_NORMAL)
+	{
+		displayHeader();
+	}
+
+	// process root partition
+	processRootPfs();
+
+	// process partitions
+	processPartitionPfs();
+}
+
+void XciProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+{
+	mFile = file;
+	mOwnIFile = ownIFile;
+}
+
+void XciProcess::setKeyset(const sKeyset* keyset)
+{
+	mKeyset = keyset;
+}
+
+void XciProcess::setCliOutputMode(CliOutputType type)
+{
+	mCliOutputType = type;
+}
+
+void XciProcess::setVerifyMode(bool verify)
+{
+	mVerify = verify;
+}
+
+void XciProcess::setPartitionForExtract(const std::string& partition_name, const std::string& extract_path)
+{
+	mExtractInfo.push_back({partition_name, extract_path});
+}
+
+void XciProcess::setListFs(bool list_fs)
+{
+	mListFs = list_fs;
+}
+
 inline const char* getBoolStr(bool isTrue)
 {
 	return isTrue? "TRUE" : "FALSE";
@@ -51,17 +140,16 @@ inline const char* getCardClockRate(uint32_t acc_ctrl_1)
 	return str;
 }
 
-
 void XciProcess::displayHeader()
 {
 	printf("[XCI HEADER]\n");
 	printf("  Magic:                HEAD\n");
 	printf("  RomAreaStartPage:     0x%0x", mHdr.getRomAreaStartPage());
-	if (mHdr.getRomAreaStartPage() != -1)
+	if (mHdr.getRomAreaStartPage() != (uint32_t)(-1))
 		printf(" (0x%" PRIx64 ")", nx::XciUtils::blockToAddr(mHdr.getRomAreaStartPage()));
 	printf("\n");
 	printf("  BackupAreaStartPage:  0x%0x", mHdr.getBackupAreaStartPage());
-	if (mHdr.getBackupAreaStartPage() != -1)
+	if (mHdr.getBackupAreaStartPage() != (uint32_t)(-1))
 		printf(" (0x%" PRIx64 ")", nx::XciUtils::blockToAddr(mHdr.getBackupAreaStartPage()));
 	printf("\n");
 	printf("  KekIndex:             %d\n", mHdr.getKekIndex());
@@ -74,7 +162,7 @@ void XciProcess::displayHeader()
 	printf("    RepairTool:         %s\n", getBoolStr(_HAS_BIT(mHdr.getFlags(), nx::xci::FLAG_REPAIR_TOOL)));
 	printf("  PackageId:            0x%" PRIx64 "\n", mHdr.getPackageId());
 	printf("  ValidDataEndPage:     0x%x", mHdr.getValidDataEndPage());
-	if (mHdr.getValidDataEndPage() != -1)
+	if (mHdr.getValidDataEndPage() != (uint32_t)(-1))
 		printf(" (0x%" PRIx64 ")", nx::XciUtils::blockToAddr(mHdr.getValidDataEndPage()));
 	printf("\n");
 	printf("  AesIv:                ");
@@ -118,7 +206,7 @@ bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* t
 	fnd::MemoryBlob scratch;
 	crypto::sha::sSha256Hash calc_hash;
 	scratch.alloc(len);
-	mReader->read(scratch.getBytes(), offset, len);
+	mFile->read(scratch.getBytes(), offset, len);
 	crypto::sha::Sha256(scratch.getBytes(), scratch.getSize(), calc_hash.bytes);
 	return calc_hash.compare(test_hash);
 }
@@ -144,7 +232,7 @@ void XciProcess::processRootPfs()
 			printf("[WARNING] XCI Root HFS0: FAIL (bad hash)\n");
 		}
 	}
-	mRootPfs.setInputFile(mReader, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize());
+	mRootPfs.setInputFile(new OffsetAdjustedIFile(mFile, SHARED_IFILE, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize()), OWN_IFILE);
 	mRootPfs.setListFs(mListFs);
 	mRootPfs.setVerifyMode(mVerify);
 	mRootPfs.setCliOutputMode(mCliOutputType);
@@ -158,7 +246,7 @@ void XciProcess::processPartitionPfs()
 	for (size_t i = 0; i < rootPartitions.getSize(); i++)
 	{	
 		PfsProcess tmp;
-		tmp.setInputFile(mReader, mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].size);
+		tmp.setInputFile(new OffsetAdjustedIFile(mFile, SHARED_IFILE, mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].size), OWN_IFILE);
 		tmp.setListFs(mListFs);
 		tmp.setVerifyMode(mVerify);
 		tmp.setCliOutputMode(mCliOutputType);
@@ -172,91 +260,4 @@ void XciProcess::processPartitionPfs()
 		}
 		tmp.process();
 	}
-}
-
-XciProcess::XciProcess() :
-	mReader(nullptr),
-	mKeyset(nullptr),
-	mCliOutputType(OUTPUT_NORMAL),
-	mVerify(false),
-	mListFs(false),
-	mRootPfs(),
-	mExtractInfo()
-{
-}
-
-XciProcess::~XciProcess()
-{
-	if (mReader != nullptr)
-	{
-		delete mReader;
-	}
-}
-
-void XciProcess::process()
-{
-	fnd::MemoryBlob scratch;
-
-	if (mReader == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-	
-	// read header page
-	mReader->read((byte_t*)&mHdrPage, 0, sizeof(nx::sXciHeaderPage));
-
-	// allocate memory for and decrypt sXciHeader
-	scratch.alloc(sizeof(nx::sXciHeader));
-	nx::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.getBytes(), mKeyset->xci.header_key.key);
-
-	// validate header signature
-	if (mVerify)
-	{
-		validateXciSignature();
-	}
-
-	// deserialise header
-	mHdr.importBinary(scratch.getBytes(), scratch.getSize());
-
-	// display header
-	if (mCliOutputType >= OUTPUT_NORMAL)
-	{
-		displayHeader();
-	}
-
-	// process root partition
-	processRootPfs();
-
-	// process partitions
-	processPartitionPfs();
-}
-
-void XciProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
-{
-	mReader = new OffsetAdjustedIFile(file, offset, size);
-}
-
-void XciProcess::setKeyset(const sKeyset* keyset)
-{
-	mKeyset = keyset;
-}
-
-void XciProcess::setCliOutputMode(CliOutputType type)
-{
-	mCliOutputType = type;
-}
-
-void XciProcess::setVerifyMode(bool verify)
-{
-	mVerify = verify;
-}
-
-void XciProcess::setPartitionForExtract(const std::string& partition_name, const std::string& extract_path)
-{
-	mExtractInfo.push_back({partition_name, extract_path});
-}
-
-void XciProcess::setListFs(bool list_fs)
-{
-	mListFs = list_fs;
 }

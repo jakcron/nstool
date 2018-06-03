@@ -3,7 +3,6 @@
 class OffsetAdjustedIFile : public fnd::IFile
 {
 public:
-	OffsetAdjustedIFile(fnd::IFile* file, size_t offset, size_t size);
 	OffsetAdjustedIFile(fnd::IFile* file, bool ownIFile, size_t offset, size_t size);
 	~OffsetAdjustedIFile();
 

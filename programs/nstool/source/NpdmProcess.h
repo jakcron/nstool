@@ -14,7 +14,7 @@ public:
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
+	void setInputFile(fnd::IFile* file, bool ownIFile);
 	void setKeyset(const sKeyset* keyset);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
@@ -24,7 +24,8 @@ public:
 private:
 	const std::string kModuleName = "NpdmProcess";
 
-	fnd::IFile* mReader;
+	fnd::IFile* mFile;
+	bool mOwnIFile;
 	const sKeyset* mKeyset;
 	CliOutputType mCliOutputType;
 	bool mVerify;

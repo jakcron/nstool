@@ -17,7 +17,7 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* file, size_t offset, size_t size);
+	void setInputFile(fnd::IFile* file, bool ownIFile);
 	void setKeyset(const sKeyset* keyset);
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
@@ -34,7 +34,8 @@ private:
 	const std::string kNpdmExefsPath = "main.npdm";
 
 	// user options
-	fnd::IFile* mReader;
+	fnd::IFile* mFile;
+	bool mOwnIFile;
 	const sKeyset* mKeyset;
 	CliOutputType mCliOutputType;
 	bool mVerify;

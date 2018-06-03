@@ -1,5 +1,86 @@
-#include "OffsetAdjustedIFile.h"
 #include "NpdmProcess.h"
+
+NpdmProcess::NpdmProcess() :
+	mFile(nullptr),
+	mOwnIFile(false),
+	mKeyset(nullptr),
+	mCliOutputType(OUTPUT_NORMAL),
+	mVerify(false)
+{
+}
+
+NpdmProcess::~NpdmProcess()
+{
+	if (mOwnIFile)
+	{
+		delete mFile;
+	}
+}
+
+void NpdmProcess::process()
+{
+	fnd::MemoryBlob scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
+	scratch.alloc(mFile->size());
+	mFile->read(scratch.getBytes(), 0, scratch.getSize());
+
+	mNpdm.importBinary(scratch.getBytes(), scratch.getSize());
+
+	if (mVerify)
+	{
+		validateAcidSignature(mNpdm.getAcid());
+		validateAciFromAcid(mNpdm.getAci(), mNpdm.getAcid());
+	}
+
+	if (mCliOutputType >= OUTPUT_NORMAL)
+	{
+		// npdm binary
+		displayNpdmHeader(mNpdm);
+
+		// aci binary
+		displayAciHdr(mNpdm.getAci());
+		displayFac(mNpdm.getAci().getFac());
+		displaySac(mNpdm.getAci().getSac());
+		displayKernelCap(mNpdm.getAci().getKc());
+
+		// acid binary
+		displayAciHdr(mNpdm.getAcid());
+		displayFac(mNpdm.getAcid().getFac());
+		displaySac(mNpdm.getAcid().getSac());
+		displayKernelCap(mNpdm.getAcid().getKc());
+	}
+}
+
+void NpdmProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+{
+	mFile = file;
+	mOwnIFile = ownIFile;
+}
+
+void NpdmProcess::setKeyset(const sKeyset* keyset)
+{
+	mKeyset = keyset;
+}
+
+void NpdmProcess::setCliOutputMode(CliOutputType type)
+{
+	mCliOutputType = type;
+}
+
+void NpdmProcess::setVerifyMode(bool verify)
+{
+	mVerify = verify;
+}
+
+const nx::NpdmBinary& NpdmProcess::getNpdmBinary() const
+{
+	return mNpdm;
+}
 
 const std::string kInstructionType[2] = { "32Bit", "64Bit" };
 const std::string kProcAddrSpace[4] = { "Unknown", "64Bit", "32Bit", "32Bit no reserved" };
@@ -614,84 +695,4 @@ void NpdmProcess::displayKernelCap(const nx::KcBinary& kern)
 			printf("%s%s", kMiscFlag[flagList[i]].c_str(), flagList[i] != flagList.atBack() ? ", " : "\n");
 		}
 	}
-}
-
-NpdmProcess::NpdmProcess() :
-	mReader(nullptr),
-	mKeyset(nullptr),
-	mCliOutputType(OUTPUT_NORMAL),
-	mVerify(false)
-{
-}
-
-NpdmProcess::~NpdmProcess()
-{
-	if (mReader != nullptr)
-	{
-		delete mReader;
-	}
-}
-
-void NpdmProcess::process()
-{
-	fnd::MemoryBlob scratch;
-
-	if (mReader == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
-	scratch.alloc(mReader->size());
-	mReader->read(scratch.getBytes(), 0, scratch.getSize());
-
-	mNpdm.importBinary(scratch.getBytes(), scratch.getSize());
-
-	if (mVerify)
-	{
-		validateAcidSignature(mNpdm.getAcid());
-		validateAciFromAcid(mNpdm.getAci(), mNpdm.getAcid());
-	}
-
-	if (mCliOutputType >= OUTPUT_NORMAL)
-	{
-		// npdm binary
-		displayNpdmHeader(mNpdm);
-
-		// aci binary
-		displayAciHdr(mNpdm.getAci());
-		displayFac(mNpdm.getAci().getFac());
-		displaySac(mNpdm.getAci().getSac());
-		displayKernelCap(mNpdm.getAci().getKc());
-
-		// acid binary
-		displayAciHdr(mNpdm.getAcid());
-		displayFac(mNpdm.getAcid().getFac());
-		displaySac(mNpdm.getAcid().getSac());
-		displayKernelCap(mNpdm.getAcid().getKc());
-	}
-}
-
-void NpdmProcess::setInputFile(fnd::IFile* file, size_t offset, size_t size)
-{
-	mReader = new OffsetAdjustedIFile(file, offset, size);
-}
-
-void NpdmProcess::setKeyset(const sKeyset* keyset)
-{
-	mKeyset = keyset;
-}
-
-void NpdmProcess::setCliOutputMode(CliOutputType type)
-{
-	mCliOutputType = type;
-}
-
-void NpdmProcess::setVerifyMode(bool verify)
-{
-	mVerify = verify;
-}
-
-const nx::NpdmBinary& NpdmProcess::getNpdmBinary() const
-{
-	return mNpdm;
 }
