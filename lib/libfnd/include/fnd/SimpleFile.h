@@ -20,6 +20,7 @@ namespace fnd
 		};
 
 		SimpleFile();
+		SimpleFile(const std::string& path, OpenMode mode);
 		~SimpleFile();
 
 		void open(const std::string& path, OpenMode mode);

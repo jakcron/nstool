@@ -14,6 +14,12 @@ SimpleFile::SimpleFile() :
 {
 }
 
+SimpleFile::SimpleFile(const std::string& path, OpenMode mode) :
+	SimpleFile()
+{
+	open(path, mode);
+}
+
 SimpleFile::~SimpleFile()
 {
 	close();
