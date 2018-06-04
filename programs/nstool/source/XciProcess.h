@@ -30,7 +30,6 @@ public:
 private:
 	const std::string kModuleName = "XciProcess";
 	const std::string kXciMountPointName = "gamecard:/";
-	static const size_t kFileExportBlockSize = 0x1000000;
 
 	fnd::IFile* mFile;
 	bool mOwnIFile;

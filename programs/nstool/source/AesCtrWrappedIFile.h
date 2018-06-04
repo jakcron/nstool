@@ -26,6 +26,4 @@ private:
 	size_t mFileOffset;
 
 	fnd::MemoryBlob mCache;
-
-	void internalSeek();
 };
