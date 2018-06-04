@@ -215,7 +215,7 @@ void NsoProcess::displayHeader()
 
 	printf("[NSO Header]\n");
 	printf("  ModuleId:           ");
-	_HEXDUMP_L(mHdr.getModuleId().data, nx::nso::kModuleIdLen);
+	_HEXDUMP_L(mHdr.getModuleId().data, nx::nso::kModuleIdSize);
 	printf("\n");
 	printf("  Program Segments:\n");
 	printf("     .module_name:\n");

@@ -42,6 +42,7 @@
     <ClInclude Include="include\nx\KernelCapability.h" />
     <ClInclude Include="include\nx\KernelVersionEntry.h" />
     <ClInclude Include="include\nx\KernelVersionHandler.h" />
+    <ClInclude Include="include\nx\macro.h" />
     <ClInclude Include="include\nx\MemoryMappingHandler.h" />
     <ClInclude Include="include\nx\MemoryPageEntry.h" />
     <ClInclude Include="include\nx\MiscFlagsEntry.h" />
@@ -54,6 +55,8 @@
     <ClInclude Include="include\nx\NpdmBinary.h" />
     <ClInclude Include="include\nx\NpdmHeader.h" />
     <ClInclude Include="include\nx\NcaHeader.h" />
+    <ClInclude Include="include\nx\nro.h" />
+    <ClInclude Include="include\nx\nrr.h" />
     <ClInclude Include="include\nx\nso.h" />
     <ClInclude Include="include\nx\NsoHeader.h" />
     <ClInclude Include="include\nx\NXCrypto.h" />

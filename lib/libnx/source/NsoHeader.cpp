@@ -53,7 +53,7 @@ void nx::NsoHeader::exportBinary()
 	uint32_t flags = 0;
 
 	// set moduleid
-	memcpy(hdr->module_id, mModuleId.data, nso::kModuleIdLen);
+	memcpy(hdr->module_id, mModuleId.data, nso::kModuleIdSize);
 
 	// set bss size
 	hdr->bss_size = mBssSize;
@@ -152,7 +152,7 @@ void nx::NsoHeader::importBinary(const byte_t* bytes, size_t len)
 		throw fnd::Exception(kModuleName, "NSO header corrupt (unsupported format version)");
 	}
 
-	memcpy(mModuleId.data, hdr->module_id, nso::kModuleIdLen);
+	memcpy(mModuleId.data, hdr->module_id, nso::kModuleIdSize);
 
 	mBssSize = hdr->bss_size.get();
 

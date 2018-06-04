@@ -12,16 +12,16 @@ namespace nx
 	public:
 		struct sModuleId
 		{
-			byte_t data[nso::kModuleIdLen];
+			byte_t data[nso::kModuleIdSize];
 
 			void operator=(const sModuleId& other)
 			{
-				memcpy(data, other.data, nso::kModuleIdLen);
+				memcpy(data, other.data, nso::kModuleIdSize);
 			}
 
 			bool operator==(const sModuleId& other) const
 			{
-				return memcmp(data, other.data, nso::kModuleIdLen) == 0;
+				return memcmp(data, other.data, nso::kModuleIdSize) == 0;
 			}
 
 			bool operator!=(const sModuleId& other) const

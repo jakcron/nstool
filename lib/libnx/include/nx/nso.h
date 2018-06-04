@@ -1,9 +1,6 @@
 #pragma once
-#include <string>
 #include <fnd/types.h>
-#include <fnd/List.h>
 #include <crypto/sha.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/macro.h>
 
 namespace nx
@@ -23,7 +20,7 @@ namespace nx
 		};
 
 		static const uint32_t kDefaultFormatVersion = 0;
-		static const size_t kModuleIdLen = 32;
+		static const size_t kModuleIdSize = 32;
 	}
 	
 #pragma pack(push,1)
@@ -52,7 +49,7 @@ namespace nx
 		le_uint32_t module_name_size;
 		sNsoCodeSegment data;
 		le_uint32_t bss_size;
-		byte_t module_id[nso::kModuleIdLen];
+		byte_t module_id[nso::kModuleIdSize];
 		le_uint32_t text_file_size;
 		le_uint32_t ro_file_size;
 		le_uint32_t data_file_size;
