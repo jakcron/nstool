@@ -146,11 +146,11 @@ void PfsProcess::validateHfs()
 	{
 		mCache.alloc(file[i].hash_protected_size);
 		mFile->read(mCache.getBytes(), file[i].offset, file[i].hash_protected_size);
-		crypto::sha::Sha256(mCache.getBytes(), mCache.getSize(), hash.bytes);
+		crypto::sha::Sha256(mCache.getBytes(), file[i].hash_protected_size, hash.bytes);
 		if (hash != file[i].hash)
 		{
 			if (mCliOutputType >= OUTPUT_MINIMAL)
-				printf("[WARNING] HFS0 %s%s%s: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", !mMountName.empty()? "/" : "", file[i].name.c_str());
+				printf("[WARNING] HFS0 %s%s%s: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", file[i].name.c_str());
 	
 		}
 	}

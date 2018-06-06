@@ -225,16 +225,13 @@ void XciProcess::validateXciSignature()
 
 void XciProcess::processRootPfs()
 {
-	if (mVerify)
+	if (mVerify && validateRegionOfFile(mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize(), mHdr.getPartitionFsHash().bytes) == false)
 	{
-		if (validateRegionOfFile(mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize(), mHdr.getPartitionFsHash().bytes) == false)
-		{
-			printf("[WARNING] XCI Root HFS0: FAIL (bad hash)\n");
-		}
+		printf("[WARNING] XCI Root HFS0: FAIL (bad hash)\n");
 	}
 	mRootPfs.setInputFile(new OffsetAdjustedIFile(mFile, SHARED_IFILE, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize()), OWN_IFILE);
 	mRootPfs.setListFs(mListFs);
-	mRootPfs.setVerifyMode(mVerify);
+	mRootPfs.setVerifyMode(false);
 	mRootPfs.setCliOutputMode(mCliOutputType);
 	mRootPfs.setMountPointName(kXciMountPointName);
 	mRootPfs.process();
@@ -244,7 +241,13 @@ void XciProcess::processPartitionPfs()
 {
 	const fnd::List<nx::PfsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
 	for (size_t i = 0; i < rootPartitions.getSize(); i++)
-	{	
+	{
+		// this must be validated here because only the size of the root partiton header is known at verification time
+		if (mVerify && validateRegionOfFile(mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].hash_protected_size, rootPartitions[i].hash.bytes) == false)
+		{
+			printf("[WARNING] XCI %s Partition HFS0: FAIL (bad hash)\n", rootPartitions[i].name.c_str());
+		}
+
 		PfsProcess tmp;
 		tmp.setInputFile(new OffsetAdjustedIFile(mFile, SHARED_IFILE, mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].size), OWN_IFILE);
 		tmp.setListFs(mListFs);
