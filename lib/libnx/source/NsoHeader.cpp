@@ -311,6 +311,7 @@ bool nx::NsoHeader::isEqual(const NsoHeader& other) const
 }
 void nx::NsoHeader::copyFrom(const NsoHeader& other)
 {
+	clear();
 	mModuleId = other.mModuleId;
 	mBssSize = other.mBssSize;
 	mTextSegmentInfo = other.mTextSegmentInfo;

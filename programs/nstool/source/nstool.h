@@ -25,6 +25,7 @@ enum FileType
 	FILE_NPDM,
 	FILE_CNMT,
 	FILE_NSO,
+	FILE_NRO,
 	FILE_INVALID = -1,
 };
 

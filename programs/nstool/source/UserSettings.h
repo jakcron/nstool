@@ -21,7 +21,9 @@ public:
 	
 	// specialised toggles
 	bool isListFs() const;
-	const sOptional<nx::npdm::InstructionType>& getArchType() const;
+	bool isListApi() const;
+	bool isListSymbols() const;
+	nx::npdm::InstructionType getInstType() const;
 
 	// specialised paths
 	const sOptional<std::string>& getXciUpdatePath() const;
@@ -59,7 +61,9 @@ private:
 		sOptional<std::string> part1_path;
 		sOptional<std::string> part2_path;
 		sOptional<std::string> part3_path;
-		sOptional<std::string> arch_type;
+		sOptional<bool> list_api;
+		sOptional<bool> list_sym;
+		sOptional<std::string> inst_type;
 	};
 	
 	std::string mInputPath;
@@ -80,7 +84,9 @@ private:
 	sOptional<std::string> mNcaPart2Path;
 	sOptional<std::string> mNcaPart3Path;
 
-	sOptional<nx::npdm::InstructionType> mArchType;
+	bool mListApi;
+	bool mListSymbols;
+	nx::npdm::InstructionType mInstructionType;
 
 	void populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args);
 	void populateKeyset(sCmdArgs& args);

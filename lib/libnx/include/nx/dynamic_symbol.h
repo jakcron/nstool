@@ -8,12 +8,13 @@ namespace nx
 		enum SpecialSectionIndex
 		{
 			SHN_UNDEF,
-			SHN_LORESERVE = 65280,
-			SHN_LOPROC = 65280,
-			SHN_HIPROC = 65311,
+			SHN_EXPORT = 1,
+			SHN_LORESERVE = 0xFF00,
+			SHN_LOPROC = 0xFF00,
+			SHN_HIPROC = 0xFF1F,
 			SHN_LOOS,
-			SHN_HIOS = 65343,
-			SHN_ABS = 65521,
+			SHN_HIOS = 0xFF3F,
+			SHN_ABS = 0xFFF1,
 			SHN_COMMON,
 			SHN_HIRESERVE = 0xFFFF
 		};
