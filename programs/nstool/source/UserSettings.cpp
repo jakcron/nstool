@@ -18,6 +18,7 @@
 #include <nx/npdm.h>
 #include <nx/romfs.h>
 #include <nx/nso.h>
+#include <nx/nro.h>
 
 UserSettings::UserSettings()
 {}
@@ -39,7 +40,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset\n");
 	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso]\n");
+	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro]\n");
 	printf("      -y, --verify    Verify file\n");
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
@@ -63,9 +64,11 @@ void UserSettings::showHelp()
 	printf("      --part1         Extract \"partition 1\" to directory \n");
 	printf("      --part2         Extract \"partition 2\" to directory \n");
 	printf("      --part3         Extract \"partition 3\" to directory \n");
-	printf("\n  NSO (Nintendo Software Object)\n");
-	printf("    nstool [--arch <architecture>] <.nso>\n");
-	printf("      --arch          Specify code architecture [32bit, 64bit]\n");
+	printf("\n  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)\n");
+	printf("    nstool [--listapi --listsym] [--insttype <inst. type>] <file>\n");
+	printf("      --listapi       Print SDK API List.\n");
+	printf("      --listsym       Print Dynamic Symbols.\n");
+	printf("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
 
 }
 
@@ -99,9 +102,18 @@ bool UserSettings::isListFs() const
 	return mListFs;
 }
 
-const sOptional<nx::npdm::InstructionType>& UserSettings::getArchType() const
+bool UserSettings::isListApi() const
 {
-	return mArchType;
+	return mListApi;
+}
+bool UserSettings::isListSymbols() const
+{
+	return mListSymbols;
+}
+
+nx::npdm::InstructionType UserSettings::getInstType() const
+{
+	return mInstructionType;
 }
 
 const sOptional<std::string>& UserSettings::getXciUpdatePath() const
@@ -289,10 +301,22 @@ void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
 			cmd_args.part3_path = args[i+1];
 		}
 
-		else if (args[i] == "--arch")
+		else if (args[i] == "--listapi")
+		{
+			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			cmd_args.list_api = true;
+		}
+
+		else if (args[i] == "--listsym")
+		{
+			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			cmd_args.list_sym = true;
+		}
+
+		else if (args[i] == "--insttype")
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.arch_type = args[i + 1];
+			cmd_args.inst_type = args[i + 1];
 		}
 
 		else
@@ -552,9 +576,14 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mNcaPart2Path = args.part2_path;
 	mNcaPart3Path = args.part3_path;
 
-	// determine the architecture type for NSO
-	if (args.arch_type.isSet)
-		mArchType = getInstructionTypeFromString(*args.arch_type);
+	// determine the architecture type for NSO/NRO
+	if (args.inst_type.isSet)
+		mInstructionType = getInstructionTypeFromString(*args.inst_type);
+	else
+		mInstructionType = nx::npdm::INSTR_64BIT; // default 64bit
+	
+	mListApi = args.list_api.isSet;
+	mListSymbols = args.list_sym.isSet;
 
 	// determine output path
 	if (args.verbose_output.isSet)
@@ -614,6 +643,8 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_CNMT;
 	else if (str == "nso")
 		type = FILE_NSO;
+	else if (str == "nro")
+		type = FILE_NRO;
 	else
 		type = FILE_INVALID;
 
@@ -635,6 +666,8 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	file.read(scratch.getBytes(), 0, scratch.getSize());
 	// close file
 	file.close();
+
+	fnd::SimpleTextOutput::hxdStyleDump(scratch.getBytes(), scratch.getSize());
 
 	// prepare decrypted NCA data
 	byte_t nca_raw[nx::nca::kHeaderSize];
@@ -673,6 +706,9 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test nso
 	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && _QUICK_CAST(nx::sNsoHeader, 0)->signature.get() == nx::nso::kNsoSig)
 		file_type = FILE_NSO;
+	// test nso
+	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _QUICK_CAST(nx::sNroHeader, 0)->signature.get() == nx::nro::kNroSig)
+		file_type = FILE_NRO;
 	// else unrecognised
 	else
 		file_type = FILE_INVALID;
@@ -694,7 +730,7 @@ nx::npdm::InstructionType UserSettings::getInstructionTypeFromString(const std::
 	else if (str == "64bit")
 		type = nx::npdm::INSTR_64BIT;
 	else
-		throw fnd::Exception(kModuleName, "Unsupported architecture type: " + str);
+		throw fnd::Exception(kModuleName, "Unsupported instruction type: " + str);
 
 	return type;
 }

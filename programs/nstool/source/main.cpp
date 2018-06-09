@@ -7,7 +7,7 @@
 #include "NcaProcess.h"
 #include "NpdmProcess.h"
 #include "CnmtProcess.h"
-#include "NsoProcess.h"
+#include "CodeObjectProcess.h"
 
 int main(int argc, char** argv)
 {
@@ -108,18 +108,20 @@ int main(int argc, char** argv)
 
 			cnmt.process();
 		}
-		else if (user_set.getFileType() == FILE_NSO)
+		else if (user_set.getFileType() == FILE_NSO || user_set.getFileType() == FILE_NRO)
 		{
-			NsoProcess nso;
+			CodeObjectProcess obj;
 
-			nso.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			nso.setCliOutputMode(user_set.getCliOutputType());
-			nso.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			obj.setCliOutputMode(user_set.getCliOutputType());
+			obj.setVerifyMode(user_set.isVerifyFile());
 			
-			if (user_set.getArchType().isSet)
-				nso.setArchType(user_set.getArchType().var);
+			obj.setCodeObjectType(user_set.getFileType() == FILE_NSO ? obj.OBJ_NSO : obj.OBJ_NRO);
+			obj.setInstructionType(user_set.getInstType());
+			obj.setListApi(user_set.isListApi());
+			obj.setListSymbols(user_set.isListSymbols());
 
-			nso.process();
+			obj.process();
 		}
 	}
 	catch (const fnd::Exception& e) {
