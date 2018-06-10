@@ -6,6 +6,7 @@
 #include <nx/npdm.h>
 #include <nx/NsoHeader.h>
 #include <nx/NroHeader.h>
+#include <nx/NroAssetHeader.h>
 
 #include "nstool.h"
 #include "SdkApiString.h"
@@ -57,6 +58,8 @@ private:
 
 	nx::NsoHeader mNsoHdr;
 	nx::NroHeader mNroHdr;
+	bool mIsHomebrewNro;
+	nx::NroAssetHeader mNroAssetHdr;
 	fnd::MemoryBlob mTextBlob, mRoBlob, mDataBlob;
 	std::vector<SdkApiString> mApiList;
 	DynamicSymbolParser mDynSymbolList;
@@ -66,6 +69,7 @@ private:
 	void importApiList();
 	void displayNsoHeader();
 	void displayNroHeader();
+	void displayNroAssetHeader();
 	void displayRoMetaData();
 
 	const char* getApiTypeStr(SdkApiString::ApiType type) const;

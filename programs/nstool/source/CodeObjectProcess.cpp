@@ -46,7 +46,12 @@ void CodeObjectProcess::process()
 		if (mObjType == OBJ_NSO)
 			displayNsoHeader();
 		else if (mObjType == OBJ_NRO)
+		{
 			displayNroHeader();
+			if (mIsHomebrewNro)
+				displayNroAssetHeader();
+		}
+			
 	}
 	displayRoMetaData();
 }
@@ -139,6 +144,18 @@ void CodeObjectProcess::importHeader()
 		mFile->read(scratch.getBytes(), 0, scratch.getSize());
 
 		mNroHdr.importBinary(scratch.getBytes(), scratch.getSize());
+
+		nx::sNroHeader* raw_hdr = (nx::sNroHeader*)scratch.getBytes();
+
+		if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nx::nro::kNroHomebrewSig)
+		{
+			mIsHomebrewNro = true;
+			scratch.alloc(sizeof(nx::sNroAssetHeader));
+			mFile->read(scratch.getBytes(), mNroHdr.getNroSize(), scratch.getSize());
+			mNroAssetHdr.importBinary(scratch.getBytes(), scratch.getSize());
+		}
+		else
+			mIsHomebrewNro = false;
 	}
 	
 }
@@ -391,6 +408,20 @@ void CodeObjectProcess::displayNroHeader()
 	printf("      Size:       0x%" PRIx32 "\n", mNroHdr.getBssSize());
 	
 #undef _HEXDUMP_L
+}
+
+void CodeObjectProcess::displayNroAssetHeader()
+{
+	printf("[ASET Header]\n");
+	printf("  Icon:\n");
+	printf("    Offset:       0x%" PRIx64 "\n", mNroAssetHdr.getIconInfo().offset);
+	printf("    Size:         0x%" PRIx64 "\n", mNroAssetHdr.getIconInfo().size);
+	printf("  NACP:\n");
+	printf("    Offset:       0x%" PRIx64 "\n", mNroAssetHdr.getNacpInfo().offset);
+	printf("    Size:         0x%" PRIx64 "\n", mNroAssetHdr.getNacpInfo().size);
+	printf("  RomFS:\n");
+	printf("    Offset:       0x%" PRIx64 "\n", mNroAssetHdr.getRomfsInfo().offset);
+	printf("    Size:         0x%" PRIx64 "\n", mNroAssetHdr.getRomfsInfo().size);
 }
 
 void CodeObjectProcess::displayRoMetaData()
