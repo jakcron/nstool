@@ -25,10 +25,9 @@ namespace nx
 		static const uint32_t kNormalAreaStartPageAddress = kReservedAreaPageCount + kCertAreaPageCount + kCardHeaderPageCount + kCardKeyAreaPageCount;
 
 		const std::string kUpdatePartitionStr = "update"; 
+		const std::string kLogoPartitionStr = "logo"; 
 		const std::string kNormalPartitionStr = "normal"; 
 		const std::string kSecurePartitionStr = "secure"; 
-		const std::string kLogoPartitionStr = "logo"; 
-
 
 		enum KekIndex
 		{
@@ -116,15 +115,15 @@ namespace nx
 		byte_t title_key_enc[16];
 		byte_t ccm_mac[16];
 		byte_t ccm_nonce[12];
+		byte_t reserved[0x1c4];
 	}; // sizeof() = 512 (1 page)
 
 	struct sKeyDataArea
 	{
 		sInitialData initial_data; // AES128-CCM encrypted {titlekey[16]}
-		byte_t reserved_00[xci::kPageSize - sizeof(sInitialData)];
 		byte_t encrypted_00[xci::kPageSize * 6]; // AES128-CTR encrypted {titlekey[16]}
 		byte_t encrypted_00_aesctr_data[crypto::rsa::kRsa2048Size]; // RSA2048-OAEP-SHA256 encrypted AES-CTR data used for encrypted_00 {key[16],iv[16]}
-		byte_t reserved_01[xci::kPageSize - crypto::rsa::kRsa2048Size];
+		byte_t reserved[xci::kPageSize - crypto::rsa::kRsa2048Size];
 	}; // sizeof() = 512*8 (8 pages)
 
 #pragma pack(pop)
