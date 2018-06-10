@@ -3,7 +3,7 @@ SRC_DIR = source
 OBJS = $(foreach dir,$(SRC_DIR),$(subst .cpp,.o,$(wildcard $(dir)/*.cpp))) $(foreach dir,$(SRC_DIR),$(subst .c,.o,$(wildcard $(dir)/*.c)))
 
 # External dependencies
-DEPENDS = nx crypto compress fnd
+DEPENDS = nx-hb nx crypto compress fnd
 LIB_DIR = ../../lib
 LIBS = $(foreach dep,$(DEPENDS), -L"$(LIB_DIR)/lib$(dep)" -l$(dep))
 INCS = $(foreach dep,$(DEPENDS), -I"$(LIB_DIR)/lib$(dep)/include")
