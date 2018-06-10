@@ -22,7 +22,7 @@ bool nx::NroHeader::operator==(const NroHeader& other) const
 
 bool nx::NroHeader::operator!=(const NroHeader& other) const
 {
-	return !(*this != other);
+	return !(*this == other);
 }
 
 void nx::NroHeader::operator=(const NroHeader& other)
@@ -42,7 +42,49 @@ size_t nx::NroHeader::getSize() const
 
 void nx::NroHeader::exportBinary()
 {
-	throw fnd::Exception(kModuleName, "exportBinary() unsupported");
+	mBinaryBlob.alloc(sizeof(sNroHeader));
+	nx::sNroHeader* hdr = (nx::sNroHeader*)mBinaryBlob.getBytes();
+
+	// set header identifers
+	hdr->signature = nro::kNroSig;
+	hdr->format_version = nro::kDefaultFormatVersion;
+	hdr->flags = 0;
+
+	// set ro crt
+	memcpy(hdr->ro_crt, mRoCrt.data, nro::kRoCrtSize);
+
+	// set nro size
+	hdr->size = mNroSize;
+
+	// set text section
+	hdr->text.memory_offset = mTextInfo.memory_offset;
+	hdr->text.size = mTextInfo.size;
+
+	// set ro section
+	hdr->ro.memory_offset = mRoInfo.memory_offset;
+	hdr->ro.size = mRoInfo.size;
+
+	// set data section
+	hdr->data.memory_offset = mDataInfo.memory_offset;
+	hdr->data.size = mDataInfo.size;
+
+	// set bss size
+	hdr->bss_size = mBssSize;
+
+	// set moduleid
+	memcpy(hdr->module_id, mModuleId.data, nro::kModuleIdSize);
+
+	// set ro embedded info
+	hdr->embedded.memory_offset = mRoEmbeddedInfo.memory_offset;
+	hdr->embedded.size = mRoEmbeddedInfo.size;
+
+	// set ro dyn str info
+	hdr->dyn_str.memory_offset = mRoDynStrInfo.memory_offset;
+	hdr->dyn_str.size = mRoDynStrInfo.size;
+
+	// set ro dyn sym info
+	hdr->dyn_sym.memory_offset = mRoDynSymInfo.memory_offset;
+	hdr->dyn_sym.size = mRoDynSymInfo.size;
 }
 
 void nx::NroHeader::importBinary(const byte_t* bytes, size_t len)
