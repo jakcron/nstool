@@ -19,6 +19,7 @@
 #include <nx/romfs.h>
 #include <nx/nso.h>
 #include <nx/nro.h>
+#include <nx/aset.h>
 
 UserSettings::UserSettings()
 {}
@@ -40,7 +41,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset\n");
 	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro]\n");
+	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, aset]\n");
 	printf("      -y, --verify    Verify file\n");
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
@@ -69,6 +70,12 @@ void UserSettings::showHelp()
 	printf("      --listapi       Print SDK API List.\n");
 	printf("      --listsym       Print Dynamic Symbols.\n");
 	printf("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
+	printf("\n  ASET (Homebrew Asset Blob)\n");
+	printf("    nstool [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n");
+	printf("      --listfs        Print filesystem in embedded RomFS partition.\n");
+	printf("      --icon          Extract icon partition to file.\n");
+	printf("      --nacp          Extract NACP partition to file.\n");
+	printf("      --fsdir         Extract RomFS partition to directory.\n");
 
 }
 
@@ -161,6 +168,15 @@ const sOptional<std::string>& UserSettings::getNcaPart3Path() const
 	return mNcaPart3Path;
 }
 
+const sOptional<std::string>& UserSettings::getAssetIconPath() const
+{
+	return mAssetIconPath;
+}
+
+const sOptional<std::string>& UserSettings::getAssetNacpPath() const
+{
+	return mAssetNacpPath;
+}
 
 void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
 {
@@ -317,6 +333,18 @@ void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
 			cmd_args.inst_type = args[i + 1];
+		}
+
+		else if (args[i] == "--icon")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
+			cmd_args.asset_icon_path = args[i + 1];
+		}
+
+		else if (args[i] == "--nacp")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
+			cmd_args.asset_nacp_path = args[i + 1];
 		}
 
 		else
@@ -585,6 +613,9 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mListApi = args.list_api.isSet;
 	mListSymbols = args.list_sym.isSet;
 
+	mAssetIconPath = args.asset_icon_path;
+	mAssetNacpPath = args.asset_nacp_path;
+
 	// determine output path
 	if (args.verbose_output.isSet)
 		mOutputType = OUTPUT_VERBOSE;
@@ -645,6 +676,8 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_NSO;
 	else if (str == "nro")
 		type = FILE_NRO;
+	else if (str == "aset" || str == "asset")
+		type = FILE_HB_ASSET;
 	else
 		type = FILE_INVALID;
 
@@ -667,7 +700,7 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// close file
 	file.close();
 
-	fnd::SimpleTextOutput::hxdStyleDump(scratch.getBytes(), scratch.getSize());
+	//fnd::SimpleTextOutput::hxdStyleDump(scratch.getBytes(), scratch.getSize());
 
 	// prepare decrypted NCA data
 	byte_t nca_raw[nx::nca::kHeaderSize];
@@ -709,6 +742,9 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test nso
 	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _QUICK_CAST(nx::sNroHeader, 0)->signature.get() == nx::nro::kNroSig)
 		file_type = FILE_NRO;
+	// test hb asset
+	else if (_ASSERT_SIZE(sizeof(nx::sAssetHeader)) && _QUICK_CAST(nx::sAssetHeader, 0)->signature.get() == nx::aset::kAssetSig)
+		file_type = FILE_HB_ASSET;
 	// else unrecognised
 	else
 		file_type = FILE_INVALID;

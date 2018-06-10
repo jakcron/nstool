@@ -1,12 +1,12 @@
 #pragma once
-#include <nx/nro-hb.h>
+#include <nx/aset.h>
 #include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
 #include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
-	class NroAssetHeader : 
+	class AssetHeader : 
 		public fnd::ISerialiseableBinary
 	{
 	public:
@@ -33,13 +33,13 @@ namespace nx
 			}
 		};
 
-		NroAssetHeader();
-		NroAssetHeader(const NroAssetHeader& other);
-		NroAssetHeader(const byte_t* bytes, size_t len);
+		AssetHeader();
+		AssetHeader(const AssetHeader& other);
+		AssetHeader(const byte_t* bytes, size_t len);
 
-		bool operator==(const NroAssetHeader& other) const;
-		bool operator!=(const NroAssetHeader& other) const;
-		void operator=(const NroAssetHeader& other);
+		bool operator==(const AssetHeader& other) const;
+		bool operator!=(const AssetHeader& other) const;
+		void operator=(const AssetHeader& other);
 
 		// to be used after export
 		const byte_t* getBytes() const;
@@ -72,8 +72,8 @@ namespace nx
 		sSection mRomfsInfo;
 		
 		// helpers
-		bool isEqual(const NroAssetHeader& other) const;
-		void copyFrom(const NroAssetHeader& other);
+		bool isEqual(const AssetHeader& other) const;
+		void copyFrom(const AssetHeader& other);
 	};
 
 }

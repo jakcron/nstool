@@ -26,6 +26,7 @@ enum FileType
 	FILE_CNMT,
 	FILE_NSO,
 	FILE_NRO,
+	FILE_HB_ASSET,
 	FILE_INVALID = -1,
 };
 
