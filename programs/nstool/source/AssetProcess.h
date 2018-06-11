@@ -3,6 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <nx/AssetHeader.h>
+#include "NacpProcess.h"
 #include "RomfsProcess.h"
 
 #include "nstool.h"
@@ -38,6 +39,7 @@ private:
 	sOptional<std::string> mNacpExtractPath;
 
 	nx::AssetHeader mHdr;
+	NacpProcess mNacp;
 	RomfsProcess mRomfs;
 
 	void importHeader();
