@@ -95,7 +95,7 @@ void NsoProcess::importCodeSegments()
 		scratch.alloc(mNsoHdr.getTextSegmentInfo().file_layout.size);
 		mFile->read(scratch.getBytes(), mNsoHdr.getTextSegmentInfo().file_layout.offset, scratch.getSize());
 		mTextBlob.alloc(mNsoHdr.getTextSegmentInfo().memory_layout.size);
-		compress::lz4::decompressData(scratch.getBytes(), scratch.getSize(), mTextBlob.getBytes(), mTextBlob.getSize(), decompressed_len);
+		compress::lz4::decompressData(scratch.getBytes(), (uint32_t)scratch.getSize(), mTextBlob.getBytes(), (uint32_t)mTextBlob.getSize(), decompressed_len);
 		if (decompressed_len != mTextBlob.getSize())
 		{
 			throw fnd::Exception(kModuleName, "NSO text segment failed to decompress");
@@ -121,7 +121,7 @@ void NsoProcess::importCodeSegments()
 		scratch.alloc(mNsoHdr.getRoSegmentInfo().file_layout.size);
 		mFile->read(scratch.getBytes(), mNsoHdr.getRoSegmentInfo().file_layout.offset, scratch.getSize());
 		mRoBlob.alloc(mNsoHdr.getRoSegmentInfo().memory_layout.size);
-		compress::lz4::decompressData(scratch.getBytes(), scratch.getSize(), mRoBlob.getBytes(), mRoBlob.getSize(), decompressed_len);
+		compress::lz4::decompressData(scratch.getBytes(), (uint32_t)scratch.getSize(), mRoBlob.getBytes(), (uint32_t)mRoBlob.getSize(), decompressed_len);
 		if (decompressed_len != mRoBlob.getSize())
 		{
 			throw fnd::Exception(kModuleName, "NSO ro segment failed to decompress");
@@ -147,7 +147,7 @@ void NsoProcess::importCodeSegments()
 		scratch.alloc(mNsoHdr.getDataSegmentInfo().file_layout.size);
 		mFile->read(scratch.getBytes(), mNsoHdr.getDataSegmentInfo().file_layout.offset, scratch.getSize());
 		mDataBlob.alloc(mNsoHdr.getDataSegmentInfo().memory_layout.size);
-		compress::lz4::decompressData(scratch.getBytes(), scratch.getSize(), mDataBlob.getBytes(), mDataBlob.getSize(), decompressed_len);
+		compress::lz4::decompressData(scratch.getBytes(), (uint32_t)scratch.getSize(), mDataBlob.getBytes(), (uint32_t)mDataBlob.getSize(), decompressed_len);
 		if (decompressed_len != mDataBlob.getSize())
 		{
 			throw fnd::Exception(kModuleName, "NSO data segment failed to decompress");

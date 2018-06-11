@@ -179,7 +179,7 @@ void XciProcess::displayHeader()
 	printf("  SelT1Key:             0x%x\n", mHdr.getSelT1Key());
 	printf("  SelKey:               0x%x\n", mHdr.getSelKey());
 	printf("  LimArea:              0x%x", mHdr.getLimAreaPage());
-	if (mHdr.getLimAreaPage() != -1)
+	if (mHdr.getLimAreaPage() != (uint32_t)(-1))
 		printf(" (0x%" PRIx64 ")", nx::XciUtils::blockToAddr(mHdr.getLimAreaPage()));
 	printf("\n");
 

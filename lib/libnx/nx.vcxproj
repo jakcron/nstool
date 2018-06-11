@@ -56,6 +56,7 @@
     <ClInclude Include="include\nx\NpdmHeader.h" />
     <ClInclude Include="include\nx\NcaHeader.h" />
     <ClInclude Include="include\nx\nro.h" />
+    <ClInclude Include="include\nx\NroHeader.h" />
     <ClInclude Include="include\nx\nrr.h" />
     <ClInclude Include="include\nx\nso.h" />
     <ClInclude Include="include\nx\NsoHeader.h" />
@@ -104,6 +105,7 @@
     <ClCompile Include="source\NcaUtils.cpp" />
     <ClCompile Include="source\NpdmBinary.cpp" />
     <ClCompile Include="source\NpdmHeader.cpp" />
+    <ClCompile Include="source\NroHeader.cpp" />
     <ClCompile Include="source\NsoHeader.cpp" />
     <ClCompile Include="source\PfsHeader.cpp" />
     <ClCompile Include="source\SacBinary.cpp" />
