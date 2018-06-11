@@ -9,6 +9,7 @@
 #include "CnmtProcess.h"
 #include "NsoProcess.h"
 #include "NroProcess.h"
+#include "NacpProcess.h"
 #include "AssetProcess.h"
 
 int main(int argc, char** argv)
@@ -146,6 +147,16 @@ int main(int argc, char** argv)
 			obj.setAssetListFs(user_set.isListFs());
 
 			obj.process();
+		}
+		else if (user_set.getFileType() == FILE_NACP)
+		{
+			NacpProcess nacp;
+
+			nacp.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			nacp.setCliOutputMode(user_set.getCliOutputType());
+			nacp.setVerifyMode(user_set.isVerifyFile());
+
+			nacp.process();
 		}
 		else if (user_set.getFileType() == FILE_HB_ASSET)
 		{

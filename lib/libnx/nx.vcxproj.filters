@@ -177,6 +177,15 @@
     <ClInclude Include="include\nx\NroHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nx\ApplicationControlPropertyBinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\ApplicationControlPropertyUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\nacp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
@@ -294,6 +303,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\XciUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ApplicationControlPropertyBinary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ApplicationControlPropertyUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

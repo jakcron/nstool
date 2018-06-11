@@ -41,7 +41,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset\n");
 	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, aset]\n");
+	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset]\n");
 	printf("      -y, --verify    Verify file\n");
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
@@ -676,6 +676,8 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_NSO;
 	else if (str == "nro")
 		type = FILE_NRO;
+	else if (str == "nacp")
+		type = FILE_NACP;
 	else if (str == "aset" || str == "asset")
 		type = FILE_HB_ASSET;
 	else

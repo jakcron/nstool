@@ -100,18 +100,27 @@ void AssetProcess::processSections()
 		outfile.close();
 	}
 
-	if (mHdr.getNacpInfo().size > 0 && mNacpExtractPath.isSet)
+	if (mHdr.getNacpInfo().size > 0)
 	{
 		if ((mHdr.getNacpInfo().size + mHdr.getNacpInfo().offset) > mFile->size()) 
 			throw fnd::Exception(kModuleName, "ASET geometry for nacp beyond file size");
 
-		fnd::SimpleFile outfile(mNacpExtractPath.var, fnd::SimpleFile::Create);
-		fnd::MemoryBlob cache;
+		if (mNacpExtractPath.isSet)
+		{
+			fnd::SimpleFile outfile(mNacpExtractPath.var, fnd::SimpleFile::Create);
+			fnd::MemoryBlob cache;
 
-		cache.alloc(mHdr.getNacpInfo().size);
-		mFile->read(cache.getBytes(), mHdr.getNacpInfo().offset, cache.getSize());
-		outfile.write(cache.getBytes(), cache.getSize());
-		outfile.close();
+			cache.alloc(mHdr.getNacpInfo().size);
+			mFile->read(cache.getBytes(), mHdr.getNacpInfo().offset, cache.getSize());
+			outfile.write(cache.getBytes(), cache.getSize());
+			outfile.close();
+		}
+		
+		mNacp.setInputFile(new OffsetAdjustedIFile(mFile, false, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size), true);
+		mNacp.setCliOutputMode(mCliOutputType);
+		mNacp.setVerifyMode(mVerify);
+
+		mNacp.process();
 	}
 
 	if (mHdr.getRomfsInfo().size > 0)
