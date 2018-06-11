@@ -24,6 +24,8 @@
     <ClInclude Include="include\nx\AcidBinary.h" />
     <ClInclude Include="include\nx\AciHeader.h" />
     <ClInclude Include="include\nx\AesKeygen.h" />
+    <ClInclude Include="include\nx\ApplicationControlPropertyBinary.h" />
+    <ClInclude Include="include\nx\ApplicationControlPropertyUtils.h" />
     <ClInclude Include="include\nx\cnmt.h" />
     <ClInclude Include="include\nx\ContentMetaBinary.h" />
     <ClInclude Include="include\nx\dynamic_symbol.h" />
@@ -49,6 +51,7 @@
     <ClInclude Include="include\nx\MiscFlagsHandler.h" />
     <ClInclude Include="include\nx\MiscParamsEntry.h" />
     <ClInclude Include="include\nx\MiscParamsHandler.h" />
+    <ClInclude Include="include\nx\nacp.h" />
     <ClInclude Include="include\nx\nca.h" />
     <ClInclude Include="include\nx\NcaUtils.h" />
     <ClInclude Include="include\nx\npdm.h" />
@@ -82,6 +85,8 @@
     <ClCompile Include="source\AcidBinary.cpp" />
     <ClCompile Include="source\AciHeader.cpp" />
     <ClCompile Include="source\AesKeygen.cpp" />
+    <ClCompile Include="source\ApplicationControlPropertyBinary.cpp" />
+    <ClCompile Include="source\ApplicationControlPropertyUtils.cpp" />
     <ClCompile Include="source\ContentMetaBinary.cpp" />
     <ClCompile Include="source\FacBinary.cpp" />
     <ClCompile Include="source\FacHeader.cpp" />
