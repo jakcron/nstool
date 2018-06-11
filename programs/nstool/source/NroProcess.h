@@ -4,25 +4,18 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <nx/npdm.h>
-#include <nx/NsoHeader.h>
 #include <nx/NroHeader.h>
+#include "AssetProcess.h"
 
 #include "nstool.h"
 #include "SdkApiString.h"
 #include "DynamicSymbolParser.h"
 
-class CodeObjectProcess
+class NroProcess
 {
 public:
-	enum CodeObjectType
-	{
-		OBJ_NSO,
-		OBJ_NRO,
-		OBJ_INVALID
-	};
-
-	CodeObjectProcess();
-	~CodeObjectProcess();
+	NroProcess();
+	~NroProcess();
 
 	void process();
 
@@ -30,33 +23,30 @@ public:
 	void setCliOutputMode(CliOutputType type);
 	void setVerifyMode(bool verify);
 
-	void setCodeObjectType(CodeObjectType type);
 	void setInstructionType(nx::npdm::InstructionType type);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
-	// processed data
-	const nx::NsoHeader& getNsoHeader() const;
-	const fnd::MemoryBlob& getTextBlob() const;
-	const fnd::MemoryBlob& getRoBlob() const;
-	const fnd::MemoryBlob& getDataBlob() const;
-	const std::vector<SdkApiString>& getApiList() const;
-
+	// for homebrew NROs with Asset blobs appended
+	void setAssetListFs(bool list);
+	void setAssetIconExtractPath(const std::string& path);
+	void setAssetNacpExtractPath(const std::string& path);
+	void setAssetRomfsExtractPath(const std::string& path);
 private:
-	const std::string kModuleName = "CodeObjectProcess";
+	const std::string kModuleName = "NroProcess";
 
 	fnd::IFile* mFile;
 	bool mOwnIFile;
 
 	CliOutputType mCliOutputType;
 	bool mVerify;
-	CodeObjectType mObjType;
 	nx::npdm::InstructionType mInstructionType;
 	bool mListApi;
-	bool mListSymbols;
+	bool mListSymbols;	
 
-	nx::NsoHeader mNsoHdr;
-	nx::NroHeader mNroHdr;
+	nx::NroHeader mHdr;
+	bool mIsHomebrewNro;
+	AssetProcess mAssetProc;
 	fnd::MemoryBlob mTextBlob, mRoBlob, mDataBlob;
 	std::vector<SdkApiString> mApiList;
 	DynamicSymbolParser mDynSymbolList;
@@ -64,8 +54,7 @@ private:
 	void importHeader();
 	void importCodeSegments();
 	void importApiList();
-	void displayNsoHeader();
-	void displayNroHeader();
+	void displayHeader();
 	void displayRoMetaData();
 
 	const char* getApiTypeStr(SdkApiString::ApiType type) const;

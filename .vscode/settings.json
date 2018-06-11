@@ -28,5 +28,6 @@
 		"tuple": "cpp",
 		"__locale": "cpp",
 		"cinttypes": "cpp"
+		"__bit_reference": "cpp",
 	}
 }

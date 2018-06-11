@@ -7,7 +7,9 @@
 #include "NcaProcess.h"
 #include "NpdmProcess.h"
 #include "CnmtProcess.h"
-#include "CodeObjectProcess.h"
+#include "NsoProcess.h"
+#include "NroProcess.h"
+#include "AssetProcess.h"
 
 int main(int argc, char** argv)
 {
@@ -108,18 +110,59 @@ int main(int argc, char** argv)
 
 			cnmt.process();
 		}
-		else if (user_set.getFileType() == FILE_NSO || user_set.getFileType() == FILE_NRO)
+		else if (user_set.getFileType() == FILE_NSO)
 		{
-			CodeObjectProcess obj;
+			NsoProcess obj;
 
 			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
 			obj.setCliOutputMode(user_set.getCliOutputType());
 			obj.setVerifyMode(user_set.isVerifyFile());
 			
-			obj.setCodeObjectType(user_set.getFileType() == FILE_NSO ? obj.OBJ_NSO : obj.OBJ_NRO);
 			obj.setInstructionType(user_set.getInstType());
 			obj.setListApi(user_set.isListApi());
 			obj.setListSymbols(user_set.isListSymbols());
+
+			obj.process();
+		}
+		else if (user_set.getFileType() == FILE_NRO)
+		{
+			NroProcess obj;
+
+			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			obj.setCliOutputMode(user_set.getCliOutputType());
+			obj.setVerifyMode(user_set.isVerifyFile());
+			
+			obj.setInstructionType(user_set.getInstType());
+			obj.setListApi(user_set.isListApi());
+			obj.setListSymbols(user_set.isListSymbols());
+
+			if (user_set.getAssetIconPath().isSet)
+				obj.setAssetIconExtractPath(user_set.getAssetIconPath().var);
+			if (user_set.getAssetNacpPath().isSet)
+				obj.setAssetNacpExtractPath(user_set.getAssetNacpPath().var);
+
+			if (user_set.getFsPath().isSet)
+				obj.setAssetRomfsExtractPath(user_set.getFsPath().var);
+			obj.setAssetListFs(user_set.isListFs());
+
+			obj.process();
+		}
+		else if (user_set.getFileType() == FILE_HB_ASSET)
+		{
+			AssetProcess obj;
+
+			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			obj.setCliOutputMode(user_set.getCliOutputType());
+			obj.setVerifyMode(user_set.isVerifyFile());
+
+			if (user_set.getAssetIconPath().isSet)
+				obj.setIconExtractPath(user_set.getAssetIconPath().var);
+			if (user_set.getAssetNacpPath().isSet)
+				obj.setNacpExtractPath(user_set.getAssetNacpPath().var);
+
+			if (user_set.getFsPath().isSet)
+				obj.setRomfsExtractPath(user_set.getFsPath().var);
+			obj.setListFs(user_set.isListFs());
 
 			obj.process();
 		}
