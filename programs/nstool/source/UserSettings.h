@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
+#include <fnd/MemoryBlob.h>
 #include <nx/npdm.h>
 #include "nstool.h"
 
@@ -101,5 +102,8 @@ private:
 	void decodeHexStringToBytes(const std::string& name, const std::string& str, byte_t* out, size_t out_len);
 	FileType getFileTypeFromString(const std::string& type_str);
 	FileType determineFileTypeFromFile(const std::string& path);
+	bool determineValidNcaFromSample(const fnd::MemoryBlob& sample) const;
+	bool determineValidCnmtFromSample(const fnd::MemoryBlob& sample) const;
+	bool determineValidNacpFromSample(const fnd::MemoryBlob& sample) const;
 	nx::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
 };
