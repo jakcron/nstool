@@ -27,9 +27,9 @@ public:
 
 	// specialised paths
 	const sOptional<std::string>& getXciUpdatePath() const;
+	const sOptional<std::string>& getXciLogoPath() const;
 	const sOptional<std::string>& getXciNormalPath() const;
 	const sOptional<std::string>& getXciSecurePath() const;
-	const sOptional<std::string>& getXciLogoPath() const;
 	const sOptional<std::string>& getFsPath() const;
 	const sOptional<std::string>& getNcaPart0Path() const;
 	const sOptional<std::string>& getNcaPart1Path() const;
@@ -53,9 +53,9 @@ private:
 		sOptional<bool> minimal_output;
 		sOptional<bool> list_fs;
 		sOptional<std::string> update_path;
+		sOptional<std::string> logo_path;
 		sOptional<std::string> normal_path;
 		sOptional<std::string> secure_path;
-		sOptional<std::string> logo_path;
 		sOptional<std::string> fs_path;
 		sOptional<std::string> nca_titlekey;
 		sOptional<std::string> nca_bodykey;
@@ -78,9 +78,9 @@ private:
 
 	bool mListFs;
 	sOptional<std::string> mXciUpdatePath;
+	sOptional<std::string> mXciLogoPath;
 	sOptional<std::string> mXciNormalPath;
 	sOptional<std::string> mXciSecurePath;
-	sOptional<std::string> mXciLogoPath;
 	sOptional<std::string> mFsPath;
 
 	sOptional<std::string> mNcaPart0Path;

@@ -49,8 +49,8 @@ void UserSettings::showHelp()
 	printf("    nstool [--listfs] [--update <dir> --normal <dir> --secure <dir>] <.xci file>\n");
 	printf("      --listfs        Print file system in embedded partitions\n");
 	printf("      --update        Extract \"update\" partition to directory\n");
-	printf("      --normal        Extract \"normal\" partition to directory\n");
 	printf("      --logo          Extract \"logo\" partition to directory\n");
+	printf("      --normal        Extract \"normal\" partition to directory\n");
 	printf("      --secure        Extract \"secure\" partition to directory\n");
 	printf("\n  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)\n");
 	printf("    nstool [--listfs] [--fsdir <dir>] <file>\n");
@@ -128,6 +128,11 @@ const sOptional<std::string>& UserSettings::getXciUpdatePath() const
 	return mXciUpdatePath;
 }
 
+const sOptional<std::string>& UserSettings::getXciLogoPath() const
+{
+	return mXciLogoPath;
+}
+
 const sOptional<std::string>& UserSettings::getXciNormalPath() const
 {
 	return mXciNormalPath;
@@ -136,11 +141,6 @@ const sOptional<std::string>& UserSettings::getXciNormalPath() const
 const sOptional<std::string>& UserSettings::getXciSecurePath() const
 {
 	return mXciSecurePath;
-}
-
-const sOptional<std::string>& UserSettings::getXciLogoPath() const
-{
-	return mXciLogoPath;
 }
 
 const sOptional<std::string>& UserSettings::getFsPath() const
