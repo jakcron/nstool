@@ -49,10 +49,13 @@ void NpdmProcess::process()
 		displayKernelCap(mNpdm.getAci().getKc());
 
 		// acid binary
-		displayAciHdr(mNpdm.getAcid());
-		displayFac(mNpdm.getAcid().getFac());
-		displaySac(mNpdm.getAcid().getSac());
-		displayKernelCap(mNpdm.getAcid().getKc());
+		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		{
+			displayAciHdr(mNpdm.getAcid());
+			displayFac(mNpdm.getAcid().getFac());
+			displaySac(mNpdm.getAcid().getSac());
+			displayKernelCap(mNpdm.getAcid().getKc());
+		}
 	}
 }
 
