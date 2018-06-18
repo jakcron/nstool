@@ -145,7 +145,7 @@ void CnmtProcess::displayCmnt()
 CnmtProcess::CnmtProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
-	mCliOutputType(OUTPUT_NORMAL),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
 }
@@ -172,10 +172,8 @@ void CnmtProcess::process()
 
 	mCnmt.importBinary(scratch.getBytes(), scratch.getSize());
 
-	if (mCliOutputType >= OUTPUT_NORMAL)
-	{
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayCmnt();
-	}
 }
 
 void CnmtProcess::setInputFile(fnd::IFile* file, bool ownIFile)
@@ -184,9 +182,9 @@ void CnmtProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void CnmtProcess::setCliOutputMode(CliOutputType type)
+void CnmtProcess::setCliOutputMode(CliOutputMode type)
 {
-	mCliOutputType = type;
+	mCliOutputMode = type;
 }
 
 void CnmtProcess::setVerifyMode(bool verify)

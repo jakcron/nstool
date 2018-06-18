@@ -7,7 +7,7 @@
 AssetProcess::AssetProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
-	mCliOutputType(OUTPUT_NORMAL),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
 
@@ -29,7 +29,8 @@ void AssetProcess::process()
 	}
 
 	importHeader();
-	displayHeader();
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+		displayHeader();
 	processSections();
 }
 
@@ -39,9 +40,9 @@ void AssetProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void AssetProcess::setCliOutputMode(CliOutputType type)
+void AssetProcess::setCliOutputMode(CliOutputMode type)
 {
-	mCliOutputType = type;
+	mCliOutputMode = type;
 }
 
 void AssetProcess::setVerifyMode(bool verify)
@@ -117,7 +118,7 @@ void AssetProcess::processSections()
 		}
 		
 		mNacp.setInputFile(new OffsetAdjustedIFile(mFile, false, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size), true);
-		mNacp.setCliOutputMode(mCliOutputType);
+		mNacp.setCliOutputMode(mCliOutputMode);
 		mNacp.setVerifyMode(mVerify);
 
 		mNacp.process();
@@ -129,7 +130,7 @@ void AssetProcess::processSections()
 			throw fnd::Exception(kModuleName, "ASET geometry for romfs beyond file size");
 
 		mRomfs.setInputFile(new OffsetAdjustedIFile(mFile, false, mHdr.getRomfsInfo().offset, mHdr.getRomfsInfo().size), true);
-		mRomfs.setCliOutputMode(mCliOutputType);
+		mRomfs.setCliOutputMode(mCliOutputMode);
 		mRomfs.setVerifyMode(mVerify);
 
 		mRomfs.process();
@@ -138,7 +139,7 @@ void AssetProcess::processSections()
 
 void AssetProcess::displayHeader()
 {
-	if (mCliOutputType >= OUTPUT_NORMAL)
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
 		printf("[ASET Header]\n");
 		printf("  Icon:\n");

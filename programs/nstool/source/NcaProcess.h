@@ -19,7 +19,7 @@ public:
 	// generic
 	void setInputFile(fnd::IFile* file, bool ownIFile);
 	void setKeyset(const sKeyset* keyset);
-	void setCliOutputMode(CliOutputType type);
+	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
 	// nca specfic
@@ -37,7 +37,7 @@ private:
 	fnd::IFile* mFile;
 	bool mOwnIFile;
 	const sKeyset* mKeyset;
-	CliOutputType mCliOutputType;
+	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
 	struct sExtract

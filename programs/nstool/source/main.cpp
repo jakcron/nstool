@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 			xci.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
 			
 			xci.setKeyset(&user_set.getKeyset());
-			xci.setCliOutputMode(user_set.getCliOutputType());
+			xci.setCliOutputMode(user_set.getCliOutputMode());
 			xci.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getXciUpdatePath().isSet)
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 			PfsProcess pfs;
 
 			pfs.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			pfs.setCliOutputMode(user_set.getCliOutputType());
+			pfs.setCliOutputMode(user_set.getCliOutputMode());
 			pfs.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getFsPath().isSet)
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 			RomfsProcess romfs;
 
 			romfs.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			romfs.setCliOutputMode(user_set.getCliOutputType());
+			romfs.setCliOutputMode(user_set.getCliOutputMode());
 			romfs.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getFsPath().isSet)
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 
 			nca.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
 			nca.setKeyset(&user_set.getKeyset());
-			nca.setCliOutputMode(user_set.getCliOutputType());
+			nca.setCliOutputMode(user_set.getCliOutputMode());
 			nca.setVerifyMode(user_set.isVerifyFile());
 
 
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 
 			npdm.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
 			npdm.setKeyset(&user_set.getKeyset());
-			npdm.setCliOutputMode(user_set.getCliOutputType());
+			npdm.setCliOutputMode(user_set.getCliOutputMode());
 			npdm.setVerifyMode(user_set.isVerifyFile());
 
 			npdm.process();
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 			CnmtProcess cnmt;
 
 			cnmt.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			cnmt.setCliOutputMode(user_set.getCliOutputType());
+			cnmt.setCliOutputMode(user_set.getCliOutputMode());
 			cnmt.setVerifyMode(user_set.isVerifyFile());
 
 			cnmt.process();
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
 			NsoProcess obj;
 
 			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			obj.setCliOutputMode(user_set.getCliOutputType());
+			obj.setCliOutputMode(user_set.getCliOutputMode());
 			obj.setVerifyMode(user_set.isVerifyFile());
 			
 			obj.setInstructionType(user_set.getInstType());
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 			NroProcess obj;
 
 			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			obj.setCliOutputMode(user_set.getCliOutputType());
+			obj.setCliOutputMode(user_set.getCliOutputMode());
 			obj.setVerifyMode(user_set.isVerifyFile());
 			
 			obj.setInstructionType(user_set.getInstType());
@@ -153,7 +153,7 @@ int main(int argc, char** argv)
 			NacpProcess nacp;
 
 			nacp.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			nacp.setCliOutputMode(user_set.getCliOutputType());
+			nacp.setCliOutputMode(user_set.getCliOutputMode());
 			nacp.setVerifyMode(user_set.isVerifyFile());
 
 			nacp.process();
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
 			AssetProcess obj;
 
 			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			obj.setCliOutputMode(user_set.getCliOutputType());
+			obj.setCliOutputMode(user_set.getCliOutputMode());
 			obj.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getAssetIconPath().isSet)

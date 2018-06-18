@@ -31,12 +31,15 @@ enum FileType
 	FILE_INVALID = -1,
 };
 
-enum CliOutputType
+enum CliOutputModeFlag
 {
-	OUTPUT_MINIMAL,
-	OUTPUT_NORMAL,
-	OUTPUT_VERBOSE
+	OUTPUT_BASIC,
+	OUTPUT_LAYOUT,
+	OUTPUT_KEY_DATA,
+	OUTPUT_EXTENDED
 };
+
+typedef byte_t CliOutputMode;
 
 template <typename T>
 struct sOptional

@@ -19,7 +19,7 @@ public:
 	void process();
 
 	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setCliOutputMode(CliOutputType type);
+	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
 	void setInstructionType(nx::npdm::InstructionType type);
@@ -31,7 +31,7 @@ private:
 	fnd::IFile* mFile;
 	bool mOwnIFile;
 
-	CliOutputType mCliOutputType;
+	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	nx::npdm::InstructionType mInstructionType;
 	bool mListApi;
