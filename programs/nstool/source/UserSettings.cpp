@@ -48,7 +48,7 @@ void UserSettings::showHelp()
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
 	printf("\n  XCI (GameCard Image)\n");
-	printf("    nstool [--listfs] [--update <dir> --normal <dir> --secure <dir>] <.xci file>\n");
+	printf("    nstool [--listfs] [--update <dir> --secure <dir> ...] <.xci file>\n");
 	printf("      --listfs        Print file system in embedded partitions\n");
 	printf("      --update        Extract \"update\" partition to directory\n");
 	printf("      --logo          Extract \"logo\" partition to directory\n");
@@ -70,7 +70,7 @@ void UserSettings::showHelp()
 	printf("\n  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)\n");
 	printf("    nstool [--listapi --listsym] [--insttype <inst. type>] <file>\n");
 	printf("      --listapi       Print SDK API List.\n");
-	printf("      --listsym       Print Dynamic Symbols.\n");
+	printf("      --listsym       Print Code Symbols.\n");
 	printf("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
 	printf("\n  ASET (Homebrew Asset Blob)\n");
 	printf("    nstool [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n");
