@@ -48,7 +48,7 @@ void UserSettings::showHelp()
 	printf("      -v, --verbose   Verbose output\n");
 	printf("      -q, --quiet     Minimal output\n");
 	printf("\n  XCI (GameCard Image)\n");
-	printf("    nstool [--listfs] [--update <dir> --secure <dir> ...] <.xci file>\n");
+	printf("    nstool [--listfs] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>\n");
 	printf("      --listfs        Print file system in embedded partitions\n");
 	printf("      --update        Extract \"update\" partition to directory\n");
 	printf("      --logo          Extract \"logo\" partition to directory\n");
