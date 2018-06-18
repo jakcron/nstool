@@ -8,7 +8,7 @@
 NsoProcess::NsoProcess():
 	mFile(nullptr),
 	mOwnIFile(false),
-	mCliOutputType(OUTPUT_NORMAL),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mInstructionType(nx::npdm::INSTR_64BIT),
 	mListApi(false),
@@ -34,8 +34,11 @@ void NsoProcess::process()
 	importHeader();
 	importCodeSegments();
 	importApiList();
-	displayNsoHeader();
-	displayRoMetaData();
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	{
+		displayNsoHeader();
+		displayRoMetaData();
+	}
 }
 
 void NsoProcess::setInputFile(fnd::IFile* file, bool ownIFile)
@@ -44,9 +47,9 @@ void NsoProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void NsoProcess::setCliOutputMode(CliOutputType type)
+void NsoProcess::setCliOutputMode(CliOutputMode type)
 {
-	mCliOutputType = type;
+	mCliOutputMode = type;
 }
 
 void NsoProcess::setVerifyMode(bool verify)
@@ -204,75 +207,73 @@ void NsoProcess::displayNsoHeader()
 {
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
 
-	if (mCliOutputType >= OUTPUT_NORMAL)
+	printf("[NSO Header]\n");
+	printf("  ModuleId:           ");
+	_HEXDUMP_L(mNsoHdr.getModuleId().data, nx::nso::kModuleIdSize);
+	printf("\n");
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	printf("  Program Segments:\n");
+	printf("     .module_name:\n");
+	printf("      FileOffset:     0x%" PRIx32 "\n", mNsoHdr.getModuleNameInfo().offset);
+	printf("      FileSize:       0x%" PRIx32 "\n", mNsoHdr.getModuleNameInfo().size);
+	printf("    .text:\n");
+	printf("      FileOffset:     0x%" PRIx32 "\n", mNsoHdr.getTextSegmentInfo().file_layout.offset);
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mNsoHdr.getTextSegmentInfo().file_layout.size, mNsoHdr.getTextSegmentInfo().is_compressed? " (COMPRESSED)" : "");
+	printf("    .ro:\n");
+	printf("      FileOffset:     0x%" PRIx32 "\n", mNsoHdr.getRoSegmentInfo().file_layout.offset);
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mNsoHdr.getRoSegmentInfo().file_layout.size, mNsoHdr.getRoSegmentInfo().is_compressed? " (COMPRESSED)" : "");
+	printf("    .data:\n");
+	printf("      FileOffset:     0x%" PRIx32 "\n", mNsoHdr.getDataSegmentInfo().file_layout.offset);
+	printf("      FileSize:       0x%" PRIx32 "%s\n", mNsoHdr.getDataSegmentInfo().file_layout.size, mNsoHdr.getDataSegmentInfo().is_compressed? " (COMPRESSED)" : "");
+	printf("  Program Sections:\n");
+	printf("     .text:\n");
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getTextSegmentInfo().memory_layout.offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getTextSegmentInfo().memory_layout.size);
+	if (mNsoHdr.getTextSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("[NSO Header]\n");
-		printf("  ModuleId:           ");
-		_HEXDUMP_L(mNsoHdr.getModuleId().data, nx::nso::kModuleIdSize);
+		printf("      Hash:           ");
+		_HEXDUMP_L(mNsoHdr.getTextSegmentInfo().hash.bytes, 32);
 		printf("\n");
-		printf("  Program Segments:\n");
-		printf("     .module_name:\n");
-		printf("      FileOffset:     0x%" PRIx32 "\n", mNsoHdr.getModuleNameInfo().offset);
-		printf("      FileSize:       0x%" PRIx32 "\n", mNsoHdr.getModuleNameInfo().size);
-		printf("    .text:\n");
-		printf("      FileOffset:     0x%" PRIx32 "\n", mNsoHdr.getTextSegmentInfo().file_layout.offset);
-		printf("      FileSize:       0x%" PRIx32 "%s\n", mNsoHdr.getTextSegmentInfo().file_layout.size, mNsoHdr.getTextSegmentInfo().is_compressed? " (COMPRESSED)" : "");
-		printf("    .ro:\n");
-		printf("      FileOffset:     0x%" PRIx32 "\n", mNsoHdr.getRoSegmentInfo().file_layout.offset);
-		printf("      FileSize:       0x%" PRIx32 "%s\n", mNsoHdr.getRoSegmentInfo().file_layout.size, mNsoHdr.getRoSegmentInfo().is_compressed? " (COMPRESSED)" : "");
-		printf("    .data:\n");
-		printf("      FileOffset:     0x%" PRIx32 "\n", mNsoHdr.getDataSegmentInfo().file_layout.offset);
-		printf("      FileSize:       0x%" PRIx32 "%s\n", mNsoHdr.getDataSegmentInfo().file_layout.size, mNsoHdr.getDataSegmentInfo().is_compressed? " (COMPRESSED)" : "");
-		printf("  Program Sections:\n");
-		printf("     .text:\n");
-		printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getTextSegmentInfo().memory_layout.offset);
-		printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getTextSegmentInfo().memory_layout.size);
-		if (mNsoHdr.getTextSegmentInfo().is_hashed && mCliOutputType >= OUTPUT_VERBOSE)
-		{
-			printf("      Hash:           ");
-			_HEXDUMP_L(mNsoHdr.getTextSegmentInfo().hash.bytes, 32);
-			printf("\n");
-		}
-		printf("    .ro:\n");
-		printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getRoSegmentInfo().memory_layout.offset);
-		printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getRoSegmentInfo().memory_layout.size);
-		if (mNsoHdr.getRoSegmentInfo().is_hashed && mCliOutputType >= OUTPUT_VERBOSE)
-		{
-			printf("      Hash:           ");
-			_HEXDUMP_L(mNsoHdr.getRoSegmentInfo().hash.bytes, 32);
-			printf("\n");
-		}
-		if (mCliOutputType >= OUTPUT_VERBOSE)
-		{
-			printf("    .api_info:\n");
-			printf("      MemoryOffset:   0x%" PRIx32 "\n",  mNsoHdr.getRoEmbeddedInfo().offset);
-			printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getRoEmbeddedInfo().size);
-			printf("    .dynstr:\n");
-			printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getRoDynStrInfo().offset);
-			printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getRoDynStrInfo().size);
-			printf("    .dynsym:\n");
-			printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getRoDynSymInfo().offset);
-			printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getRoDynSymInfo().size);
-		}
-		
-		printf("    .data:\n");
-		printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getDataSegmentInfo().memory_layout.offset);
-		printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getDataSegmentInfo().memory_layout.size);
-		if (mNsoHdr.getDataSegmentInfo().is_hashed && mCliOutputType >= OUTPUT_VERBOSE)
-		{
-			printf("      Hash:           ");
-			_HEXDUMP_L(mNsoHdr.getDataSegmentInfo().hash.bytes, 32);
-			printf("\n");
-		}
-		printf("    .bss:\n");
-		printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getBssSize());
 	}
+	printf("    .ro:\n");
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getRoSegmentInfo().memory_layout.offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getRoSegmentInfo().memory_layout.size);
+	if (mNsoHdr.getRoSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		printf("      Hash:           ");
+		_HEXDUMP_L(mNsoHdr.getRoSegmentInfo().hash.bytes, 32);
+		printf("\n");
+	}
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		printf("    .api_info:\n");
+		printf("      MemoryOffset:   0x%" PRIx32 "\n",  mNsoHdr.getRoEmbeddedInfo().offset);
+		printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getRoEmbeddedInfo().size);
+		printf("    .dynstr:\n");
+		printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getRoDynStrInfo().offset);
+		printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getRoDynStrInfo().size);
+		printf("    .dynsym:\n");
+		printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getRoDynSymInfo().offset);
+		printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getRoDynSymInfo().size);
+	}
+	
+	printf("    .data:\n");
+	printf("      MemoryOffset:   0x%" PRIx32 "\n", mNsoHdr.getDataSegmentInfo().memory_layout.offset);
+	printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getDataSegmentInfo().memory_layout.size);
+	if (mNsoHdr.getDataSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		printf("      Hash:           ");
+		_HEXDUMP_L(mNsoHdr.getDataSegmentInfo().hash.bytes, 32);
+		printf("\n");
+	}
+	printf("    .bss:\n");
+	printf("      MemorySize:     0x%" PRIx32 "\n", mNsoHdr.getBssSize());
 #undef _HEXDUMP_L
 }
 
 void NsoProcess::displayRoMetaData()
 {
-	if (mApiList.size() > 0 && (mListApi || mCliOutputType > OUTPUT_NORMAL))
+	if (mApiList.size() > 0 && (mListApi || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
 		printf("[SDK API List]\n");
 		for (size_t i = 0; i < mApiList.size(); i++)
@@ -283,7 +284,7 @@ void NsoProcess::displayRoMetaData()
 			printf("    Module:   %s\n", mApiList[i].getModuleName().c_str());
 		}
 	}
-	if (mDynSymbolList.getDynamicSymbolList().getSize() > 0 && (mListSymbols || mCliOutputType > OUTPUT_NORMAL))
+	if (mDynSymbolList.getDynamicSymbolList().getSize() > 0 && (mListSymbols || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
 		printf("[Symbol List]\n");
 		for (size_t i = 0; i < mDynSymbolList.getDynamicSymbolList().getSize(); i++)
@@ -292,8 +293,8 @@ void NsoProcess::displayRoMetaData()
 			printf("  %s [SHN=%s (%04x)][STT=%s]\n", symbol.name.c_str(), getSectionIndexStr(symbol.shn_index), symbol.shn_index, getSymbolTypeStr(symbol.symbol_type));
 		}
 	}
-	
 }
+
 
 const char* NsoProcess::getApiTypeStr(SdkApiString::ApiType type) const
 {

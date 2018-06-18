@@ -45,8 +45,10 @@ void UserSettings::showHelp()
 	printf("      -k, --keyset    Specify keyset file\n");
 	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset]\n");
 	printf("      -y, --verify    Verify file\n");
+	printf("\n  Output Options:\n");
+	printf("      --showkeys      Show keys generated\n");
+	printf("      --showlayout    Show layout metadata\n");
 	printf("      -v, --verbose   Verbose output\n");
-	printf("      -q, --quiet     Minimal output\n");
 	printf("\n  XCI (GameCard Image)\n");
 	printf("    nstool [--listfs] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>\n");
 	printf("      --listfs        Print file system in embedded partitions\n");
@@ -101,9 +103,9 @@ bool UserSettings::isVerifyFile() const
 	return mVerifyFile;
 }
 
-CliOutputType UserSettings::getCliOutputType() const
+CliOutputMode UserSettings::getCliOutputMode() const
 {
-	return mOutputType;
+	return mOutputMode;
 }
 
 bool UserSettings::isListFs() const
@@ -223,16 +225,22 @@ void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
 			cmd_args.verify_file = true;
 		}
 
+		else if (args[i] == "--showkeys")
+		{
+			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			cmd_args.show_keys = true;
+		}
+
+		else if (args[i] == "--showlayout")
+		{
+			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			cmd_args.show_layout = true;
+		}
+
 		else if (args[i] == "-v" || args[i] == "--verbose")
 		{
 			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
 			cmd_args.verbose_output = true;
-		}
-
-		else if (args[i] == "-q" || args[i] == "--quiet")
-		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
-			cmd_args.minimal_output = true;
 		}
 
 		else if (args[i] == "-k" || args[i] == "--keyset")
@@ -588,8 +596,6 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	// check invalid input
 	if (args.input_path.isSet == false)
 		throw fnd::Exception(kModuleName, "No input file specified");
-	if (args.verbose_output.isSet && args.minimal_output.isSet)
-		throw fnd::Exception(kModuleName, "Options --verbose and --quiet cannot be used together.");
 	
 	// save arguments
 	mInputPath = *args.input_path;
@@ -618,13 +624,22 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mAssetIconPath = args.asset_icon_path;
 	mAssetNacpPath = args.asset_nacp_path;
 
-	// determine output path
+	// determine output mode
+	mOutputMode = _BIT(OUTPUT_BASIC);
 	if (args.verbose_output.isSet)
-		mOutputType = OUTPUT_VERBOSE;
-	else if (args.minimal_output.isSet)
-		mOutputType = OUTPUT_MINIMAL;
-	else
-		mOutputType = OUTPUT_NORMAL;
+	{
+		mOutputMode |= _BIT(OUTPUT_KEY_DATA);
+		mOutputMode |= _BIT(OUTPUT_LAYOUT);
+		mOutputMode |= _BIT(OUTPUT_EXTENDED);
+	}
+	if (args.show_keys.isSet)
+	{
+		mOutputMode |= _BIT(OUTPUT_KEY_DATA);
+	}
+	if (args.show_layout.isSet)
+	{
+		mOutputMode |= _BIT(OUTPUT_LAYOUT);
+	}
 
 	// determine input file type
 	if (args.file_type.isSet)

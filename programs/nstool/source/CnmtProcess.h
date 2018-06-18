@@ -15,7 +15,7 @@ public:
 	void process();
 
 	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setCliOutputMode(CliOutputType type);
+	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
 	const nx::ContentMetaBinary& getContentMetaBinary() const;
@@ -25,7 +25,7 @@ private:
 
 	fnd::IFile* mFile;
 	bool mOwnIFile;
-	CliOutputType mCliOutputType;
+	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
 	nx::ContentMetaBinary mCnmt;

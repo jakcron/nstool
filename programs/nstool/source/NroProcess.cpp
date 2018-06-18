@@ -9,7 +9,7 @@
 NroProcess::NroProcess():
 	mFile(nullptr),
 	mOwnIFile(false),
-	mCliOutputType(OUTPUT_NORMAL),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mInstructionType(nx::npdm::INSTR_64BIT),
 	mListApi(false),
@@ -35,8 +35,11 @@ void NroProcess::process()
 	importHeader();
 	importCodeSegments();
 	importApiList();
-	displayHeader();
-	displayRoMetaData();
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	{
+		displayHeader();
+		displayRoMetaData();
+	}
 	if (mIsHomebrewNro)
 		mAssetProc.process();
 }
@@ -47,9 +50,9 @@ void NroProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void NroProcess::setCliOutputMode(CliOutputType type)
+void NroProcess::setCliOutputMode(CliOutputMode type)
 {
-	mCliOutputType = type;
+	mCliOutputMode = type;
 }
 
 void NroProcess::setVerifyMode(bool verify)
@@ -111,7 +114,7 @@ void NroProcess::importHeader()
 	{
 		mIsHomebrewNro = true;
 		mAssetProc.setInputFile(new OffsetAdjustedIFile(mFile, false, mHdr.getNroSize(), mFile->size() - mHdr.getNroSize()), true);
-		mAssetProc.setCliOutputMode(mCliOutputType);
+		mAssetProc.setCliOutputMode(mCliOutputMode);
 		mAssetProc.setVerifyMode(mVerify);
 	}
 	else
@@ -164,48 +167,45 @@ void NroProcess::importApiList()
 void NroProcess::displayHeader()
 {
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
-	if (mCliOutputType >= OUTPUT_NORMAL)
+	printf("[NRO Header]\n");
+	printf("  RoCrt:       ");
+	_HEXDUMP_L(mHdr.getRoCrt().data, nx::nro::kRoCrtSize);
+	printf("\n");
+	printf("  ModuleId:    ");
+	_HEXDUMP_L(mHdr.getModuleId().data, nx::nro::kModuleIdSize);
+	printf("\n");
+	printf("  NroSize:     0x%" PRIx32 "\n", mHdr.getNroSize());
+	printf("  Program Sections:\n");
+	printf("     .text:\n");
+	printf("      Offset:     0x%" PRIx32 "\n", mHdr.getTextInfo().memory_offset);
+	printf("      Size:       0x%" PRIx32 "\n", mHdr.getTextInfo().size);
+	printf("    .ro:\n");
+	printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoInfo().memory_offset);
+	printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoInfo().size);
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("[NRO Header]\n");
-		printf("  RoCrt:       ");
-		_HEXDUMP_L(mHdr.getRoCrt().data, nx::nro::kRoCrtSize);
-		printf("\n");
-		printf("  ModuleId:    ");
-		_HEXDUMP_L(mHdr.getModuleId().data, nx::nro::kModuleIdSize);
-		printf("\n");
-		printf("  NroSize:     0x%" PRIx32 "\n", mHdr.getNroSize());
-		printf("  Program Sections:\n");
-		printf("     .text:\n");
-		printf("      Offset:     0x%" PRIx32 "\n", mHdr.getTextInfo().memory_offset);
-		printf("      Size:       0x%" PRIx32 "\n", mHdr.getTextInfo().size);
-		printf("    .ro:\n");
-		printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoInfo().memory_offset);
-		printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoInfo().size);
-		if (mCliOutputType >= OUTPUT_VERBOSE)
-		{
-			printf("    .api_info:\n");
-			printf("      Offset:     0x%" PRIx32 "\n",  mHdr.getRoEmbeddedInfo().memory_offset);
-			printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoEmbeddedInfo().size);
-			printf("    .dynstr:\n");
-			printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().memory_offset);
-			printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().size);
-			printf("    .dynsym:\n");
-			printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().memory_offset);
-			printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().size);
-		}
-		printf("    .data:\n");
-		printf("      Offset:     0x%" PRIx32 "\n", mHdr.getDataInfo().memory_offset);
-		printf("      Size:       0x%" PRIx32 "\n", mHdr.getDataInfo().size);
-		printf("    .bss:\n");
-		printf("      Size:       0x%" PRIx32 "\n", mHdr.getBssSize());
+		printf("    .api_info:\n");
+		printf("      Offset:     0x%" PRIx32 "\n",  mHdr.getRoEmbeddedInfo().memory_offset);
+		printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoEmbeddedInfo().size);
+		printf("    .dynstr:\n");
+		printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().memory_offset);
+		printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().size);
+		printf("    .dynsym:\n");
+		printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().memory_offset);
+		printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().size);
 	}
+	printf("    .data:\n");
+	printf("      Offset:     0x%" PRIx32 "\n", mHdr.getDataInfo().memory_offset);
+	printf("      Size:       0x%" PRIx32 "\n", mHdr.getDataInfo().size);
+	printf("    .bss:\n");
+	printf("      Size:       0x%" PRIx32 "\n", mHdr.getBssSize());
 	
 #undef _HEXDUMP_L
 }
 
 void NroProcess::displayRoMetaData()
 {
-	if (mApiList.size() > 0 && (mListApi || mCliOutputType > OUTPUT_NORMAL))
+	if (mApiList.size() > 0 && (mListApi || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
 		printf("[SDK API List]\n");
 		for (size_t i = 0; i < mApiList.size(); i++)
@@ -216,7 +216,7 @@ void NroProcess::displayRoMetaData()
 			printf("    Module:   %s\n", mApiList[i].getModuleName().c_str());
 		}
 	}
-	if (mDynSymbolList.getDynamicSymbolList().getSize() > 0 && (mListSymbols || mCliOutputType > OUTPUT_NORMAL))
+	if (mDynSymbolList.getDynamicSymbolList().getSize() > 0 && (mListSymbols || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
 		printf("[Symbol List]\n");
 		for (size_t i = 0; i < mDynSymbolList.getDynamicSymbolList().getSize(); i++)
@@ -225,7 +225,6 @@ void NroProcess::displayRoMetaData()
 			printf("  %s [SHN=%s (%04x)][STT=%s]\n", symbol.name.c_str(), getSectionIndexStr(symbol.shn_index), symbol.shn_index, getSymbolTypeStr(symbol.symbol_type));
 		}
 	}
-	
 }
 
 const char* NroProcess::getApiTypeStr(SdkApiString::ApiType type) const

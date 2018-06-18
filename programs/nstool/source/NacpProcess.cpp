@@ -426,7 +426,7 @@ std::string getSaveDataSizeStr(int64_t size)
 NacpProcess::NacpProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
-	mCliOutputType(OUTPUT_NORMAL),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
 }
@@ -453,10 +453,8 @@ void NacpProcess::process()
 
 	mNacp.importBinary(scratch.getBytes(), scratch.getSize());
 
-	if (mCliOutputType >= OUTPUT_NORMAL)
-	{
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayNacp();
-	}
 }
 
 void NacpProcess::setInputFile(fnd::IFile* file, bool ownIFile)
@@ -465,9 +463,9 @@ void NacpProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void NacpProcess::setCliOutputMode(CliOutputType type)
+void NacpProcess::setCliOutputMode(CliOutputMode type)
 {
-	mCliOutputType = type;
+	mCliOutputMode = type;
 }
 
 void NacpProcess::setVerifyMode(bool verify)
@@ -485,7 +483,7 @@ void NacpProcess::displayNacp()
 	printf("[ApplicationControlProperty]\n");
 	printf("  Menu Description:\n");
 	printf("    DisplayVersion:               %s\n", mNacp.getDisplayVersion().c_str());
-	if (mNacp.getIsbn().empty() == false)
+	if (mNacp.getIsbn().empty() == false || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		printf("    ISBN:                         %s\n", mNacp.getIsbn().c_str());
 	for (size_t i = 0; i < mNacp.getTitle().getSize(); i++)
 	{
@@ -520,7 +518,7 @@ void NacpProcess::displayNacp()
 		printf("      Age:     %d\n", mNacp.getRatingAge()[i].age);
 	}
 	
-	if (mNacp.getBcatPassphase().empty() == false)
+	if (mNacp.getBcatPassphase().empty() == false || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("  BCAT:\n");
 		printf("    BcatPassphase:                %s\n", mNacp.getBcatPassphase().c_str());
@@ -537,35 +535,35 @@ void NacpProcess::displayNacp()
 	}
 	printf("  SaveData:\n");
 	printf("    SaveDatawOwnerId:             0x%016" PRIx64 "\n", mNacp.getSaveDatawOwnerId());
-	if (mNacp.getUserAccountSaveDataSize().journal_size > 0)
+	if (mNacp.getUserAccountSaveDataSize().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("    UserAccountSaveData:\n");
 		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getUserAccountSaveDataSize().size).c_str());
 		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getUserAccountSaveDataSize().journal_size).c_str());
 	}
-	if (mNacp.getDeviceSaveDataSize().journal_size > 0)
+	if (mNacp.getDeviceSaveDataSize().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("    DeviceSaveData:\n");
 		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getDeviceSaveDataSize().size).c_str());
 		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getDeviceSaveDataSize().journal_size).c_str());
 	}
-	if (mNacp.getUserAccountSaveDataMax().journal_size > 0)
+	if (mNacp.getUserAccountSaveDataMax().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("    UserAccountSaveDataMax:\n");
 		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getUserAccountSaveDataMax().size).c_str());
 		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getUserAccountSaveDataMax().journal_size).c_str());
 	}
-	if (mNacp.getDeviceSaveDataMax().journal_size > 0)
+	if (mNacp.getDeviceSaveDataMax().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("    DeviceSaveDataMax:\n");
 		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getDeviceSaveDataMax().size).c_str());
 		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getDeviceSaveDataMax().journal_size).c_str());
 	}
-	if (mNacp.getTemporaryStorageSize() > 0)
+	if (mNacp.getTemporaryStorageSize() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("    TemporaryStorageSize:         %s\n", getSaveDataSizeStr(mNacp.getTemporaryStorageSize()).c_str());
 	}
-	if (mNacp.getCacheStorageSize().journal_size > 0)
+	if (mNacp.getCacheStorageSize().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("    CacheStorage:\n");
 		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getCacheStorageSize().size).c_str());
@@ -575,7 +573,10 @@ void NacpProcess::displayNacp()
 	}
 	printf("  Other Flags:\n");
 	printf("    StartupUserAccount:           %s\n", getStartupUserAccountStr(mNacp.getStartupUserAccount()));
-	//printf("    TouchScreenUsageMode:         %s\n", getTouchScreenUsageModeStr(mNacp.getTouchScreenUsageMode()));
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		printf("    TouchScreenUsageMode:         %s\n", getTouchScreenUsageModeStr(mNacp.getTouchScreenUsageMode()));
+	}
 	printf("    AttributeFlag:                %s\n", getAttributeFlagStr(mNacp.getAttributeFlag()));
 	printf("    CrashReportMode:              %s\n", getCrashReportModeStr(mNacp.getCrashReportMode()));
 	printf("    HDCP:                         %s\n", getHdcpStr(mNacp.getHdcp()));
@@ -584,16 +585,16 @@ void NacpProcess::displayNacp()
 	printf("    DataLossConfirmation:         %s\n", getDataLossConfirmationStr(mNacp.getDataLossConfirmation()));
 	printf("    RepairFlag:                   %s\n", getRepairFlagStr(mNacp.getRepairFlag()));
 	printf("    ProgramIndex:                 0x%02x\n", mNacp.getProgramIndex());
-	if (mNacp.getApplicationErrorCodeCategory().empty() == false)
+	if (mNacp.getApplicationErrorCodeCategory().empty() == false || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("    ApplicationErrorCodeCategory: %s\n", mNacp.getApplicationErrorCodeCategory().c_str());
 	}
-	if (mNacp.getSeedForPsuedoDeviceId() > 0 || mNacp.getPresenceGroupId() > 0)
+	if (mNacp.getSeedForPsuedoDeviceId() > 0 || mNacp.getPresenceGroupId() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		printf("  Other Ids:\n");
-		if (mNacp.getSeedForPsuedoDeviceId() > 0)
+		if (mNacp.getSeedForPsuedoDeviceId() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 			printf("    SeedForPsuedoDeviceId:        0x%016" PRIx64 "\n", mNacp.getSeedForPsuedoDeviceId());
-		if (mNacp.getPresenceGroupId() > 0)
+		if (mNacp.getPresenceGroupId() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 			printf("    PresenceGroupId:              0x%016" PRIx64 "\n", mNacp.getPresenceGroupId());
 	}
 }

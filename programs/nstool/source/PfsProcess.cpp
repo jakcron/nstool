@@ -5,7 +5,7 @@
 PfsProcess::PfsProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
-	mCliOutputType(OUTPUT_NORMAL),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mExtractPath(),
 	mExtract(false),
@@ -46,10 +46,12 @@ void PfsProcess::process()
 	mFile->read(scratch.getBytes(), 0, scratch.getSize());
 	mPfs.importBinary(scratch.getBytes(), scratch.getSize());
 
-	if (mCliOutputType >= OUTPUT_NORMAL)
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	{
 		displayHeader();
-	if (mListFs || mCliOutputType >= OUTPUT_VERBOSE)
-		displayFs();
+		if (mListFs || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+			displayFs();
+	}
 	if (mPfs.getFsType() == mPfs.TYPE_HFS0 && mVerify)
 		validateHfs();
 	if (mExtract)
@@ -62,9 +64,9 @@ void PfsProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void PfsProcess::setCliOutputMode(CliOutputType type)
+void PfsProcess::setCliOutputMode(CliOutputMode type)
 {
-	mCliOutputType = type;
+	mCliOutputMode = type;
 }
 
 void PfsProcess::setVerifyMode(bool verify)
@@ -107,7 +109,7 @@ void PfsProcess::displayFs()
 	for (size_t i = 0; i < mPfs.getFileList().getSize(); i++)
 	{
 		printf("    %s", mPfs.getFileList()[i].name.c_str());
-		if (mCliOutputType >= OUTPUT_VERBOSE)
+		if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 		{
 			if (mPfs.getFsType() == mPfs.TYPE_PFS0)
 				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", (uint64_t)mPfs.getFileList()[i].offset, (uint64_t)mPfs.getFileList()[i].size);
@@ -149,9 +151,7 @@ void PfsProcess::validateHfs()
 		crypto::sha::Sha256(mCache.getBytes(), file[i].hash_protected_size, hash.bytes);
 		if (hash != file[i].hash)
 		{
-			if (mCliOutputType >= OUTPUT_MINIMAL)
-				printf("[WARNING] HFS0 %s%s%s: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", file[i].name.c_str());
-	
+			printf("[WARNING] HFS0 %s%s%s: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", file[i].name.c_str());
 		}
 	}
 }
@@ -174,7 +174,7 @@ void PfsProcess::extractFs()
 		fnd::io::appendToPath(file_path, mExtractPath);
 		fnd::io::appendToPath(file_path, file[i].name);
 
-		if (mCliOutputType >= OUTPUT_VERBOSE)
+		if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 			printf("extract=[%s]\n", file_path.c_str());
 
 		outFile.open(file_path, outFile.Create);

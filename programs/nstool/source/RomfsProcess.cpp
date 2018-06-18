@@ -6,7 +6,7 @@
 RomfsProcess::RomfsProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
-	mCliOutputType(OUTPUT_NORMAL),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mExtractPath(),
 	mExtract(false),
@@ -37,10 +37,12 @@ void RomfsProcess::process()
 
 	resolveRomfs();	
 
-	if (mCliOutputType >= OUTPUT_NORMAL)
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	{
 		displayHeader();
-	if (mListFs || mCliOutputType >= OUTPUT_VERBOSE)
-		displayFs();
+		if (mListFs || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+			displayFs();
+	}
 	if (mExtract)
 		extractFs();
 }
@@ -51,9 +53,9 @@ void RomfsProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void RomfsProcess::setCliOutputMode(CliOutputType type)
+void RomfsProcess::setCliOutputMode(CliOutputMode type)
 {
-	mCliOutputType = type;
+	mCliOutputMode = type;
 }
 
 void RomfsProcess::setVerifyMode(bool verify)
@@ -94,7 +96,7 @@ void RomfsProcess::displayFile(const sFile& file, size_t tab) const
 {
 	printTab(tab);
 	printf("%s", file.name.c_str());
-	if (mCliOutputType >= OUTPUT_VERBOSE)
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
 		printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")", file.offset, file.size);
 	}
@@ -154,9 +156,8 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 		fnd::io::appendToPath(file_path, dir_path);
 		fnd::io::appendToPath(file_path, dir.file_list[i].name);
 
-		if (mCliOutputType >= OUTPUT_VERBOSE)
-			printf("extract=[%s]\n", file_path.c_str());
-		
+		if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+			printf("extract=[%s]\n", file_path.c_str());	
 		
 		outFile.open(file_path, outFile.Create);
 		mFile->seek(dir.file_list[i].offset);

@@ -18,7 +18,7 @@ public:
 	const sKeyset& getKeyset() const;
 	FileType getFileType() const;
 	bool isVerifyFile() const;
-	CliOutputType getCliOutputType() const;
+	CliOutputMode getCliOutputMode() const;
 	
 	// specialised toggles
 	bool isListFs() const;
@@ -50,8 +50,9 @@ private:
 		sOptional<std::string> keyset_path;
 		sOptional<std::string> file_type;
 		sOptional<bool> verify_file;
+		sOptional<bool> show_keys;
+		sOptional<bool> show_layout;
 		sOptional<bool> verbose_output;
-		sOptional<bool> minimal_output;
 		sOptional<bool> list_fs;
 		sOptional<std::string> update_path;
 		sOptional<std::string> logo_path;
@@ -75,7 +76,7 @@ private:
 	FileType mFileType;
 	sKeyset mKeyset;
 	bool mVerifyFile;
-	CliOutputType mOutputType;
+	CliOutputMode mOutputMode;
 
 	bool mListFs;
 	sOptional<std::string> mXciUpdatePath;

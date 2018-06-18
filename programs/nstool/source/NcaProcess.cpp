@@ -224,7 +224,7 @@ NcaProcess::NcaProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
 	mKeyset(nullptr),
-	mCliOutputType(OUTPUT_NORMAL),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mListFs(false)
 {
@@ -283,7 +283,7 @@ void NcaProcess::process()
 		validateNcaSignatures();
 
 	// display header
-	if (mCliOutputType >= OUTPUT_NORMAL)
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayHeader();
 
 	// process partition
@@ -322,9 +322,9 @@ void NcaProcess::setKeyset(const sKeyset* keyset)
 	mKeyset = keyset;
 }
 
-void NcaProcess::setCliOutputMode(CliOutputType type)
+void NcaProcess::setCliOutputMode(CliOutputMode type)
 {
-	mCliOutputType = type;
+	mCliOutputMode = type;
 }
 
 void NcaProcess::setVerifyMode(bool verify)
@@ -458,21 +458,27 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	{
 		mBodyKeys.aes_xts = mKeyset->nca.manual_body_key_aesxts;
 	}
-	/*
-	if (mBodyKeys.aes_ctr.isSet)
+	
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
 	{
-		printf("AES-CTR Key: ");
-		fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_ctr.var.key, sizeof(mBodyKeys.aes_ctr.var));
+		if (mBodyKeys.aes_ctr.isSet)
+		{
+			printf("[NCA Body Key]\n");
+			printf("  AES-CTR Key: ");
+			fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_ctr.var.key, sizeof(mBodyKeys.aes_ctr.var));
+		}
+		
+		if (mBodyKeys.aes_xts.isSet)
+		{
+			printf("[NCA Body Key]\n");
+			printf("  AES-XTS Key0: ");
+			fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[0], sizeof(mBodyKeys.aes_ctr.var));
+			printf("  AES-XTS Key1: ");
+			fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[1], sizeof(mBodyKeys.aes_ctr.var));
+		}
 	}
 	
-	if (mBodyKeys.aes_xts.isSet)
-	{
-		printf("AES-XTS Key0: ");
-		fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[0], sizeof(mBodyKeys.aes_ctr.var));
-		printf("AES-XTS Key1: ");
-		fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[1], sizeof(mBodyKeys.aes_ctr.var));
-	}
-	*/
+	
 }
 
 void NcaProcess::generatePartitionConfiguration()
@@ -590,9 +596,7 @@ void NcaProcess::validateNcaSignatures()
 	// validate signature[0]
 	if (crypto::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
 	{
-		// this is minimal even though it's a warning because it's a validation method
-		if (mCliOutputType >= OUTPUT_MINIMAL)
-			printf("[WARNING] NCA Header Main Signature: FAIL \n");
+		printf("[WARNING] NCA Header Main Signature: FAIL \n");
 	}
 
 	// validate signature[1]
@@ -604,7 +608,7 @@ void NcaProcess::validateNcaSignatures()
 			{
 				PfsProcess exefs;
 				exefs.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, SHARED_IFILE);
-				exefs.setCliOutputMode(OUTPUT_MINIMAL);
+				exefs.setCliOutputMode(0);
 				exefs.process();
 
 				// open main.npdm
@@ -614,38 +618,30 @@ void NcaProcess::validateNcaSignatures()
 
 					NpdmProcess npdm;
 					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nx::nca::PARTITION_CODE].reader, SHARED_IFILE, file.offset, file.size), OWN_IFILE);
-					npdm.setCliOutputMode(OUTPUT_MINIMAL);
+					npdm.setCliOutputMode(0);
 					npdm.process();
 
 					if (crypto::rsa::pss::rsaVerify(npdm.getNpdmBinary().getAcid().getNcaHeader2RsaKey(), crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
-						// this is minimal even though it's a warning because it's a validation method
-						if (mCliOutputType >= OUTPUT_MINIMAL)
-							printf("[WARNING] NCA Header ACID Signature: FAIL \n");
+						printf("[WARNING] NCA Header ACID Signature: FAIL \n");
 					}
 									
 				}
 				else
 				{
-					// this is minimal even though it's a warning because it's a validation method
-					if (mCliOutputType >= OUTPUT_MINIMAL)
-						printf("[WARNING] NCA Header ACID Signature: FAIL (\"%s\" not present in ExeFs)\n", kNpdmExefsPath.c_str());
+					printf("[WARNING] NCA Header ACID Signature: FAIL (\"%s\" not present in ExeFs)\n", kNpdmExefsPath.c_str());
 				}
 				
 				
 			}
 			else
 			{
-				// this is minimal even though it's a warning because it's a validation method
-				if (mCliOutputType >= OUTPUT_MINIMAL)
-					printf("[WARNING] NCA Header ACID Signature: FAIL (ExeFs unreadable)\n");
+				printf("[WARNING] NCA Header ACID Signature: FAIL (ExeFs unreadable)\n");
 			}
 		}
 		else
 		{
-			// this is minimal even though it's a warning because it's a validation method
-			if (mCliOutputType >= OUTPUT_MINIMAL)
-				printf("[WARNING] NCA Header ACID Signature: FAIL (No ExeFs partition)\n");
+			printf("[WARNING] NCA Header ACID Signature: FAIL (No ExeFs partition)\n");
 		}
 	}
 }
@@ -674,7 +670,7 @@ void NcaProcess::displayHeader()
 	}
 	
 
-	if (mBodyKeys.keak_list.getSize() > 0)
+	if (mBodyKeys.keak_list.getSize() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
 	{
 		printf("  Key Area: \n");
 		printf("    <--------------------------------------------------------------------------->\n");
@@ -699,70 +695,74 @@ void NcaProcess::displayHeader()
 		printf("    <--------------------------------------------------------------------------->\n");
 	}
 
-	printf("  Partitions:\n");
-	for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
-		sPartitionInfo& info = mPartitions[i];
+		printf("  Partitions:\n");
+		for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
+		{
+			sPartitionInfo& info = mPartitions[i];
 
-		printf("    %d:\n", (int)i);
-		printf("      Offset:      0x%" PRIx64 "\n", (uint64_t)info.offset);
-		printf("      Size:        0x%" PRIx64 "\n", (uint64_t)info.size);
-		printf("      Format Type: %s\n", getFormatTypeStr(info.format_type));
-		printf("      Hash Type:   %s\n", getHashTypeStr(info.hash_type));
-		printf("      Enc. Type:   %s\n", getEncryptionTypeStr(info.enc_type));
-		if (info.enc_type == nx::nca::CRYPT_AESCTR)
-		{
-			printf("        AES-CTR:     ");
-			crypto::aes::sAesIvCtr ctr;
-			crypto::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
-			fnd::SimpleTextOutput::hexDump(ctr.iv, sizeof(crypto::aes::sAesIvCtr));
-		}
-		if (info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
-		{
-			HashTreeMeta& hash_hdr = info.hash_tree_meta;
-			printf("      HierarchicalIntegrity Header:\n");
-			//printf("        TypeId:            0x%x\n", hash_hdr.type_id.get());
-			//printf("        MasterHashSize:    0x%x\n", hash_hdr.master_hash_size.get());
-			//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
-			for (size_t j = 0; j < hash_hdr.getHashLayerInfo().getSize(); j++)
+			printf("    %d:\n", (int)i);
+			printf("      Offset:      0x%" PRIx64 "\n", (uint64_t)info.offset);
+			printf("      Size:        0x%" PRIx64 "\n", (uint64_t)info.size);
+			printf("      Format Type: %s\n", getFormatTypeStr(info.format_type));
+			printf("      Hash Type:   %s\n", getHashTypeStr(info.hash_type));
+			printf("      Enc. Type:   %s\n", getEncryptionTypeStr(info.enc_type));
+			if (info.enc_type == nx::nca::CRYPT_AESCTR)
 			{
-				printf("        Hash Layer %d:\n", (int)j);
-				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].offset);
-				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].size);
-				printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getHashLayerInfo()[j].block_size);
+				printf("        AES-CTR:     ");
+				crypto::aes::sAesIvCtr ctr;
+				crypto::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
+				fnd::SimpleTextOutput::hexDump(ctr.iv, sizeof(crypto::aes::sAesIvCtr));
 			}
+			if (info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
+			{
+				HashTreeMeta& hash_hdr = info.hash_tree_meta;
+				printf("      HierarchicalIntegrity Header:\n");
+				//printf("        TypeId:            0x%x\n", hash_hdr.type_id.get());
+				//printf("        MasterHashSize:    0x%x\n", hash_hdr.master_hash_size.get());
+				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
+				for (size_t j = 0; j < hash_hdr.getHashLayerInfo().getSize(); j++)
+				{
+					printf("        Hash Layer %d:\n", (int)j);
+					printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].offset);
+					printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].size);
+					printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getHashLayerInfo()[j].block_size);
+				}
 
-			printf("        Data Layer:\n");
-			printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
-			printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
-			printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
-			for (size_t j = 0; j < hash_hdr.getMasterHashList().getSize(); j++)
-			{
-				printf("        Master Hash %d:     ", (int)j);
-				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(crypto::sha::sSha256Hash));
+				printf("        Data Layer:\n");
+				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
+				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
+				printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
+				for (size_t j = 0; j < hash_hdr.getMasterHashList().getSize(); j++)
+				{
+					printf("        Master Hash %d:     ", (int)j);
+					fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(crypto::sha::sSha256Hash));
+				}
 			}
+			else if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
+			{
+				HashTreeMeta& hash_hdr = info.hash_tree_meta;
+				printf("      HierarchicalSha256 Header:\n");
+				printf("        Master Hash:       ");
+				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(crypto::sha::sSha256Hash));
+				printf("        HashBlockSize:     0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
+				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
+				printf("        Hash Layer:\n");
+				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].offset);
+				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].size);
+				printf("        Data Layer:\n");
+				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
+				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
+			}
+			//else
+			//{
+			//	printf("      Hash Superblock:\n");
+			//	fnd::SimpleTextOutput::hxdStyleDump(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
+			//}
 		}
-		else if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
-		{
-			HashTreeMeta& hash_hdr = info.hash_tree_meta;
-			printf("      HierarchicalSha256 Header:\n");
-			printf("        Master Hash:       ");
-			fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(crypto::sha::sSha256Hash));
-			printf("        HashBlockSize:     0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
-			//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
-			printf("        Hash Layer:\n");
-			printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].offset);
-			printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].size);
-			printf("        Data Layer:\n");
-			printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
-			printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
-		}
-		//else
-		//{
-		//	printf("      Hash Superblock:\n");
-		//	fnd::SimpleTextOutput::hxdStyleDump(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
-		//}
 	}
+	
 #undef _HEXDUMP_U
 #undef _HEXDUMP_L
 }
@@ -791,7 +791,7 @@ void NcaProcess::processPartitions()
 		{
 			PfsProcess pfs;
 			pfs.setInputFile(partition.reader, SHARED_IFILE);
-			pfs.setCliOutputMode(mCliOutputType);
+			pfs.setCliOutputMode(mCliOutputMode);
 			pfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
 			{
@@ -812,7 +812,7 @@ void NcaProcess::processPartitions()
 		{
 			RomfsProcess romfs;
 			romfs.setInputFile(partition.reader, SHARED_IFILE);
-			romfs.setCliOutputMode(mCliOutputType);
+			romfs.setCliOutputMode(mCliOutputMode);
 			romfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
 			{

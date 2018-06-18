@@ -16,7 +16,7 @@ public:
 
 	// generic
 	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setCliOutputMode(CliOutputType type);
+	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
 	// pfs specific
@@ -32,7 +32,7 @@ private:
 
 	fnd::IFile* mFile;
 	bool mOwnIFile;
-	CliOutputType mCliOutputType;
+	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
 	std::string mExtractPath;
