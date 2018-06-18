@@ -113,7 +113,6 @@ void CnmtProcess::displayCmnt()
 			printf("\n");
 			printf("      Size:         0x%" PRIx64 "\n", (uint64_t)info.size);
 			printf("      Hash:         ");
-			fnd::SimpleTextOutput::hexDump(info.hash.bytes, sizeof(info.hash));
 			_HEXDUMP_L(info.hash.bytes, sizeof(info.hash));
 			printf("\n");
 		}
