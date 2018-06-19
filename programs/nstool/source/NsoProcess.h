@@ -7,8 +7,7 @@
 #include <nx/NsoHeader.h>
 
 #include "nstool.h"
-#include "SdkApiString.h"
-#include "DynamicSymbolParser.h"
+#include "RoMetadataProcess.h"
 
 class NsoProcess
 {
@@ -37,18 +36,12 @@ private:
 	bool mListApi;
 	bool mListSymbols;
 
-	nx::NsoHeader mNsoHdr;
+	nx::NsoHeader mHdr;
 	fnd::MemoryBlob mTextBlob, mRoBlob, mDataBlob;
-	std::vector<SdkApiString> mApiList;
-	DynamicSymbolParser mDynSymbolList;
+	RoMetadataProcess mRoMeta;
 
 	void importHeader();
 	void importCodeSegments();
-	void importApiList();
 	void displayNsoHeader();
-	void displayRoMetaData();
-
-	const char* getApiTypeStr(SdkApiString::ApiType type) const;
-	const char* getSectionIndexStr(nx::dynsym::SpecialSectionIndex shn_index) const;
-	const char* getSymbolTypeStr(nx::dynsym::SymbolType symbol_type) const;
+	void processRoMeta();
 };

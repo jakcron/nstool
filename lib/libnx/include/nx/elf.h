@@ -3,12 +3,11 @@
 
 namespace nx
 {
-	namespace dynsym
+	namespace elf
 	{
 		enum SpecialSectionIndex
 		{
 			SHN_UNDEF,
-			SHN_EXPORT = 1,
 			SHN_LORESERVE = 0xFF00,
 			SHN_LOPROC = 0xFF00,
 			SHN_HIPROC = 0xFF1F,
@@ -31,10 +30,21 @@ namespace nx
 			STT_LOPROC,
 			STT_HIPROC = 0xF
 		};
+
+		enum SymbolBinding
+		{
+			STB_LOCAL,
+			STB_GLOBAL,
+			STB_WEAK,
+			STB_LOOS = 10,
+			STB_HIOS = 12,
+			STB_LOPROC,
+			STB_HIPROC = 0xF
+		};
 	}
 
 #pragma pack(push,1)
-	struct sDynSymbol32Bit
+	struct sElfSymbol32Bit
 	{
 		le_uint32_t name;
 		le_uint32_t value;
@@ -44,7 +54,7 @@ namespace nx
 		le_uint32_t special_section_index;
 	};
 
-	struct sDynSymbol64Bit
+	struct sElfSymbol64Bit
 	{
 		le_uint32_t name;
 		byte_t info;
