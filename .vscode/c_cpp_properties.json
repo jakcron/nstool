@@ -9,12 +9,10 @@
                 "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
                 "/usr/include",
                 "${workspaceRoot}",
-				"${workspaceRoot}/lib/libcrypto/include",
-				"${workspaceRoot}/lib/libcompress/include",
+                "${workspaceRoot}/lib/libcrypto/include",
                 "${workspaceRoot}/lib/libes/include",
                 "${workspaceRoot}/lib/libfnd/include",
-				"${workspaceRoot}/lib/libnx/include",
-				"${workspaceRoot}/lib/libnx-hb/include"
+                "${workspaceRoot}/lib/libnx/include"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
@@ -55,7 +53,10 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         },
         {
             "name": "Win32",
@@ -76,7 +77,10 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         }
     ],
     "version": 4
