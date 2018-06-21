@@ -10,9 +10,11 @@
                 "/usr/include",
                 "${workspaceRoot}",
                 "${workspaceRoot}/lib/libcrypto/include",
+                "${workspaceRoot}/lib/libcompress/include",
                 "${workspaceRoot}/lib/libes/include",
                 "${workspaceRoot}/lib/libfnd/include",
-                "${workspaceRoot}/lib/libnx/include"
+                "${workspaceRoot}/lib/libnx/include",
+                "${workspaceRoot}/lib/libnx-hb/include"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",

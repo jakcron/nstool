@@ -8,8 +8,7 @@
 #include "AssetProcess.h"
 
 #include "nstool.h"
-#include "SdkApiString.h"
-#include "DynamicSymbolParser.h"
+#include "RoMetadataProcess.h"
 
 class NroProcess
 {
@@ -40,24 +39,15 @@ private:
 
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
-	nx::npdm::InstructionType mInstructionType;
-	bool mListApi;
-	bool mListSymbols;	
 
 	nx::NroHeader mHdr;
+	fnd::MemoryBlob mTextBlob, mRoBlob, mDataBlob;
+	RoMetadataProcess mRoMeta;
 	bool mIsHomebrewNro;
 	AssetProcess mAssetProc;
-	fnd::MemoryBlob mTextBlob, mRoBlob, mDataBlob;
-	std::vector<SdkApiString> mApiList;
-	DynamicSymbolParser mDynSymbolList;
 
 	void importHeader();
 	void importCodeSegments();
-	void importApiList();
 	void displayHeader();
-	void displayRoMetaData();
-
-	const char* getApiTypeStr(SdkApiString::ApiType type) const;
-	const char* getSectionIndexStr(nx::dynsym::SpecialSectionIndex shn_index) const;
-	const char* getSymbolTypeStr(nx::dynsym::SymbolType symbol_type) const;
+	void processRoMeta();
 };

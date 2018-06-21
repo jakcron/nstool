@@ -1,4 +1,3 @@
-#include <sstream>
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/MemoryBlob.h>
 #include <compress/lz4.h>
@@ -10,10 +9,7 @@ NroProcess::NroProcess():
 	mFile(nullptr),
 	mOwnIFile(false),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
-	mVerify(false),
-	mInstructionType(nx::npdm::INSTR_64BIT),
-	mListApi(false),
-	mListSymbols(false)
+	mVerify(false)
 {
 }
 
@@ -34,12 +30,12 @@ void NroProcess::process()
 
 	importHeader();
 	importCodeSegments();
-	importApiList();
+
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
-	{
 		displayHeader();
-		displayRoMetaData();
-	}
+
+	processRoMeta();
+
 	if (mIsHomebrewNro)
 		mAssetProc.process();
 }
@@ -62,17 +58,17 @@ void NroProcess::setVerifyMode(bool verify)
 
 void NroProcess::setInstructionType(nx::npdm::InstructionType type)
 {
-	mInstructionType = type;
+	mRoMeta.setInstructionType(type);
 }
 
 void NroProcess::setListApi(bool listApi)
 {
-	mListApi = listApi;
+	mRoMeta.setListApi(listApi);
 }
 
 void NroProcess::setListSymbols(bool listSymbols)
 {
-	mListSymbols = listSymbols;
+	mRoMeta.setListSymbols(listSymbols);
 }
 
 void NroProcess::setAssetListFs(bool list)
@@ -108,8 +104,8 @@ void NroProcess::importHeader()
 
 	mHdr.importBinary(scratch.getBytes(), scratch.getSize());
 
+	// setup homebrew extension
 	nx::sNroHeader* raw_hdr = (nx::sNroHeader*)scratch.getBytes();
-
 	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nx::nro::kNroHomebrewSig && mFile->size() > mHdr.getNroSize())
 	{
 		mIsHomebrewNro = true;
@@ -119,7 +115,6 @@ void NroProcess::importHeader()
 	}
 	else
 		mIsHomebrewNro = false;
-	
 }
 
 void NroProcess::importCodeSegments()
@@ -130,38 +125,6 @@ void NroProcess::importCodeSegments()
 	mFile->read(mRoBlob.getBytes(), mHdr.getRoInfo().memory_offset, mRoBlob.getSize());
 	mDataBlob.alloc(mHdr.getDataInfo().size);
 	mFile->read(mDataBlob.getBytes(), mHdr.getDataInfo().memory_offset, mDataBlob.getSize());
-}
-
-void NroProcess::importApiList()
-{
-	struct sLayout { size_t offset; size_t size; } api_info, dyn_str, dyn_sym;
-
-	api_info.offset = mHdr.getRoEmbeddedInfo().memory_offset;
-	api_info.size = mHdr.getRoEmbeddedInfo().size;
-	dyn_str.offset = mHdr.getRoDynStrInfo().memory_offset;
-	dyn_str.size = mHdr.getRoDynStrInfo().size;
-	dyn_sym.offset = mHdr.getRoDynSymInfo().memory_offset;
-	dyn_sym.size = mHdr.getRoDynSymInfo().size;
-
-	if (api_info.size > 0)
-	{
-		std::stringstream list_stream(std::string((char*)mRoBlob.getBytes() + api_info.offset, api_info.size));
-		std::string api;
-
-		while(std::getline(list_stream, api, (char)0x00))
-		{
-			mApiList.push_back(api);
-		}
-	}
-	else
-	{
-		mApiList.clear();
-	}
-
-	if (dyn_sym.size > 0)
-	{
-		mDynSymbolList.parseData(mRoBlob.getBytes() + dyn_sym.offset, dyn_sym.size, mRoBlob.getBytes() + dyn_str.offset, dyn_str.size, mInstructionType == nx::npdm::INSTR_64BIT);
-	}
 }
 
 void NroProcess::displayHeader()
@@ -203,125 +166,16 @@ void NroProcess::displayHeader()
 #undef _HEXDUMP_L
 }
 
-void NroProcess::displayRoMetaData()
+void NroProcess::processRoMeta()
 {
-	if (mApiList.size() > 0 && (mListApi || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
+	if (mRoBlob.getSize())
 	{
-		printf("[SDK API List]\n");
-		for (size_t i = 0; i < mApiList.size(); i++)
-		{
-			printf("  API %d:\n", (int)i);
-			printf("    Type:     %s\n", getApiTypeStr(mApiList[i].getApiType()));
-			printf("    Vender:   %s\n", mApiList[i].getVenderName().c_str());
-			printf("    Module:   %s\n", mApiList[i].getModuleName().c_str());
-		}
+		// setup ro metadata
+		mRoMeta.setApiInfo(mHdr.getRoEmbeddedInfo().memory_offset, mHdr.getRoEmbeddedInfo().size);
+		mRoMeta.setDynSym(mHdr.getRoDynSymInfo().memory_offset, mHdr.getRoDynSymInfo().size);
+		mRoMeta.setDynStr(mHdr.getRoDynStrInfo().memory_offset, mHdr.getRoDynStrInfo().size);
+		mRoMeta.setRoBinary(mRoBlob);
+		mRoMeta.setCliOutputMode(mCliOutputMode);
+		mRoMeta.process();
 	}
-	if (mDynSymbolList.getDynamicSymbolList().getSize() > 0 && (mListSymbols || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
-	{
-		printf("[Symbol List]\n");
-		for (size_t i = 0; i < mDynSymbolList.getDynamicSymbolList().getSize(); i++)
-		{
-			const DynamicSymbolParser::sDynSymbol& symbol = mDynSymbolList.getDynamicSymbolList()[i];
-			printf("  %s [SHN=%s (%04x)][STT=%s]\n", symbol.name.c_str(), getSectionIndexStr(symbol.shn_index), symbol.shn_index, getSymbolTypeStr(symbol.symbol_type));
-		}
-	}
-}
-
-const char* NroProcess::getApiTypeStr(SdkApiString::ApiType type) const
-{
-	const char* str;
-	switch (type)
-	{
-		case (SdkApiString::API_MIDDLEWARE):
-			str = "Middleware";
-			break;
-		case (SdkApiString::API_DEBUG):
-			str = "Debug";
-			break;
-		case (SdkApiString::API_PRIVATE):
-			str = "Private";
-			break;
-		case (SdkApiString::API_SDK_VERSION):
-			str = "SDK Version";
-			break;
-		default:
-			str = "UNKNOWN";
-			break;
-	}
-	return str;
-}
-
-const char* NroProcess::getSectionIndexStr(nx::dynsym::SpecialSectionIndex shn_index) const
-{
-	const char* str;
-	switch (shn_index)
-	{
-		case (nx::dynsym::SHN_UNDEF):
-			str = "UNDEF";
-			break;
-		case (nx::dynsym::SHN_EXPORT):
-			str = "EXPORT";
-			break;
-		case (nx::dynsym::SHN_LOPROC):
-			str = "LOPROC";
-			break;
-		case (nx::dynsym::SHN_HIPROC):
-			str = "HIPROC";
-			break;
-		case (nx::dynsym::SHN_LOOS):
-			str = "LOOS";
-			break;
-		case (nx::dynsym::SHN_HIOS):
-			str = "HIOS";
-			break;
-		case (nx::dynsym::SHN_ABS):
-			str = "ABS";
-			break;
-		case (nx::dynsym::SHN_COMMON):
-			str = "COMMON";
-			break;
-		default:
-			str = "UNKNOWN";
-			break;
-	}
-	return str;
-}
-
-const char* NroProcess::getSymbolTypeStr(nx::dynsym::SymbolType symbol_type) const
-{
-	const char* str;
-	switch (symbol_type)
-	{
-		case (nx::dynsym::STT_NOTYPE):
-			str = "NOTYPE";
-			break;
-		case (nx::dynsym::STT_OBJECT):
-			str = "OBJECT";
-			break;
-		case (nx::dynsym::STT_FUNC):
-			str = "FUNC";
-			break;
-		case (nx::dynsym::STT_SECTION):
-			str = "SECTION";
-			break;
-		case (nx::dynsym::STT_FILE):
-			str = "FILE";
-			break;
-		case (nx::dynsym::STT_LOOS):
-			str = "LOOS";
-			break;
-		case (nx::dynsym::STT_HIOS):
-			str = "HIOS";
-			break;
-		case (nx::dynsym::STT_LOPROC):
-			str = "LOPROC";
-			break;
-		case (nx::dynsym::STT_HIPROC):
-			str = "HIPROC";
-			break;
-		default:
-			str = "UNKNOWN";
-			break;
-	}
-	return str;
 }
