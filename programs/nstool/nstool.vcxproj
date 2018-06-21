@@ -171,7 +171,7 @@
     <ClInclude Include="source\AesCtrWrappedIFile.h" />
     <ClInclude Include="source\AssetProcess.h" />
     <ClInclude Include="source\CnmtProcess.h" />
-    <ClInclude Include="source\DynamicSymbolParser.h" />
+    <ClInclude Include="source\ElfSymbolParser.h" />
     <ClInclude Include="source\HashTreeMeta.h" />
     <ClInclude Include="source\HashTreeWrappedIFile.h" />
     <ClInclude Include="source\NacpProcess.h" />
@@ -182,6 +182,7 @@
     <ClInclude Include="source\nstool.h" />
     <ClInclude Include="source\OffsetAdjustedIFile.h" />
     <ClInclude Include="source\PfsProcess.h" />
+    <ClInclude Include="source\RoMetadataProcess.h" />
     <ClInclude Include="source\RomfsProcess.h" />
     <ClInclude Include="source\SdkApiString.h" />
     <ClInclude Include="source\UserSettings.h" />
@@ -192,7 +193,7 @@
     <ClCompile Include="source\AesCtrWrappedIFile.cpp" />
     <ClCompile Include="source\AssetProcess.cpp" />
     <ClCompile Include="source\CnmtProcess.cpp" />
-    <ClCompile Include="source\DynamicSymbolParser.cpp" />
+    <ClCompile Include="source\ElfSymbolParser.cpp" />
     <ClCompile Include="source\HashTreeMeta.cpp" />
     <ClCompile Include="source\HashTreeWrappedIFile.cpp" />
     <ClCompile Include="source\main.cpp" />
@@ -203,6 +204,7 @@
     <ClCompile Include="source\NsoProcess.cpp" />
     <ClCompile Include="source\OffsetAdjustedIFile.cpp" />
     <ClCompile Include="source\PfsProcess.cpp" />
+    <ClCompile Include="source\RoMetadataProcess.cpp" />
     <ClCompile Include="source\RomfsProcess.cpp" />
     <ClCompile Include="source\SdkApiString.cpp" />
     <ClCompile Include="source\UserSettings.cpp" />

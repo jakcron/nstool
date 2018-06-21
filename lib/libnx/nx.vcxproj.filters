@@ -162,9 +162,6 @@
     <ClInclude Include="include\nx\NsoHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nx\dynamic_symbol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\nx\macro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -184,6 +181,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nx\nacp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nx\elf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

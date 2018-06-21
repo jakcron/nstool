@@ -57,9 +57,6 @@
     <ClInclude Include="source\NsoProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\DynamicSymbolParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\AssetProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +67,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\NacpProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ElfSymbolParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\RoMetadataProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -113,9 +116,6 @@
     <ClCompile Include="source\NsoProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\DynamicSymbolParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\AssetProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -126,6 +126,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NacpProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ElfSymbolParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\RoMetadataProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
