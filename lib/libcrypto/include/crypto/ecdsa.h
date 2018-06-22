@@ -1,7 +1,6 @@
 #pragma once
 #include <cstdint>
 #include <cstring>
-#include <crypto/sha.h>
 
 namespace crypto
 {
