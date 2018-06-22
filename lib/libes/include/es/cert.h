@@ -3,6 +3,7 @@
 #include <fnd/types.h>
 #include <crypto/aes.h>
 #include <crypto/rsa.h>
+#include <crypto/ecdsa.h>
 
 namespace es
 {
@@ -19,31 +20,31 @@ namespace es
 		static const size_t kSubjectSize = 0x40;
 	}
 #pragma pack(push,1)
-	struct sCertificateBody
+	struct sCertificateHeader
 	{
 		char issuer[cert::kIssuerSize];
 		be_uint32_t key_type;
 		char subject[cert::kSubjectSize];
 		be_uint32_t cert_id;
-	}
+	};
 
 	struct sRsa4096PublicKeyBlock
 	{
 		byte_t modulus[crypto::rsa::kRsa4096Size];
-		byte_t public_exponent[0x4];
+		byte_t public_exponent[crypto::rsa::kRsaPublicExponentSize];
 		byte_t padding[0x34];
 	};
 
 	struct sRsa2048PublicKeyBlock
 	{
 		byte_t modulus[crypto::rsa::kRsa2048Size];
-		byte_t public_exponent[0x4];
+		byte_t public_exponent[crypto::rsa::kRsaPublicExponentSize];
 		byte_t padding[0x34];
 	};
 
 	struct sEcdsa240PublicKeyBlock
 	{
-		byte_t public_key[0x3C];
+		crypto::ecdsa::sEcdsa240Point public_key;
 		byte_t padding[0x3C];
 	};
 #pragma pack(pop)
