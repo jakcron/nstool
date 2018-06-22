@@ -3,6 +3,7 @@
 #include <fnd/types.h>
 #include <crypto/aes.h>
 #include <crypto/rsa.h>
+#include <crypto/ecdsa.h>
 
 namespace es
 {
@@ -17,6 +18,8 @@ namespace es
 			SIGN_RSA2048_SHA256,
 			SIGN_ECDSA240_SHA256,
 		};
+
+		static const size_t kEcdsaSigSize = 0x3C;
 	}
 #pragma pack(push,1)
 	struct sRsa4096SignBlock
@@ -36,7 +39,7 @@ namespace es
 	struct sEcdsa240SignBlock
 	{
 		be_uint32_t sign_type;
-		byte_t signature[0x3C];
+		byte_t signature[sign::kEcdsaSigSize];
 		byte_t padding[0x40];
 	};
 #pragma pack(pop)
