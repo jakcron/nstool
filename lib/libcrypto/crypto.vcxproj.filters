@@ -63,6 +63,9 @@
     <ClInclude Include="source\libpolarssl\include\polarssl\md_wrap.h">
       <Filter>Header Files\polarssl</Filter>
     </ClInclude>
+    <ClInclude Include="include\crypto\ecdsa.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\aes_wrapper.cpp">

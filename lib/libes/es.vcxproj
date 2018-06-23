@@ -122,14 +122,20 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\es\ETicketBody_V2.h" />
-    <ClInclude Include="include\es\ETicketContentRecord_V1.h" />
-    <ClInclude Include="include\es\ETicketSectionHeader_V2.h" />
+    <ClCompile Include="source\CertificateBody.cpp" />
+    <ClCompile Include="source\SectionHeader_V2.cpp" />
+    <ClCompile Include="source\SignatureBlock.cpp" />
+    <ClCompile Include="source\TicketBody_V2.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\ETicketBody_V2.cpp" />
-    <ClCompile Include="source\ETicketContentRecord_V1.cpp" />
-    <ClCompile Include="source\ETicketSectionHeader_V2.cpp" />
+    <ClInclude Include="include\es\cert.h" />
+    <ClInclude Include="include\es\CertificateBody.h" />
+    <ClInclude Include="include\es\SectionHeader_V2.h" />
+    <ClInclude Include="include\es\sign.h" />
+    <ClInclude Include="include\es\SignatureBlock.h" />
+    <ClInclude Include="include\es\SignedData.h" />
+    <ClInclude Include="include\es\ticket.h" />
+    <ClInclude Include="include\es\TicketBody_V2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

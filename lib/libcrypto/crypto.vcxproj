@@ -121,6 +121,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\crypto\aes.h" />
+    <ClInclude Include="include\crypto\ecdsa.h" />
     <ClInclude Include="include\crypto\rsa.h" />
     <ClInclude Include="include\crypto\sha.h" />
     <ClInclude Include="source\libpolarssl\include\polarssl\aes.h" />
