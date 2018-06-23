@@ -92,7 +92,7 @@ namespace es
 		// variables
 		std::string mIssuer;
 		byte_t mEncTitleKey[ticket::kEncTitleKeySize];
-		ticket::TitleKeyEncType mEncType; // 0 = aes-cbc, 1 = rsa2048
+		ticket::TitleKeyEncType mEncType;
 		uint16_t mTicketVersion;
 		ticket::LicenseType mLicenseType;
 		byte_t mCommonKeyId;
