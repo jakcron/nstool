@@ -25,7 +25,7 @@ bool es::SignatureBlock::operator!=(const SignatureBlock& other) const
 	return !(*this == other);
 }
 
-void es::SignatureBlock::importBinary(byte_t* src, size_t size)
+void es::SignatureBlock::importBinary(const byte_t* src, size_t size)
 {
 	clear();
 

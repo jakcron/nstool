@@ -17,7 +17,7 @@ namespace es
 		bool operator==(const CertificateBody& other) const;
 		bool operator!=(const CertificateBody& other) const;
 
-		void importBinary(byte_t* src, size_t size);
+		void importBinary(const byte_t* src, size_t size);
 		void exportBinary();
 
 		const byte_t* getBytes() const;

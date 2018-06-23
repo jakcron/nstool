@@ -25,7 +25,7 @@ bool es::CertificateBody::operator!=(const CertificateBody& other) const
 	return !(*this == other);
 }
 
-void es::CertificateBody::importBinary(byte_t* src, size_t size)
+void es::CertificateBody::importBinary(const byte_t* src, size_t size)
 {
 	clear();
 

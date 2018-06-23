@@ -17,7 +17,7 @@ namespace es
 		bool operator==(const SignatureBlock& other) const;
 		bool operator!=(const SignatureBlock& other) const;
 
-		void importBinary(byte_t* src, size_t size);
+		void importBinary(const byte_t* src, size_t size);
 		void exportBinary();
 
 		const byte_t* getBytes() const;
