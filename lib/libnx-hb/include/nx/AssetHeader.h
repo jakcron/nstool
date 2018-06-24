@@ -35,9 +35,9 @@ namespace nx
 		AssetHeader();
 		AssetHeader(const AssetHeader& other);
 
+		void operator=(const AssetHeader& other);
 		bool operator==(const AssetHeader& other) const;
 		bool operator!=(const AssetHeader& other) const;
-		void operator=(const AssetHeader& other);
 
 		// export/import binary
 		void toBytes();

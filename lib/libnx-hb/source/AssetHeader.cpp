@@ -10,6 +10,14 @@ nx::AssetHeader::AssetHeader(const AssetHeader& other)
 	*this = other;
 }
 
+void nx::AssetHeader::operator=(const AssetHeader& other)
+{
+	mRawBinary = other.mRawBinary;
+	mIconInfo = other.mIconInfo;
+	mNacpInfo = other.mNacpInfo;
+	mRomfsInfo = other.mRomfsInfo;
+}
+
 bool nx::AssetHeader::operator==(const AssetHeader& other) const
 {
 	return (mIconInfo == other.mIconInfo) \
@@ -20,14 +28,6 @@ bool nx::AssetHeader::operator==(const AssetHeader& other) const
 bool nx::AssetHeader::operator!=(const AssetHeader& other) const
 {
 	return !(*this == other);
-}
-
-void nx::AssetHeader::operator=(const AssetHeader& other)
-{
-	mRawBinary = other.mRawBinary;
-	mIconInfo = other.mIconInfo;
-	mNacpInfo = other.mNacpInfo;
-	mRomfsInfo = other.mRomfsInfo;
 }
 
 void nx::AssetHeader::toBytes()
