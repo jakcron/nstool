@@ -316,12 +316,6 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 		printf("[WARNING] ACI ProgramId: FAIL (Outside Legal Range)\n");
 	}
 
-	// Check FAC
-	if (aci.getFac().getFormatVersion() !=  acid.getFac().getFormatVersion())
-	{
-		printf("[WARNING] ACI/FAC FormatVersion: FAIL (%d != %d (expected))\n", aci.getFac().getFormatVersion(),acid.getFac().getFormatVersion());
-	}
-
 	for (size_t i = 0; i < aci.getFac().getFsaRightsList().size(); i++)
 	{
 		bool fsaRightFound = false;
@@ -382,7 +376,6 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 
 		if (rightFound == false)
 		{
-
 			printf("[WARNING] ACI/SAC ServiceList: FAIL (%s%s not permitted)\n", aci.getSac().getServiceList()[i].getName().c_str(), aci.getSac().getServiceList()[i].isServer()? " (Server)" : "");
 		}
 	}
@@ -391,19 +384,19 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 	// check thread info
 	if (aci.getKc().getThreadInfo().getMaxCpuId() != acid.getKc().getThreadInfo().getMaxCpuId())
 	{
-			printf("[WARNING] ACI/KC ThreadInfo/MaxCpuId: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMaxCpuId());
+		printf("[WARNING] ACI/KC ThreadInfo/MaxCpuId: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMaxCpuId());
 	}
 	if (aci.getKc().getThreadInfo().getMinCpuId() != acid.getKc().getThreadInfo().getMinCpuId())
 	{
-			printf("[WARNING] ACI/KC ThreadInfo/MinCpuId: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMinCpuId());
+		printf("[WARNING] ACI/KC ThreadInfo/MinCpuId: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMinCpuId());
 	}
 	if (aci.getKc().getThreadInfo().getMaxPriority() != acid.getKc().getThreadInfo().getMaxPriority())
 	{
-			printf("[WARNING] ACI/KC ThreadInfo/MaxPriority: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMaxPriority());
+		printf("[WARNING] ACI/KC ThreadInfo/MaxPriority: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMaxPriority());
 	}
 	if (aci.getKc().getThreadInfo().getMinPriority() != acid.getKc().getThreadInfo().getMinPriority())
 	{
-			printf("[WARNING] ACI/KC ThreadInfo/MinPriority: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMinPriority());
+		printf("[WARNING] ACI/KC ThreadInfo/MinPriority: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMinPriority());
 	}
 	// check system calls
 	for (size_t i = 0; i < aci.getKc().getSystemCalls().getSystemCalls().size(); i++)
@@ -417,7 +410,6 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 
 		if (rightFound == false)
 		{
-
 			printf("[WARNING] ACI/KC SystemCallList: FAIL (%s not permitted)\n", kSysCall[aci.getKc().getSystemCalls().getSystemCalls()[i]].c_str());
 		}
 	}
@@ -547,7 +539,6 @@ void NpdmProcess::displayAciHdr(const nx::AciHeader& aci)
 void NpdmProcess::displayFac(const nx::FacBinary& fac)
 {
 	printf("[FS Access Control]\n");
-	printf("  Format Version:   %d\n", fac.getFormatVersion());
 
 	if (fac.getFsaRightsList().size())
 	{

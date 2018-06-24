@@ -1,13 +1,13 @@
 #pragma once
 #include <string>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <nx/FacHeader.h>
-
+#include <nx/fac.h>
 
 namespace nx
 {
 	class FacBinary :
-		public FacHeader
+		public fnd::ISerialisable
 	{
 	public:
 		FacBinary();
@@ -25,6 +25,9 @@ namespace nx
 		// variables
 		void clear();
 
+		const fnd::List<fac::FsAccessFlag>& getFsaRightsList() const;
+		void setFsaRightsList(const fnd::List<fac::FsAccessFlag>& list);
+
 		const fnd::List<uint32_t>& getContentOwnerIdList() const;
 		void setContentOwnerIdList(const fnd::List<uint32_t>& list);
 
@@ -33,12 +36,12 @@ namespace nx
 
 	private:
 		const std::string kModuleName = "FAC_BINARY";
-		static const uint32_t kFacFormatVersion = 1;
 
 		// raw binary
 		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
+		fnd::List<fac::FsAccessFlag> mFsaRights;
 		fnd::List<uint32_t> mContentOwnerIdList;
 		fnd::List<uint32_t> mSaveDataOwnerIdList;
 	};
