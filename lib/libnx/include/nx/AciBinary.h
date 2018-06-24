@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
 #include <nx/AciHeader.h>
 #include <nx/FacBinary.h>
@@ -15,19 +14,15 @@ namespace nx
 	public:
 		AciBinary();
 		AciBinary(const AciBinary& other);
-		AciBinary(const byte_t* bytes, size_t len);
 
+		void operator=(const AciBinary& other);
 		bool operator==(const AciBinary& other) const;
 		bool operator!=(const AciBinary& other) const;
-		void operator=(const AciBinary& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		virtual void exportBinary();
-		virtual void importBinary(const byte_t* bytes, size_t len);
+		virtual void toBytes();
+		virtual void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		virtual void clear();
@@ -45,15 +40,12 @@ namespace nx
 		const std::string kModuleName = "ACI_BINARY";
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		FacBinary mFac;
 		SacBinary mSac;
 		KcBinary mKc;
-
-		bool isEqual(const AciBinary& other) const;
-		void copyFrom(const AciBinary& other);
 	};
 }
 

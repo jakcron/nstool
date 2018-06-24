@@ -1,30 +1,26 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/MemoryBlob.h>
-#include <fnd/ISerialiseableBinary.h>
+#include <fnd/ISerialisable.h>
 
 namespace nx
 {
 	class SacEntry : 
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		SacEntry();
 		SacEntry(const std::string& name, bool isServer);
 		SacEntry(const SacEntry& other);
 
+		void operator=(const SacEntry& other);
 		bool operator==(const SacEntry& other) const;
 		bool operator!=(const SacEntry& other) const;
-		void operator=(const SacEntry& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -38,12 +34,12 @@ namespace nx
 
 		enum SacEntryFlag
 		{
-			SAC_IS_SERVER = BIT(7),
-			SAC_NAME_LEN_MASK = BIT(7) - 1
+			SAC_IS_SERVER = _BIT(7),
+			SAC_NAME_LEN_MASK = _BIT(7) - 1
 		};
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		bool mIsServer;

@@ -2,22 +2,40 @@
 
 nx::NsoHeader::NsoHeader()
 {
-
+	clear();
 }
 
 nx::NsoHeader::NsoHeader(const NsoHeader& other)
 {
-	copyFrom(other);
+	*this = other;
 }
 
-nx::NsoHeader::NsoHeader(const byte_t* bytes, size_t len)
+void nx::NsoHeader::operator=(const NsoHeader& other)
 {
-	importBinary(bytes, len);
+	clear();
+	mModuleId = other.mModuleId;
+	mBssSize = other.mBssSize;
+	mTextSegmentInfo = other.mTextSegmentInfo;
+	mRoSegmentInfo = other.mRoSegmentInfo;
+	mDataSegmentInfo = other.mDataSegmentInfo;
+	mModuleNameInfo = other.mModuleNameInfo;
+	mRoEmbeddedInfo = other.mRoEmbeddedInfo;
+	mRoDynStrInfo = other.mRoDynStrInfo;
+	mRoDynSymInfo = other.mRoDynSymInfo;
 }
+
 
 bool nx::NsoHeader::operator==(const NsoHeader& other) const
 {
-	return isEqual(other);
+	return (mModuleId == other.mModuleId) \
+		&& (mBssSize == other.mBssSize) \
+		&& (mTextSegmentInfo == other.mTextSegmentInfo) \
+		&& (mRoSegmentInfo == other.mRoSegmentInfo) \
+		&& (mDataSegmentInfo == other.mDataSegmentInfo) \
+		&& (mModuleNameInfo == other.mModuleNameInfo) \
+		&& (mRoEmbeddedInfo == other.mRoEmbeddedInfo) \
+		&& (mRoDynStrInfo == other.mRoDynStrInfo) \
+		&& (mRoDynSymInfo == other.mRoDynSymInfo);
 }
 
 bool nx::NsoHeader::operator!=(const NsoHeader& other) const
@@ -25,25 +43,10 @@ bool nx::NsoHeader::operator!=(const NsoHeader& other) const
 	return !(*this == other);
 }
 
-void nx::NsoHeader::operator=(const NsoHeader& other)
+void nx::NsoHeader::toBytes()
 {
-	copyFrom(other);
-}
-
-const byte_t* nx::NsoHeader::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t nx::NsoHeader::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
-
-void nx::NsoHeader::exportBinary()
-{
-	mBinaryBlob.alloc(sizeof(sNsoHeader));
-	nx::sNsoHeader* hdr = (nx::sNsoHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sNsoHeader));
+	nx::sNsoHeader* hdr = (nx::sNsoHeader*)mRawBinary.data();
 
 	// set header identifers
 	hdr->signature = nso::kNsoSig;
@@ -122,7 +125,7 @@ void nx::NsoHeader::exportBinary()
 	hdr->flags = flags;
 }
 
-void nx::NsoHeader::importBinary(const byte_t* bytes, size_t len)
+void nx::NsoHeader::fromBytes(const byte_t* data, size_t len)
 {
 	// check input data size
 	if (len < sizeof(sNsoHeader))
@@ -134,11 +137,11 @@ void nx::NsoHeader::importBinary(const byte_t* bytes, size_t len)
 	clear();
 
 	// allocate internal local binary copy
-	mBinaryBlob.alloc(sizeof(sNsoHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(sizeof(sNsoHeader));
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// get sNsoHeader ptr
-	const nx::sNsoHeader* hdr = (const nx::sNsoHeader*)mBinaryBlob.getBytes();
+	const nx::sNsoHeader* hdr = (const nx::sNsoHeader*)mRawBinary.data();
 	
 	// check NSO signature
 	if (hdr->signature.get() != nso::kNsoSig)
@@ -193,9 +196,14 @@ void nx::NsoHeader::importBinary(const byte_t* bytes, size_t len)
 	mRoDynSymInfo.size = hdr->dyn_sym.size.get();
 }
 
+const fnd::Vec<byte_t>& nx::NsoHeader::getBytes() const
+{
+	return mRawBinary;
+}
+
 void nx::NsoHeader::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	memset(&mModuleId, 0, sizeof(mModuleId));
 	mBssSize = 0;
 	memset(&mTextSegmentInfo, 0, sizeof(mTextSegmentInfo));
@@ -295,30 +303,4 @@ const nx::NsoHeader::sLayout& nx::NsoHeader::getRoDynSymInfo() const
 void nx::NsoHeader::setRoDynSymInfo(const sLayout& info)
 {
 	mRoDynSymInfo = info;
-}
-
-bool nx::NsoHeader::isEqual(const NsoHeader& other) const
-{
-	return (mModuleId == other.mModuleId) \
-		&& (mBssSize == other.mBssSize) \
-		&& (mTextSegmentInfo == other.mTextSegmentInfo) \
-		&& (mRoSegmentInfo == other.mRoSegmentInfo) \
-		&& (mDataSegmentInfo == other.mDataSegmentInfo) \
-		&& (mModuleNameInfo == other.mModuleNameInfo) \
-		&& (mRoEmbeddedInfo == other.mRoEmbeddedInfo) \
-		&& (mRoDynStrInfo == other.mRoDynStrInfo) \
-		&& (mRoDynSymInfo == other.mRoDynSymInfo);
-}
-void nx::NsoHeader::copyFrom(const NsoHeader& other)
-{
-	clear();
-	mModuleId = other.mModuleId;
-	mBssSize = other.mBssSize;
-	mTextSegmentInfo = other.mTextSegmentInfo;
-	mRoSegmentInfo = other.mRoSegmentInfo;
-	mDataSegmentInfo = other.mDataSegmentInfo;
-	mModuleNameInfo = other.mModuleNameInfo;
-	mRoEmbeddedInfo = other.mRoEmbeddedInfo;
-	mRoDynStrInfo = other.mRoDynStrInfo;
-	mRoDynSymInfo = other.mRoDynSymInfo;
 }

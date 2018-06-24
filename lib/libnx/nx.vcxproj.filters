@@ -186,6 +186,9 @@
     <ClInclude Include="include\nx\elf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nx\fac.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />

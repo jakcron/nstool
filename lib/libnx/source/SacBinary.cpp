@@ -4,76 +4,75 @@ using namespace nx;
 
 SacBinary::SacBinary()
 {
+	clear();
 }
 
 SacBinary::SacBinary(const SacBinary & other)
 {
-	copyFrom(other);
-}
-
-SacBinary::SacBinary(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
-bool SacBinary::operator==(const SacBinary & other) const
-{
-	return isEqual(other);
-}
-
-bool SacBinary::operator!=(const SacBinary & other) const
-{
-	return !isEqual(other);
+	*this = other;
 }
 
 void SacBinary::operator=(const SacBinary & other)
 {
-	copyFrom(other);
+	if (other.getBytes().data())
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		clear();
+		mServices = other.mServices;
+	}
 }
 
-const byte_t * SacBinary::getBytes() const
+bool SacBinary::operator==(const SacBinary & other) const
 {
-	return mBinaryBlob.getBytes();
+	return mServices == other.mServices;
 }
 
-size_t SacBinary::getSize() const
+bool SacBinary::operator!=(const SacBinary & other) const
 {
-	return mBinaryBlob.getSize();
+	return !(*this == other);
 }
 
-void SacBinary::exportBinary()
+void SacBinary::toBytes()
 {
 	size_t totalSize = 0;
-	for (size_t i = 0; i < mServices.getSize(); i++)
+	for (size_t i = 0; i < mServices.size(); i++)
 	{
-		mServices[i].exportBinary();
-		totalSize += mServices[i].getSize();
+		mServices[i].toBytes();
+		totalSize += mServices[i].getBytes().size();
 	}
 
-	mBinaryBlob.alloc(totalSize);
-	for (size_t i = 0, pos = 0; i < mServices.getSize(); pos += mServices[i].getSize(), i++)
+	mRawBinary.alloc(totalSize);
+	for (size_t i = 0, pos = 0; i < mServices.size(); pos += mServices[i].getBytes().size(), i++)
 	{
-		memcpy((mBinaryBlob.getBytes() + pos), mServices[i].getBytes(), mServices[i].getSize());
+		memcpy((mRawBinary.data() + pos), mServices[i].getBytes().data(), mServices[i].getBytes().size());
 	}
 }
 
-void SacBinary::importBinary(const byte_t * bytes, size_t len)
+void SacBinary::fromBytes(const byte_t* data, size_t len)
 {
 	clear();
-	mBinaryBlob.alloc(len);
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(len);
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
-	SacEntry svc;
-	for (size_t pos = 0; pos < len; pos += mServices.atBack().getSize())
+	SacEntry sac;
+	for (size_t pos = 0; pos < len; pos += mServices.atBack().getBytes().size())
 	{
-		svc.importBinary((const byte_t*)(mBinaryBlob.getBytes() + pos), len - pos);
-		mServices.addElement(svc);
+		sac.fromBytes((const byte_t*)(mRawBinary.data() + pos), len - pos);
+		mServices.addElement(sac);
 	}
+}
+
+const fnd::Vec<byte_t>& SacBinary::getBytes() const
+{
+	return mRawBinary;
 }
 
 void nx::SacBinary::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mServices.clear();
 }
 
@@ -85,22 +84,4 @@ const fnd::List<SacEntry>& SacBinary::getServiceList() const
 void SacBinary::addService(const SacEntry& service)
 {
 	mServices.addElement(service);
-}
-
-bool SacBinary::isEqual(const SacBinary & other) const
-{
-	return mServices == other.mServices;
-}
-
-void SacBinary::copyFrom(const SacBinary & other)
-{
-	if (other.getSize())
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		this->mBinaryBlob.clear();
-		this->mServices = other.mServices;
-	}
 }

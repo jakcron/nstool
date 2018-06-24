@@ -7,17 +7,38 @@ nx::NroHeader::NroHeader()
 
 nx::NroHeader::NroHeader(const NroHeader& other)
 {
-	copyFrom(other);
+	*this = other;
 }
 
-nx::NroHeader::NroHeader(const byte_t* bytes, size_t len)
+void nx::NroHeader::operator=(const NroHeader& other)
 {
-	importBinary(bytes, len);
+	clear();
+	mRoCrt = other.mRoCrt;
+	mNroSize = other.mNroSize;
+	mTextInfo = other.mTextInfo;
+	mTextInfo = other.mTextInfo;
+	mRoInfo = other.mRoInfo;
+	mDataInfo = other.mDataInfo;
+	mBssSize = other.mBssSize;
+	mModuleId = other.mModuleId;
+	mRoEmbeddedInfo = other.mRoEmbeddedInfo;
+	mRoDynStrInfo = other.mRoDynStrInfo;
+	mRoDynSymInfo = other.mRoDynSymInfo;
 }
 
 bool nx::NroHeader::operator==(const NroHeader& other) const
 {
-	return isEqual(other);
+	return (mRoCrt == other.mRoCrt) \
+		&& (mNroSize == other.mNroSize) \
+		&& (mTextInfo == other.mTextInfo) \
+		&& (mTextInfo == other.mTextInfo) \
+		&& (mRoInfo == other.mRoInfo) \
+		&& (mDataInfo == other.mDataInfo) \
+		&& (mBssSize == other.mBssSize) \
+		&& (mModuleId == other.mModuleId) \
+		&& (mRoEmbeddedInfo == other.mRoEmbeddedInfo) \
+		&& (mRoDynStrInfo == other.mRoDynStrInfo) \
+		&& (mRoDynSymInfo == other.mRoDynSymInfo);
 }
 
 bool nx::NroHeader::operator!=(const NroHeader& other) const
@@ -25,25 +46,10 @@ bool nx::NroHeader::operator!=(const NroHeader& other) const
 	return !(*this == other);
 }
 
-void nx::NroHeader::operator=(const NroHeader& other)
+void nx::NroHeader::toBytes()
 {
-	copyFrom(other);
-}
-
-const byte_t* nx::NroHeader::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t nx::NroHeader::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
-
-void nx::NroHeader::exportBinary()
-{
-	mBinaryBlob.alloc(sizeof(sNroHeader));
-	nx::sNroHeader* hdr = (nx::sNroHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sNroHeader));
+	nx::sNroHeader* hdr = (nx::sNroHeader*)mRawBinary.data();
 
 	// set header identifers
 	hdr->signature = nro::kNroSig;
@@ -87,7 +93,7 @@ void nx::NroHeader::exportBinary()
 	hdr->dyn_sym.size = mRoDynSymInfo.size;
 }
 
-void nx::NroHeader::importBinary(const byte_t* bytes, size_t len)
+void nx::NroHeader::fromBytes(const byte_t* data, size_t len)
 {
 	// check input data size
 	if (len < sizeof(sNroHeader))
@@ -99,11 +105,11 @@ void nx::NroHeader::importBinary(const byte_t* bytes, size_t len)
 	clear();
 
 	// allocate internal local binary copy
-	mBinaryBlob.alloc(sizeof(sNroHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(sizeof(sNroHeader));
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// get sNroHeader ptr
-	const nx::sNroHeader* hdr = (const nx::sNroHeader*)mBinaryBlob.getBytes();
+	const nx::sNroHeader* hdr = (const nx::sNroHeader*)mRawBinary.data();
 	
 	// check NRO signature
 	if (hdr->signature.get() != nro::kNroSig)
@@ -144,9 +150,14 @@ void nx::NroHeader::importBinary(const byte_t* bytes, size_t len)
 	mRoDynSymInfo.size = hdr->dyn_sym.size.get();
 }
 
+const fnd::Vec<byte_t>& nx::NroHeader::getBytes() const
+{
+	return mRawBinary;
+}
+
 void nx::NroHeader::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	memset(&mRoCrt, 0, sizeof(mRoCrt));
 	memset(&mTextInfo, 0, sizeof(mTextInfo));
 	memset(&mRoInfo, 0, sizeof(mRoInfo));
@@ -256,35 +267,4 @@ const nx::NroHeader::sSection& nx::NroHeader::getRoDynSymInfo() const
 void nx::NroHeader::setRoDynSymInfo(const sSection& info)
 {
 	mRoDynSymInfo = info;
-}
-
-bool nx::NroHeader::isEqual(const NroHeader& other) const
-{
-	return (mRoCrt == other.mRoCrt) \
-		&& (mNroSize == other.mNroSize) \
-		&& (mTextInfo == other.mTextInfo) \
-		&& (mTextInfo == other.mTextInfo) \
-		&& (mRoInfo == other.mRoInfo) \
-		&& (mDataInfo == other.mDataInfo) \
-		&& (mBssSize == other.mBssSize) \
-		&& (mModuleId == other.mModuleId) \
-		&& (mRoEmbeddedInfo == other.mRoEmbeddedInfo) \
-		&& (mRoDynStrInfo == other.mRoDynStrInfo) \
-		&& (mRoDynSymInfo == other.mRoDynSymInfo);
-}
-
-void nx::NroHeader::copyFrom(const NroHeader& other)
-{
-	clear();
-	mRoCrt = other.mRoCrt;
-	mNroSize = other.mNroSize;
-	mTextInfo = other.mTextInfo;
-	mTextInfo = other.mTextInfo;
-	mRoInfo = other.mRoInfo;
-	mDataInfo = other.mDataInfo;
-	mBssSize = other.mBssSize;
-	mModuleId = other.mModuleId;
-	mRoEmbeddedInfo = other.mRoEmbeddedInfo;
-	mRoDynStrInfo = other.mRoDynStrInfo;
-	mRoDynSymInfo = other.mRoDynSymInfo;
 }

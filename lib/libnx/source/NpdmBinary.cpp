@@ -1,7 +1,5 @@
 #include <nx/NpdmBinary.h>
 
-
-
 nx::NpdmBinary::NpdmBinary() :
 	mAci(),
 	mAcid()
@@ -13,47 +11,51 @@ nx::NpdmBinary::NpdmBinary(const NpdmBinary & other) :
 	mAci(),
 	mAcid()
 {
-	copyFrom(other);
-}
-
-nx::NpdmBinary::NpdmBinary(const byte_t * bytes, size_t len) :
-	mAci(),
-	mAcid()
-{
-	importBinary(bytes, len);
-}
-
-bool nx::NpdmBinary::operator==(const NpdmBinary & other) const
-{
-	return isEqual(other);
-}
-
-bool nx::NpdmBinary::operator!=(const NpdmBinary & other) const
-{
-	return !isEqual(other);
+	*this = other;
 }
 
 void nx::NpdmBinary::operator=(const NpdmBinary & other)
 {
-	copyFrom(other);
+	if (other.getBytes().size())
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		NpdmHeader::operator=(other);
+		mAci = other.mAci;
+		mAcid = other.mAcid;
+	}
 }
 
-void nx::NpdmBinary::exportBinary()
+bool nx::NpdmBinary::operator==(const NpdmBinary & other) const
+{
+	return (NpdmHeader::operator==(other)) \
+		&& (mAci == other.mAci) \
+		&& (mAcid == other.mAcid);
+}
+
+bool nx::NpdmBinary::operator!=(const NpdmBinary & other) const
+{
+	return !(*this == other);
+}
+
+void nx::NpdmBinary::toBytes()
 {
 	mAci.exportBinary();
 	mAcid.exportBinary();
 
-	setAciSize(mAci.getSize());
-	setAcidSize(mAcid.getSize());
+	setAciSize(mAci.getBytes().size());
+	setAcidSize(mAcid.getBytes().size());
 }
 
-void nx::NpdmBinary::importBinary(const byte_t * bytes, size_t len)
+void nx::NpdmBinary::fromBytes(const byte_t* data, size_t len)
 {
 	// clear
 	clear();
 
 	// import header
-	NpdmHeader::importBinary(bytes, len);
+	NpdmHeader::fromBytes(data, len);
 
 	// check size
 	if (getNpdmSize() > len)
@@ -62,19 +64,23 @@ void nx::NpdmBinary::importBinary(const byte_t * bytes, size_t len)
 	}
 
 	// save local copy
-	mBinaryBlob.alloc(getNpdmSize());
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(getNpdmSize());
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// import Aci/Acid
 	if (getAciPos().size)
 	{
-		mAci.importBinary(mBinaryBlob.getBytes() + getAciPos().offset, getAciPos().size);
+		mAci.importBinary(mRawBinary.data() + getAciPos().offset, getAciPos().size);
 	}
 	if (getAcidPos().size)
 	{
-		mAcid.importBinary(mBinaryBlob.getBytes() + getAcidPos().offset, getAcidPos().size);
-	}
-	
+		mAcid.importBinary(mRawBinary.data() + getAcidPos().offset, getAcidPos().size);
+	}	
+}
+
+const fnd::Vec<byte_t>& nx::NpdmBinary::getBytes() const
+{
+	return mRawBinary;
 }
 
 void nx::NpdmBinary::clear()
@@ -102,35 +108,4 @@ const nx::AcidBinary & nx::NpdmBinary::getAcid() const
 void nx::NpdmBinary::setAcid(const AcidBinary & acid)
 {
 	mAcid = acid;
-}
-
-bool nx::NpdmBinary::isEqual(const NpdmBinary & other) const
-{
-	return (NpdmHeader::operator==(other)) \
-		&& (mAci == other.mAci) \
-		&& (mAcid == other.mAcid);
-}
-
-void nx::NpdmBinary::copyFrom(const NpdmBinary & other)
-{
-	if (other.getSize())
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		NpdmHeader::operator=(other);
-		mAci = other.mAci;
-		mAcid = other.mAcid;
-	}
-}
-
-const byte_t * nx::NpdmBinary::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t nx::NpdmBinary::getSize() const
-{
-	return mBinaryBlob.getSize();
 }

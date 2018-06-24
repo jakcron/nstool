@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
 #include <nx/cnmt.h>
 
@@ -8,7 +8,7 @@
 namespace nx
 {
 	class ContentMetaBinary :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		struct ContentInfo
@@ -18,13 +18,12 @@ namespace nx
 			size_t size;
 			cnmt::ContentType type;
 
-			ContentInfo& operator=(const ContentInfo& other)
+			void operator=(const ContentInfo& other)
 			{
 				hash = other.hash;
 				memcpy(nca_id, other.nca_id, cnmt::kContentIdLen);
 				size = other.size;
 				type = other.type;
-				return *this;
 			}
 
 			bool operator==(const ContentInfo& other) const
@@ -48,13 +47,12 @@ namespace nx
 			cnmt::ContentMetaType type;
 			byte_t attributes;
 
-			ContentMetaInfo& operator=(const ContentMetaInfo& other)
+			void operator=(const ContentMetaInfo& other)
 			{
 				id = other.id;
 				version = other.version;
 				type = other.type;
 				attributes = other.attributes;
-				return *this;
 			}
 
 			bool operator==(const ContentMetaInfo& other) const
@@ -76,11 +74,10 @@ namespace nx
 			uint64_t patch_id;
 			uint32_t required_system_version;
 
-			ApplicationMetaExtendedHeader& operator=(const ApplicationMetaExtendedHeader& other)
+			void operator=(const ApplicationMetaExtendedHeader& other)
 			{
 				patch_id = other.patch_id;
 				required_system_version = other.required_system_version;
-				return *this;
 			}
 
 			bool operator==(const ApplicationMetaExtendedHeader& other) const
@@ -100,11 +97,10 @@ namespace nx
 			uint64_t application_id;
 			uint32_t required_system_version;
 
-			PatchMetaExtendedHeader& operator=(const PatchMetaExtendedHeader& other)
+			void operator=(const PatchMetaExtendedHeader& other)
 			{
 				application_id = other.application_id;
 				required_system_version = other.required_system_version;
-				return *this;
 			}
 
 			bool operator==(const PatchMetaExtendedHeader& other) const
@@ -124,11 +120,10 @@ namespace nx
 			uint64_t application_id;
 			uint32_t required_system_version;
 
-			AddOnContentMetaExtendedHeader& operator=(const AddOnContentMetaExtendedHeader& other)
+			void operator=(const AddOnContentMetaExtendedHeader& other)
 			{
 				application_id = other.application_id;
 				required_system_version = other.required_system_version;
-				return *this;
 			}
 
 			bool operator==(const AddOnContentMetaExtendedHeader& other) const
@@ -147,10 +142,9 @@ namespace nx
 		{
 			uint64_t application_id;
 
-			DeltaMetaExtendedHeader& operator=(const DeltaMetaExtendedHeader& other)
+			void operator=(const DeltaMetaExtendedHeader& other)
 			{
 				application_id = other.application_id;
-				return *this;
 			}
 
 			bool operator==(const DeltaMetaExtendedHeader& other) const
@@ -166,15 +160,15 @@ namespace nx
 
 		ContentMetaBinary();
 		ContentMetaBinary(const ContentMetaBinary& other);
-		ContentMetaBinary(const byte_t* bytes, size_t len);
 
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
+		void operator=(const ContentMetaBinary& other);
+		bool operator==(const ContentMetaBinary& other) const;
+		bool operator!=(const ContentMetaBinary& other) const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -212,8 +206,8 @@ namespace nx
 		const fnd::List<nx::ContentMetaBinary::ContentMetaInfo>& getContentMetaInfo() const;
 		void setContentMetaInfo(const fnd::List<nx::ContentMetaBinary::ContentMetaInfo>& info);
 
-		const fnd::MemoryBlob& getExtendedData() const;
-		void setExtendedData(const fnd::MemoryBlob& data);
+		const fnd::Vec<byte_t>& getExtendedData() const;
+		void setExtendedData(const fnd::Vec<byte_t>& data);
 
 		const nx::sDigest& getDigest() const;
 		void setDigest(const nx::sDigest& digest);
@@ -223,7 +217,7 @@ namespace nx
 		const std::string kModuleName = "CONTENT_META_BINARY";
 
 		// binary blob
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		uint64_t mTitleId;
@@ -231,7 +225,7 @@ namespace nx
 		cnmt::ContentMetaType mType;
 		byte_t mAttributes;
 		uint32_t mRequiredDownloadSystemVersion;
-		fnd::MemoryBlob mExtendedHeader;
+		fnd::Vec<byte_t> mExtendedHeader;
 
 		ApplicationMetaExtendedHeader mApplicationMetaExtendedHeader;
 		PatchMetaExtendedHeader mPatchMetaExtendedHeader;
@@ -240,7 +234,7 @@ namespace nx
 
 		fnd::List<nx::ContentMetaBinary::ContentInfo> mContentInfo;
 		fnd::List<nx::ContentMetaBinary::ContentMetaInfo> mContentMetaInfo;
-		fnd::MemoryBlob mExtendedData;
+		fnd::Vec<byte_t> mExtendedData;
 		nx::sDigest mDigest;
 
 		inline size_t getExtendedHeaderOffset() const { return sizeof(sContentMetaHeader); }
@@ -253,8 +247,5 @@ namespace nx
 		bool validateExtendedHeaderSize(cnmt::ContentMetaType type, size_t exhdrSize) const;
 		size_t getExtendedDataSize(cnmt::ContentMetaType type, const byte_t* data) const;
 		void validateBinary(const byte_t* bytes, size_t len) const;
-
-		bool isEqual(const ContentMetaBinary& other) const;
-		void copyFrom(const ContentMetaBinary& other);
 	};
 }

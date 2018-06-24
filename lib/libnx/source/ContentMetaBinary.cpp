@@ -17,12 +17,12 @@ nx::ContentMetaBinary::ContentMetaBinary(const byte_t * bytes, size_t len)
 
 const byte_t * nx::ContentMetaBinary::getBytes() const
 {
-	return mBinaryBlob.getBytes();
+	return mRawBinary.getBytes();
 }
 
 size_t nx::ContentMetaBinary::getSize() const
 {
-	return mBinaryBlob.getSize();
+	return mRawBinary.getSize();
 }
 
 void nx::ContentMetaBinary::exportBinary()
@@ -118,7 +118,7 @@ void nx::ContentMetaBinary::importBinary(const byte_t * bytes, size_t len)
 
 void nx::ContentMetaBinary::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mTitleId = 0;
 	mTitleVersion = 0;
 	mType = cnmt::METATYPE_SYSTEM_PROGRAM;

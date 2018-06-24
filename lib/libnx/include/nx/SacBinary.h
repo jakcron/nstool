@@ -1,32 +1,27 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/SacEntry.h>
 
 namespace nx
 {
 	class SacBinary :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		SacBinary();
 		SacBinary(const SacBinary& other);
-		SacBinary(const byte_t* bytes, size_t len);
 
+		void operator=(const SacBinary& other);
 		bool operator==(const SacBinary& other) const;
 		bool operator!=(const SacBinary& other) const;
-		void operator=(const SacBinary& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -36,13 +31,10 @@ namespace nx
 		const std::string kModuleName = "SAC_BINARY";
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		fnd::List<SacEntry> mServices;
-
-		bool isEqual(const SacBinary& other) const;
-		void copyFrom(const SacBinary& other);
 	};
 
 }

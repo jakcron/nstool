@@ -1,7 +1,5 @@
 #include <nx/AciBinary.h>
 
-
-
 nx::AciBinary::AciBinary()
 {
 	clear();
@@ -9,96 +7,100 @@ nx::AciBinary::AciBinary()
 
 nx::AciBinary::AciBinary(const AciBinary & other)
 {
-	copyFrom(other);
-}
-
-nx::AciBinary::AciBinary(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
-bool nx::AciBinary::operator==(const AciBinary & other) const
-{
-	return isEqual(other);
-}
-
-bool nx::AciBinary::operator!=(const AciBinary & other) const
-{
-	return !isEqual(other);
+	*this = other;
 }
 
 void nx::AciBinary::operator=(const AciBinary & other)
 {
-	copyFrom(other);
+	if (other.getBytes().size())
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		AciHeader::operator=(other);
+		mFac = other.mFac;
+		mSac = other.mSac;
+		mKc = other.mKc;
+	}
 }
 
-const byte_t * nx::AciBinary::getBytes() const
+bool nx::AciBinary::operator==(const AciBinary & other) const
 {
-	return mBinaryBlob.getBytes();
+	return (AciHeader::operator==(other)) \
+		&& (mFac == other.mFac) \
+		&& (mSac == other.mSac) \
+		&& (mKc == other.mKc);
 }
 
-size_t nx::AciBinary::getSize() const
+bool nx::AciBinary::operator!=(const AciBinary & other) const
 {
-	return mBinaryBlob.getSize();
+	return !(*this == other);
 }
 
-void nx::AciBinary::exportBinary()
+void nx::AciBinary::toBytes()
 {
 	// export components
-	mFac.exportBinary();
-	mSac.exportBinary();
-	mKc.exportBinary();
+	mFac.toBytes();
+	mSac.toBytes();
+	mKc.toBytes();
 
 	// set sizes
-	setFacSize(mFac.getSize());
-	setSacSize(mSac.getSize());
-	setKcSize(mKc.getSize());
+	setFacSize(mFac.getBytes().size());
+	setSacSize(mSac.getBytes().size());
+	setKcSize(mKc.getBytes().size());
 
 	// export header
-	AciHeader::exportBinary();
+	AciHeader::toBytes();
 
 	// allocate binary
-	mBinaryBlob.alloc(getAciSize());
+	mRawBinary.alloc(getAciSize());
 
 	// copy header
-	memcpy(mBinaryBlob.getBytes(), AciHeader::getBytes(), AciHeader::getSize());
+	memcpy(mRawBinary.data(), AciHeader::getBytes().data(), AciHeader::getBytes().size());
 
 	// copy components
-	memcpy(mBinaryBlob.getBytes() + getFacPos().offset, mFac.getBytes(), mFac.getSize());
-	memcpy(mBinaryBlob.getBytes() + getSacPos().offset, mSac.getBytes(), mSac.getSize());
-	memcpy(mBinaryBlob.getBytes() + getKcPos().offset, mKc.getBytes(), mKc.getSize());
+	memcpy(mRawBinary.data() + getFacPos().offset, mFac.getBytes().data(), mFac.getBytes().size());
+	memcpy(mRawBinary.data() + getSacPos().offset, mSac.getBytes().data(), mSac.getBytes().size());
+	memcpy(mRawBinary.data() + getKcPos().offset, mKc.getBytes().data(), mKc.getBytes().size());
 }
 
-void nx::AciBinary::importBinary(const byte_t * bytes, size_t len)
+void nx::AciBinary::fromBytes(const byte_t * bytes, size_t len)
 {
-	AciHeader::importBinary(bytes, len);
+	AciHeader::fromBytes(bytes, len);
 
 	if (getAciSize() > len)
 	{
 		throw fnd::Exception(kModuleName, "ACI binary too small");
 	}
 
-	mBinaryBlob.alloc(getAciSize());
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(getAciSize());
+	memcpy(mRawBinary.data(), bytes, mRawBinary.size());
 
 	if (getFacPos().size > 0)
 	{
-		mFac.importBinary(mBinaryBlob.getBytes() + getFacPos().offset, getFacPos().size);
+		mFac.fromBytes(mRawBinary.data() + getFacPos().offset, getFacPos().size);
 	}
 	if (getSacPos().size > 0)
 	{
-		mSac.importBinary(mBinaryBlob.getBytes() + getSacPos().offset, getSacPos().size);
+		mSac.fromBytes(mRawBinary.data() + getSacPos().offset, getSacPos().size);
 	}
 	if (getKcPos().size > 0)
 	{
-		mKc.importBinary(mBinaryBlob.getBytes() + getKcPos().offset, getKcPos().size);
+		mKc.fromBytes(mRawBinary.data() + getKcPos().offset, getKcPos().size);
 	}
 
 }	
 
+const fnd::Vec<byte_t>& nx::AciBinary::getBytes() const
+{
+	return mRawBinary;
+}
+
 void nx::AciBinary::clear()
 {
 	AciHeader::clear();
+	mRawBinary.clear();
 	mFac.clear();
 	mSac.clear();
 	mKc.clear();
@@ -132,27 +134,4 @@ const nx::KcBinary & nx::AciBinary::getKc() const
 void nx::AciBinary::setKc(const KcBinary & kc)
 {
 	mKc = kc;
-}
-
-bool nx::AciBinary::isEqual(const AciBinary & other) const
-{
-	return (AciHeader::operator==(other)) \
-		&& (mFac == other.mFac) \
-		&& (mSac == other.mSac) \
-		&& (mKc == other.mKc);
-}
-
-void nx::AciBinary::copyFrom(const AciBinary & other)
-{
-	if (other.getSize())
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		AciHeader::operator=(other);
-		mFac = other.mFac;
-		mSac = other.mSac;
-		mKc = other.mKc;
-	}
 }

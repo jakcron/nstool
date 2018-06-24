@@ -1,30 +1,25 @@
 #pragma once
 #include <nx/xci.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
 	class XciHeader : 
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		XciHeader();
 		XciHeader(const XciHeader& other);
-		XciHeader(const byte_t* bytes, size_t len);
 
+		void operator=(const XciHeader& other);
 		bool operator==(const XciHeader& other) const;
 		bool operator!=(const XciHeader& other) const;
-		void operator=(const XciHeader& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -92,7 +87,7 @@ namespace nx
 		const std::string kModuleName = "XCI_HEADER";
 
 		// binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// data
 		uint32_t mRomAreaStartPage;
@@ -125,10 +120,6 @@ namespace nx
 		uint32_t mUppVersion;
 		byte_t mUppHash[8];
 		uint64_t mUppId;
-		
-		// helpers
-		bool isEqual(const XciHeader& other) const;
-		void copyFrom(const XciHeader& other);
 	};
 
 }

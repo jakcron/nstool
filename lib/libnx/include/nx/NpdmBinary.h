@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
 #include <nx/NpdmHeader.h>
 #include <nx/AciBinary.h>
@@ -15,19 +14,15 @@ namespace nx
 	public:
 		NpdmBinary();
 		NpdmBinary(const NpdmBinary& other);
-		NpdmBinary(const byte_t* bytes, size_t len);
 
+		void operator=(const NpdmBinary& other);
 		bool operator==(const NpdmBinary& other) const;
 		bool operator!=(const NpdmBinary& other) const;
-		void operator=(const NpdmBinary& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -41,14 +36,11 @@ namespace nx
 		const std::string kModuleName = "NPDM_BINARY";
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		AciBinary mAci;
 		AcidBinary mAcid;
-
-		bool isEqual(const NpdmBinary& other) const;
-		void copyFrom(const NpdmBinary& other);
 	};
 
 }

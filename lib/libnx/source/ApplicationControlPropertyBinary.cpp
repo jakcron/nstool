@@ -7,17 +7,92 @@ nx::ApplicationControlPropertyBinary::ApplicationControlPropertyBinary()
 
 nx::ApplicationControlPropertyBinary::ApplicationControlPropertyBinary(const ApplicationControlPropertyBinary& other)
 {
-	copyFrom(other);
+	*this = other;
 }
 
-nx::ApplicationControlPropertyBinary::ApplicationControlPropertyBinary(const byte_t* bytes, size_t len)
+void nx::ApplicationControlPropertyBinary::operator=(const ApplicationControlPropertyBinary& other)
 {
-	importBinary(bytes, len);
+	clear();
+	mTitle = other.mTitle;
+	mIsbn = other.mIsbn;
+	mStartupUserAccount = other.mStartupUserAccount;
+	mTouchScreenUsageMode = other.mTouchScreenUsageMode;
+	mAocRegistrationType = other.mAocRegistrationType;
+	mAttributeFlag = other.mAttributeFlag;
+	mParentalControlFlag = other.mParentalControlFlag;
+	mScreenshotMode = other.mScreenshotMode;
+	mVideoCaptureMode = other.mVideoCaptureMode;
+	mDataLossConfirmation = other.mDataLossConfirmation;
+	mPlayLogPolicy = other.mPlayLogPolicy;
+	mPresenceGroupId = other.mPresenceGroupId;
+	mRatingAge = other.mRatingAge;
+	mDisplayVersion = other.mDisplayVersion;
+	mAocBaseId = other.mAocBaseId;
+	mSaveDatawOwnerId = other.mSaveDatawOwnerId;
+	mUserAccountSaveDataSize = other.mUserAccountSaveDataSize;
+	mDeviceSaveDataSize = other.mDeviceSaveDataSize;
+	mBcatDeliveryCacheStorageSize = other.mBcatDeliveryCacheStorageSize;
+	mApplicationErrorCodeCategory = other.mApplicationErrorCodeCategory;
+	mLocalCommunicationId = other.mLocalCommunicationId;
+	mLogoType = other.mLogoType;
+	mLogoHandling = other.mLogoHandling;
+	mRuntimeAocInstallMode = other.mRuntimeAocInstallMode;
+	mCrashReportMode = other.mCrashReportMode;
+	mHdcp = other.mHdcp;
+	mSeedForPsuedoDeviceId = other.mSeedForPsuedoDeviceId;
+	mBcatPassphase = other.mBcatPassphase;
+	mUserAccountSaveDataMax = other.mUserAccountSaveDataMax;
+	mDeviceSaveDataMax = other.mDeviceSaveDataMax;
+	mTemporaryStorageSize = other.mTemporaryStorageSize;
+	mCacheStorageSize = other.mCacheStorageSize;
+	mCacheStorageDataAndJournalSizeMax = other.mCacheStorageDataAndJournalSizeMax;
+	mCacheStorageIndex = other.mCacheStorageIndex;
+	mPlayLogQueryableApplicationId = other.mPlayLogQueryableApplicationId;
+	mPlayLogQueryCapability = other.mPlayLogQueryCapability;
+	mRepairFlag = other.mRepairFlag;
+	mProgramIndex = other.mProgramIndex;
 }
 
 bool nx::ApplicationControlPropertyBinary::operator==(const ApplicationControlPropertyBinary& other) const
 {
-	return isEqual(other);
+	return (mTitle == other.mTitle) \
+		&& (mIsbn == other.mIsbn) \
+		&& (mStartupUserAccount == other.mStartupUserAccount) \
+		&& (mTouchScreenUsageMode == other.mTouchScreenUsageMode) \
+		&& (mAocRegistrationType == other.mAocRegistrationType) \
+		&& (mAttributeFlag == other.mAttributeFlag) \
+		&& (mParentalControlFlag == other.mParentalControlFlag) \
+		&& (mScreenshotMode == other.mScreenshotMode) \
+		&& (mVideoCaptureMode == other.mVideoCaptureMode) \
+		&& (mDataLossConfirmation == other.mDataLossConfirmation) \
+		&& (mPlayLogPolicy == other.mPlayLogPolicy) \
+		&& (mPresenceGroupId == other.mPresenceGroupId) \
+		&& (mRatingAge == other.mRatingAge) \
+		&& (mDisplayVersion == other.mDisplayVersion) \
+		&& (mAocBaseId == other.mAocBaseId) \
+		&& (mSaveDatawOwnerId == other.mSaveDatawOwnerId) \
+		&& (mUserAccountSaveDataSize == other.mUserAccountSaveDataSize) \
+		&& (mDeviceSaveDataSize == other.mDeviceSaveDataSize) \
+		&& (mBcatDeliveryCacheStorageSize == other.mBcatDeliveryCacheStorageSize) \
+		&& (mApplicationErrorCodeCategory == other.mApplicationErrorCodeCategory) \
+		&& (mLocalCommunicationId == other.mLocalCommunicationId) \
+		&& (mLogoType == other.mLogoType) \
+		&& (mLogoHandling == other.mLogoHandling) \
+		&& (mRuntimeAocInstallMode == other.mRuntimeAocInstallMode) \
+		&& (mCrashReportMode == other.mCrashReportMode) \
+		&& (mHdcp == other.mHdcp) \
+		&& (mSeedForPsuedoDeviceId == other.mSeedForPsuedoDeviceId) \
+		&& (mBcatPassphase == other.mBcatPassphase) \
+		&& (mUserAccountSaveDataMax == other.mUserAccountSaveDataMax) \
+		&& (mDeviceSaveDataMax == other.mDeviceSaveDataMax) \
+		&& (mTemporaryStorageSize == other.mTemporaryStorageSize) \
+		&& (mCacheStorageSize == other.mCacheStorageSize) \
+		&& (mCacheStorageDataAndJournalSizeMax == other.mCacheStorageDataAndJournalSizeMax) \
+		&& (mCacheStorageIndex == other.mCacheStorageIndex) \
+		&& (mPlayLogQueryableApplicationId == other.mPlayLogQueryableApplicationId) \
+		&& (mPlayLogQueryCapability == other.mPlayLogQueryCapability) \
+		&& (mRepairFlag == other.mRepairFlag) \
+		&& (mProgramIndex == other.mProgramIndex);
 }
 
 bool nx::ApplicationControlPropertyBinary::operator!=(const ApplicationControlPropertyBinary& other) const
@@ -25,30 +100,15 @@ bool nx::ApplicationControlPropertyBinary::operator!=(const ApplicationControlPr
 	return !(*this == other);
 }
 
-void nx::ApplicationControlPropertyBinary::operator=(const ApplicationControlPropertyBinary& other)
+void nx::ApplicationControlPropertyBinary::toBytes()
 {
-	copyFrom(other);
-}
+	mRawBinary.alloc(sizeof(nx::sApplicationControlProperty));
 
-const byte_t* nx::ApplicationControlPropertyBinary::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t nx::ApplicationControlPropertyBinary::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
-
-void nx::ApplicationControlPropertyBinary::exportBinary()
-{
-	mBinaryBlob.alloc(sizeof(nx::sApplicationControlProperty));
-
-	sApplicationControlProperty* data = (sApplicationControlProperty*)mBinaryBlob.getBytes();
+	sApplicationControlProperty* data = (sApplicationControlProperty*)mRawBinary.data();
 
 	// strings
 	uint32_t supported_langs = 0;
-	for (size_t i = 0; i < mTitle.getSize(); i++)
+	for (size_t i = 0; i < mTitle.size(); i++)
 	{
 		supported_langs = _BIT(mTitle[i].language);
 		strncpy(data->title[mTitle[i].language].name, mTitle[i].name.c_str(), nacp::kNameLength);
@@ -82,18 +142,18 @@ void nx::ApplicationControlPropertyBinary::exportBinary()
 	// misc params
 	data->presence_group_id = mPresenceGroupId;
 	memset(data->rating_age, nacp::kUnusedAgeRating, nacp::kRatingAgeCount); // clear ratings
-	for (size_t i = 0; i < mRatingAge.getSize(); i++)
+	for (size_t i = 0; i < mRatingAge.size(); i++)
 	{
 		data->rating_age[mRatingAge[i].organisation] = mRatingAge[i].age;
 	}
 	data->add_on_content_base_id = mAocBaseId;
 	data->save_data_owner_id = mSaveDatawOwnerId;
-	for (size_t i = 0; i < mLocalCommunicationId.getSize() && i < nacp::kLocalCommunicationIdCount; i++)
+	for (size_t i = 0; i < mLocalCommunicationId.size() && i < nacp::kLocalCommunicationIdCount; i++)
 	{
 		data->local_communication_id[i] = mLocalCommunicationId[i];
 	}
 	data->seed_for_pseudo_device_id = mSeedForPsuedoDeviceId;
-	for (size_t i = 0; i < mPlayLogQueryableApplicationId.getSize() && i < nacp::kPlayLogQueryableApplicationIdCount; i++)
+	for (size_t i = 0; i < mPlayLogQueryableApplicationId.size() && i < nacp::kPlayLogQueryableApplicationIdCount; i++)
 	{
 		data->play_log_queryable_application_id[i] = mPlayLogQueryableApplicationId[i];
 	}
@@ -116,7 +176,7 @@ void nx::ApplicationControlPropertyBinary::exportBinary()
 	data->cache_storage_data_and_journal_size_max = mCacheStorageDataAndJournalSizeMax;
 }
 
-void nx::ApplicationControlPropertyBinary::importBinary(const byte_t* bytes, size_t len)
+void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t len)
 {
 	if (len < sizeof(nx::sApplicationControlProperty))
 	{
@@ -125,10 +185,10 @@ void nx::ApplicationControlPropertyBinary::importBinary(const byte_t* bytes, siz
 
 	clear();
 
-	mBinaryBlob.alloc(sizeof(nx::sApplicationControlProperty));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(sizeof(nx::sApplicationControlProperty));
+	memcpy(mRawBinary.data(), bytes, mRawBinary.size());
 
-	const sApplicationControlProperty* data = (const sApplicationControlProperty*)mBinaryBlob.getBytes();
+	const sApplicationControlProperty* data = (const sApplicationControlProperty*)mRawBinary.data();
 
 	// strings
 	for (size_t i = 0; i < nacp::kMaxLanguageCount; i++)
@@ -204,9 +264,14 @@ void nx::ApplicationControlPropertyBinary::importBinary(const byte_t* bytes, siz
 	mCacheStorageDataAndJournalSizeMax = (int64_t)data->cache_storage_data_and_journal_size_max.get();
 }
 
+const fnd::Vec<byte_t>& nx::ApplicationControlPropertyBinary::getBytes() const
+{
+	return mRawBinary;
+}
+
 void nx::ApplicationControlPropertyBinary::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mTitle.clear();
 	mIsbn.clear();
 	mStartupUserAccount = nacp::USER_None;
@@ -625,89 +690,4 @@ byte_t nx::ApplicationControlPropertyBinary::getProgramIndex() const
 void nx::ApplicationControlPropertyBinary::setProgramIndex(byte_t var)
 {
 	mProgramIndex = var;
-}
-
-bool nx::ApplicationControlPropertyBinary::isEqual(const ApplicationControlPropertyBinary& other) const
-{
-	return (mTitle == other.mTitle) \
-		&& (mIsbn == other.mIsbn) \
-		&& (mStartupUserAccount == other.mStartupUserAccount) \
-		&& (mTouchScreenUsageMode == other.mTouchScreenUsageMode) \
-		&& (mAocRegistrationType == other.mAocRegistrationType) \
-		&& (mAttributeFlag == other.mAttributeFlag) \
-		&& (mParentalControlFlag == other.mParentalControlFlag) \
-		&& (mScreenshotMode == other.mScreenshotMode) \
-		&& (mVideoCaptureMode == other.mVideoCaptureMode) \
-		&& (mDataLossConfirmation == other.mDataLossConfirmation) \
-		&& (mPlayLogPolicy == other.mPlayLogPolicy) \
-		&& (mPresenceGroupId == other.mPresenceGroupId) \
-		&& (mRatingAge == other.mRatingAge) \
-		&& (mDisplayVersion == other.mDisplayVersion) \
-		&& (mAocBaseId == other.mAocBaseId) \
-		&& (mSaveDatawOwnerId == other.mSaveDatawOwnerId) \
-		&& (mUserAccountSaveDataSize == other.mUserAccountSaveDataSize) \
-		&& (mDeviceSaveDataSize == other.mDeviceSaveDataSize) \
-		&& (mBcatDeliveryCacheStorageSize == other.mBcatDeliveryCacheStorageSize) \
-		&& (mApplicationErrorCodeCategory == other.mApplicationErrorCodeCategory) \
-		&& (mLocalCommunicationId == other.mLocalCommunicationId) \
-		&& (mLogoType == other.mLogoType) \
-		&& (mLogoHandling == other.mLogoHandling) \
-		&& (mRuntimeAocInstallMode == other.mRuntimeAocInstallMode) \
-		&& (mCrashReportMode == other.mCrashReportMode) \
-		&& (mHdcp == other.mHdcp) \
-		&& (mSeedForPsuedoDeviceId == other.mSeedForPsuedoDeviceId) \
-		&& (mBcatPassphase == other.mBcatPassphase) \
-		&& (mUserAccountSaveDataMax == other.mUserAccountSaveDataMax) \
-		&& (mDeviceSaveDataMax == other.mDeviceSaveDataMax) \
-		&& (mTemporaryStorageSize == other.mTemporaryStorageSize) \
-		&& (mCacheStorageSize == other.mCacheStorageSize) \
-		&& (mCacheStorageDataAndJournalSizeMax == other.mCacheStorageDataAndJournalSizeMax) \
-		&& (mCacheStorageIndex == other.mCacheStorageIndex) \
-		&& (mPlayLogQueryableApplicationId == other.mPlayLogQueryableApplicationId) \
-		&& (mPlayLogQueryCapability == other.mPlayLogQueryCapability) \
-		&& (mRepairFlag == other.mRepairFlag) \
-		&& (mProgramIndex == other.mProgramIndex);
-}
-
-void nx::ApplicationControlPropertyBinary::copyFrom(const ApplicationControlPropertyBinary& other)
-{
-	clear();
-	mTitle = other.mTitle;
-	mIsbn = other.mIsbn;
-	mStartupUserAccount = other.mStartupUserAccount;
-	mTouchScreenUsageMode = other.mTouchScreenUsageMode;
-	mAocRegistrationType = other.mAocRegistrationType;
-	mAttributeFlag = other.mAttributeFlag;
-	mParentalControlFlag = other.mParentalControlFlag;
-	mScreenshotMode = other.mScreenshotMode;
-	mVideoCaptureMode = other.mVideoCaptureMode;
-	mDataLossConfirmation = other.mDataLossConfirmation;
-	mPlayLogPolicy = other.mPlayLogPolicy;
-	mPresenceGroupId = other.mPresenceGroupId;
-	mRatingAge = other.mRatingAge;
-	mDisplayVersion = other.mDisplayVersion;
-	mAocBaseId = other.mAocBaseId;
-	mSaveDatawOwnerId = other.mSaveDatawOwnerId;
-	mUserAccountSaveDataSize = other.mUserAccountSaveDataSize;
-	mDeviceSaveDataSize = other.mDeviceSaveDataSize;
-	mBcatDeliveryCacheStorageSize = other.mBcatDeliveryCacheStorageSize;
-	mApplicationErrorCodeCategory = other.mApplicationErrorCodeCategory;
-	mLocalCommunicationId = other.mLocalCommunicationId;
-	mLogoType = other.mLogoType;
-	mLogoHandling = other.mLogoHandling;
-	mRuntimeAocInstallMode = other.mRuntimeAocInstallMode;
-	mCrashReportMode = other.mCrashReportMode;
-	mHdcp = other.mHdcp;
-	mSeedForPsuedoDeviceId = other.mSeedForPsuedoDeviceId;
-	mBcatPassphase = other.mBcatPassphase;
-	mUserAccountSaveDataMax = other.mUserAccountSaveDataMax;
-	mDeviceSaveDataMax = other.mDeviceSaveDataMax;
-	mTemporaryStorageSize = other.mTemporaryStorageSize;
-	mCacheStorageSize = other.mCacheStorageSize;
-	mCacheStorageDataAndJournalSizeMax = other.mCacheStorageDataAndJournalSizeMax;
-	mCacheStorageIndex = other.mCacheStorageIndex;
-	mPlayLogQueryableApplicationId = other.mPlayLogQueryableApplicationId;
-	mPlayLogQueryCapability = other.mPlayLogQueryCapability;
-	mRepairFlag = other.mRepairFlag;
-	mProgramIndex = other.mProgramIndex;
 }

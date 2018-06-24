@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
 #include <nx/AciBinary.h>
 #include <crypto/rsa.h>
 
@@ -12,21 +11,17 @@ namespace nx
 	public:
 		AcidBinary();
 		AcidBinary(const AcidBinary& other);
-		AcidBinary(const byte_t* bytes, size_t len);
 
+		void operator=(const AcidBinary& other);
 		bool operator==(const AcidBinary& other) const;
 		bool operator!=(const AcidBinary& other) const;
-		void operator=(const AcidBinary& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		virtual void exportBinary();
+		void toBytes();
 		void signBinary(const crypto::rsa::sRsa2048Key& key);
-		virtual void importBinary(const byte_t* bytes, size_t len);
+		void fromBytes(const byte_t* bytes, size_t len);
 		void verifyBinary(const crypto::rsa::sRsa2048Key& key) const;
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		virtual void clear();
@@ -38,13 +33,10 @@ namespace nx
 		const std::string kModuleName = "ACID_BINARY";
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		crypto::rsa::sRsa2048Key mEmbeddedPublicKey;
-
-		bool isEqual(const AcidBinary& other) const;
-		void copyFrom(const AcidBinary& other);
 	};
 }
 

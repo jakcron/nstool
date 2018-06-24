@@ -49,19 +49,18 @@ namespace nx
 
 		NcaHeader();
 		NcaHeader(const NcaHeader& other);
-		NcaHeader(const byte_t* bytes, size_t len);
 
+		void operator=(const NcaHeader& other);
 		bool operator==(const NcaHeader& other) const;
 		bool operator!=(const NcaHeader& other) const;
-		void operator=(const NcaHeader& other);
 
 		// to be used after export
-		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -95,7 +94,7 @@ namespace nx
 		const std::string kModuleName = "NCA_HEADER";
 
 		// binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// data
 		FormatVersion mFormatVersion;
@@ -113,8 +112,6 @@ namespace nx
 
 		uint64_t blockNumToSize(uint32_t block_num) const;
 		uint32_t sizeToBlockNum(uint64_t real_size) const;
-		bool isEqual(const NcaHeader& other) const;
-		void copyFrom(const NcaHeader& other);
 	};
 
 }

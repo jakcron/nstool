@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
 #include <nx/FacHeader.h>
 
@@ -13,19 +12,15 @@ namespace nx
 	public:
 		FacBinary();
 		FacBinary(const FacBinary& other);
-		FacBinary(const byte_t* bytes, size_t len);
 
+		void operator=(const FacBinary& other);
 		bool operator==(const FacBinary& other) const;
 		bool operator!=(const FacBinary& other) const;
-		void operator=(const FacBinary& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -41,14 +36,11 @@ namespace nx
 		static const uint32_t kFacFormatVersion = 1;
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		fnd::List<uint32_t> mContentOwnerIdList;
 		fnd::List<uint32_t> mSaveDataOwnerIdList;
-
-		bool isEqual(const FacBinary& other) const;
-		void copyFrom(const FacBinary& other);
 	};
 }
 

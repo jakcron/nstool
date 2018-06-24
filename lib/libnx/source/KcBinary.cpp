@@ -1,46 +1,44 @@
 #include <nx/KcBinary.h>
 
-
-
 nx::KcBinary::KcBinary()
 {}
 
 nx::KcBinary::KcBinary(const KcBinary & other)
 {
-	copyFrom(other);
-}
-
-nx::KcBinary::KcBinary(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
-bool nx::KcBinary::operator==(const KcBinary & other) const
-{
-	return isEqual(other);
-}
-
-bool nx::KcBinary::operator!=(const KcBinary & other) const
-{
-	return !isEqual(other);
+	*this = other;
 }
 
 void nx::KcBinary::operator=(const KcBinary & other)
 {
-	copyFrom(other);
+	clear();
+	mThreadInfo = other.mThreadInfo;
+	mSystemCalls = other.mSystemCalls;
+	mMemoryMap = other.mMemoryMap;
+	mInterupts = other.mInterupts;
+	mMiscParams = other.mMiscParams;
+	mKernelVersion = other.mKernelVersion;
+	mHandleTableSize = other.mHandleTableSize;
+	mMiscFlags = other.mMiscFlags;
 }
 
-const byte_t * nx::KcBinary::getBytes() const
+bool nx::KcBinary::operator==(const KcBinary & other) const
 {
-	return mBinaryBlob.getBytes();
+	return (mThreadInfo == other.mThreadInfo) \
+		&& (mSystemCalls == other.mSystemCalls) \
+		&& (mMemoryMap == other.mMemoryMap) \
+		&& (mInterupts == other.mInterupts) \
+		&& (mMiscParams == other.mMiscParams) \
+		&& (mKernelVersion == other.mKernelVersion) \
+		&& (mHandleTableSize == other.mHandleTableSize) \
+		&& (mMiscFlags == other.mMiscFlags);
 }
 
-size_t nx::KcBinary::getSize() const
+bool nx::KcBinary::operator!=(const KcBinary & other) const
 {
-	return mBinaryBlob.getSize();
+	return !(*this == other);
 }
 
-void nx::KcBinary::exportBinary()
+void nx::KcBinary::toBytes()
 {
 	fnd::List<KernelCapability> caps;
 
@@ -55,22 +53,26 @@ void nx::KcBinary::exportBinary()
 	mMiscFlags.exportKernelCapabilityList(caps);
 
 	// allocate memory
-	mBinaryBlob.alloc(caps.getSize() * sizeof(uint32_t));
+	mRawBinary.alloc(caps.size() * sizeof(uint32_t));
 
 	// write to binary
-	uint32_t* raw_caps = (uint32_t*)mBinaryBlob.getBytes();
-	for (size_t i = 0; i < caps.getSize(); i++)
+	uint32_t* raw_caps = (uint32_t*)mRawBinary.data();
+	for (size_t i = 0; i < caps.size(); i++)
 	{
 		raw_caps[i] = le_word(caps[i].getCap());
 	}
 }
 
-void nx::KcBinary::importBinary(const byte_t * bytes, size_t len)
+void nx::KcBinary::fromBytes(const byte_t * data, size_t len)
 {
 	if ((len % sizeof(uint32_t)) != 0)
 	{
 		throw fnd::Exception(kModuleName, "KernelCapability list must be aligned to 4 bytes");
 	}
+
+	// save copy of KcBinary
+	mRawBinary.alloc(len);
+	memcpy(mRawBinary.data(), data, len);
 
 	fnd::List<KernelCapability> threadInfoCaps;
 	fnd::List<KernelCapability> systemCallCaps;
@@ -81,8 +83,8 @@ void nx::KcBinary::importBinary(const byte_t * bytes, size_t len)
 	fnd::List<KernelCapability> handleTableSizeCaps;
 	fnd::List<KernelCapability> miscFlagsCaps;
 
-	const uint32_t* raw_caps = (const uint32_t*)bytes;
-	size_t cap_num = len / sizeof(uint32_t);
+	const uint32_t* raw_caps = (const uint32_t*)mRawBinary.data();
+	size_t cap_num = mRawBinary.size() / sizeof(uint32_t);
 	KernelCapability cap;
 	for (size_t i = 0; i < cap_num; i++)
 	{
@@ -129,9 +131,14 @@ void nx::KcBinary::importBinary(const byte_t * bytes, size_t len)
 	mMiscFlags.importKernelCapabilityList(miscFlagsCaps);
 }
 
+const fnd::Vec<byte_t>& nx::KcBinary::getBytes() const
+{
+	return mRawBinary;
+}
+
 void nx::KcBinary::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mThreadInfo.clear();
 	mSystemCalls.clear();
 	mMemoryMap.clear();
@@ -220,28 +227,4 @@ const nx::MiscFlagsHandler & nx::KcBinary::getMiscFlags() const
 nx::MiscFlagsHandler & nx::KcBinary::getMiscFlags()
 {
 	return mMiscFlags;
-}
-
-bool nx::KcBinary::isEqual(const KcBinary & other) const
-{
-	return (mThreadInfo == other.mThreadInfo) \
-		&& (mSystemCalls == other.mSystemCalls) \
-		&& (mMemoryMap == other.mMemoryMap) \
-		&& (mInterupts == other.mInterupts) \
-		&& (mMiscParams == other.mMiscParams) \
-		&& (mKernelVersion == other.mKernelVersion) \
-		&& (mHandleTableSize == other.mHandleTableSize) \
-		&& (mMiscFlags == other.mMiscFlags);
-}
-
-void nx::KcBinary::copyFrom(const KcBinary & other)
-{
-	mThreadInfo = other.mThreadInfo;
-	mSystemCalls = other.mSystemCalls;
-	mMemoryMap = other.mMemoryMap;
-	mInterupts = other.mInterupts;
-	mMiscParams = other.mMiscParams;
-	mKernelVersion = other.mKernelVersion;
-	mHandleTableSize = other.mHandleTableSize;
-	mMiscFlags = other.mMiscFlags;
 }

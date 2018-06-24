@@ -1,14 +1,13 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/MemoryBlob.h>
-#include <fnd/ISerialiseableBinary.h>
+#include <fnd/ISerialisable.h>
 #include <nx/aci.h>
 
 namespace nx
 {
 	class AciHeader :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		enum AciType
@@ -42,19 +41,15 @@ namespace nx
 
 		AciHeader();
 		AciHeader(const AciHeader& other);
-		AciHeader(const byte_t* bytes, size_t len);
 
+		void operator=(const AciHeader& other);
 		bool operator==(const AciHeader& other) const;
 		bool operator!=(const AciHeader& other) const;
-		void operator=(const AciHeader& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		virtual void exportBinary();
-		virtual void importBinary(const byte_t* bytes, size_t len);
+		virtual void toBytes();
+		virtual void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		virtual void clear();
@@ -91,7 +86,7 @@ namespace nx
 		const std::string kModuleName = "ACI_HEADER";
 
 		// raw data
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// ACI variables
 		uint64_t mProgramId;
@@ -109,8 +104,6 @@ namespace nx
 		sSection mFac, mSac, mKc;
 
 		void calculateSectionOffsets();
-		bool isEqual(const AciHeader& other) const;
-		void copyFrom(const AciHeader& other);
 	};
 }
 

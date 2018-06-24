@@ -1,7 +1,5 @@
 #include <nx/NpdmHeader.h>
 
-
-
 nx::NpdmHeader::NpdmHeader()
 {
 	clear();
@@ -9,67 +7,18 @@ nx::NpdmHeader::NpdmHeader()
 
 nx::NpdmHeader::NpdmHeader(const NpdmHeader & other)
 {
-	copyFrom(other);
-}
-
-nx::NpdmHeader::NpdmHeader(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
-bool nx::NpdmHeader::operator==(const NpdmHeader & other) const
-{
-	return isEqual(other);
-}
-
-bool nx::NpdmHeader::operator!=(const NpdmHeader & other) const
-{
-	return isEqual(other);
+	*this = other;
 }
 
 void nx::NpdmHeader::operator=(const NpdmHeader & other)
 {
-	copyFrom(other);
-}
-
-const byte_t * nx::NpdmHeader::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t nx::NpdmHeader::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
-
-void nx::NpdmHeader::calculateOffsets()
-{
-	mAcidPos.offset = align(sizeof(sNpdmHeader), npdm::kNpdmAlignSize);
-	mAciPos.offset = mAcidPos.offset + align(mAcidPos.size, npdm::kNpdmAlignSize);
-}
-
-bool nx::NpdmHeader::isEqual(const NpdmHeader & other) const
-{
-	return (mInstructionType == other.mInstructionType) \
-		&& (mProcAddressSpaceType == other.mProcAddressSpaceType) \
-		&& (mMainThreadPriority == other.mMainThreadPriority) \
-		&& (mMainThreadCpuId == other.mMainThreadCpuId) \
-		&& (mVersion == other.mVersion) \
-		&& (mMainThreadStackSize == other.mMainThreadStackSize) \
-		&& (mName == other.mName) \
-		&& (mProductCode == other.mProductCode) \
-		&& (mAciPos == other.mAciPos) \
-		&& (mAcidPos == other.mAcidPos);
-}
-
-void nx::NpdmHeader::copyFrom(const NpdmHeader & other)
-{
-	if (other.getSize())
+	if (other.getBytes().size())
 	{
-		importBinary(other.getBytes(), other.getSize());
+		fromBytes(other.getBytes().data, other.getBytes().size());
 	}
 	else
 	{
+		clear();
 		mInstructionType = other.mInstructionType;
 		mProcAddressSpaceType = other.mProcAddressSpaceType;
 		mMainThreadPriority = other.mMainThreadPriority;
@@ -83,10 +32,29 @@ void nx::NpdmHeader::copyFrom(const NpdmHeader & other)
 	}
 }
 
-void nx::NpdmHeader::exportBinary()
+bool nx::NpdmHeader::operator==(const NpdmHeader & other) const
 {
-	mBinaryBlob.alloc(sizeof(sNpdmHeader));
-	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
+	return (mInstructionType == other.mInstructionType) \
+		&& (mProcAddressSpaceType == other.mProcAddressSpaceType) \
+		&& (mMainThreadPriority == other.mMainThreadPriority) \
+		&& (mMainThreadCpuId == other.mMainThreadCpuId) \
+		&& (mVersion == other.mVersion) \
+		&& (mMainThreadStackSize == other.mMainThreadStackSize) \
+		&& (mName == other.mName) \
+		&& (mProductCode == other.mProductCode) \
+		&& (mAciPos == other.mAciPos) \
+		&& (mAcidPos == other.mAcidPos);
+}
+
+bool nx::NpdmHeader::operator!=(const NpdmHeader & other) const
+{
+	return !(*this == other);
+}
+
+void nx::NpdmHeader::toBytes()
+{
+	mRawBinary.alloc(sizeof(sNpdmHeader));
+	sNpdmHeader* hdr = (sNpdmHeader*)mRawBinary.data();
 
 	hdr->signature = npdm::kNpdmStructSig;
 	byte_t flag = ((byte_t)(mInstructionType & 1) | (byte_t)((mProcAddressSpaceType & 3) << 1)) & 0xf;
@@ -105,7 +73,7 @@ void nx::NpdmHeader::exportBinary()
 	hdr->acid.size = (uint32_t)mAcidPos.size;
 }
 
-void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
+void nx::NpdmHeader::fromBytes(const byte_t* data, size_t len)
 {
 	if (len < sizeof(sNpdmHeader))
 	{
@@ -114,9 +82,9 @@ void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
 	
 	clear();
 
-	mBinaryBlob.alloc(sizeof(sNpdmHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
-	sNpdmHeader* hdr = (sNpdmHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sNpdmHeader));
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
+	sNpdmHeader* hdr = (sNpdmHeader*)mRawBinary.data();
 
 	if (hdr->signature.get() != npdm::kNpdmStructSig)
 	{
@@ -146,9 +114,14 @@ void nx::NpdmHeader::importBinary(const byte_t * bytes, size_t len)
 	mAcidPos.size = hdr->acid.size.get();
 }
 
+const fnd::Vec<byte_t>& nx::NpdmHeader::getBytes() const
+{
+	return mRawBinary;
+}
+
 void nx::NpdmHeader::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mInstructionType = npdm::INSTR_64BIT;
 	mProcAddressSpaceType = npdm::ADDR_SPACE_64BIT;
 	mMainThreadPriority = 0;
@@ -281,4 +254,10 @@ const nx::NpdmHeader::sSection & nx::NpdmHeader::getAcidPos() const
 void nx::NpdmHeader::setAcidSize(size_t size)
 {
 	mAcidPos.size = size;
+}
+
+void nx::NpdmHeader::calculateOffsets()
+{
+	mAcidPos.offset = align(sizeof(sNpdmHeader), npdm::kNpdmAlignSize);
+	mAciPos.offset = mAcidPos.offset + align(mAcidPos.size, npdm::kNpdmAlignSize);
 }

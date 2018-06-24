@@ -2,11 +2,61 @@
 
 using namespace nx;
 
-
-void NcaHeader::exportBinary()
+NcaHeader::NcaHeader()
 {
-	mBinaryBlob.alloc(sizeof(sNcaHeader));
-	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
+	clear();
+}
+
+NcaHeader::NcaHeader(const NcaHeader & other)
+{
+	*this = other;
+}
+
+bool NcaHeader::operator==(const NcaHeader & other) const
+{
+	return (mDistributionType == other.mDistributionType) \
+		&& (mContentType == other.mContentType) \
+		&& (mKeyGeneration == other.mKeyGeneration) \
+		&& (mKaekIndex == other.mKaekIndex) \
+		&& (mContentSize == other.mContentSize) \
+		&& (mProgramId == other.mProgramId) \
+		&& (mContentIndex == other.mContentIndex) \
+		&& (mSdkAddonVersion == other.mSdkAddonVersion) \
+		&& (mPartitions == other.mPartitions) \
+		&& (mEncAesKeys == other.mEncAesKeys);
+}
+
+bool NcaHeader::operator!=(const NcaHeader & other) const
+{
+	return !(*this == other);
+}
+
+void NcaHeader::operator=(const NcaHeader & other)
+{
+	if (other.getBytes().size())
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		mRawBinary.clear();
+		mDistributionType = other.mDistributionType;
+		mContentType = other.mContentType;
+		mKeyGeneration = other.mKeyGeneration;
+		mKaekIndex = other.mKaekIndex;
+		mContentSize = other.mContentSize;
+		mProgramId = other.mProgramId;
+		mContentIndex = other.mContentIndex;
+		mSdkAddonVersion = other.mSdkAddonVersion;
+		mPartitions = other.mPartitions;
+		mEncAesKeys = other.mEncAesKeys;
+	}
+}
+
+void NcaHeader::toBytes()
+{
+	mRawBinary.alloc(sizeof(sNcaHeader));
+	sNcaHeader* hdr = (sNcaHeader*)mRawBinary.data();
 
 	
 	switch(mFormatVersion)
@@ -41,7 +91,7 @@ void NcaHeader::exportBinary()
 	memcpy(hdr->rights_id, mRightsId, nca::kRightsIdLen);
 
 	// TODO: properly reconstruct NCA layout? atm in hands of user
-	for (size_t i = 0; i < mPartitions.getSize(); i++)
+	for (size_t i = 0; i < mPartitions.size(); i++)
 	{
 		// determine partition index
 		byte_t idx = mPartitions[i].index;
@@ -60,7 +110,7 @@ void NcaHeader::exportBinary()
 	}
 }
 
-void NcaHeader::importBinary(const byte_t * bytes, size_t len)
+void NcaHeader::fromBytes(const byte_t * data, size_t len)
 {
 	if (len < sizeof(sNcaHeader))
 	{
@@ -69,10 +119,10 @@ void NcaHeader::importBinary(const byte_t * bytes, size_t len)
 
 	clear();
 
-	mBinaryBlob.alloc(sizeof(sNcaHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, sizeof(sNcaHeader));
+	mRawBinary.alloc(sizeof(sNcaHeader));
+	memcpy(mRawBinary.data(), data, sizeof(sNcaHeader));
 
-	sNcaHeader* hdr = (sNcaHeader*)mBinaryBlob.getBytes();
+	sNcaHeader* hdr = (sNcaHeader*)mRawBinary.data();
 
 	switch(hdr->signature.get())
 	{
@@ -108,6 +158,11 @@ void NcaHeader::importBinary(const byte_t * bytes, size_t len)
 	{
 		mEncAesKeys.addElement(hdr->enc_aes_key[i]);
 	}
+}
+
+const fnd::Vec<byte_t>& NcaHeader::getBytes() const
+{
+	return mRawBinary;
 }
 
 void nx::NcaHeader::clear()
@@ -247,7 +302,7 @@ const fnd::List<NcaHeader::sPartition>& NcaHeader::getPartitions() const
 void NcaHeader::setPartitions(const fnd::List<NcaHeader::sPartition>& partitions)
 {
 	mPartitions = partitions;
-	if (mPartitions.getSize() >= nca::kPartitionNum)
+	if (mPartitions.size() >= nca::kPartitionNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many NCA partitions");
 	}
@@ -271,80 +326,4 @@ uint64_t NcaHeader::blockNumToSize(uint32_t block_num) const
 uint32_t NcaHeader::sizeToBlockNum(uint64_t real_size) const
 {
 	return (uint32_t)(align(real_size, nca::kSectorSize) / nca::kSectorSize);
-}
-
-bool NcaHeader::isEqual(const NcaHeader & other) const
-{
-	return (mDistributionType == other.mDistributionType) \
-		&& (mContentType == other.mContentType) \
-		&& (mKeyGeneration == other.mKeyGeneration) \
-		&& (mKaekIndex == other.mKaekIndex) \
-		&& (mContentSize == other.mContentSize) \
-		&& (mProgramId == other.mProgramId) \
-		&& (mContentIndex == other.mContentIndex) \
-		&& (mSdkAddonVersion == other.mSdkAddonVersion) \
-		&& (mPartitions == other.mPartitions) \
-		&& (mEncAesKeys == other.mEncAesKeys);
-}
-
-void NcaHeader::copyFrom(const NcaHeader & other)
-{
-	if (other.getSize())
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		mBinaryBlob.clear();
-		mDistributionType = other.mDistributionType;
-		mContentType = other.mContentType;
-		mKeyGeneration = other.mKeyGeneration;
-		mKaekIndex = other.mKaekIndex;
-		mContentSize = other.mContentSize;
-		mProgramId = other.mProgramId;
-		mContentIndex = other.mContentIndex;
-		mSdkAddonVersion = other.mSdkAddonVersion;
-		mPartitions = other.mPartitions;
-		mEncAesKeys = other.mEncAesKeys;
-	}
-}
-
-NcaHeader::NcaHeader()
-{
-	clear();
-}
-
-NcaHeader::NcaHeader(const NcaHeader & other)
-{
-	copyFrom(other);
-}
-
-NcaHeader::NcaHeader(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
-bool NcaHeader::operator==(const NcaHeader & other) const
-{
-	return isEqual(other);
-}
-
-bool NcaHeader::operator!=(const NcaHeader & other) const
-{
-	return !isEqual(other);
-}
-
-void NcaHeader::operator=(const NcaHeader & other)
-{
-	this->importBinary(other.getBytes(), other.getSize());
-}
-
-const byte_t * NcaHeader::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t NcaHeader::getSize() const
-{
-	return mBinaryBlob.getSize();
 }

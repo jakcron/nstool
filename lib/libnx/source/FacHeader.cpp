@@ -1,7 +1,5 @@
 #include <nx/FacHeader.h>
 
-
-
 nx::FacHeader::FacHeader() :
 	mFsaRights()
 {
@@ -11,55 +9,55 @@ nx::FacHeader::FacHeader() :
 nx::FacHeader::FacHeader(const FacHeader & other) :
 	mFsaRights()
 {
-	copyFrom(other);
-}
-
-nx::FacHeader::FacHeader(const byte_t * bytes, size_t len) :
-	mFsaRights()
-{
-	importBinary(bytes, len);
-}
-
-bool nx::FacHeader::operator==(const FacHeader & other) const
-{
-	return isEqual(other);
-}
-
-bool nx::FacHeader::operator!=(const FacHeader & other) const
-{
-	return !isEqual(other);
+	*this = other;
 }
 
 void nx::FacHeader::operator=(const FacHeader & other)
 {
-	copyFrom(other);
+	if (other.getBytes().size())
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		clear();
+		mFsaRights = other.mFsaRights;
+		mContentOwnerIdPos.offset = other.mContentOwnerIdPos.offset;
+		mContentOwnerIdPos.size = other.mContentOwnerIdPos.size;
+		mSaveDataOwnerIdPos.offset = other.mSaveDataOwnerIdPos.offset;
+		mSaveDataOwnerIdPos.size = other.mSaveDataOwnerIdPos.size;
+	}
 }
 
-const byte_t * nx::FacHeader::getBytes() const
+bool nx::FacHeader::operator==(const FacHeader & other) const
 {
-	return mBinaryBlob.getBytes();
+	return (mFsaRights == other.mFsaRights) \
+		&& (mContentOwnerIdPos.offset == other.mContentOwnerIdPos.offset) \
+		&& (mContentOwnerIdPos.size == other.mContentOwnerIdPos.size) \
+		&& (mSaveDataOwnerIdPos.offset == other.mSaveDataOwnerIdPos.offset) \
+		&& (mSaveDataOwnerIdPos.size == other.mSaveDataOwnerIdPos.size);
 }
 
-size_t nx::FacHeader::getSize() const
+bool nx::FacHeader::operator!=(const FacHeader & other) const
 {
-	return mBinaryBlob.getSize();
+	return !(*this == other);
 }
 
-void nx::FacHeader::exportBinary()
+void nx::FacHeader::toBytes()
 {
-	mBinaryBlob.alloc(sizeof(sFacHeader));
-	sFacHeader* hdr = (sFacHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sFacHeader));
+	sFacHeader* hdr = (sFacHeader*)mRawBinary.data();
 
-	if (mVersion != kFacFormatVersion)
+	if (mVersion != fac::kFacFormatVersion)
 	{
 		fnd::Exception(kModuleName, "Unsupported format version");
 	}
 	hdr->version = (mVersion);
 
 	uint64_t flag = 0;
-	for (size_t i = 0; i < mFsaRights.getSize(); i++)
+	for (size_t i = 0; i < mFsaRights.size(); i++)
 	{
-		flag |= BIT((uint64_t)mFsaRights[i]);
+		flag |= _BIT((uint64_t)mFsaRights[i]);
 	}
 	hdr->fac_flags = (flag);
 
@@ -70,18 +68,18 @@ void nx::FacHeader::exportBinary()
 	hdr->save_data_owner_ids.end = (uint32_t)(mSaveDataOwnerIdPos.offset + mSaveDataOwnerIdPos.size);
 }
 
-void nx::FacHeader::importBinary(const byte_t * bytes, size_t len)
+void nx::FacHeader::fromBytes(const byte_t* data, size_t len)
 {
 	if (len < sizeof(sFacHeader))
 	{
 		throw fnd::Exception(kModuleName, "FAC header too small");
 	}
 	
-	mBinaryBlob.alloc(sizeof(sFacHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
-	sFacHeader* hdr = (sFacHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sFacHeader));
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
+	sFacHeader* hdr = (sFacHeader*)mRawBinary.data();
 
-	if (hdr->version.get() != kFacFormatVersion)
+	if (hdr->version.get() != fac::kFacFormatVersion)
 	{
 		throw fnd::Exception(kModuleName, "Unsupported FAC format version");
 	}
@@ -90,15 +88,20 @@ void nx::FacHeader::importBinary(const byte_t * bytes, size_t len)
 	clear();
 	for (uint64_t i = 0; i < 64; i++)
 	{
-		if ((hdr->fac_flags.get() >> i) & 1)
+		if (_HAS_BIT(hdr->fac_flags.get(), i))
 		{
-			mFsaRights.addElement((FsAccessFlag)i);
+			mFsaRights.addElement((fac::FsAccessFlag)i);
 		}
 	}
 	mContentOwnerIdPos.offset = hdr->content_owner_ids.start.get();
 	mContentOwnerIdPos.size = hdr->content_owner_ids.end.get() > hdr->content_owner_ids.start.get() ? hdr->content_owner_ids.end.get() - hdr->content_owner_ids.start.get() : 0;
 	mSaveDataOwnerIdPos.offset = hdr->save_data_owner_ids.start.get();
 	mSaveDataOwnerIdPos.size = hdr->save_data_owner_ids.end.get() > hdr->save_data_owner_ids.start.get() ? hdr->save_data_owner_ids.end.get() - hdr->save_data_owner_ids.start.get() : 0;
+}
+
+const fnd::Vec<byte_t>& nx::FacHeader::getBytes() const
+{
+	return mRawBinary;
 }
 
 void nx::FacHeader::clear()
@@ -112,9 +115,9 @@ void nx::FacHeader::clear()
 
 size_t nx::FacHeader::getFacSize() const
 {
-	size_t savedata = getSaveDataOwnerIdOffset() + getSaveDataOwnerIdSize();
-	size_t content = getContentOwnerIdOffset() + getContentOwnerIdSize();
-	return MAX(MAX(savedata, content), sizeof(sFacHeader));
+	size_t savedata = mSaveDataOwnerIdPos.offset + mSaveDataOwnerIdPos.size;
+	size_t content = mContentOwnerIdPos.offset + mContentOwnerIdPos.size;
+	return _MAX(_MAX(savedata, content), sizeof(sFacHeader));
 }
 
 uint32_t nx::FacHeader::getFormatVersion() const
@@ -127,28 +130,23 @@ void nx::FacHeader::setFormatVersion(uint32_t version)
 	mVersion = version;
 }
 
-const fnd::List<nx::FacHeader::FsAccessFlag>& nx::FacHeader::getFsaRightsList() const
+const fnd::List<nx::fac::FsAccessFlag>& nx::FacHeader::getFsaRightsList() const
 {
 	return mFsaRights;
 }
 
-void nx::FacHeader::setFsaRightsList(const fnd::List<FsAccessFlag>& list)
+void nx::FacHeader::setFsaRightsList(const fnd::List<fac::FsAccessFlag>& list)
 {
 	mFsaRights.clear();
-	for (size_t i = 0; i < list.getSize(); i++)
+	for (size_t i = 0; i < list.size(); i++)
 	{
 		mFsaRights.hasElement(list[i]) ? mFsaRights.addElement(list[i]) : throw fnd::Exception(kModuleName, "FSA right already exists");
 	}
 }
 
-size_t nx::FacHeader::getContentOwnerIdOffset() const
+const nx::FacHeader::sSection& nx::FacHeader::getContentOwnerIdPos() const
 {
-	return mContentOwnerIdPos.offset;
-}
-
-size_t nx::FacHeader::getContentOwnerIdSize() const
-{
-	return mContentOwnerIdPos.size;
+	return mContentOwnerIdPos;
 }
 
 void nx::FacHeader::setContentOwnerIdSize(size_t size)
@@ -156,14 +154,9 @@ void nx::FacHeader::setContentOwnerIdSize(size_t size)
 	mContentOwnerIdPos.size = size;
 }
 
-size_t nx::FacHeader::getSaveDataOwnerIdOffset() const
+const nx::FacHeader::sSection& nx::FacHeader::getSaveDataOwnerIdPos() const
 {
-	return mSaveDataOwnerIdPos.offset;
-}
-
-size_t nx::FacHeader::getSaveDataOwnerIdSize() const
-{
-	return mSaveDataOwnerIdPos.size;
+	return mSaveDataOwnerIdPos;
 }
 
 void nx::FacHeader::setSaveDataOwnerIdSize(size_t size)
@@ -175,30 +168,4 @@ void nx::FacHeader::calculateOffsets()
 {
 	mContentOwnerIdPos.offset = align(sizeof(sFacHeader), 4);
 	mSaveDataOwnerIdPos.offset = mContentOwnerIdPos.offset + align(mContentOwnerIdPos.size, 4);
-}
-
-bool nx::FacHeader::isEqual(const FacHeader & other) const
-{
-	return (mFsaRights == other.mFsaRights) \
-		&& (mContentOwnerIdPos.offset == other.mContentOwnerIdPos.offset) \
-		&& (mContentOwnerIdPos.size == other.mContentOwnerIdPos.size) \
-		&& (mSaveDataOwnerIdPos.offset == other.mSaveDataOwnerIdPos.offset) \
-		&& (mSaveDataOwnerIdPos.size == other.mSaveDataOwnerIdPos.size);
-}
-
-void nx::FacHeader::copyFrom(const FacHeader & other)
-{
-	if (other.getSize())
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		mBinaryBlob.clear();
-		mFsaRights = other.mFsaRights;
-		mContentOwnerIdPos.offset = other.mContentOwnerIdPos.offset;
-		mContentOwnerIdPos.size = other.mContentOwnerIdPos.size;
-		mSaveDataOwnerIdPos.offset = other.mSaveDataOwnerIdPos.offset;
-		mSaveDataOwnerIdPos.size = other.mSaveDataOwnerIdPos.size;
-	}
 }

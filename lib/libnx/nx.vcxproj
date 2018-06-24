@@ -29,6 +29,7 @@
     <ClInclude Include="include\nx\cnmt.h" />
     <ClInclude Include="include\nx\ContentMetaBinary.h" />
     <ClInclude Include="include\nx\elf.h" />
+    <ClInclude Include="include\nx\fac.h" />
     <ClInclude Include="include\nx\FacBinary.h" />
     <ClInclude Include="include\nx\FacHeader.h" />
     <ClInclude Include="include\nx\HandleTableSizeEntry.h" />

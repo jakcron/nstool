@@ -1,14 +1,13 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/MemoryBlob.h>
-#include <fnd/ISerialiseableBinary.h>
+#include <fnd/ISerialisable.h>
 #include <nx/npdm.h>
 
 namespace nx
 {
 	class NpdmHeader :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		struct sSection
@@ -36,19 +35,15 @@ namespace nx
 
 		NpdmHeader();
 		NpdmHeader(const NpdmHeader& other);
-		NpdmHeader(const byte_t* bytes, size_t len);
 
+		void operator=(const NpdmHeader& other);
 		bool operator==(const NpdmHeader& other) const;
 		bool operator!=(const NpdmHeader& other) const;
-		void operator=(const NpdmHeader& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -87,7 +82,7 @@ namespace nx
 		const std::string kModuleName = "NPDM_HEADER";
 		
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		npdm::InstructionType mInstructionType;
@@ -102,8 +97,6 @@ namespace nx
 		sSection mAcidPos;
 
 		void calculateOffsets();
-		bool isEqual(const NpdmHeader& other) const;
-		void copyFrom(const NpdmHeader& other);
 	};
 }
 

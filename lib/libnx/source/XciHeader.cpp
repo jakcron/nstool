@@ -1,39 +1,16 @@
 #include <nx/XciHeader.h>
 
-bool nx::XciHeader::isEqual(const XciHeader& other) const
+nx::XciHeader::XciHeader()
 {
-	return	(  mRomAreaStartPage == other.mRomAreaStartPage \
-			&& mBackupAreaStartPage == other.mBackupAreaStartPage \
-			&& mKekIndex == other.mKekIndex \
-			&& mTitleKeyDecIndex == other.mTitleKeyDecIndex \
-			&& mRomSize == other.mRomSize \
-			&& mCardHeaderVersion == other.mCardHeaderVersion \
-			&& mFlags == other.mFlags \
-			&& mPackageId == other.mPackageId \
-			&& mValidDataEndPage == other.mValidDataEndPage \
-			&& mAesCbcIv == other.mAesCbcIv \
-			&& mPartitionFsHeaderAddress == other.mPartitionFsHeaderAddress \
-			&& mPartitionFsHeaderSize == other.mPartitionFsHeaderSize \
-			&& mPartitionFsHeaderHash == other.mPartitionFsHeaderHash \
-			&& mInitialDataHash == other.mInitialDataHash \
-			&& mSelSec == other.mSelSec \
-			&& mSelT1Key == other.mSelT1Key \
-			&& mSelKey == other.mSelKey \
-			&& mLimAreaPage == other.mLimAreaPage \
-			&& mFwVersion[0] == other.mFwVersion[0] \
-			&& mFwVersion[1] == other.mFwVersion[1] \
-			&& mAccCtrl1 == other.mAccCtrl1 \
-			&& mWait1TimeRead == other.mWait1TimeRead \
-			&& mWait2TimeRead == other.mWait2TimeRead \
-			&& mWait1TimeWrite == other.mWait1TimeWrite \
-			&& mWait2TimeWrite == other.mWait2TimeWrite \
-			&& mFwMode == other.mFwMode \
-			&& mUppVersion == other.mUppVersion \
-			&& memcmp(mUppHash, other.mUppHash, xci::kUppHashLen) \
-			&& mUppId == other.mUppId );
+	clear();
 }
 
-void nx::XciHeader::copyFrom(const XciHeader& other)
+nx::XciHeader::XciHeader(const XciHeader& other)
+{
+	*this = other;
+}
+
+void nx::XciHeader::operator=(const XciHeader& other)
 {
 	mRomAreaStartPage = other.mRomAreaStartPage;
 	mBackupAreaStartPage = other.mBackupAreaStartPage;
@@ -66,51 +43,50 @@ void nx::XciHeader::copyFrom(const XciHeader& other)
 	mUppId = other.mUppId;
 }
 
-nx::XciHeader::XciHeader()
-{
-
-}
-
-nx::XciHeader::XciHeader(const XciHeader& other)
-{
-	importBinary(other.getBytes(), other.getSize());
-}
-nx::XciHeader::XciHeader(const byte_t* bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
 bool nx::XciHeader::operator==(const XciHeader& other) const
 {
-	return isEqual(other);
+	return	(mRomAreaStartPage == other.mRomAreaStartPage \
+		&& mBackupAreaStartPage == other.mBackupAreaStartPage \
+		&& mKekIndex == other.mKekIndex \
+		&& mTitleKeyDecIndex == other.mTitleKeyDecIndex \
+		&& mRomSize == other.mRomSize \
+		&& mCardHeaderVersion == other.mCardHeaderVersion \
+		&& mFlags == other.mFlags \
+		&& mPackageId == other.mPackageId \
+		&& mValidDataEndPage == other.mValidDataEndPage \
+		&& mAesCbcIv == other.mAesCbcIv \
+		&& mPartitionFsHeaderAddress == other.mPartitionFsHeaderAddress \
+		&& mPartitionFsHeaderSize == other.mPartitionFsHeaderSize \
+		&& mPartitionFsHeaderHash == other.mPartitionFsHeaderHash \
+		&& mInitialDataHash == other.mInitialDataHash \
+		&& mSelSec == other.mSelSec \
+		&& mSelT1Key == other.mSelT1Key \
+		&& mSelKey == other.mSelKey \
+		&& mLimAreaPage == other.mLimAreaPage \
+		&& mFwVersion[0] == other.mFwVersion[0] \
+		&& mFwVersion[1] == other.mFwVersion[1] \
+		&& mAccCtrl1 == other.mAccCtrl1 \
+		&& mWait1TimeRead == other.mWait1TimeRead \
+		&& mWait2TimeRead == other.mWait2TimeRead \
+		&& mWait1TimeWrite == other.mWait1TimeWrite \
+		&& mWait2TimeWrite == other.mWait2TimeWrite \
+		&& mFwMode == other.mFwMode \
+		&& mUppVersion == other.mUppVersion \
+		&& memcmp(mUppHash, other.mUppHash, xci::kUppHashLen) \
+		&& mUppId == other.mUppId);
 }
+
 bool nx::XciHeader::operator!=(const XciHeader& other) const
 {
-	return isEqual(other) ==  false;
-}
-void nx::XciHeader::operator=(const XciHeader& other)
-{
-	copyFrom(other);
+	return !(*this == other);
 }
 
-// to be used after export
-const byte_t* nx::XciHeader::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t nx::XciHeader::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
-
-// export/import binary
-void nx::XciHeader::exportBinary()
+void nx::XciHeader::toBytes()
 {
 	fnd::Exception(kModuleName, "exportBinary() not implemented");
 }
 
-void nx::XciHeader::importBinary(const byte_t* bytes, size_t len)
+void nx::XciHeader::fromBytes(const byte_t* data, size_t len)
 {
 	// check input data size
 	if (len < sizeof(sXciHeader))
@@ -122,11 +98,11 @@ void nx::XciHeader::importBinary(const byte_t* bytes, size_t len)
 	clear();
 
 	// allocate internal local binary copy
-	mBinaryBlob.alloc(sizeof(sXciHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(sizeof(sXciHeader));
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// get sXciHeader ptr
-	const nx::sXciHeader* hdr = (const nx::sXciHeader*)mBinaryBlob.getBytes();
+	const nx::sXciHeader* hdr = (const nx::sXciHeader*)mRawBinary.data();
 	
 	// check XCI signature
 	if (hdr->signature.get() != xci::kXciSig)
@@ -170,6 +146,11 @@ void nx::XciHeader::importBinary(const byte_t* bytes, size_t len)
 		mUppId = hdr->upp_id.get();
 	}
 
+}
+
+const fnd::Vec<byte_t>& nx::XciHeader::getBytes() const
+{
+	return mRawBinary;
 }
 
 // variables

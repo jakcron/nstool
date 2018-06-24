@@ -2,33 +2,21 @@
 
 using namespace nx;
 
-void AciHeader::calculateSectionOffsets()
+AciHeader::AciHeader()
 {
-	mFac.offset = align(mHeaderOffset, aci::kAciAlignSize) + align(sizeof(sAciHeader), aci::kAciAlignSize);
-	mSac.offset = mFac.offset + align(mFac.size, aci::kAciAlignSize);
-	mKc.offset = mSac.offset + align(mSac.size, aci::kAciAlignSize);
+	clear();
 }
 
-bool AciHeader::isEqual(const AciHeader & other) const
+AciHeader::AciHeader(const AciHeader & other)
 {
-	return (mHeaderOffset == other.mHeaderOffset) \
-		&& (mType == other.mType) \
-		&& (mIsProduction == other.mIsProduction) \
-		&& (mIsUnqualifiedApproval == other.mIsUnqualifiedApproval) \
-		&& (mAcidSize == other.mAcidSize) \
-		&& (mProgramIdMin == other.mProgramIdMin) \
-		&& (mProgramIdMax == other.mProgramIdMax) \
-		&& (mProgramId == other.mProgramId) \
-		&& (mFac == other.mFac) \
-		&& (mSac == other.mSac) \
-		&& (mKc == other.mKc);
+	*this = other;
 }
 
-void AciHeader::copyFrom(const AciHeader & other)
+void AciHeader::operator=(const AciHeader & other)
 {
-	if (other.getSize())
+	if (other.getBytes().size())
 	{
-		importBinary(other.getBytes(), other.getSize());
+		fromBytes(other.getBytes().data(), other.getBytes().size());
 	}
 	else
 	{
@@ -46,50 +34,30 @@ void AciHeader::copyFrom(const AciHeader & other)
 	}
 }
 
-AciHeader::AciHeader()
-{
-	clear();
-}
-
-AciHeader::AciHeader(const AciHeader & other)
-{
-	importBinary(other.getBytes(), other.getSize());
-}
-
-AciHeader::AciHeader(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
 bool AciHeader::operator==(const AciHeader & other) const
 {
-	return isEqual(other);
+	return (mHeaderOffset == other.mHeaderOffset) \
+		&& (mType == other.mType) \
+		&& (mIsProduction == other.mIsProduction) \
+		&& (mIsUnqualifiedApproval == other.mIsUnqualifiedApproval) \
+		&& (mAcidSize == other.mAcidSize) \
+		&& (mProgramIdMin == other.mProgramIdMin) \
+		&& (mProgramIdMax == other.mProgramIdMax) \
+		&& (mProgramId == other.mProgramId) \
+		&& (mFac == other.mFac) \
+		&& (mSac == other.mSac) \
+		&& (mKc == other.mKc);
 }
 
 bool AciHeader::operator!=(const AciHeader & other) const
 {
-	return !isEqual(other);
+	return !(*this == other);
 }
 
-void AciHeader::operator=(const AciHeader & other)
+void AciHeader::toBytes()
 {
-	this->importBinary(other.getBytes(), other.getSize());
-}
-
-const byte_t * AciHeader::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t AciHeader::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
-
-void AciHeader::exportBinary()
-{
-	mBinaryBlob.alloc(sizeof(sAciHeader));
-	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sAciHeader));
+	sAciHeader* hdr = (sAciHeader*)mRawBinary.data();
 
 	// set type
 	switch (mType)
@@ -135,7 +103,7 @@ void AciHeader::exportBinary()
 	}
 }
 
-void AciHeader::importBinary(const byte_t * bytes, size_t len)
+void AciHeader::fromBytes(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sAciHeader))
 	{
@@ -144,10 +112,10 @@ void AciHeader::importBinary(const byte_t * bytes, size_t len)
 	
 	clear();
 
-	mBinaryBlob.alloc(sizeof(sAciHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, sizeof(sAciHeader));
+	mRawBinary.alloc(sizeof(sAciHeader));
+	memcpy(mRawBinary.data(), bytes, sizeof(sAciHeader));
 
-	sAciHeader* hdr = (sAciHeader*)mBinaryBlob.getBytes();
+	sAciHeader* hdr = (sAciHeader*)mRawBinary.data();
 
 	switch (hdr->signature.get())
 	{
@@ -192,9 +160,14 @@ void AciHeader::importBinary(const byte_t * bytes, size_t len)
 	mKc.size = hdr->kc.size.get();
 }
 
+const fnd::Vec<byte_t>& AciHeader::getBytes() const
+{
+	return mRawBinary;
+}
+
 void nx::AciHeader::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mHeaderOffset = 0;
 	mType = TYPE_ACI0;
 	mProgramId = 0;
@@ -321,4 +294,11 @@ const AciHeader::sSection & AciHeader::getKcPos() const
 void AciHeader::setKcSize(size_t size)
 {
 	mKc.size = size;
+}
+
+void AciHeader::calculateSectionOffsets()
+{
+	mFac.offset = align(mHeaderOffset, aci::kAciAlignSize) + align(sizeof(sAciHeader), aci::kAciAlignSize);
+	mSac.offset = mFac.offset + align(mFac.size, aci::kAciAlignSize);
+	mKc.offset = mSac.offset + align(mSac.size, aci::kAciAlignSize);
 }
