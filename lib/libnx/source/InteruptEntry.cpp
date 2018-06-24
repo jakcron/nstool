@@ -1,7 +1,5 @@
 #include <nx/InteruptEntry.h>
 
-
-
 nx::InteruptEntry::InteruptEntry() :
 	mCap(kCapId),
 	mInterupt{0,0}
@@ -22,6 +20,24 @@ nx::InteruptEntry::InteruptEntry(uint32_t interupt0, uint32_t interupt1) :
 {
 	setInterupt(0, interupt0);
 	setInterupt(1, interupt1);
+}
+
+void nx::InteruptEntry::operator=(const InteruptEntry& other)
+{
+	mInterupt[0] = other.mInterupt[0];
+	mInterupt[1] = other.mInterupt[1];
+	updateCapField();
+}
+
+bool nx::InteruptEntry::operator==(const InteruptEntry& other) const
+{
+	return (mInterupt[0] == other.mInterupt[0]) \
+		&& (mInterupt[1] == other.mInterupt[1]);
+}
+
+bool nx::InteruptEntry::operator!=(const InteruptEntry& other) const
+{
+	return !(*this == other);
 }
 
 const nx::KernelCapability & nx::InteruptEntry::getKernelCapability() const

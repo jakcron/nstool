@@ -75,6 +75,9 @@ void nx::FacHeader::fromBytes(const byte_t* data, size_t len)
 		throw fnd::Exception(kModuleName, "FAC header too small");
 	}
 	
+	// clear internal members
+	clear();
+
 	mRawBinary.alloc(sizeof(sFacHeader));
 	memcpy(mRawBinary.data(), data, mRawBinary.size());
 	sFacHeader* hdr = (sFacHeader*)mRawBinary.data();
@@ -85,7 +88,6 @@ void nx::FacHeader::fromBytes(const byte_t* data, size_t len)
 	}
 	mVersion = hdr->version.get();
 
-	clear();
 	for (uint64_t i = 0; i < 64; i++)
 	{
 		if (_HAS_BIT(hdr->fac_flags.get(), i))

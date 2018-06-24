@@ -1,13 +1,12 @@
 #pragma once
 #include <nx/nca.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
 	class NcaHeader : 
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		enum FormatVersion

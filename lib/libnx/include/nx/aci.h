@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include <fnd/types.h>
 #include <nx/macro.h>
 

@@ -11,9 +11,9 @@ namespace nx
 
 		SystemCallHandler();
 
+		void operator=(const SystemCallHandler& other);
 		bool operator==(const SystemCallHandler& other) const;
 		bool operator!=(const SystemCallHandler& other) const;
-		void operator=(const SystemCallHandler& other);
 
 		// kernel capabilty list in/out
 		void importKernelCapabilityList(const fnd::List<KernelCapability>& caps);
@@ -31,9 +31,6 @@ namespace nx
 
 		bool mIsSet;
 		fnd::List<uint8_t> mSystemCalls;
-
-		void copyFrom(const SystemCallHandler& other);
-		bool isEqual(const SystemCallHandler& other) const;
 	};
 
 }

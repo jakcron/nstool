@@ -25,7 +25,7 @@ PfsProcess::~PfsProcess()
 
 void PfsProcess::process()
 {
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 
 	if (mFile == nullptr)
 	{
@@ -34,17 +34,17 @@ void PfsProcess::process()
 	
 	// open minimum header to get full header size
 	scratch.alloc(sizeof(nx::sPfsHeader));
-	mFile->read(scratch.getBytes(), 0, scratch.getSize());
-	if (validateHeaderMagic(((nx::sPfsHeader*)scratch.getBytes())) == false)
+	mFile->read(scratch.data(), 0, scratch.size());
+	if (validateHeaderMagic(((nx::sPfsHeader*)scratch.data())) == false)
 	{
 		throw fnd::Exception(kModuleName, "Corrupt Header");
 	}
-	size_t pfsHeaderSize = determineHeaderSize(((nx::sPfsHeader*)scratch.getBytes()));
+	size_t pfsHeaderSize = determineHeaderSize(((nx::sPfsHeader*)scratch.data()));
 	
 	// open minimum header to get full header size
 	scratch.alloc(pfsHeaderSize);
-	mFile->read(scratch.getBytes(), 0, scratch.getSize());
-	mPfs.importBinary(scratch.getBytes(), scratch.getSize());
+	mFile->read(scratch.data(), 0, scratch.size());
+	mPfs.fromBytes(scratch.data(), scratch.size());
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 	{
@@ -99,14 +99,14 @@ void PfsProcess::displayHeader()
 {
 	printf("[PartitionFS]\n");
 	printf("  Type:        %s\n", mPfs.getFsType() == mPfs.TYPE_PFS0? "PFS0" : "HFS0");
-	printf("  FileNum:     %" PRId64 "\n", (uint64_t)mPfs.getFileList().getSize());
+	printf("  FileNum:     %" PRId64 "\n", (uint64_t)mPfs.getFileList().size());
 	if (mMountName.empty() == false)	
 		printf("  MountPoint:  %s%s\n", mMountName.c_str(), mMountName.at(mMountName.length()-1) != '/' ? "/" : "");
 }
 
 void PfsProcess::displayFs()
 {	
-	for (size_t i = 0; i < mPfs.getFileList().getSize(); i++)
+	for (size_t i = 0; i < mPfs.getFileList().size(); i++)
 	{
 		printf("    %s", mPfs.getFileList()[i].name.c_str());
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
@@ -144,11 +144,11 @@ void PfsProcess::validateHfs()
 {
 	crypto::sha::sSha256Hash hash;
 	const fnd::List<nx::PfsHeader::sFile>& file = mPfs.getFileList();
-	for (size_t i = 0; i < file.getSize(); i++)
+	for (size_t i = 0; i < file.size(); i++)
 	{
 		mCache.alloc(file[i].hash_protected_size);
-		mFile->read(mCache.getBytes(), file[i].offset, file[i].hash_protected_size);
-		crypto::sha::Sha256(mCache.getBytes(), file[i].hash_protected_size, hash.bytes);
+		mFile->read(mCache.data(), file[i].offset, file[i].hash_protected_size);
+		crypto::sha::Sha256(mCache.data(), file[i].hash_protected_size, hash.bytes);
 		if (hash != file[i].hash)
 		{
 			printf("[WARNING] HFS0 %s%s%s: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", file[i].name.c_str());
@@ -168,7 +168,7 @@ void PfsProcess::extractFs()
 	const fnd::List<nx::PfsHeader::sFile>& file = mPfs.getFileList();
 
 	std::string file_path;
-	for (size_t i = 0; i < file.getSize(); i++)
+	for (size_t i = 0; i < file.size(); i++)
 	{
 		file_path.clear();
 		fnd::io::appendToPath(file_path, mExtractPath);
@@ -181,8 +181,8 @@ void PfsProcess::extractFs()
 		mFile->seek(file[i].offset);
 		for (size_t j = 0; j < ((file[i].size / kCacheSize) + ((file[i].size % kCacheSize) != 0)); j++)
 		{
-			mFile->read(mCache.getBytes(), MIN(file[i].size - (kCacheSize * j),kCacheSize));
-			outFile.write(mCache.getBytes(), MIN(file[i].size - (kCacheSize * j),kCacheSize));
+			mFile->read(mCache.data(), _MIN(file[i].size - (kCacheSize * j),kCacheSize));
+			outFile.write(mCache.data(), _MIN(file[i].size - (kCacheSize * j),kCacheSize));
 		}		
 		outFile.close();
 	}

@@ -9,79 +9,47 @@ HashTreeMeta::HashTreeMeta() :
 
 }
 
-HashTreeMeta::HashTreeMeta(const nx::HierarchicalIntegrityHeader& hdr) :
-	mLayerInfo(),
-	mDataLayer(),
-	mMasterHashList(),
-	mDoAlignHashToBlock(false)
+HashTreeMeta::HashTreeMeta(const byte_t* data, size_t len, HashTreeType type) :
+	HashTreeMeta()
 {
-	importHierarchicalIntergityHeader(hdr);
-}
-
-HashTreeMeta::HashTreeMeta(const nx::HierarchicalSha256Header& hdr) :
-	mLayerInfo(),
-	mDataLayer(),
-	mMasterHashList(),
-	mDoAlignHashToBlock(false)
-{
-	importHierarchicalSha256Header(hdr);
-}
-
-bool HashTreeMeta::operator==(const HashTreeMeta& other) const
-{
-	return isEqual(other);
-}
-
-bool HashTreeMeta::operator!=(const HashTreeMeta& other) const
-{
-	return !isEqual(other);
+	importData(data, len, type);
 }
 
 void HashTreeMeta::operator=(const HashTreeMeta& other)
 {
-	copyFrom(other);
+	mLayerInfo = other.mLayerInfo;
+	mDataLayer = other.mDataLayer;
+	mMasterHashList = other.mMasterHashList;
+	mDoAlignHashToBlock = other.mDoAlignHashToBlock;
 }
 
-void HashTreeMeta::importHierarchicalIntergityHeader(const nx::HierarchicalIntegrityHeader& hdr)
+bool HashTreeMeta::operator==(const HashTreeMeta& other) const
 {
-	mDoAlignHashToBlock = true;
-	for (size_t i = 0; i < hdr.getLayerInfo().getSize(); i++)
-	{
-		sLayer layer;
-		layer.offset = hdr.getLayerInfo()[i].offset;
-		layer.size = hdr.getLayerInfo()[i].size;
-		layer.block_size = _BIT(hdr.getLayerInfo()[i].block_size);
-		if (i+1 == hdr.getLayerInfo().getSize())
-		{
-			mDataLayer = layer;
-		}
-		else
-		{
-			mLayerInfo.addElement(layer);
-		}
-	}
-	mMasterHashList = hdr.getMasterHashList();
+	return (mLayerInfo == other.mLayerInfo) \
+		&& (mDataLayer == other.mDataLayer) \
+		&& (mMasterHashList == other.mMasterHashList) \
+		&& (mDoAlignHashToBlock == other.mDoAlignHashToBlock);
 }
 
-void HashTreeMeta::importHierarchicalSha256Header(const nx::HierarchicalSha256Header& hdr)
+bool HashTreeMeta::operator!=(const HashTreeMeta& other) const
 {
-	mDoAlignHashToBlock = false;
-	for (size_t i = 0; i < hdr.getLayerInfo().getSize(); i++)
+	return !(*this == other);
+}
+
+void HashTreeMeta::importData(const byte_t* data, size_t len, HashTreeType type)
+{
+	if (type == HASH_TYPE_INTEGRITY)
 	{
-		sLayer layer;
-		layer.offset = hdr.getLayerInfo()[i].offset;
-		layer.size = hdr.getLayerInfo()[i].size;
-		layer.block_size = hdr.getHashBlockSize();
-		if (i+1 == hdr.getLayerInfo().getSize())
-		{
-			mDataLayer = layer;
-		}
-		else
-		{
-			mLayerInfo.addElement(layer);
-		}
+		nx::HierarchicalIntegrityHeader hdr;
+		hdr.fromBytes(data, len);
+		importHierarchicalIntergityHeader(hdr);
 	}
-	mMasterHashList.addElement(hdr.getMasterHash());
+	else if (type == HASH_TYPE_SHA256)
+	{
+		nx::HierarchicalSha256Header hdr;
+		hdr.fromBytes(data, len);
+		importHierarchicalSha256Header(hdr);
+	}
 }
 
 const fnd::List<HashTreeMeta::sLayer>& HashTreeMeta::getHashLayerInfo() const
@@ -124,18 +92,44 @@ void HashTreeMeta::setAlignHashToBlock(bool doAlign)
 	mDoAlignHashToBlock = doAlign;
 }
 
-bool  HashTreeMeta::isEqual(const HashTreeMeta& other) const
+void HashTreeMeta::importHierarchicalIntergityHeader(const nx::HierarchicalIntegrityHeader& hdr)
 {
-	return (mLayerInfo == other.mLayerInfo) \
-		&& (mDataLayer == other.mDataLayer) \
-		&& (mMasterHashList == other.mMasterHashList) \
-		&& (mDoAlignHashToBlock == other.mDoAlignHashToBlock);
+	mDoAlignHashToBlock = true;
+	for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
+	{
+		sLayer layer;
+		layer.offset = hdr.getLayerInfo()[i].offset;
+		layer.size = hdr.getLayerInfo()[i].size;
+		layer.block_size = _BIT(hdr.getLayerInfo()[i].block_size);
+		if (i+1 == hdr.getLayerInfo().size())
+		{
+			mDataLayer = layer;
+		}
+		else
+		{
+			mLayerInfo.addElement(layer);
+		}
+	}
+	mMasterHashList = hdr.getMasterHashList();
 }
 
-void  HashTreeMeta::copyFrom(const HashTreeMeta& other)
+void HashTreeMeta::importHierarchicalSha256Header(const nx::HierarchicalSha256Header& hdr)
 {
-	mLayerInfo = other.mLayerInfo;
-	mDataLayer = other.mDataLayer;
-	mMasterHashList = other.mMasterHashList;
-	mDoAlignHashToBlock = other.mDoAlignHashToBlock;
+	mDoAlignHashToBlock = false;
+	for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
+	{
+		sLayer layer;
+		layer.offset = hdr.getLayerInfo()[i].offset;
+		layer.size = hdr.getLayerInfo()[i].size;
+		layer.block_size = hdr.getHashBlockSize();
+		if (i+1 == hdr.getLayerInfo().size())
+		{
+			mDataLayer = layer;
+		}
+		else
+		{
+			mLayerInfo.addElement(layer);
+		}
+	}
+	mMasterHashList.addElement(hdr.getMasterHash());
 }

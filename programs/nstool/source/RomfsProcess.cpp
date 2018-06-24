@@ -36,7 +36,6 @@ void RomfsProcess::process()
 	}
 
 	resolveRomfs();	
-
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 	{
 		displayHeader();
@@ -44,7 +43,7 @@ void RomfsProcess::process()
 			displayFs();
 	}
 	if (mExtract)
-		extractFs();
+		extractFs();	
 }
 
 void RomfsProcess::setInputFile(fnd::IFile* file, bool ownIFile)
@@ -111,11 +110,11 @@ void RomfsProcess::displayDir(const sDirectory& dir, size_t tab) const
 		printf("%s\n", dir.name.c_str());
 	}
 
-	for (size_t i = 0; i < dir.dir_list.getSize(); i++)
+	for (size_t i = 0; i < dir.dir_list.size(); i++)
 	{
 		displayDir(dir.dir_list[i], tab+1);
 	}
-	for (size_t i = 0; i < dir.file_list.getSize(); i++)
+	for (size_t i = 0; i < dir.file_list.size(); i++)
 	{
 		displayFile(dir.file_list[i], tab+1);
 	}
@@ -150,7 +149,7 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 
 	// extract files
 	fnd::SimpleFile outFile;
-	for (size_t i = 0; i < dir.file_list.getSize(); i++)
+	for (size_t i = 0; i < dir.file_list.size(); i++)
 	{
 		file_path.clear();
 		fnd::io::appendToPath(file_path, dir_path);
@@ -163,13 +162,13 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 		mFile->seek(dir.file_list[i].offset);
 		for (size_t j = 0; j < ((dir.file_list[i].size / kCacheSize) + ((dir.file_list[i].size % kCacheSize) != 0)); j++)
 		{
-			mFile->read(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
-			outFile.write(mCache.getBytes(), MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
+			mFile->read(mCache.data(), _MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
+			outFile.write(mCache.data(), _MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
 		}	
 		outFile.close();
 	}
 
-	for (size_t i = 0; i < dir.dir_list.getSize(); i++)
+	for (size_t i = 0; i < dir.dir_list.size(); i++)
 	{
 		extractDir(dir_path, dir.dir_list[i]);
 	}
@@ -266,15 +265,15 @@ void RomfsProcess::resolveRomfs()
 
 	// read directory nodes
 	mDirNodes.alloc(mHdr.sections[nx::romfs::DIR_NODE_TABLE].size.get());
-	mFile->read(mDirNodes.getBytes(), mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.getSize());
+	mFile->read(mDirNodes.data(), mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.size());
 	//printf("[RAW DIR NODES]\n");
-	//fnd::SimpleTextOutput::hxdStyleDump(mDirNodes.getBytes(), mDirNodes.getSize());
+	//fnd::SimpleTextOutput::hxdStyleDump(mDirNodes.data(), mDirNodes.size());
 
 	// read file nodes
 	mFileNodes.alloc(mHdr.sections[nx::romfs::FILE_NODE_TABLE].size.get());
-	mFile->read(mFileNodes.getBytes(), mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.getSize());
+	mFile->read(mFileNodes.data(), mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.size());
 	//printf("[RAW FILE NODES]\n");
-	//fnd::SimpleTextOutput::hxdStyleDump(mFileNodes.getBytes(), mFileNodes.getSize());
+	//fnd::SimpleTextOutput::hxdStyleDump(mFileNodes.data(), mFileNodes.size());
 	
 	// A logic check on the root directory node
 	if (	get_dir_node(0)->parent.get() != 0 \

@@ -181,7 +181,7 @@ const byte_t * es::TicketBody_V2::getEncTitleKey() const
 void es::TicketBody_V2::setEncTitleKey(const byte_t * data, size_t len)
 {
 	memset(mEncTitleKey, 0, ticket::kEncTitleKeySize);
-	memcpy(mEncTitleKey, data, MIN(len, ticket::kEncTitleKeySize));
+	memcpy(mEncTitleKey, data, _MIN(len, ticket::kEncTitleKeySize));
 }
 
 es::ticket::TitleKeyEncType es::TicketBody_V2::getTitleKeyEncType() const
@@ -262,7 +262,7 @@ const byte_t * es::TicketBody_V2::getReservedRegion() const
 void es::TicketBody_V2::setReservedRegion(const byte_t * data, size_t len)
 {
 	memset(mReservedRegion, 0, ticket::kReservedRegionSize);
-	memcpy(mReservedRegion, data, MIN(len, ticket::kReservedRegionSize));
+	memcpy(mReservedRegion, data, _MIN(len, ticket::kReservedRegionSize));
 }
 
 uint64_t es::TicketBody_V2::getTicketId() const

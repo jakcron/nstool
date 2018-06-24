@@ -19,7 +19,7 @@ NpdmProcess::~NpdmProcess()
 
 void NpdmProcess::process()
 {
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 
 	if (mFile == nullptr)
 	{
@@ -27,9 +27,9 @@ void NpdmProcess::process()
 	}
 
 	scratch.alloc(mFile->size());
-	mFile->read(scratch.getBytes(), 0, scratch.getSize());
+	mFile->read(scratch.data(), 0, scratch.size());
 
-	mNpdm.importBinary(scratch.getBytes(), scratch.getSize());
+	mNpdm.fromBytes(scratch.data(), scratch.size());
 
 	if (mVerify)
 	{
@@ -322,10 +322,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 		printf("[WARNING] ACI/FAC FormatVersion: FAIL (%d != %d (expected))\n", aci.getFac().getFormatVersion(),acid.getFac().getFormatVersion());
 	}
 
-	for (size_t i = 0; i < aci.getFac().getFsaRightsList().getSize(); i++)
+	for (size_t i = 0; i < aci.getFac().getFsaRightsList().size(); i++)
 	{
 		bool fsaRightFound = false;
-		for (size_t j = 0; j < acid.getFac().getFsaRightsList().getSize() && fsaRightFound == false; j++)
+		for (size_t j = 0; j < acid.getFac().getFsaRightsList().size() && fsaRightFound == false; j++)
 		{
 			if (aci.getFac().getFsaRightsList()[i] == acid.getFac().getFsaRightsList()[j])
 				fsaRightFound = true;
@@ -338,10 +338,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 		}
 	}
 
-	for (size_t i = 0; i < aci.getFac().getContentOwnerIdList().getSize(); i++)
+	for (size_t i = 0; i < aci.getFac().getContentOwnerIdList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getFac().getContentOwnerIdList().getSize() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getFac().getContentOwnerIdList().size() && rightFound == false; j++)
 		{
 			if (aci.getFac().getContentOwnerIdList()[i] == acid.getFac().getContentOwnerIdList()[j])
 				rightFound = true;
@@ -354,10 +354,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 		}
 	}
 
-	for (size_t i = 0; i < aci.getFac().getSaveDataOwnerIdList().getSize(); i++)
+	for (size_t i = 0; i < aci.getFac().getSaveDataOwnerIdList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getFac().getSaveDataOwnerIdList().getSize() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getFac().getSaveDataOwnerIdList().size() && rightFound == false; j++)
 		{
 			if (aci.getFac().getSaveDataOwnerIdList()[i] == acid.getFac().getSaveDataOwnerIdList()[j])
 				rightFound = true;
@@ -371,10 +371,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 	}
 
 	// check SAC
-	for (size_t i = 0; i < aci.getSac().getServiceList().getSize(); i++)
+	for (size_t i = 0; i < aci.getSac().getServiceList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getSac().getServiceList().getSize() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getSac().getServiceList().size() && rightFound == false; j++)
 		{
 			if (aci.getSac().getServiceList()[i] == acid.getSac().getServiceList()[j])
 				rightFound = true;
@@ -406,10 +406,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 			printf("[WARNING] ACI/KC ThreadInfo/MinPriority: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMinPriority());
 	}
 	// check system calls
-	for (size_t i = 0; i < aci.getKc().getSystemCalls().getSystemCalls().getSize(); i++)
+	for (size_t i = 0; i < aci.getKc().getSystemCalls().getSystemCalls().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getSystemCalls().getSystemCalls().getSize() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKc().getSystemCalls().getSystemCalls().size() && rightFound == false; j++)
 		{
 			if (aci.getKc().getSystemCalls().getSystemCalls()[i] == acid.getKc().getSystemCalls().getSystemCalls()[j])
 				rightFound = true;
@@ -422,10 +422,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 		}
 	}
 	// check memory maps
-	for (size_t i = 0; i < aci.getKc().getMemoryMaps().getMemoryMaps().getSize(); i++)
+	for (size_t i = 0; i < aci.getKc().getMemoryMaps().getMemoryMaps().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getMemoryMaps().getMemoryMaps().getSize() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKc().getMemoryMaps().getMemoryMaps().size() && rightFound == false; j++)
 		{
 			if (aci.getKc().getMemoryMaps().getMemoryMaps()[i] == acid.getKc().getMemoryMaps().getMemoryMaps()[j])
 				rightFound = true;
@@ -438,10 +438,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 			printf("[WARNING] ACI/KC MemoryMap: FAIL (0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s) not permitted)\n", (uint64_t)map.addr << 12, ((uint64_t)(map.addr + map.size) << 12) - 1, kMemMapPerm[map.perm].c_str(), kMemMapType[map.type].c_str());
 		}
 	}
-	for (size_t i = 0; i < aci.getKc().getMemoryMaps().getIoMemoryMaps().getSize(); i++)
+	for (size_t i = 0; i < aci.getKc().getMemoryMaps().getIoMemoryMaps().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getMemoryMaps().getIoMemoryMaps().getSize() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKc().getMemoryMaps().getIoMemoryMaps().size() && rightFound == false; j++)
 		{
 			if (aci.getKc().getMemoryMaps().getIoMemoryMaps()[i] == acid.getKc().getMemoryMaps().getIoMemoryMaps()[j])
 				rightFound = true;
@@ -455,10 +455,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 		}
 	}
 	// check interupts
-	for (size_t i = 0; i < aci.getKc().getInterupts().getInteruptList().getSize(); i++)
+	for (size_t i = 0; i < aci.getKc().getInterupts().getInteruptList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getInterupts().getInteruptList().getSize() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKc().getInterupts().getInteruptList().size() && rightFound == false; j++)
 		{
 			if (aci.getKc().getInterupts().getInteruptList()[i] == acid.getKc().getInterupts().getInteruptList()[j])
 				rightFound = true;
@@ -487,10 +487,10 @@ void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBi
 		printf("[WARNING] ACI/KC HandleTableSize: FAIL (0x%x too large)\n", aci.getKc().getHandleTableSize().getHandleTableSize());
 	}
 	// check misc flags
-	for (size_t i = 0; i < aci.getKc().getMiscFlags().getFlagList().getSize(); i++)
+	for (size_t i = 0; i < aci.getKc().getMiscFlags().getFlagList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getMiscFlags().getFlagList().getSize() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKc().getMiscFlags().getFlagList().size() && rightFound == false; j++)
 		{
 			if (aci.getKc().getMiscFlags().getFlagList()[i] == acid.getKc().getMiscFlags().getFlagList()[j])
 				rightFound = true;
@@ -549,10 +549,10 @@ void NpdmProcess::displayFac(const nx::FacBinary& fac)
 	printf("[FS Access Control]\n");
 	printf("  Format Version:   %d\n", fac.getFormatVersion());
 
-	if (fac.getFsaRightsList().getSize())
+	if (fac.getFsaRightsList().size())
 	{
 		printf("  FS Rights:\n");
-		for (size_t i = 0; i < fac.getFsaRightsList().getSize(); i++)
+		for (size_t i = 0; i < fac.getFsaRightsList().size(); i++)
 		{
 			if (i % 10 == 0)
 			{
@@ -566,18 +566,18 @@ void NpdmProcess::displayFac(const nx::FacBinary& fac)
 		printf("  FS Rights: NONE\n");
 	}
 	
-	if (fac.getContentOwnerIdList().getSize())
+	if (fac.getContentOwnerIdList().size())
 	{
 		printf("  Content Owner IDs:\n");
-		for (size_t i = 0; i < fac.getContentOwnerIdList().getSize(); i++)
+		for (size_t i = 0; i < fac.getContentOwnerIdList().size(); i++)
 		{
 			printf("    0x%08x\n", fac.getContentOwnerIdList()[i]);
 		}
 	}
-	if (fac.getSaveDataOwnerIdList().getSize())
+	if (fac.getSaveDataOwnerIdList().size())
 	{
 		printf("  Save Data Owner IDs:\n");
-		for (size_t i = 0; i < fac.getSaveDataOwnerIdList().getSize(); i++)
+		for (size_t i = 0; i < fac.getSaveDataOwnerIdList().size(); i++)
 		{
 			printf("    0x%08x\n", fac.getSaveDataOwnerIdList()[i]);
 		}
@@ -589,7 +589,7 @@ void NpdmProcess::displaySac(const nx::SacBinary& sac)
 {
 	printf("[Service Access Control]\n");
 	printf("  Service List:\n");
-	for (size_t i = 0; i < sac.getServiceList().getSize(); i++)
+	for (size_t i = 0; i < sac.getServiceList().size(); i++)
 	{
 		if (i % 10 == 0)
 		{
@@ -618,7 +618,7 @@ void NpdmProcess::displayKernelCap(const nx::KcBinary& kern)
 		printf("  SystemCalls:");
 		printf("\n    ");
 		size_t lineLen = 0;
-		for (size_t i = 0; i < syscalls.getSize(); i++)
+		for (size_t i = 0; i < syscalls.size(); i++)
 		{
 			if (lineLen > 60)
 			{
@@ -635,12 +635,12 @@ void NpdmProcess::displayKernelCap(const nx::KcBinary& kern)
 		fnd::List<nx::MemoryMappingHandler::sMemoryMapping> ioMaps = kern.getMemoryMaps().getIoMemoryMaps();
 
 		printf("  MemoryMaps:\n");
-		for (size_t i = 0; i < maps.getSize(); i++)
+		for (size_t i = 0; i < maps.size(); i++)
 		{
 			printf("    0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s)\n", (uint64_t)maps[i].addr << 12, ((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1, kMemMapPerm[maps[i].perm].c_str(), kMemMapType[maps[i].type].c_str());
 		}
 		//printf("  IoMaps:\n");
-		for (size_t i = 0; i < ioMaps.getSize(); i++)
+		for (size_t i = 0; i < ioMaps.size(); i++)
 		{
 			printf("    0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s)\n", (uint64_t)ioMaps[i].addr << 12, ((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1, kMemMapPerm[ioMaps[i].perm].c_str(), kMemMapType[ioMaps[i].type].c_str());
 		}
@@ -649,7 +649,7 @@ void NpdmProcess::displayKernelCap(const nx::KcBinary& kern)
 	{
 		fnd::List<uint16_t> interupts = kern.getInterupts().getInteruptList();
 		printf("  Interupts Flags:\n");
-		for (uint32_t i = 0; i < interupts.getSize(); i++)
+		for (uint32_t i = 0; i < interupts.size(); i++)
 		{
 			if (i % 10 == 0)
 			{
@@ -675,7 +675,7 @@ void NpdmProcess::displayKernelCap(const nx::KcBinary& kern)
 		fnd::List<nx::MiscFlagsHandler::Flags> flagList = kern.getMiscFlags().getFlagList();
 
 		printf("  Misc Flags:\n");
-		for (uint32_t i = 0; i < flagList.getSize(); i++)
+		for (uint32_t i = 0; i < flagList.size(); i++)
 		{
 			if (i % 10 == 0)
 			{

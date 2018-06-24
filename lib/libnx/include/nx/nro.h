@@ -1,6 +1,5 @@
 #pragma once
 #include <fnd/types.h>
-#include <crypto/sha.h>
 #include <nx/macro.h>
 
 namespace nx
@@ -8,7 +7,6 @@ namespace nx
 	namespace nro
 	{
 		static const uint32_t kNroSig = _MAKE_STRUCT_SIGNATURE("NRO0");
-
 
 		static const uint32_t kDefaultFormatVersion = 0;
 		static const size_t kRoCrtSize = 8;

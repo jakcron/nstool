@@ -16,6 +16,10 @@ namespace nx
 		InteruptEntry(const KernelCapability& kernel_cap);
 		InteruptEntry(uint32_t interupt0, uint32_t interupt1);
 
+		void operator=(const InteruptEntry& other);
+		bool operator==(const InteruptEntry& other) const;
+		bool operator!=(const InteruptEntry& other) const;
+
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);

@@ -12,6 +12,10 @@ namespace nx
 		MiscFlagsEntry(const KernelCapability& kernel_cap);
 		MiscFlagsEntry(uint32_t flags);
 
+		void operator=(const MiscFlagsEntry& other);
+		bool operator==(const MiscFlagsEntry& other) const;
+		bool operator!=(const MiscFlagsEntry& other) const;
+
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);

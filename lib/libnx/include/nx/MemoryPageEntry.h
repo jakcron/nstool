@@ -13,6 +13,10 @@ namespace nx
 		MemoryPageEntry(uint32_t page);
 		MemoryPageEntry(uint32_t page, bool flag);
 
+		void operator=(const MemoryPageEntry& other);
+		bool operator==(const MemoryPageEntry& other) const;
+		bool operator!=(const MemoryPageEntry& other) const;
+
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);

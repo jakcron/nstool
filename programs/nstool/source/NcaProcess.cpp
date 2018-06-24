@@ -253,8 +253,6 @@ NcaProcess::~NcaProcess()
 
 void NcaProcess::process()
 {
-	fnd::MemoryBlob scratch;
-
 	if (mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
@@ -270,7 +268,7 @@ void NcaProcess::process()
 	crypto::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader), mHdrHash.bytes);
 
 	// proccess main header
-	mHdr.importBinary((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader));
+	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader));
 
 	// determine keys
 	generateNcaBodyEncryptionKeys();
@@ -423,7 +421,7 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	{
 		crypto::aes::sAes128Key keak_aesctr_key = zero_aesctr_key;
 		crypto::aes::sAesXts128Key keak_aesxts_key = zero_aesxts_key;
-		for (size_t i = 0; i < mBodyKeys.keak_list.getSize(); i++)
+		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
 		{
 			if (mBodyKeys.keak_list[i].index == nx::nca::KEY_AESCTR && mBodyKeys.keak_list[i].decrypted)
 			{
@@ -485,7 +483,7 @@ void NcaProcess::generatePartitionConfiguration()
 {
 	std::stringstream error;
 
-	for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
+	for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
 	{
 		// get reference to relevant structures
 		const nx::NcaHeader::sPartition& partition = mHdr.getPartitions()[i];
@@ -523,10 +521,9 @@ void NcaProcess::generatePartitionConfiguration()
 		info.hash_type = (nx::nca::HashType)fs_header.hash_type;
 		info.enc_type = (nx::nca::EncryptionType)fs_header.encryption_type;
 		if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
-			info.hash_tree_meta.importHierarchicalSha256Header(nx::HierarchicalSha256Header(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
+			info.hash_tree_meta.importData(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen, HashTreeMeta::HASH_TYPE_SHA256);
 		else if (info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
-			info.hash_tree_meta.importHierarchicalIntergityHeader(nx::HierarchicalIntegrityHeader(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen));
-		
+			info.hash_tree_meta.importData(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen, HashTreeMeta::HASH_TYPE_INTEGRITY);
 
 		// create reader
 		try 
@@ -614,7 +611,7 @@ void NcaProcess::validateNcaSignatures()
 				// open main.npdm
 				if (exefs.getPfsHeader().getFileList().hasElement(kNpdmExefsPath) == true)
 				{
-					const nx::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList()[exefs.getPfsHeader().getFileList().getIndexOf(kNpdmExefsPath)];
+					const nx::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
 
 					NpdmProcess npdm;
 					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nx::nca::PARTITION_CODE].reader, SHARED_IFILE, file.offset, file.size), OWN_IFILE);
@@ -631,8 +628,6 @@ void NcaProcess::validateNcaSignatures()
 				{
 					printf("[WARNING] NCA Header ACID Signature: FAIL (\"%s\" not present in ExeFs)\n", kNpdmExefsPath.c_str());
 				}
-				
-				
 			}
 			else
 			{
@@ -670,13 +665,13 @@ void NcaProcess::displayHeader()
 	}
 	
 
-	if (mBodyKeys.keak_list.getSize() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
+	if (mBodyKeys.keak_list.size() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
 	{
 		printf("  Key Area: \n");
 		printf("    <--------------------------------------------------------------------------->\n");
 		printf("    | IDX | ENCRYPTED KEY                    | DECRYPTED KEY                    |\n");
 		printf("    |-----|----------------------------------|----------------------------------|\n");
-		for (size_t i = 0; i < mBodyKeys.keak_list.getSize(); i++)
+		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
 		{
 			printf("    | %3d | ", mBodyKeys.keak_list[i].index);
 			
@@ -698,7 +693,7 @@ void NcaProcess::displayHeader()
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
 		printf("  Partitions:\n");
-		for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
+		for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
 		{
 			sPartitionInfo& info = mPartitions[i];
 
@@ -721,8 +716,8 @@ void NcaProcess::displayHeader()
 				printf("      HierarchicalIntegrity Header:\n");
 				//printf("        TypeId:            0x%x\n", hash_hdr.type_id.get());
 				//printf("        MasterHashSize:    0x%x\n", hash_hdr.master_hash_size.get());
-				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
-				for (size_t j = 0; j < hash_hdr.getHashLayerInfo().getSize(); j++)
+				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().size());
+				for (size_t j = 0; j < hash_hdr.getHashLayerInfo().size(); j++)
 				{
 					printf("        Hash Layer %d:\n", (int)j);
 					printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].offset);
@@ -734,7 +729,7 @@ void NcaProcess::displayHeader()
 				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
 				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
 				printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
-				for (size_t j = 0; j < hash_hdr.getMasterHashList().getSize(); j++)
+				for (size_t j = 0; j < hash_hdr.getMasterHashList().size(); j++)
 				{
 					printf("        Master Hash %d:     ", (int)j);
 					fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(crypto::sha::sSha256Hash));
@@ -747,7 +742,7 @@ void NcaProcess::displayHeader()
 				printf("        Master Hash:       ");
 				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(crypto::sha::sSha256Hash));
 				printf("        HashBlockSize:     0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
-				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().getSize());
+				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().size());
 				printf("        Hash Layer:\n");
 				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].offset);
 				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].size);
@@ -770,7 +765,7 @@ void NcaProcess::displayHeader()
 
 void NcaProcess::processPartitions()
 {
-	for (size_t i = 0; i < mHdr.getPartitions().getSize(); i++)
+	for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
 	{
 		size_t index = mHdr.getPartitions()[i].index;
 		struct sPartitionInfo& partition = mPartitions[index];

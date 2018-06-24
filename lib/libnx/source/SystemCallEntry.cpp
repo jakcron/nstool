@@ -1,7 +1,5 @@
 #include <nx/SystemCallEntry.h>
 
-
-
 nx::SystemCallEntry::SystemCallEntry() :
 	mCap(kCapId),
 	mSystemCallUpper(0),
@@ -25,6 +23,24 @@ nx::SystemCallEntry::SystemCallEntry(uint32_t upper_bits, uint32_t lower_bits) :
 {
 	setSystemCallUpperBits(upper_bits);
 	setSystemCallLowerBits(lower_bits);
+}
+
+void nx::SystemCallEntry::operator=(const SystemCallEntry& other)
+{
+	mSystemCallUpper = other.mSystemCallUpper;
+	mSystemCallLower = other.mSystemCallLower;
+	updateCapField();
+}
+
+bool nx::SystemCallEntry::operator==(const SystemCallEntry& other) const
+{
+	return (mSystemCallUpper == other.mSystemCallUpper) \
+		&& (mSystemCallLower == other.mSystemCallLower);
+}
+
+bool nx::SystemCallEntry::operator!=(const SystemCallEntry& other) const
+{
+	return !(*this == other);
 }
 
 const nx::KernelCapability & nx::SystemCallEntry::getKernelCapability() const

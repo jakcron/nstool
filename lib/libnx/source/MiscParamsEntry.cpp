@@ -1,7 +1,5 @@
 #include <nx/MiscParamsEntry.h>
 
-
-
 nx::MiscParamsEntry::MiscParamsEntry() :
 	mCap(kCapId),
 	mProgramType(0)
@@ -19,6 +17,22 @@ nx::MiscParamsEntry::MiscParamsEntry(uint8_t program_type) :
 	mProgramType(0)
 {
 	setProgramType(program_type);
+}
+
+void nx::MiscParamsEntry::operator=(const MiscParamsEntry& other)
+{
+	mProgramType = other.mProgramType;
+	updateCapField();
+}
+
+bool nx::MiscParamsEntry::operator==(const MiscParamsEntry& other) const
+{
+	return (mProgramType == other.mProgramType);
+}
+
+bool nx::MiscParamsEntry::operator!=(const MiscParamsEntry& other) const
+{
+	return !(*this == other);
 }
 
 const nx::KernelCapability & nx::MiscParamsEntry::getKernelCapability() const

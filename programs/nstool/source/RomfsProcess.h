@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/Vec.h>
 #include <fnd/List.h>
 #include <nx/romfs.h>
 
@@ -20,12 +20,11 @@ public:
 		fnd::List<sDirectory> dir_list;
 		fnd::List<sFile> file_list;
 
-		sDirectory& operator=(const sDirectory& other)
+		void operator=(const sDirectory& other)
 		{
 			name = other.name;
 			dir_list = other.dir_list;
 			file_list = other.file_list;
-			return *this;
 		}
 
 		bool operator==(const sDirectory& other) const
@@ -44,11 +43,6 @@ public:
 		{
 			return (name == other);
 		}
-
-		bool operator!=(const std::string& other) const
-		{
-			return !operator==(other);
-		}
 	};
 
 	struct sFile
@@ -57,12 +51,11 @@ public:
 		uint64_t offset;
 		uint64_t size;
 
-		sFile& operator=(const sFile& other)
+		void operator=(const sFile& other)
 		{
 			name = other.name;
 			offset = other.offset;
 			size = other.size;
-			return *this;
 		}
 
 		bool operator==(const sFile& other) const
@@ -80,11 +73,6 @@ public:
 		bool operator==(const std::string& other) const
 		{
 			return (name == other);
-		}
-
-		bool operator!=(const std::string& other) const
-		{
-			return !operator==(other);
 		}
 	};
 
@@ -118,17 +106,17 @@ private:
 	std::string mMountName;
 	bool mListFs;
 
-	fnd::MemoryBlob mCache;
+	fnd::Vec<byte_t> mCache;
 
 	size_t mDirNum;
 	size_t mFileNum;
 	nx::sRomfsHeader mHdr;
-	fnd::MemoryBlob mDirNodes;
-	fnd::MemoryBlob mFileNodes;
+	fnd::Vec<byte_t> mDirNodes;
+	fnd::Vec<byte_t> mFileNodes;
 	sDirectory mRootDir;
 
-	inline nx::sRomfsDirEntry* get_dir_node(uint32_t offset) { return (nx::sRomfsDirEntry*)(mDirNodes.getBytes() + offset); }
-	inline nx::sRomfsFileEntry* get_file_node(uint32_t offset) { return (nx::sRomfsFileEntry*)(mFileNodes.getBytes() + offset); }
+	inline nx::sRomfsDirEntry* get_dir_node(uint32_t offset) { return (nx::sRomfsDirEntry*)(mDirNodes.data() + offset); }
+	inline nx::sRomfsFileEntry* get_file_node(uint32_t offset) { return (nx::sRomfsFileEntry*)(mFileNodes.data() + offset); }
 
 	
 	void printTab(size_t tab) const;

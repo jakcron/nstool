@@ -12,6 +12,10 @@ namespace nx
 		KernelVersionEntry(const KernelCapability& kernel_cap);
 		KernelVersionEntry(uint16_t major, uint8_t minor);
 
+		void operator=(const KernelVersionEntry& other);
+		bool operator==(const KernelVersionEntry& other) const;
+		bool operator!=(const KernelVersionEntry& other) const;
+
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);

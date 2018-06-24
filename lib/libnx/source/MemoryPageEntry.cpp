@@ -1,7 +1,5 @@
 #include <nx/MemoryPageEntry.h>
 
-
-
 nx::MemoryPageEntry::MemoryPageEntry() :
 	mCap(KernelCapability::KC_INVALID),
 	mPage(0),
@@ -35,6 +33,26 @@ nx::MemoryPageEntry::MemoryPageEntry(uint32_t page, bool flag) :
 {
 	setPage(page);
 	setFlag(flag);
+}
+
+void nx::MemoryPageEntry::operator=(const MemoryPageEntry& other)
+{
+	mPage = other.mPage;
+	mFlag = other.mFlag;
+	mUseFlag = other.mUseFlag;
+	updateCapField();
+}
+
+bool nx::MemoryPageEntry::operator==(const MemoryPageEntry& other) const
+{
+	return (mPage == other.mPage) \
+		&& (mFlag == other.mFlag) \
+		&& (mUseFlag == other.mUseFlag);
+}
+
+bool nx::MemoryPageEntry::operator!=(const MemoryPageEntry& other) const
+{
+	return !(*this == other);
 }
 
 const nx::KernelCapability & nx::MemoryPageEntry::getKernelCapability() const

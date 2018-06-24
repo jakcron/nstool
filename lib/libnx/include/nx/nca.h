@@ -1,10 +1,8 @@
 #pragma once
-#include <string>
 #include <fnd/types.h>
 #include <crypto/aes.h>
 #include <crypto/sha.h>
 #include <crypto/rsa.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/macro.h>
 
 namespace nx

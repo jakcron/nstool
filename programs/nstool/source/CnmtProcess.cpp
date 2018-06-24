@@ -100,10 +100,10 @@ void CnmtProcess::displayCmnt()
 		default:
 			break;
 	}
-	if (mCnmt.getContentInfo().getSize() > 0)
+	if (mCnmt.getContentInfo().size() > 0)
 	{
 		printf("  ContentInfo:\n");
-		for (size_t i = 0; i < mCnmt.getContentInfo().getSize(); i++)
+		for (size_t i = 0; i < mCnmt.getContentInfo().size(); i++)
 		{
 			const nx::ContentMetaBinary::ContentInfo& info = mCnmt.getContentInfo()[i];
 			printf("    %d\n", (int)i);
@@ -117,10 +117,10 @@ void CnmtProcess::displayCmnt()
 			printf("\n");
 		}
 	}
-	if (mCnmt.getContentMetaInfo().getSize() > 0)
+	if (mCnmt.getContentMetaInfo().size() > 0)
 	{
 		printf("  ContentMetaInfo:\n");
-		for (size_t i = 0; i < mCnmt.getContentMetaInfo().getSize(); i++)
+		for (size_t i = 0; i < mCnmt.getContentMetaInfo().size(); i++)
 		{
 			const nx::ContentMetaBinary::ContentMetaInfo& info = mCnmt.getContentMetaInfo()[i];
 			printf("    %d\n", (int)i);
@@ -159,7 +159,7 @@ CnmtProcess::~CnmtProcess()
 
 void CnmtProcess::process()
 {
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 
 	if (mFile == nullptr)
 	{
@@ -167,9 +167,9 @@ void CnmtProcess::process()
 	}
 
 	scratch.alloc(mFile->size());
-	mFile->read(scratch.getBytes(), 0, scratch.getSize());
+	mFile->read(scratch.data(), 0, scratch.size());
 
-	mCnmt.importBinary(scratch.getBytes(), scratch.getSize());
+	mCnmt.fromBytes(scratch.data(), scratch.size());
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayCmnt();

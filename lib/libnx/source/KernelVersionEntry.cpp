@@ -1,7 +1,5 @@
 #include <nx/KernelVersionEntry.h>
 
-
-
 nx::KernelVersionEntry::KernelVersionEntry() :
 	mCap(kCapId),
 	mVerMajor(0),
@@ -23,6 +21,24 @@ nx::KernelVersionEntry::KernelVersionEntry(uint16_t major, uint8_t minor) :
 {
 	setVerMajor(major);
 	setVerMinor(minor);
+}
+
+void nx::KernelVersionEntry::operator=(const KernelVersionEntry& other)
+{
+	mVerMajor = other.mVerMajor;
+	mVerMinor = other.mVerMinor;
+	updateCapField();
+}
+
+bool nx::KernelVersionEntry::operator==(const KernelVersionEntry& other) const
+{
+	return (mVerMajor == other.mVerMajor) \
+		&& (mVerMinor == other.mVerMinor);
+}
+
+bool nx::KernelVersionEntry::operator!=(const KernelVersionEntry& other) const
+{
+	return !(*this == other);
 }
 
 const nx::KernelCapability & nx::KernelVersionEntry::getKernelCapability() const

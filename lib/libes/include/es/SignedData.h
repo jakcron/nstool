@@ -7,7 +7,7 @@ namespace es
 {
 	template <class T>
 	class SignedData
-		: public fnd::ISerialiseable
+		: public fnd::ISerialisable
 	{
 	public:
 		SignedData();
@@ -18,7 +18,7 @@ namespace es
 		bool operator!=(const SignedData& other) const;
 
 		// export/import
-		const void toBytes();
+		void toBytes();
 		void fromBytes(const byte_t* src, size_t size);
 		const fnd::Vec<byte_t>& getBytes() const;
 
@@ -42,19 +42,19 @@ namespace es
 	};
 
 	template <class T>
-	inline SignedData::SignedData()
+	inline SignedData<T>::SignedData()
 	{
 		clear();
 	}
 
 	template <class T>
-	inline SignedData::SignedData(const SignedData& other)
+	inline SignedData<T>::SignedData(const SignedData& other)
 	{
 		*this = other;
 	}
 
 	template <class T>
-	inline void SignedData::operator=(const SignedData& other)
+	inline void SignedData<T>::operator=(const SignedData& other)
 	{
 		mRawBinary = other.mRawBinary;
 		mSignature = other.mSignature;
@@ -62,48 +62,48 @@ namespace es
 	}
 
 	template <class T>
-	inline bool SignedData::operator==(const SignedData& other) const
+	inline bool SignedData<T>::operator==(const SignedData& other) const
 	{
 		return (mSignature == other.mSignature) \
 			&& (mBody == other.mBody);
 	}
 
 	template <class T>
-	inline bool SignedData::operator!=(const SignedData& other) const
+	inline bool SignedData<T>::operator!=(const SignedData& other) const
 	{
 		return !(*this == other);
 	}
 
 	template <class T>
-	inline const void SignedData::toBytes()
+	inline void SignedData<T>::toBytes()
 	{
 		mSignature.toBytes();
 		mBody.toBytes();
 
 		mRawBinary.alloc(mSignature.getBytes().size() + mBody.getBytes().size());
 
-		memcpy(mRawBinary.getBytes().data(), mSignature.getBytes().data(), mSignature.getBytes().size());
-		memcpy(mRawBinary.getBytes().data() + mSignature.getBytes().size(), mBody.getBytes().data(), mBody.getBytes().size());
+		memcpy(mRawBinary.data(), mSignature.getBytes().data(), mSignature.getBytes().size());
+		memcpy(mRawBinary.data() + mSignature.getBytes().size(), mBody.getBytes().data(), mBody.getBytes().size());
 	}
 
 	template <class T>
-	inline void SignedData::fromBytes(const byte_t* src, size_t size)
+	inline void SignedData<T>::fromBytes(const byte_t* src, size_t size)
 	{
 		mSignature.fromBytes(src, size);
 		mBody.fromBytes(src + mSignature.getBytes().size(), size - mSignature.getBytes().size());
 
 		mRawBinary.alloc(mSignature.getBytes().size() + mBody.getBytes().size());
-		memcpy(mRawBinary.getBytes().data(), src, mRawBinary.getBytes().size());
+		memcpy(mRawBinary.data(), src, mRawBinary.size());
 	}
 
 	template <class T>
-	inline const fnd::Vec<byte_t>& SignedData::getBytes() const
+	inline const fnd::Vec<byte_t>& SignedData<T>::getBytes() const
 	{
 		return mRawBinary;
 	}
 
 	template <class T>
-	inline void SignedData::clear()
+	inline void SignedData<T>::clear()
 	{
 		mRawBinary.clear();
 		mSignature.clear();
@@ -111,25 +111,25 @@ namespace es
 	}
 
 	template <class T>
-	inline const es::SignatureBlock& SignedData::getSignature() const
+	inline const es::SignatureBlock& SignedData<T>::getSignature() const
 	{
 		return mSignature;
 	}
 
 	template <class T>
-	inline void SignedData::setSignature(const SignatureBlock& signature)
+	inline void SignedData<T>::setSignature(const SignatureBlock& signature)
 	{
 		mSignature = signature;
 	}
 
 	template <class T>
-	inline const T& SignedData::getBody() const
+	inline const T& SignedData<T>::getBody() const
 	{
 		return mBody;
 	}
 
 	template <class T>
-	inline void SignedData::setBody(const T& body)
+	inline void SignedData<T>::setBody(const T& body)
 	{
 		mBody = body;
 	}

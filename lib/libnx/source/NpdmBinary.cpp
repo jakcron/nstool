@@ -42,8 +42,8 @@ bool nx::NpdmBinary::operator!=(const NpdmBinary & other) const
 
 void nx::NpdmBinary::toBytes()
 {
-	mAci.exportBinary();
-	mAcid.exportBinary();
+	mAci.toBytes();
+	mAcid.toBytes();
 
 	setAciSize(mAci.getBytes().size());
 	setAcidSize(mAcid.getBytes().size());
@@ -70,11 +70,11 @@ void nx::NpdmBinary::fromBytes(const byte_t* data, size_t len)
 	// import Aci/Acid
 	if (getAciPos().size)
 	{
-		mAci.importBinary(mRawBinary.data() + getAciPos().offset, getAciPos().size);
+		mAci.fromBytes(mRawBinary.data() + getAciPos().offset, getAciPos().size);
 	}
 	if (getAcidPos().size)
 	{
-		mAcid.importBinary(mRawBinary.data() + getAcidPos().offset, getAcidPos().size);
+		mAcid.fromBytes(mRawBinary.data() + getAcidPos().offset, getAcidPos().size);
 	}	
 }
 

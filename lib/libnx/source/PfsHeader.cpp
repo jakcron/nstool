@@ -120,6 +120,9 @@ void nx::PfsHeader::fromBytes(const byte_t* data, size_t len)
 	{
 		throw fnd::Exception(kModuleName, "PFS header too small");
 	}
+
+	// clear variables
+	clear();
 	
 	// import minimum header
 	mRawBinary.alloc(sizeof(sPfsHeader));
@@ -153,9 +156,6 @@ void nx::PfsHeader::fromBytes(const byte_t* data, size_t len)
 	mRawBinary.alloc(pfs_full_header_size);
 	memcpy(mRawBinary.data(), data, mRawBinary.size());
 	hdr = (const sPfsHeader*)mRawBinary.data();
-
-	// clear variables
-	clear();
 
 	mFsType = fs_type;
 	if (mFsType == TYPE_PFS0)

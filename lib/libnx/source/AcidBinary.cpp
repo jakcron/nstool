@@ -25,7 +25,7 @@ void nx::AcidBinary::operator=(const AcidBinary & other)
 {
 	if (other.getBytes().size())
 	{
-		importBinary(other.getBytes().data(), other.getBytes().size());
+		fromBytes(other.getBytes().data(), other.getBytes().size());
 	}
 	else
 	{
@@ -37,7 +37,7 @@ void nx::AcidBinary::operator=(const AcidBinary & other)
 void nx::AcidBinary::toBytes()
 {
 	AciBinary::setHeaderOffset(crypto::rsa::kRsa2048Size); // not include signature
-	AciBinary::exportBinary();
+	AciBinary::toBytes();
 	mRawBinary.alloc(AciBinary::getBytes().size() + crypto::rsa::kRsa2048Size * 2);
 	
 	memcpy(mRawBinary.data() + crypto::rsa::kRsa2048Size, mEmbeddedPublicKey.modulus, crypto::rsa::kRsa2048Size);
@@ -48,7 +48,7 @@ void nx::AcidBinary::signBinary(const crypto::rsa::sRsa2048Key & key)
 {
 	if (mRawBinary.size() == 0)
 	{
-		exportBinary();
+		toBytes();
 	}
 
 	byte_t hash[crypto::sha::kSha256HashLen];
@@ -67,8 +67,10 @@ void nx::AcidBinary::fromBytes(const byte_t * bytes, size_t len)
 		throw fnd::Exception(kModuleName, "ACID binary too small");
 	}
 
+	clear();
+
 	// import aci binary past sig + pubkey
-	AciBinary::importBinary(bytes + crypto::rsa::kRsa2048Size * 2, len - crypto::rsa::kRsa2048Size * 2);
+	AciBinary::fromBytes(bytes + crypto::rsa::kRsa2048Size * 2, len - crypto::rsa::kRsa2048Size * 2);
 
 	// save internal copy
 	size_t acid_size = AciBinary::getBytes().size() + crypto::rsa::kRsa2048Size * 2;

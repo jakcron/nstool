@@ -1,18 +1,16 @@
 #include <nx/SacBinary.h>
 
-using namespace nx;
-
-SacBinary::SacBinary()
+nx::SacBinary::SacBinary()
 {
 	clear();
 }
 
-SacBinary::SacBinary(const SacBinary & other)
+nx::SacBinary::SacBinary(const SacBinary & other)
 {
 	*this = other;
 }
 
-void SacBinary::operator=(const SacBinary & other)
+void nx::SacBinary::operator=(const SacBinary & other)
 {
 	if (other.getBytes().data())
 	{
@@ -25,17 +23,17 @@ void SacBinary::operator=(const SacBinary & other)
 	}
 }
 
-bool SacBinary::operator==(const SacBinary & other) const
+bool nx::SacBinary::operator==(const SacBinary & other) const
 {
-	return mServices == other.mServices;
+	return (mServices == other.mServices);
 }
 
-bool SacBinary::operator!=(const SacBinary & other) const
+bool nx::SacBinary::operator!=(const SacBinary & other) const
 {
 	return !(*this == other);
 }
 
-void SacBinary::toBytes()
+void nx::SacBinary::toBytes()
 {
 	size_t totalSize = 0;
 	for (size_t i = 0; i < mServices.size(); i++)
@@ -51,7 +49,7 @@ void SacBinary::toBytes()
 	}
 }
 
-void SacBinary::fromBytes(const byte_t* data, size_t len)
+void nx::SacBinary::fromBytes(const byte_t* data, size_t len)
 {
 	clear();
 	mRawBinary.alloc(len);
@@ -65,7 +63,7 @@ void SacBinary::fromBytes(const byte_t* data, size_t len)
 	}
 }
 
-const fnd::Vec<byte_t>& SacBinary::getBytes() const
+const fnd::Vec<byte_t>& nx::SacBinary::getBytes() const
 {
 	return mRawBinary;
 }
@@ -76,12 +74,12 @@ void nx::SacBinary::clear()
 	mServices.clear();
 }
 
-const fnd::List<SacEntry>& SacBinary::getServiceList() const
+const fnd::List<nx::SacEntry>& nx::SacBinary::getServiceList() const
 {
 	return mServices;
 }
 
-void SacBinary::addService(const SacEntry& service)
+void nx::SacBinary::addService(const SacEntry& service)
 {
 	mServices.addElement(service);
 }

@@ -34,9 +34,9 @@ public:
 
 	ElfSymbolParser();
 
+	void operator=(const ElfSymbolParser& other);
 	bool operator==(const ElfSymbolParser& other) const;
 	bool operator!=(const ElfSymbolParser& other) const;
-	void operator=(const ElfSymbolParser& other);
 
 	void parseData(const byte_t *dyn_sym, size_t dyn_sym_size, const byte_t *dyn_str, size_t dyn_str_size, bool is64Bit);
 
@@ -45,7 +45,4 @@ private:
 
 	// data
 	fnd::List<sElfSymbol> mSymbolList;
-
-	bool isEqual(const ElfSymbolParser& other) const;
-	void copyFrom(const ElfSymbolParser& other);
 };

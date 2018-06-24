@@ -1,7 +1,5 @@
 #pragma once
-#include <string>
 #include <fnd/types.h>
-#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {

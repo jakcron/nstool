@@ -2,6 +2,7 @@
 #include <nx/hierarchicalintegrity.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
+#include <crypto/sha.h>
 
 namespace nx
 {

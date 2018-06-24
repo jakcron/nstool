@@ -14,7 +14,7 @@ void nx::NpdmHeader::operator=(const NpdmHeader & other)
 {
 	if (other.getBytes().size())
 	{
-		fromBytes(other.getBytes().data, other.getBytes().size());
+		fromBytes(other.getBytes().data(), other.getBytes().size());
 	}
 	else
 	{
@@ -80,6 +80,7 @@ void nx::NpdmHeader::fromBytes(const byte_t* data, size_t len)
 		throw fnd::Exception(kModuleName, "NPDM header too small");
 	}
 	
+	// clear internal members
 	clear();
 
 	mRawBinary.alloc(sizeof(sNpdmHeader));
@@ -138,7 +139,7 @@ void nx::NpdmHeader::clear()
 
 size_t nx::NpdmHeader::getNpdmSize() const
 {
-	return MAX(mAcidPos.offset + mAcidPos.size, mAciPos.offset + mAciPos.size);
+	return _MAX(mAcidPos.offset + mAcidPos.size, mAciPos.offset + mAciPos.size);
 }
 
 nx::npdm::InstructionType nx::NpdmHeader::getInstructionType() const

@@ -14,7 +14,7 @@ namespace fnd
 		~Vec();
 
 		// copy operator
-		const Vec<T>& operator=(const Vec<T>& other);
+		void operator=(const Vec<T>& other);
 
 		// equivalence operators
 		bool operator==(const Vec<T>& other) const;
@@ -34,10 +34,13 @@ namespace fnd
 		// allocate vector
 		void alloc(size_t new_size);
 
+		// resize vector
+		void resize(size_t new_size);
+
 		// clear vector
 		void clear();
 	private:
-		T * m_Vec;
+		T* m_Vec;
 		size_t m_Size;
 
 		void copyFrom(const T * array, size_t num);
@@ -70,7 +73,7 @@ namespace fnd
 	}
 
 	template<class T>
-	inline const Vec<T>& Vec<T>::operator=(const Vec<T>& other)
+	inline void Vec<T>::operator=(const Vec<T>& other)
 	{
 		copyFrom(other.data(), other.size());
 	}
@@ -137,6 +140,18 @@ namespace fnd
 	template<class T>
 	inline void Vec<T>::alloc(size_t new_size)
 	{
+		clear();
+		m_Vec = new T[new_size];
+		if (m_Vec == nullptr)
+		{
+			fnd::Exception("Vec", "Failed to allocate memory for vector");
+		}
+		m_Size = new_size;
+	}
+
+	template<class T>
+	inline void Vec<T>::resize(size_t new_size)
+	{
 		if (m_Vec != nullptr)
 		{
 			T* new_vec = new T[new_size];
@@ -145,7 +160,7 @@ namespace fnd
 				fnd::Exception("Vec", "Failed to allocate memory for vector");
 			}
 
-			for (size_t i = 0; i < MIN(m_Size, new_size); i++)
+			for (size_t i = 0; i < _MIN(m_Size, new_size); i++)
 			{
 				new_vec[i] = m_Vec[i];
 			}
@@ -155,12 +170,7 @@ namespace fnd
 		}
 		else
 		{
-			m_Vec = new T[new_size];
-			if (m_Vec == nullptr)
-			{
-				fnd::Exception("Vec", "Failed to allocate memory for vector");
-			}
-			m_Size = new_size;
+			alloc(new_size);
 		}
 	}
 

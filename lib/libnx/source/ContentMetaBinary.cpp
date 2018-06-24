@@ -7,39 +7,73 @@ nx::ContentMetaBinary::ContentMetaBinary()
 
 nx::ContentMetaBinary::ContentMetaBinary(const ContentMetaBinary & other)
 {
-	copyFrom(other);
+	*this = other;
 }
 
-nx::ContentMetaBinary::ContentMetaBinary(const byte_t * bytes, size_t len)
+void nx::ContentMetaBinary::operator=(const ContentMetaBinary& other)
 {
-	importBinary(bytes, len);
+	if (other.getBytes().size() > 0)
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		clear();
+		mTitleId = other.mTitleId;
+		mTitleVersion = other.mTitleVersion;
+		mType = other.mType;
+		mAttributes = other.mAttributes;
+		mRequiredDownloadSystemVersion = other.mRequiredDownloadSystemVersion;
+		mExtendedHeader = other.mExtendedHeader;
+		mApplicationMetaExtendedHeader = other.mApplicationMetaExtendedHeader;
+		mPatchMetaExtendedHeader = other.mPatchMetaExtendedHeader;
+		mAddOnContentMetaExtendedHeader = other.mAddOnContentMetaExtendedHeader;
+		mDeltaMetaExtendedHeader = other.mDeltaMetaExtendedHeader;
+		mContentInfo = other.mContentInfo;
+		mContentMetaInfo = other.mContentMetaInfo;
+		mExtendedData = other.mExtendedData;
+		memcpy(mDigest.data, other.mDigest.data, cnmt::kDigestLen);
+	}
 }
 
-const byte_t * nx::ContentMetaBinary::getBytes() const
+bool nx::ContentMetaBinary::operator==(const ContentMetaBinary& other) const
 {
-	return mRawBinary.getBytes();
+	return (mTitleId == other.mTitleId) \
+		&& (mTitleVersion == other.mTitleVersion) \
+		&& (mType == other.mType) \
+		&& (mAttributes == other.mAttributes) \
+		&& (mRequiredDownloadSystemVersion == other.mRequiredDownloadSystemVersion) \
+		&& (mExtendedHeader == other.mExtendedHeader) \
+		&& (mApplicationMetaExtendedHeader == other.mApplicationMetaExtendedHeader) \
+		&& (mPatchMetaExtendedHeader == other.mPatchMetaExtendedHeader) \
+		&& (mAddOnContentMetaExtendedHeader == other.mAddOnContentMetaExtendedHeader) \
+		&& (mDeltaMetaExtendedHeader == other.mDeltaMetaExtendedHeader) \
+		&& (mContentInfo == other.mContentInfo) \
+		&& (mContentMetaInfo == other.mContentMetaInfo) \
+		&& (mExtendedData == other.mExtendedData) \
+		&& (memcmp(mDigest.data, other.mDigest.data, cnmt::kDigestLen) == 0);
 }
 
-size_t nx::ContentMetaBinary::getSize() const
+bool nx::ContentMetaBinary::operator!=(const ContentMetaBinary& other) const
 {
-	return mRawBinary.getSize();
+	return !(*this == other);
 }
 
-void nx::ContentMetaBinary::exportBinary()
+void nx::ContentMetaBinary::toBytes()
 {
 	throw fnd::Exception(kModuleName, "exportBinary() not implemented");
 }
 
-void nx::ContentMetaBinary::importBinary(const byte_t * bytes, size_t len)
+void nx::ContentMetaBinary::fromBytes(const byte_t* data, size_t len)
 {
 	// clear member variables
 	clear();
 
 	// validate layout
-	validateBinary(bytes, len);
+	validateBinary(data, len);
 
 	// get pointer to header structure
-	const sContentMetaHeader* hdr = (const sContentMetaHeader*)bytes;
+	const sContentMetaHeader* hdr = (const sContentMetaHeader*)data;
 
 	mTitleId = hdr->id.get();
 	mTitleVersion = hdr->version.get();
@@ -52,36 +86,36 @@ void nx::ContentMetaBinary::importBinary(const byte_t * bytes, size_t len)
 	if (hdr->exhdr_size.get() > 0)
 	{
 		mExtendedHeader.alloc(hdr->exhdr_size.get());
-		memcpy(mExtendedHeader.getBytes(), bytes + getExtendedHeaderOffset(), hdr->exhdr_size.get());
+		memcpy(mExtendedHeader.data(), data + getExtendedHeaderOffset(), hdr->exhdr_size.get());
 
 		switch (mType)
 		{
 			case (cnmt::METATYPE_APPLICATION):
-				mApplicationMetaExtendedHeader.patch_id = ((sApplicationMetaExtendedHeader*)mExtendedHeader.getBytes())->patch_id.get();
-				mApplicationMetaExtendedHeader.required_system_version = ((sApplicationMetaExtendedHeader*)mExtendedHeader.getBytes())->required_system_version.get();
+				mApplicationMetaExtendedHeader.patch_id = ((sApplicationMetaExtendedHeader*)mExtendedHeader.data())->patch_id.get();
+				mApplicationMetaExtendedHeader.required_system_version = ((sApplicationMetaExtendedHeader*)mExtendedHeader.data())->required_system_version.get();
 				break;
 			case (cnmt::METATYPE_PATCH):
-				mPatchMetaExtendedHeader.application_id = ((sPatchMetaExtendedHeader*)mExtendedHeader.getBytes())->application_id.get();
-				mPatchMetaExtendedHeader.required_system_version = ((sPatchMetaExtendedHeader*)mExtendedHeader.getBytes())->required_system_version.get();
+				mPatchMetaExtendedHeader.application_id = ((sPatchMetaExtendedHeader*)mExtendedHeader.data())->application_id.get();
+				mPatchMetaExtendedHeader.required_system_version = ((sPatchMetaExtendedHeader*)mExtendedHeader.data())->required_system_version.get();
 				break;
 			case (cnmt::METATYPE_ADD_ON_CONTENT):
-				mAddOnContentMetaExtendedHeader.application_id = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.getBytes())->application_id.get();
-				mAddOnContentMetaExtendedHeader.required_system_version = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.getBytes())->required_system_version.get();
+				mAddOnContentMetaExtendedHeader.application_id = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.data())->application_id.get();
+				mAddOnContentMetaExtendedHeader.required_system_version = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.data())->required_system_version.get();
 				break;
 			case (cnmt::METATYPE_DELTA):
-				mDeltaMetaExtendedHeader.application_id = ((sDeltaMetaExtendedHeader*)mExtendedHeader.getBytes())->application_id.get();
+				mDeltaMetaExtendedHeader.application_id = ((sDeltaMetaExtendedHeader*)mExtendedHeader.data())->application_id.get();
 				break;
 			default:
 				break;
 		}
 
-		exdata_size = getExtendedDataSize(mType, mExtendedHeader.getBytes());
+		exdata_size = getExtendedDataSize(mType, mExtendedHeader.data());
 	}
 
 	// save content info
 	if (hdr->content_count.get() > 0)
 	{
-		const sContentInfo* info = (const sContentInfo*)(bytes + getContentInfoOffset(hdr->exhdr_size.get()));
+		const sContentInfo* info = (const sContentInfo*)(data + getContentInfoOffset(hdr->exhdr_size.get()));
 		for (size_t i = 0; i < hdr->content_count.get(); i++)
 		{
 			mContentInfo[i].hash = info[i].content_hash;
@@ -94,7 +128,7 @@ void nx::ContentMetaBinary::importBinary(const byte_t * bytes, size_t len)
 	// save content meta info
 	if (hdr->content_meta_count.get() > 0)
 	{
-		const sContentMetaInfo* info = (const sContentMetaInfo*)(bytes + getContentMetaInfoOffset(hdr->exhdr_size.get(), hdr->content_count.get()));
+		const sContentMetaInfo* info = (const sContentMetaInfo*)(data + getContentMetaInfoOffset(hdr->exhdr_size.get(), hdr->content_count.get()));
 		for (size_t i = 0; i < hdr->content_meta_count.get(); i++)
 		{
 			mContentMetaInfo[i].id = info[i].id.get();
@@ -108,12 +142,17 @@ void nx::ContentMetaBinary::importBinary(const byte_t * bytes, size_t len)
 	if (exdata_size > 0)
 	{
 		mExtendedData.alloc(exdata_size);
-		memcpy(mExtendedData.getBytes(), bytes + getExtendedDataOffset(hdr->exhdr_size.get(), hdr->content_count.get(), hdr->content_meta_count.get()), exdata_size);
+		memcpy(mExtendedData.data(), data + getExtendedDataOffset(hdr->exhdr_size.get(), hdr->content_count.get(), hdr->content_meta_count.get()), exdata_size);
 	}
 
 	// save digest
-	memcpy(mDigest.data, bytes + getDigestOffset(hdr->exhdr_size.get(), hdr->content_count.get(), hdr->content_meta_count.get(), exdata_size), cnmt::kDigestLen);
+	memcpy(mDigest.data, data + getDigestOffset(hdr->exhdr_size.get(), hdr->content_count.get(), hdr->content_meta_count.get(), exdata_size), cnmt::kDigestLen);
 
+}
+
+const fnd::Vec<byte_t>& nx::ContentMetaBinary::getBytes() const
+{
+	return mRawBinary;
 }
 
 void nx::ContentMetaBinary::clear()
@@ -245,12 +284,12 @@ void nx::ContentMetaBinary::setContentMetaInfo(const fnd::List<nx::ContentMetaBi
 	mContentMetaInfo = info;
 }
 
-const fnd::MemoryBlob & nx::ContentMetaBinary::getExtendedData() const
+const fnd::Vec<byte_t> & nx::ContentMetaBinary::getExtendedData() const
 {
 	return mExtendedData;
 }
 
-void nx::ContentMetaBinary::setExtendedData(const fnd::MemoryBlob & data)
+void nx::ContentMetaBinary::setExtendedData(const fnd::Vec<byte_t> & data)
 {
 	mExtendedData = data;
 }
@@ -307,7 +346,7 @@ size_t nx::ContentMetaBinary::getExtendedDataSize(cnmt::ContentMetaType type, co
 	return exdata_len;
 }
 
-void nx::ContentMetaBinary::validateBinary(const byte_t * bytes, size_t len) const
+void nx::ContentMetaBinary::validateBinary(const byte_t * data, size_t len) const
 {
 	// check if it is large enough to read the header
 	if (len < sizeof(sContentMetaHeader))
@@ -316,7 +355,7 @@ void nx::ContentMetaBinary::validateBinary(const byte_t * bytes, size_t len) con
 	}
 
 	// get pointer to header structure
-	const sContentMetaHeader* hdr = (const sContentMetaHeader*)bytes;
+	const sContentMetaHeader* hdr = (const sContentMetaHeader*)data;
 
 	// validate extended header size
 	if (validateExtendedHeaderSize((cnmt::ContentMetaType)hdr->type, hdr->exhdr_size.get()) == false)
@@ -331,52 +370,8 @@ void nx::ContentMetaBinary::validateBinary(const byte_t * bytes, size_t len) con
 	}
 
 	// check binary size again with extended data size
-	if (len < getTotalSize(hdr->exhdr_size.get(), hdr->content_count.get(), hdr->content_meta_count.get(), getExtendedDataSize((cnmt::ContentMetaType)hdr->type, bytes + getExtendedHeaderOffset())))
+	if (len < getTotalSize(hdr->exhdr_size.get(), hdr->content_count.get(), hdr->content_meta_count.get(), getExtendedDataSize((cnmt::ContentMetaType)hdr->type, data + getExtendedHeaderOffset())))
 	{
 		throw fnd::Exception(kModuleName, "Binary too small");
-	}
-}
-
-bool nx::ContentMetaBinary::isEqual(const ContentMetaBinary & other) const
-{
-	return (mTitleId == other.mTitleId) \
-		&& (mTitleVersion == other.mTitleVersion) \
-		&& (mType == other.mType) \
-		&& (mAttributes == other.mAttributes) \
-		&& (mRequiredDownloadSystemVersion == other.mRequiredDownloadSystemVersion) \
-		&& (mExtendedHeader == other.mExtendedHeader) \
-		&& (mApplicationMetaExtendedHeader == other.mApplicationMetaExtendedHeader) \
-		&& (mPatchMetaExtendedHeader == other.mPatchMetaExtendedHeader) \
-		&& (mAddOnContentMetaExtendedHeader == other.mAddOnContentMetaExtendedHeader) \
-		&& (mDeltaMetaExtendedHeader == other.mDeltaMetaExtendedHeader) \
-		&& (mContentInfo == other.mContentInfo) \
-		&& (mContentMetaInfo == other.mContentMetaInfo) \
-		&& (mExtendedData == other.mExtendedData) \
-		&& (memcmp(mDigest.data, other.mDigest.data, cnmt::kDigestLen) == 0);
-}
-
-void nx::ContentMetaBinary::copyFrom(const ContentMetaBinary & other)
-{
-	if (other.getSize() > 0)
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		clear();
-		mTitleId = other.mTitleId;
-		mTitleVersion = other.mTitleVersion;
-		mType = other.mType;
-		mAttributes = other.mAttributes;
-		mRequiredDownloadSystemVersion = other.mRequiredDownloadSystemVersion;
-		mExtendedHeader = other.mExtendedHeader;
-		mApplicationMetaExtendedHeader = other.mApplicationMetaExtendedHeader;
-		mPatchMetaExtendedHeader = other.mPatchMetaExtendedHeader;
-		mAddOnContentMetaExtendedHeader = other.mAddOnContentMetaExtendedHeader;
-		mDeltaMetaExtendedHeader = other.mDeltaMetaExtendedHeader;
-		mContentInfo = other.mContentInfo;
-		mContentMetaInfo = other.mContentMetaInfo;
-		mExtendedData = other.mExtendedData;
-		memcpy(mDigest.data, other.mDigest.data, cnmt::kDigestLen);
 	}
 }

@@ -1,35 +1,35 @@
 #include <nx/ThreadInfoHandler.h>
 
-
-
 nx::ThreadInfoHandler::ThreadInfoHandler() :
 	mIsSet(false),
 	mEntry(0,0,0,0)
 {}
 
+void nx::ThreadInfoHandler::operator=(const ThreadInfoHandler & other)
+{
+	mIsSet = other.mIsSet;
+	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
+}
+
 bool nx::ThreadInfoHandler::operator==(const ThreadInfoHandler & other) const
 {
-	return isEqual(other);
+	return (mIsSet == other.mIsSet) \
+		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }
 
 bool nx::ThreadInfoHandler::operator!=(const ThreadInfoHandler & other) const
 {
-	return !isEqual(other);
-}
-
-void nx::ThreadInfoHandler::operator=(const ThreadInfoHandler & other)
-{
-	copyFrom(other);
+	return !(*this == other);
 }
 
 void nx::ThreadInfoHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
 {
-	if (caps.getSize() > kMaxKernelCapNum)
+	if (caps.size() > kMaxKernelCapNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many kernel capabilities");
 	}
 
-	if (caps.getSize() == 0)
+	if (caps.size() == 0)
 		return;
 
 	mEntry.setKernelCapability(caps[0]);
@@ -100,16 +100,4 @@ void nx::ThreadInfoHandler::setMaxCpuId(uint8_t core_num)
 {
 	mEntry.setMaxCpuId(core_num);
 	mIsSet = true;
-}
-
-void nx::ThreadInfoHandler::copyFrom(const ThreadInfoHandler & other)
-{
-	mIsSet = other.mIsSet;
-	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
-}
-
-bool nx::ThreadInfoHandler::isEqual(const ThreadInfoHandler & other) const
-{
-	return (mIsSet == other.mIsSet) \
-		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }

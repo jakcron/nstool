@@ -24,7 +24,7 @@ namespace nx
 		KernelCapability(KernelCapId type);
 		KernelCapability(KernelCapId type, uint32_t field);
 
-		const KernelCapability& operator=(const KernelCapability& other);
+		void operator=(const KernelCapability& other);
 		bool operator==(const KernelCapability& other) const;
 		bool operator!=(const KernelCapability& other) const;
 

@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <fnd/types.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/Vec.h>
 
 #include <nx/npdm.h>
 
@@ -17,7 +17,7 @@ public:
 
 	void process();
 
-	void setRoBinary(const fnd::MemoryBlob& bin);
+	void setRoBinary(const fnd::Vec<byte_t>& bin);
 	void setApiInfo(size_t offset, size_t size);
 	void setDynSym(size_t offset, size_t size);
 	void setDynStr(size_t offset, size_t size);
@@ -45,7 +45,7 @@ private:
 	sLayout mApiInfo;
 	sLayout mDynSym;
 	sLayout mDynStr;
-	fnd::MemoryBlob mRoBlob;
+	fnd::Vec<byte_t> mRoBlob;
 	std::vector<SdkApiString> mSdkVerApiList;
 	std::vector<SdkApiString> mPublicApiList;
 	std::vector<SdkApiString> mDebugApiList;

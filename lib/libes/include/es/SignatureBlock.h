@@ -19,7 +19,7 @@ namespace es
 		// export/import binary
 		void toBytes();
 		void fromBytes(const byte_t* src, size_t size);
-		const const fnd::Vec<byte_t>& getBytes() const;
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();

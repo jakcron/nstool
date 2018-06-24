@@ -1,25 +1,23 @@
 #include <nx/SacEntry.h>
 
-using namespace nx;
-
-SacEntry::SacEntry() :
+nx::SacEntry::SacEntry()
 {
 	clear();
 }
 
-SacEntry::SacEntry(const std::string & name, bool isServer) :
+nx::SacEntry::SacEntry(const std::string & name, bool isServer) :
 	mIsServer(isServer),
 	mName(name)
 {
 	toBytes();
 }
 
-SacEntry::SacEntry(const SacEntry & other)
+nx::SacEntry::SacEntry(const SacEntry & other)
 {
 	*this = other;
 }
 
-void SacEntry::operator=(const SacEntry & other)
+void nx::SacEntry::operator=(const SacEntry & other)
 {
 	if (other.getBytes().size())
 	{
@@ -33,19 +31,19 @@ void SacEntry::operator=(const SacEntry & other)
 	}
 }
 
-bool SacEntry::operator==(const SacEntry & other) const
+bool nx::SacEntry::operator==(const SacEntry & other) const
 {
 	return (mIsServer == other.mIsServer) \
 		&& (mName == other.mName);
 }
 
-bool SacEntry::operator!=(const SacEntry & other) const
+bool nx::SacEntry::operator!=(const SacEntry & other) const
 {
 	return !(*this == other);
 }
 
 
-void SacEntry::toBytes()
+void nx::SacEntry::toBytes()
 {
 	try {
 		mRawBinary.alloc(mName.size() + 1);
@@ -70,7 +68,7 @@ void SacEntry::toBytes()
 	memcpy(mRawBinary.data() + 1, mName.c_str(), mName.length());
 }
 
-void SacEntry::fromBytes(const byte_t* data, size_t len)
+void nx::SacEntry::fromBytes(const byte_t* data, size_t len)
 {
 	bool isServer = (data[0] & SAC_IS_SERVER) == SAC_IS_SERVER;
 	size_t nameLen = (data[0] & SAC_NAME_LEN_MASK) + 1; // bug?
@@ -96,7 +94,7 @@ void SacEntry::fromBytes(const byte_t* data, size_t len)
 	mName = std::string((const char*)(mRawBinary.data() + 1), nameLen);
 }
 
-const fnd::Vec<byte_t>& SacEntry::getBytes() const
+const fnd::Vec<byte_t>& nx::SacEntry::getBytes() const
 {
 	return mRawBinary;
 }
@@ -107,22 +105,22 @@ void nx::SacEntry::clear()
 	mName.clear();
 }
 
-bool SacEntry::isServer() const
+bool nx::SacEntry::isServer() const
 {
 	return mIsServer;
 }
 
-void SacEntry::setIsServer(bool isServer)
+void nx::SacEntry::setIsServer(bool isServer)
 {
 	mIsServer = isServer;
 }
 
-const std::string & SacEntry::getName() const
+const std::string & nx::SacEntry::getName() const
 {
 	return mName;
 }
 
-void SacEntry::setName(const std::string & name)
+void nx::SacEntry::setName(const std::string & name)
 {
 	if (name.length() > kMaxServiceNameLen)
 	{

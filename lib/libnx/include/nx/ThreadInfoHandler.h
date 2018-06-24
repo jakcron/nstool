@@ -10,9 +10,9 @@ namespace nx
 	public:
 		ThreadInfoHandler();
 
+		void operator=(const ThreadInfoHandler& other);
 		bool operator==(const ThreadInfoHandler& other) const;
 		bool operator!=(const ThreadInfoHandler& other) const;
-		void operator=(const ThreadInfoHandler& other);
 
 		// kernel capabilty list in/out
 		void importKernelCapabilityList(const fnd::List<KernelCapability>& caps);
@@ -36,9 +36,6 @@ namespace nx
 
 		bool mIsSet;
 		ThreadInfoEntry mEntry;
-
-		void copyFrom(const ThreadInfoHandler& other);
-		bool isEqual(const ThreadInfoHandler& other) const;
 	};
 }
 

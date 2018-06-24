@@ -1,35 +1,35 @@
 #include <nx/MiscParamsHandler.h>
 
-
-
 nx::MiscParamsHandler::MiscParamsHandler() :
 	mIsSet(false),
 	mEntry(0)
 {}
 
+void nx::MiscParamsHandler::operator=(const MiscParamsHandler & other)
+{
+	mIsSet = other.mIsSet;
+	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
+}
+
 bool nx::MiscParamsHandler::operator==(const MiscParamsHandler & other) const
 {
-	return isEqual(other);
+	return (mIsSet == other.mIsSet) \
+		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }
 
 bool nx::MiscParamsHandler::operator!=(const MiscParamsHandler & other) const
 {
-	return !isEqual(other);
-}
-
-void nx::MiscParamsHandler::operator=(const MiscParamsHandler & other)
-{
-	copyFrom(other);
+	return !(*this == other);
 }
 
 void nx::MiscParamsHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
 {
-	if (caps.getSize() > kMaxKernelCapNum)
+	if (caps.size() > kMaxKernelCapNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many kernel capabilities");
 	}
 
-	if (caps.getSize() == 0)
+	if (caps.size() == 0)
 		return;
 
 	mEntry.setKernelCapability(caps[0]);
@@ -65,16 +65,4 @@ void nx::MiscParamsHandler::setProgramType(uint8_t type)
 {
 	mEntry.setProgramType(type);
 	mIsSet = true;
-}
-
-void nx::MiscParamsHandler::copyFrom(const MiscParamsHandler & other)
-{
-	mIsSet = other.mIsSet;
-	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
-}
-
-bool nx::MiscParamsHandler::isEqual(const MiscParamsHandler & other) const
-{
-	return (mIsSet == other.mIsSet) \
-		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }

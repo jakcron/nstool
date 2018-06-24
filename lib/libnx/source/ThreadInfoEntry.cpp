@@ -1,7 +1,5 @@
 #include <nx/ThreadInfoEntry.h>
 
-
-
 nx::ThreadInfoEntry::ThreadInfoEntry() :
 	mCap(kCapId),
 	mMinPriority(kDefaultPriority),
@@ -31,6 +29,28 @@ nx::ThreadInfoEntry::ThreadInfoEntry(uint8_t min_priority, uint8_t max_priority,
 	setMaxPriority(max_priority);
 	setMinCpuId(min_core_number);
 	setMaxCpuId(max_core_number);
+}
+
+void nx::ThreadInfoEntry::operator=(const ThreadInfoEntry& other)
+{
+	mMinPriority = other.mMinPriority;
+	mMaxPriority = other.mMaxPriority;
+	mMinCpuId = other.mMinCpuId;
+	mMaxCpuId = other.mMaxCpuId;
+	updateCapField();
+}
+
+bool nx::ThreadInfoEntry::operator==(const ThreadInfoEntry& other) const
+{
+	return (mMinPriority == other.mMinPriority) \
+		&& (mMaxPriority == other.mMaxPriority) \
+		&& (mMinCpuId == other.mMinCpuId) \
+		&& (mMaxCpuId == other.mMaxCpuId);
+}
+
+bool nx::ThreadInfoEntry::operator!=(const ThreadInfoEntry& other) const
+{
+	return !(*this == other);
 }
 
 const nx::KernelCapability & nx::ThreadInfoEntry::getKernelCapability() const

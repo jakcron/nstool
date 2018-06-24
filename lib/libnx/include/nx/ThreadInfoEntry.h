@@ -12,6 +12,10 @@ namespace nx
 		ThreadInfoEntry(const KernelCapability& kernel_cap);
 		ThreadInfoEntry(uint8_t min_priority, uint8_t max_priority, uint8_t min_cpu_id, uint8_t max_cpu_id);
 
+		void operator=(const ThreadInfoEntry& other);
+		bool operator==(const ThreadInfoEntry& other) const;
+		bool operator!=(const ThreadInfoEntry& other) const;
+
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);

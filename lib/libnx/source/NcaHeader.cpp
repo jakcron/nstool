@@ -1,18 +1,16 @@
 #include <nx/NcaHeader.h>
 
-using namespace nx;
-
-NcaHeader::NcaHeader()
+nx::NcaHeader::NcaHeader()
 {
 	clear();
 }
 
-NcaHeader::NcaHeader(const NcaHeader & other)
+nx::NcaHeader::NcaHeader(const NcaHeader & other)
 {
 	*this = other;
 }
 
-bool NcaHeader::operator==(const NcaHeader & other) const
+bool nx::NcaHeader::operator==(const NcaHeader & other) const
 {
 	return (mDistributionType == other.mDistributionType) \
 		&& (mContentType == other.mContentType) \
@@ -26,12 +24,12 @@ bool NcaHeader::operator==(const NcaHeader & other) const
 		&& (mEncAesKeys == other.mEncAesKeys);
 }
 
-bool NcaHeader::operator!=(const NcaHeader & other) const
+bool nx::NcaHeader::operator!=(const NcaHeader & other) const
 {
 	return !(*this == other);
 }
 
-void NcaHeader::operator=(const NcaHeader & other)
+void nx::NcaHeader::operator=(const NcaHeader & other)
 {
 	if (other.getBytes().size())
 	{
@@ -53,7 +51,7 @@ void NcaHeader::operator=(const NcaHeader & other)
 	}
 }
 
-void NcaHeader::toBytes()
+void nx::NcaHeader::toBytes()
 {
 	mRawBinary.alloc(sizeof(sNcaHeader));
 	sNcaHeader* hdr = (sNcaHeader*)mRawBinary.data();
@@ -110,7 +108,7 @@ void NcaHeader::toBytes()
 	}
 }
 
-void NcaHeader::fromBytes(const byte_t * data, size_t len)
+void nx::NcaHeader::fromBytes(const byte_t * data, size_t len)
 {
 	if (len < sizeof(sNcaHeader))
 	{
@@ -137,7 +135,7 @@ void NcaHeader::fromBytes(const byte_t * data, size_t len)
 
 	mDistributionType = (nca::DistributionType)hdr->distribution_type;
 	mContentType = (nca::ContentType)hdr->content_type;
-	mKeyGeneration = MAX(hdr->key_generation, hdr->key_generation_2);
+	mKeyGeneration = _MAX(hdr->key_generation, hdr->key_generation_2);
 	mKaekIndex = hdr->key_area_encryption_key_index;
 	mContentSize = *hdr->content_size;
 	mProgramId = *hdr->program_id;
@@ -160,7 +158,7 @@ void NcaHeader::fromBytes(const byte_t * data, size_t len)
 	}
 }
 
-const fnd::Vec<byte_t>& NcaHeader::getBytes() const
+const fnd::Vec<byte_t>& nx::NcaHeader::getBytes() const
 {
 	return mRawBinary;
 }
@@ -231,22 +229,22 @@ void nx::NcaHeader::setKaekIndex(byte_t index)
 	mKaekIndex = index;
 }
 
-uint64_t NcaHeader::getContentSize() const
+uint64_t nx::NcaHeader::getContentSize() const
 {
 	return mContentSize;
 }
 
-void NcaHeader::setContentSize(uint64_t size)
+void nx::NcaHeader::setContentSize(uint64_t size)
 {
 	mContentSize = size;
 }
 
-uint64_t NcaHeader::getProgramId() const
+uint64_t nx::NcaHeader::getProgramId() const
 {
 	return mProgramId;
 }
 
-void NcaHeader::setProgramId(uint64_t program_id)
+void nx::NcaHeader::setProgramId(uint64_t program_id)
 {
 	mProgramId = program_id;
 }
@@ -294,12 +292,12 @@ void nx::NcaHeader::setRightsId(const byte_t* rights_id)
 	memcpy(mRightsId, rights_id, nca::kRightsIdLen);
 }
 
-const fnd::List<NcaHeader::sPartition>& NcaHeader::getPartitions() const
+const fnd::List<nx::NcaHeader::sPartition>& nx::NcaHeader::getPartitions() const
 {
 	return mPartitions;
 }
 
-void NcaHeader::setPartitions(const fnd::List<NcaHeader::sPartition>& partitions)
+void nx::NcaHeader::setPartitions(const fnd::List<nx::NcaHeader::sPartition>& partitions)
 {
 	mPartitions = partitions;
 	if (mPartitions.size() >= nca::kPartitionNum)
@@ -308,22 +306,22 @@ void NcaHeader::setPartitions(const fnd::List<NcaHeader::sPartition>& partitions
 	}
 }
 
-const fnd::List<crypto::aes::sAes128Key>& NcaHeader::getEncAesKeys() const
+const fnd::List<crypto::aes::sAes128Key>& nx::NcaHeader::getEncAesKeys() const
 {
 	return mEncAesKeys;
 }
 
-void NcaHeader::setEncAesKeys(const fnd::List<crypto::aes::sAes128Key>& keys)
+void nx::NcaHeader::setEncAesKeys(const fnd::List<crypto::aes::sAes128Key>& keys)
 {
 	mEncAesKeys = keys;
 }
 
-uint64_t NcaHeader::blockNumToSize(uint32_t block_num) const
+uint64_t nx::NcaHeader::blockNumToSize(uint32_t block_num) const
 {
 	return block_num*nca::kSectorSize;
 }
 
-uint32_t NcaHeader::sizeToBlockNum(uint64_t real_size) const
+uint32_t nx::NcaHeader::sizeToBlockNum(uint64_t real_size) const
 {
 	return (uint32_t)(align(real_size, nca::kSectorSize) / nca::kSectorSize);
 }

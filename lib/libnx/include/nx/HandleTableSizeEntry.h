@@ -12,6 +12,10 @@ namespace nx
 		HandleTableSizeEntry(const KernelCapability& kernel_cap);
 		HandleTableSizeEntry(uint16_t size);
 
+		void operator=(const HandleTableSizeEntry& other);
+		bool operator==(const HandleTableSizeEntry& other) const;
+		bool operator!=(const HandleTableSizeEntry& other) const;
+
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);

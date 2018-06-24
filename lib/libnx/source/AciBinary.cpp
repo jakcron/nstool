@@ -67,6 +67,8 @@ void nx::AciBinary::toBytes()
 
 void nx::AciBinary::fromBytes(const byte_t * bytes, size_t len)
 {
+	clear();
+
 	AciHeader::fromBytes(bytes, len);
 
 	if (getAciSize() > len)

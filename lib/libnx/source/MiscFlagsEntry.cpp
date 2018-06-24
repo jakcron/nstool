@@ -1,7 +1,5 @@
 #include <nx/MiscFlagsEntry.h>
 
-
-
 nx::MiscFlagsEntry::MiscFlagsEntry() :
 	mCap(kCapId),
 	mFlags(0)
@@ -19,6 +17,22 @@ nx::MiscFlagsEntry::MiscFlagsEntry(uint32_t flags) :
 	mFlags(0)
 {
 	setFlags(flags);
+}
+
+void nx::MiscFlagsEntry::operator=(const MiscFlagsEntry& other)
+{
+	mFlags = other.mFlags;
+	updateCapField();
+}
+
+bool nx::MiscFlagsEntry::operator==(const MiscFlagsEntry& other) const
+{
+	return (mFlags == other.mFlags);
+}
+
+bool nx::MiscFlagsEntry::operator!=(const MiscFlagsEntry& other) const
+{
+	return !(*this == other);
 }
 
 const nx::KernelCapability & nx::MiscFlagsEntry::getKernelCapability() const

@@ -441,7 +441,7 @@ NacpProcess::~NacpProcess()
 
 void NacpProcess::process()
 {
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 
 	if (mFile == nullptr)
 	{
@@ -449,9 +449,9 @@ void NacpProcess::process()
 	}
 
 	scratch.alloc(mFile->size());
-	mFile->read(scratch.getBytes(), 0, scratch.getSize());
+	mFile->read(scratch.data(), 0, scratch.size());
 
-	mNacp.importBinary(scratch.getBytes(), scratch.getSize());
+	mNacp.fromBytes(scratch.data(), scratch.size());
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayNacp();
@@ -485,7 +485,7 @@ void NacpProcess::displayNacp()
 	printf("    DisplayVersion:               %s\n", mNacp.getDisplayVersion().c_str());
 	if (mNacp.getIsbn().empty() == false || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		printf("    ISBN:                         %s\n", mNacp.getIsbn().c_str());
-	for (size_t i = 0; i < mNacp.getTitle().getSize(); i++)
+	for (size_t i = 0; i < mNacp.getTitle().size(); i++)
 	{
 		printf("    %s Title:\n", getLanguageStr(mNacp.getTitle()[i].language));
 		printf("      Name:                       %s\n", mNacp.getTitle()[i].name.c_str());
@@ -501,17 +501,17 @@ void NacpProcess::displayNacp()
 	printf("  Play Log:\n");
 	printf("    PlayLogPolicy:                %s\n", getPlayLogPolicyStr(mNacp.getPlayLogPolicy()));
 	printf("    PlayLogQueryCapability:       %s\n", getPlayLogQueryCapabilityStr(mNacp.getPlayLogQueryCapability()));
-	if (mNacp.getPlayLogQueryableApplicationId().getSize() > 0)
+	if (mNacp.getPlayLogQueryableApplicationId().size() > 0)
 	{
 		printf("    PlayLogQueryableApplicationId:\n");
-		for (size_t i = 0; i < mNacp.getPlayLogQueryableApplicationId().getSize(); i++)
+		for (size_t i = 0; i < mNacp.getPlayLogQueryableApplicationId().size(); i++)
 		{
 			printf("      0x%016" PRIx64 "\n", mNacp.getPlayLogQueryableApplicationId()[i]);
 		}
 	}
 	printf("  Parental Controls:\n");
 	printf("    ParentalControlFlag:          %s\n", getParentalControlFlagStr(mNacp.getParentalControlFlag()));
-	for (size_t i = 0; i < mNacp.getRatingAge().getSize(); i++)
+	for (size_t i = 0; i < mNacp.getRatingAge().size(); i++)
 	{
 		printf("    Age Restriction:\n");
 		printf("      Agency:  %s\n", getOrganisationStr(mNacp.getRatingAge()[i].organisation));
@@ -524,11 +524,11 @@ void NacpProcess::displayNacp()
 		printf("    BcatPassphase:                %s\n", mNacp.getBcatPassphase().c_str());
 		printf("    DeliveryCacheStorageSize:     0x%016" PRIx64 "\n", mNacp.getBcatDeliveryCacheStorageSize());
 	}
-	if (mNacp.getLocalCommunicationId().getSize() > 0)
+	if (mNacp.getLocalCommunicationId().size() > 0)
 	{
 		printf("  Local Area Communication:\n");
 		printf("    LocalCommunicationId:\n");
-		for (size_t i = 0; i < mNacp.getLocalCommunicationId().getSize(); i++)
+		for (size_t i = 0; i < mNacp.getLocalCommunicationId().size(); i++)
 		{
 			printf("      0x%016" PRIx64 "\n", mNacp.getLocalCommunicationId()[i]);
 		}

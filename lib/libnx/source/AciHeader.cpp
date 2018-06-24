@@ -1,18 +1,16 @@
 #include <nx/AciHeader.h>
 
-using namespace nx;
-
-AciHeader::AciHeader()
+nx::AciHeader::AciHeader()
 {
 	clear();
 }
 
-AciHeader::AciHeader(const AciHeader & other)
+nx::AciHeader::AciHeader(const AciHeader & other)
 {
 	*this = other;
 }
 
-void AciHeader::operator=(const AciHeader & other)
+void nx::AciHeader::operator=(const AciHeader & other)
 {
 	if (other.getBytes().size())
 	{
@@ -34,7 +32,7 @@ void AciHeader::operator=(const AciHeader & other)
 	}
 }
 
-bool AciHeader::operator==(const AciHeader & other) const
+bool nx::AciHeader::operator==(const AciHeader & other) const
 {
 	return (mHeaderOffset == other.mHeaderOffset) \
 		&& (mType == other.mType) \
@@ -49,12 +47,12 @@ bool AciHeader::operator==(const AciHeader & other) const
 		&& (mKc == other.mKc);
 }
 
-bool AciHeader::operator!=(const AciHeader & other) const
+bool nx::AciHeader::operator!=(const AciHeader & other) const
 {
 	return !(*this == other);
 }
 
-void AciHeader::toBytes()
+void nx::AciHeader::toBytes()
 {
 	mRawBinary.alloc(sizeof(sAciHeader));
 	sAciHeader* hdr = (sAciHeader*)mRawBinary.data();
@@ -103,7 +101,7 @@ void AciHeader::toBytes()
 	}
 }
 
-void AciHeader::fromBytes(const byte_t * bytes, size_t len)
+void nx::AciHeader::fromBytes(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sAciHeader))
 	{
@@ -149,8 +147,8 @@ void AciHeader::fromBytes(const byte_t * bytes, size_t len)
 		mProgramIdMax = hdr->program_id_info.program_id_restrict.max.get();
 	}
 	
-	// the header offset is the MIN(sac.offset, fac.offset, kc.offset) - sizeof(sHeader)
-	mHeaderOffset = MAX(MIN(hdr->sac.offset.get(), MIN(hdr->fac.offset.get(), hdr->kc.offset.get())), align(sizeof(sAciHeader), aci::kAciAlignSize)) - align(sizeof(sAciHeader), aci::kAciAlignSize);
+	// the header offset is the _MIN(sac.offset, fac.offset, kc.offset) - sizeof(sHeader)
+	mHeaderOffset = _MAX(_MIN(hdr->sac.offset.get(), _MIN(hdr->fac.offset.get(), hdr->kc.offset.get())), align(sizeof(sAciHeader), aci::kAciAlignSize)) - align(sizeof(sAciHeader), aci::kAciAlignSize);
 
 	mFac.offset = hdr->fac.offset.get() - mHeaderOffset;
 	mFac.size = hdr->fac.size.get();
@@ -160,7 +158,7 @@ void AciHeader::fromBytes(const byte_t * bytes, size_t len)
 	mKc.size = hdr->kc.size.get();
 }
 
-const fnd::Vec<byte_t>& AciHeader::getBytes() const
+const fnd::Vec<byte_t>& nx::AciHeader::getBytes() const
 {
 	return mRawBinary;
 }
@@ -186,7 +184,7 @@ void nx::AciHeader::clear()
 
 size_t nx::AciHeader::getAciSize() const
 {
-	return MAX(MAX(MAX(mSac.offset + mSac.size, mKc.offset + mKc.size), mFac.offset + mFac.size), sizeof(sAciHeader));
+	return _MAX(_MAX(_MAX(mSac.offset + mSac.size, mKc.offset + mKc.size), mFac.offset + mFac.size), sizeof(sAciHeader));
 }
 
 size_t nx::AciHeader::getAcidSize() const
@@ -226,12 +224,12 @@ void nx::AciHeader::setHeaderOffset(size_t offset)
 	mHeaderOffset = offset;
 }
 
-AciHeader::AciType AciHeader::getAciType() const
+nx::AciHeader::AciType nx::AciHeader::getAciType() const
 {
 	return mType;
 }
 
-void AciHeader::setAciType(AciType type)
+void nx::AciHeader::setAciType(AciType type)
 {
 	mType = type;
 }
@@ -256,47 +254,47 @@ void nx::AciHeader::setIsUnqualifiedApproval(bool isUnqualifiedApproval)
 	mIsUnqualifiedApproval = isUnqualifiedApproval;
 }
 
-uint64_t AciHeader::getProgramId() const
+uint64_t nx::AciHeader::getProgramId() const
 {
 	return mProgramId;
 }
 
-void AciHeader::setProgramId(uint64_t program_id)
+void nx::AciHeader::setProgramId(uint64_t program_id)
 {
 	mProgramId = program_id;
 }
 
-const AciHeader::sSection & AciHeader::getFacPos() const
+const nx::AciHeader::sSection & nx::AciHeader::getFacPos() const
 {
 	return mFac;
 }
 
-void AciHeader::setFacSize(size_t size)
+void nx::AciHeader::setFacSize(size_t size)
 {
 	mFac.size = size;
 }
 
-const AciHeader::sSection & AciHeader::getSacPos() const
+const nx::AciHeader::sSection & nx::AciHeader::getSacPos() const
 {
 	return mSac;
 }
 
-void AciHeader::setSacSize(size_t size)
+void nx::AciHeader::setSacSize(size_t size)
 {
 	mSac.size = size;
 }
 
-const AciHeader::sSection & AciHeader::getKcPos() const
+const nx::AciHeader::sSection & nx::AciHeader::getKcPos() const
 {
 	return mKc;
 }
 
-void AciHeader::setKcSize(size_t size)
+void nx::AciHeader::setKcSize(size_t size)
 {
 	mKc.size = size;
 }
 
-void AciHeader::calculateSectionOffsets()
+void nx::AciHeader::calculateSectionOffsets()
 {
 	mFac.offset = align(mHeaderOffset, aci::kAciAlignSize) + align(sizeof(sAciHeader), aci::kAciAlignSize);
 	mSac.offset = mFac.offset + align(mFac.size, aci::kAciAlignSize);

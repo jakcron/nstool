@@ -12,6 +12,10 @@ namespace nx
 		SystemCallEntry(const KernelCapability& kernel_cap);
 		SystemCallEntry(uint32_t upper_bits, uint32_t lower_bits);
 
+		void operator=(const SystemCallEntry& other);
+		bool operator==(const SystemCallEntry& other) const;
+		bool operator!=(const SystemCallEntry& other) const;
+
 		// kernel capability
 		const KernelCapability& getKernelCapability() const;
 		void setKernelCapability(const KernelCapability& kernel_cap);

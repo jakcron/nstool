@@ -1,7 +1,5 @@
 #include <nx/HandleTableSizeEntry.h>
 
-
-
 nx::HandleTableSizeEntry::HandleTableSizeEntry() :
 	mCap(kCapId),
 	mHandleTableSize(0)
@@ -20,6 +18,23 @@ nx::HandleTableSizeEntry::HandleTableSizeEntry(uint16_t size) :
 {
 	setHandleTableSize(size);
 }
+
+void nx::HandleTableSizeEntry::operator=(const HandleTableSizeEntry& other)
+{
+	mHandleTableSize = other.mHandleTableSize;
+	updateCapField();
+}
+
+bool nx::HandleTableSizeEntry::operator==(const HandleTableSizeEntry& other) const
+{
+	return (mHandleTableSize == other.mHandleTableSize);
+}
+
+bool nx::HandleTableSizeEntry::operator!=(const HandleTableSizeEntry& other) const
+{
+	return !(*this == other);
+}
+
 
 const nx::KernelCapability & nx::HandleTableSizeEntry::getKernelCapability() const
 {
