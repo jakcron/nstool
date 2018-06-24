@@ -10,20 +10,6 @@ es::SectionHeader_V2::SectionHeader_V2(const SectionHeader_V2 & other)
 	*this = other;
 }
 
-bool es::SectionHeader_V2::operator==(const SectionHeader_V2 & other) const
-{
-	return (mSectionOffset == other.mSectionOffset) \
-		&& (mRecordSize == other.mRecordSize) \
-		&& (mSectionSize == other.mSectionSize) \
-		&& (mRecordNum == other.mRecordNum) \
-		&& (mSectionType == other.mSectionType);
-}
-
-bool es::SectionHeader_V2::operator!=(const SectionHeader_V2 & other) const
-{
-	return !(*this ==other);
-}
-
 void es::SectionHeader_V2::operator=(const SectionHeader_V2 & other)
 {
 	if (other.getBytes().size())
@@ -39,6 +25,20 @@ void es::SectionHeader_V2::operator=(const SectionHeader_V2 & other)
 		mRecordNum = other.mRecordNum;
 		mSectionType = other.mSectionType;
 	}
+}
+
+bool es::SectionHeader_V2::operator==(const SectionHeader_V2 & other) const
+{
+	return (mSectionOffset == other.mSectionOffset) \
+		&& (mRecordSize == other.mRecordSize) \
+		&& (mSectionSize == other.mSectionSize) \
+		&& (mRecordNum == other.mRecordNum) \
+		&& (mSectionType == other.mSectionType);
+}
+
+bool es::SectionHeader_V2::operator!=(const SectionHeader_V2 & other) const
+{
+	return !(*this ==other);
 }
 
 void es::SectionHeader_V2::toBytes()

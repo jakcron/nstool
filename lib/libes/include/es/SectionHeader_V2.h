@@ -12,9 +12,9 @@ namespace es
 		SectionHeader_V2();
 		SectionHeader_V2(const SectionHeader_V2& other);
 
+		void operator=(const SectionHeader_V2& other);
 		bool operator==(const SectionHeader_V2& other) const;
 		bool operator!=(const SectionHeader_V2& other) const;
-		void operator=(const SectionHeader_V2& other);
 
 		// export/import binary
 		void toBytes();

@@ -12,32 +12,6 @@ es::TicketBody_V2::TicketBody_V2(const TicketBody_V2 & other)
 	*this = other;
 }
 
-bool es::TicketBody_V2::operator==(const TicketBody_V2 & other) const
-{
-	return (mIssuer == other.mIssuer) \
-		&& (memcmp(mEncTitleKey, other.mEncTitleKey, ticket::kEncTitleKeySize) == 0) \
-		&& (mEncType == other.mEncType) \
-		&& (mTicketVersion == other.mTicketVersion) \
-		&& (mLicenseType == other.mLicenseType) \
-		&& (mPreInstall == other.mPreInstall) \
-		&& (mSharedTitle == other.mSharedTitle) \
-		&& (mAllowAllContent == other.mAllowAllContent) \
-		&& (memcmp(mReservedRegion, other.mReservedRegion, ticket::kReservedRegionSize) == 0) \
-		&& (mTicketId == other.mTicketId) \
-		&& (mDeviceId == other.mDeviceId) \
-		&& (memcmp(mRightsId, other.mRightsId, ticket::kRightsIdSize) == 0) \
-		&& (mAccountId == other.mAccountId) \
-		&& (mSectTotalSize == other.mSectTotalSize) \
-		&& (mSectHeaderOffset == other.mSectHeaderOffset) \
-		&& (mSectNum == other.mSectNum) \
-		&& (mSectEntrySize == other.mSectEntrySize);
-}
-
-bool es::TicketBody_V2::operator!=(const TicketBody_V2 & other) const
-{
-	return !(*this == other);
-}
-
 void es::TicketBody_V2::operator=(const TicketBody_V2 & other)
 {
 	if (other.getBytes().size())
@@ -65,6 +39,32 @@ void es::TicketBody_V2::operator=(const TicketBody_V2 & other)
 		mSectNum = other.mSectNum;
 		mSectEntrySize = other.mSectEntrySize;
 	}
+}
+
+bool es::TicketBody_V2::operator==(const TicketBody_V2 & other) const
+{
+	return (mIssuer == other.mIssuer) \
+		&& (memcmp(mEncTitleKey, other.mEncTitleKey, ticket::kEncTitleKeySize) == 0) \
+		&& (mEncType == other.mEncType) \
+		&& (mTicketVersion == other.mTicketVersion) \
+		&& (mLicenseType == other.mLicenseType) \
+		&& (mPreInstall == other.mPreInstall) \
+		&& (mSharedTitle == other.mSharedTitle) \
+		&& (mAllowAllContent == other.mAllowAllContent) \
+		&& (memcmp(mReservedRegion, other.mReservedRegion, ticket::kReservedRegionSize) == 0) \
+		&& (mTicketId == other.mTicketId) \
+		&& (mDeviceId == other.mDeviceId) \
+		&& (memcmp(mRightsId, other.mRightsId, ticket::kRightsIdSize) == 0) \
+		&& (mAccountId == other.mAccountId) \
+		&& (mSectTotalSize == other.mSectTotalSize) \
+		&& (mSectHeaderOffset == other.mSectHeaderOffset) \
+		&& (mSectNum == other.mSectNum) \
+		&& (mSectEntrySize == other.mSectEntrySize);
+}
+
+bool es::TicketBody_V2::operator!=(const TicketBody_V2 & other) const
+{
+	return !(*this == other);
 }
 
 void es::TicketBody_V2::toBytes()

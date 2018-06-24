@@ -12,9 +12,9 @@ namespace es
 		TicketBody_V2();
 		TicketBody_V2(const TicketBody_V2& other);
 
+		void operator=(const TicketBody_V2& other);
 		bool operator==(const TicketBody_V2& other) const;
 		bool operator!=(const TicketBody_V2& other) const;
-		void operator=(const TicketBody_V2& other);
 
 		// export/import binary
 		void toBytes();
