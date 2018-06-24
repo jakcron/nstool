@@ -13,6 +13,12 @@ namespace nx
 		{
 			uint64_t offset;
 			uint64_t size;
+
+			void operator=(const sSection& other)
+			{
+				offset = other.offset;
+				size = other.size;
+			}
 		};
 
 		AssetHeader();
