@@ -7,72 +7,10 @@ es::SectionHeader_V2::SectionHeader_V2()
 
 es::SectionHeader_V2::SectionHeader_V2(const SectionHeader_V2 & other)
 {
-	copyFrom(other);
-}
-
-es::SectionHeader_V2::SectionHeader_V2(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
+	*this = other;
 }
 
 bool es::SectionHeader_V2::operator==(const SectionHeader_V2 & other) const
-{
-	return isEqual(other);
-}
-
-bool es::SectionHeader_V2::operator!=(const SectionHeader_V2 & other) const
-{
-	return !isEqual(other);
-}
-
-void es::SectionHeader_V2::operator=(const SectionHeader_V2 & other)
-{
-	copyFrom(other);
-}
-
-const byte_t * es::SectionHeader_V2::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t es::SectionHeader_V2::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
-
-void es::SectionHeader_V2::exportBinary()
-{
-	mBinaryBlob.alloc(sizeof(sSectionHeader_v2));
-	sSectionHeader_v2* hdr = (sSectionHeader_v2*)mBinaryBlob.getBytes();
-
-	hdr->section_offset = (mSectionOffset);
-	hdr->record_size = (mRecordSize);
-	hdr->section_size = (mSectionSize);
-	hdr->record_num = (mRecordNum);
-	hdr->section_type = (mSectionType);
-}
-
-void es::SectionHeader_V2::importBinary(const byte_t * bytes, size_t len)
-{
-	if (len < sizeof(sSectionHeader_v2))
-	{
-		throw fnd::Exception(kModuleName, "Binary too small");
-	}
-
-	clear();
-
-	mBinaryBlob.alloc(sizeof(sSectionHeader_v2));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
-	sSectionHeader_v2* hdr = (sSectionHeader_v2*)mBinaryBlob.getBytes();
-
-	mSectionOffset = hdr->section_offset.get();
-	mRecordSize = hdr->record_size.get();
-	mSectionSize = hdr->section_size.get();
-	mRecordNum = hdr->record_num.get();
-	mSectionType = (ticket::SectionType)hdr->section_type.get();
-}
-
-bool es::SectionHeader_V2::isEqual(const SectionHeader_V2 & other) const
 {
 	return (mSectionOffset == other.mSectionOffset) \
 		&& (mRecordSize == other.mRecordSize) \
@@ -81,15 +19,20 @@ bool es::SectionHeader_V2::isEqual(const SectionHeader_V2 & other) const
 		&& (mSectionType == other.mSectionType);
 }
 
-void es::SectionHeader_V2::copyFrom(const SectionHeader_V2 & other)
+bool es::SectionHeader_V2::operator!=(const SectionHeader_V2 & other) const
 {
-	if (other.getSize())
+	return !(*this ==other);
+}
+
+void es::SectionHeader_V2::operator=(const SectionHeader_V2 & other)
+{
+	if (other.getBytes().size())
 	{
-		importBinary(other.getBytes(), other.getSize());
+		fromBytes(other.getBytes().data(), other.getBytes().size());
 	}
 	else
 	{
-		mBinaryBlob.clear();
+		mRawBinary.clear();
 		mSectionOffset = other.mSectionOffset;
 		mRecordSize = other.mRecordSize;
 		mSectionSize = other.mSectionSize;
@@ -98,9 +41,46 @@ void es::SectionHeader_V2::copyFrom(const SectionHeader_V2 & other)
 	}
 }
 
+void es::SectionHeader_V2::toBytes()
+{
+	mRawBinary.alloc(sizeof(sSectionHeader_v2));
+	sSectionHeader_v2* hdr = (sSectionHeader_v2*)mRawBinary.data();
+
+	hdr->section_offset = (mSectionOffset);
+	hdr->record_size = (mRecordSize);
+	hdr->section_size = (mSectionSize);
+	hdr->record_num = (mRecordNum);
+	hdr->section_type = (mSectionType);
+}
+
+void es::SectionHeader_V2::fromBytes(const byte_t * bytes, size_t len)
+{
+	if (len < sizeof(sSectionHeader_v2))
+	{
+		throw fnd::Exception(kModuleName, "Binary too small");
+	}
+
+	clear();
+
+	mRawBinary.alloc(sizeof(sSectionHeader_v2));
+	memcpy(mRawBinary.data(), bytes, mRawBinary.size());
+	sSectionHeader_v2* hdr = (sSectionHeader_v2*)mRawBinary.data();
+
+	mSectionOffset = hdr->section_offset.get();
+	mRecordSize = hdr->record_size.get();
+	mSectionSize = hdr->section_size.get();
+	mRecordNum = hdr->record_num.get();
+	mSectionType = (ticket::SectionType)hdr->section_type.get();
+}
+
+const fnd::Vec<byte_t>& es::SectionHeader_V2::getBytes() const
+{
+	return mRawBinary;
+}
+
 void es::SectionHeader_V2::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mSectionOffset = 0;
 	mRecordSize = 0;
 	mSectionSize = 0;

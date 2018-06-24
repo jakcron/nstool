@@ -7,17 +7,30 @@ es::CertificateBody::CertificateBody()
 
 es::CertificateBody::CertificateBody(const CertificateBody& other)
 {
-	copyFrom(other);
+	*this = other;
 }
 
 void es::CertificateBody::operator=(const CertificateBody& other)
 {
-	copyFrom(other);
+	mRawBinary = other.mRawBinary;
+	mIssuer = other.mIssuer;
+	mSubject = other.mSubject;
+	mCertId = other.mCertId;
+	mPublicKeyType = other.mPublicKeyType;
+	mRsa4096PublicKey = other.mRsa4096PublicKey;
+	mRsa2048PublicKey = other.mRsa2048PublicKey;
+	mEcdsa240PublicKey = other.mEcdsa240PublicKey;
 }
 
 bool es::CertificateBody::operator==(const CertificateBody& other) const
 {
-	return isEqual(other);
+	return (mIssuer == other.mIssuer) \
+		&& (mSubject == other.mSubject) \
+		&& (mCertId == other.mCertId) \
+		&& (mPublicKeyType == other.mPublicKeyType) \
+		&& (mRsa4096PublicKey == other.mRsa4096PublicKey) \
+		&& (mRsa2048PublicKey == other.mRsa2048PublicKey) \
+		&& (mEcdsa240PublicKey == other.mEcdsa240PublicKey);
 }
 
 bool es::CertificateBody::operator!=(const CertificateBody& other) const
@@ -25,7 +38,55 @@ bool es::CertificateBody::operator!=(const CertificateBody& other) const
 	return !(*this == other);
 }
 
-void es::CertificateBody::importBinary(const byte_t* src, size_t size)
+void es::CertificateBody::toBytes()
+{
+	// get public key size
+	size_t pubkeySize = 0;
+	switch (mPublicKeyType)
+	{
+		case (cert::RSA4096):
+			pubkeySize = sizeof(sRsa4096PublicKeyBlock);
+			break;
+		case (cert::RSA2048):
+			pubkeySize = sizeof(sRsa2048PublicKeyBlock);
+			break;
+		case (cert::ECDSA240):
+			pubkeySize = sizeof(sEcdsa240PublicKeyBlock);
+			break;
+		default:
+			throw fnd::Exception(kModuleName, "Unknown public key type");
+	}
+
+	mRawBinary.alloc(sizeof(sCertificateHeader) + pubkeySize);
+	sCertificateHeader* hdr = (sCertificateHeader*)mRawBinary.data();
+
+	// copy header vars
+	strncpy(hdr->issuer, mIssuer.c_str(), cert::kIssuerSize);
+	hdr->key_type = mPublicKeyType;
+	strncpy(hdr->subject, mSubject.c_str(), cert::kSubjectSize);
+	hdr->cert_id = mCertId;
+
+	// copy public key
+	if (mPublicKeyType == cert::RSA4096)
+	{
+		sRsa4096PublicKeyBlock* pubkey = (sRsa4096PublicKeyBlock*)(mRawBinary.data() + sizeof(sCertificateHeader));
+		memcpy(pubkey->modulus, mRsa4096PublicKey.modulus, sizeof(mRsa4096PublicKey.modulus));
+		memcpy(pubkey->public_exponent, mRsa4096PublicKey.public_exponent, sizeof(mRsa4096PublicKey.public_exponent));
+	}
+	else if (mPublicKeyType == cert::RSA2048)
+	{
+		sRsa2048PublicKeyBlock* pubkey = (sRsa2048PublicKeyBlock*)(mRawBinary.data() + sizeof(sCertificateHeader));
+		memcpy(pubkey->modulus, mRsa2048PublicKey.modulus, sizeof(mRsa2048PublicKey.modulus));
+		memcpy(pubkey->public_exponent, mRsa2048PublicKey.public_exponent, sizeof(mRsa2048PublicKey.public_exponent));
+	}
+	else if (mPublicKeyType == cert::ECDSA240)
+	{
+		sEcdsa240PublicKeyBlock* pubkey = (sEcdsa240PublicKeyBlock*)(mRawBinary.data() + sizeof(sCertificateHeader));
+		pubkey->public_key = mEcdsa240PublicKey;
+	}
+}
+
+void es::CertificateBody::fromBytes(const byte_t* src, size_t size)
 {
 	clear();
 
@@ -61,11 +122,11 @@ void es::CertificateBody::importBinary(const byte_t* src, size_t size)
 	}
 
 	// save raw binary
-	mBinaryBlob.alloc((sizeof(sCertificateHeader) + pubkeySize));
-	memcpy(mBinaryBlob.getBytes(), src, mBinaryBlob.getSize());
+	mRawBinary.alloc((sizeof(sCertificateHeader) + pubkeySize));
+	memcpy(mRawBinary.data(), src, mRawBinary.size());
 
 	// save hdr variables
-	hdr = (const sCertificateHeader*)mBinaryBlob.getBytes();
+	hdr = (const sCertificateHeader*)mRawBinary.data();
 
 	if (hdr->issuer[0] != 0)
 		mIssuer = std::string(hdr->issuer, cert::kIssuerSize);
@@ -77,80 +138,28 @@ void es::CertificateBody::importBinary(const byte_t* src, size_t size)
 	// save public key
 	if (mPublicKeyType == cert::RSA4096)
 	{
-		const sRsa4096PublicKeyBlock* pubkey = (const sRsa4096PublicKeyBlock*)(mBinaryBlob.getBytes() + sizeof(sCertificateHeader));
+		const sRsa4096PublicKeyBlock* pubkey = (const sRsa4096PublicKeyBlock*)(mRawBinary.data() + sizeof(sCertificateHeader));
 		memcpy(mRsa4096PublicKey.modulus, pubkey->modulus, sizeof(mRsa4096PublicKey.modulus));
 		memcpy(mRsa4096PublicKey.public_exponent, pubkey->public_exponent, sizeof(mRsa4096PublicKey.public_exponent));
 	}
 	else if (mPublicKeyType == cert::RSA2048)
 	{
-		const sRsa2048PublicKeyBlock* pubkey = (const sRsa2048PublicKeyBlock*)(mBinaryBlob.getBytes() + sizeof(sCertificateHeader));
+		const sRsa2048PublicKeyBlock* pubkey = (const sRsa2048PublicKeyBlock*)(mRawBinary.data() + sizeof(sCertificateHeader));
 		memcpy(mRsa2048PublicKey.modulus, pubkey->modulus, sizeof(mRsa2048PublicKey.modulus));
 		memcpy(mRsa2048PublicKey.public_exponent, pubkey->public_exponent, sizeof(mRsa2048PublicKey.public_exponent));
 	}
 	else if (mPublicKeyType == cert::ECDSA240)
 	{
-		const sEcdsa240PublicKeyBlock* pubkey = (const sEcdsa240PublicKeyBlock*)(mBinaryBlob.getBytes() + sizeof(sCertificateHeader));
+		const sEcdsa240PublicKeyBlock* pubkey = (const sEcdsa240PublicKeyBlock*)(mRawBinary.data() + sizeof(sCertificateHeader));
 		mEcdsa240PublicKey = pubkey->public_key;
 	}
 }
 
-void es::CertificateBody::exportBinary()
+const fnd::Vec<byte_t>& es::CertificateBody::getBytes() const
 {
-	// get public key size
-	size_t pubkeySize = 0;
-	switch (mPublicKeyType)
-	{
-		case (cert::RSA4096):
-			pubkeySize = sizeof(sRsa4096PublicKeyBlock);
-			break;
-		case (cert::RSA2048):
-			pubkeySize = sizeof(sRsa2048PublicKeyBlock);
-			break;
-		case (cert::ECDSA240):
-			pubkeySize = sizeof(sEcdsa240PublicKeyBlock);
-			break;
-		default:
-			throw fnd::Exception(kModuleName, "Unknown public key type");
-	}
-
-	mBinaryBlob.alloc(sizeof(sCertificateHeader) + pubkeySize);
-	sCertificateHeader* hdr = (sCertificateHeader*)mBinaryBlob.getBytes();
-
-	// copy header vars
-	strncpy(hdr->issuer, mIssuer.c_str(), cert::kIssuerSize);
-	hdr->key_type = mPublicKeyType;
-	strncpy(hdr->subject, mSubject.c_str(), cert::kSubjectSize);
-	hdr->cert_id = mCertId;
-
-	// copy public key
-	if (mPublicKeyType == cert::RSA4096)
-	{
-		sRsa4096PublicKeyBlock* pubkey = (sRsa4096PublicKeyBlock*)(mBinaryBlob.getBytes() + sizeof(sCertificateHeader));
-		memcpy(pubkey->modulus, mRsa4096PublicKey.modulus, sizeof(mRsa4096PublicKey.modulus));
-		memcpy(pubkey->public_exponent, mRsa4096PublicKey.public_exponent, sizeof(mRsa4096PublicKey.public_exponent));
-	}
-	else if (mPublicKeyType == cert::RSA2048)
-	{
-		sRsa2048PublicKeyBlock* pubkey = (sRsa2048PublicKeyBlock*)(mBinaryBlob.getBytes() + sizeof(sCertificateHeader));
-		memcpy(pubkey->modulus, mRsa2048PublicKey.modulus, sizeof(mRsa2048PublicKey.modulus));
-		memcpy(pubkey->public_exponent, mRsa2048PublicKey.public_exponent, sizeof(mRsa2048PublicKey.public_exponent));
-	}
-	else if (mPublicKeyType == cert::ECDSA240)
-	{
-		sEcdsa240PublicKeyBlock* pubkey = (sEcdsa240PublicKeyBlock*)(mBinaryBlob.getBytes() + sizeof(sCertificateHeader));
-		pubkey->public_key = mEcdsa240PublicKey;
-	}
+	return mRawBinary;
 }
 
-const byte_t* es::CertificateBody::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t es::CertificateBody::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
 
 void es::CertificateBody::clear()
 {
@@ -242,28 +251,4 @@ const crypto::ecdsa::sEcdsa240Point& es::CertificateBody::getEcdsa240PublicKey()
 void es::CertificateBody::setEcdsa240PublicKey(const crypto::ecdsa::sEcdsa240Point& key)
 {
 	mEcdsa240PublicKey = key;
-}
-
-bool es::CertificateBody::isEqual(const CertificateBody& other) const
-{
-	return (mIssuer == other.mIssuer) \
-		&& (mSubject == other.mSubject) \
-		&& (mCertId == other.mCertId) \
-		&& (mPublicKeyType == other.mPublicKeyType) \
-		&& (mRsa4096PublicKey == other.mRsa4096PublicKey) \
-		&& (mRsa2048PublicKey == other.mRsa2048PublicKey) \
-		&& (mEcdsa240PublicKey == other.mEcdsa240PublicKey);
-
-}
-
-void es::CertificateBody::copyFrom(const CertificateBody& other)
-{
-	mBinaryBlob = other.mBinaryBlob;
-	mIssuer = other.mIssuer;
-	mSubject = other.mSubject;
-	mCertId = other.mCertId;
-	mPublicKeyType = other.mPublicKeyType;
-	mRsa4096PublicKey = other.mRsa4096PublicKey;
-	mRsa2048PublicKey = other.mRsa2048PublicKey;
-	mEcdsa240PublicKey = other.mEcdsa240PublicKey;
 }

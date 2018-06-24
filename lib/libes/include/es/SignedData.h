@@ -1,113 +1,137 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
-#include <fnd/ISerialiseableBinary.h>
+#include <fnd/ISerialisable.h>
 #include <es/SignatureBlock.h>
 
 namespace es
 {
 	template <class T>
 	class SignedData
-		: public fnd::ISerialiseableBinary
+		: public fnd::ISerialiseable
 	{
 	public:
-		SignedData()
-		{
-			clear();
-		}
-		SignedData(const SignedData& other)
-		{
-			copyFrom(other);
-		}
+		SignedData();
+		SignedData(const SignedData& other);
 
-		void operator=(const SignedData& other)
-		{
-			copyFrom(other);
-		}
-		bool operator==(const SignedData& other) const
-		{
-			return isEqual(other);
-		}
-		bool operator!=(const SignedData& other) const
-		{
-			return !(*this == other);
-		}
+		void operator=(const SignedData& other);
+		bool operator==(const SignedData& other) const;
+		bool operator!=(const SignedData& other) const;
 
-		void importBinary(const byte_t* src, size_t size)
-		{
-			mSignature.importBinary(src, size);
-			mBody.importBinary(src + mSignature.getSize(), size - mSignature.getSize());
+		// export/import
+		const void toBytes();
+		void fromBytes(const byte_t* src, size_t size);
+		const fnd::Vec<byte_t>& getBytes() const;
 
-			mBinaryBlob.alloc(mSignature.getSize() + mBody.getSize());
-			memcpy(mBinaryBlob.getBytes(), src, mBinaryBlob.getSize());
-		}
+		// variables
+		void clear();
 
-		void exportBinary()
-		{
-			mSignature.exportBinary();
-			mBody.exportBinary();
+		const es::SignatureBlock& getSignature() const;
+		void setSignature(const SignatureBlock& signature);
 
-			mBinaryBlob.alloc(mSignature.getSize() + mBody.getSize());
-
-			memcpy(mBinaryBlob.getBytes(), mSignature.getBytes(), mSignature.getSize());
-			memcpy(mBinaryBlob.getBytes() + mSignature.getSize(), mBody.getBytes(), mBody.getSize());
-		}
-
-		const byte_t* getBytes() const
-		{
-			return mBinaryBlob.getBytes();
-		}
-		size_t getSize() const
-		{
-			return mBinaryBlob.getSize();
-		}
-
-		void clear()
-		{
-			mBinaryBlob.clear();
-			mSignature.clear();
-			mBody.clear();
-		}
-
-		const es::SignatureBlock& getSignature() const
-		{
-			return mSignature;
-		}
-		void setSignature(const SignatureBlock& signature)
-		{
-			mSignature = signature;
-		}
-
-		const T& getBody() const
-		{
-			return mBody;
-		}
-		void setBody(const T& body)
-		{
-			mBody = body;
-		}
+		const T& getBody() const;
+		void setBody(const T& body);
 	private:
 		const std::string kModuleName = "SIGNED_DATA";
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		SignatureBlock mSignature;
 		T mBody;
-
-		// helpers
-		bool isEqual(const SignedData& other) const
-		{
-			return (mSignature == other.mSignature) \
-				&& (mBody == other.mBody);
-		}
-		void copyFrom(const SignedData& other)
-		{
-			mBinaryBlob = other.mBinaryBlob;
-			mSignature = other.mSignature;
-			mBody = other.mBody;
-		}
 	};
+
+	template <class T>
+	inline SignedData::SignedData()
+	{
+		clear();
+	}
+
+	template <class T>
+	inline SignedData::SignedData(const SignedData& other)
+	{
+		*this = other;
+	}
+
+	template <class T>
+	inline void SignedData::operator=(const SignedData& other)
+	{
+		mRawBinary = other.mRawBinary;
+		mSignature = other.mSignature;
+		mBody = other.mBody;
+	}
+
+	template <class T>
+	inline bool SignedData::operator==(const SignedData& other) const
+	{
+		return (mSignature == other.mSignature) \
+			&& (mBody == other.mBody);
+	}
+
+	template <class T>
+	inline bool SignedData::operator!=(const SignedData& other) const
+	{
+		return !(*this == other);
+	}
+
+	template <class T>
+	inline const void SignedData::toBytes()
+	{
+		mSignature.toBytes();
+		mBody.toBytes();
+
+		mRawBinary.alloc(mSignature.getBytes().size() + mBody.getBytes().size());
+
+		memcpy(mRawBinary.getBytes().data(), mSignature.getBytes().data(), mSignature.getBytes().size());
+		memcpy(mRawBinary.getBytes().data() + mSignature.getBytes().size(), mBody.getBytes().data(), mBody.getBytes().size());
+	}
+
+	template <class T>
+	inline void SignedData::fromBytes(const byte_t* src, size_t size)
+	{
+		mSignature.fromBytes(src, size);
+		mBody.fromBytes(src + mSignature.getBytes().size(), size - mSignature.getBytes().size());
+
+		mRawBinary.alloc(mSignature.getBytes().size() + mBody.getBytes().size());
+		memcpy(mRawBinary.getBytes().data(), src, mRawBinary.getBytes().size());
+	}
+
+	template <class T>
+	inline const fnd::Vec<byte_t>& SignedData::getBytes() const
+	{
+		return mRawBinary;
+	}
+
+	template <class T>
+	inline void SignedData::clear()
+	{
+		mRawBinary.clear();
+		mSignature.clear();
+		mBody.clear();
+	}
+
+	template <class T>
+	inline const es::SignatureBlock& SignedData::getSignature() const
+	{
+		return mSignature;
+	}
+
+	template <class T>
+	inline void SignedData::setSignature(const SignatureBlock& signature)
+	{
+		mSignature = signature;
+	}
+
+	template <class T>
+	inline const T& SignedData::getBody() const
+	{
+		return mBody;
+	}
+
+	template <class T>
+	inline void SignedData::setBody(const T& body)
+	{
+		mBody = body;
+	}
 }
 
