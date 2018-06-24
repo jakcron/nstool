@@ -19,6 +19,12 @@ namespace nx
 				offset = other.offset;
 				size = other.size;
 			}
+
+			bool operator==(const sSection& other) const
+			{
+				return (offset == other.offset) \
+					&& (size == other.size);
+			}
 		};
 
 		AssetHeader();
