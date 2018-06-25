@@ -56,10 +56,10 @@ namespace nx
 		void setFsaRightsList(const fnd::List<fac::FsAccessFlag>& list);
 
 		const sSection& getContentOwnerIdPos() const;
-		void setContentOwnerIdSize(size_t size);
+		void setContentOwnerIdPos(const sSection& pos);
 
 		const sSection& getSaveDataOwnerIdPos() const;;
-		void setSaveDataOwnerIdSize(size_t size);
+		void setSaveDataOwnerIdPos(const sSection& pos);
 
 	private:
 		const std::string kModuleName = "FAC_HEADER";
@@ -72,8 +72,6 @@ namespace nx
 		fnd::List<fac::FsAccessFlag> mFsaRights;
 		sSection mContentOwnerIdPos;
 		sSection mSaveDataOwnerIdPos;
-
-		void calculateOffsets();
 	};
 }
 

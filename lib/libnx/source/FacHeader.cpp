@@ -61,7 +61,6 @@ void nx::FacHeader::toBytes()
 	}
 	hdr->fac_flags = (flag);
 
-	calculateOffsets();
 	hdr->content_owner_ids.start = (uint32_t)(mContentOwnerIdPos.offset);
 	hdr->content_owner_ids.end = (uint32_t)(mContentOwnerIdPos.offset + mContentOwnerIdPos.size);
 	hdr->save_data_owner_ids.start = (uint32_t)(mSaveDataOwnerIdPos.offset);
@@ -151,9 +150,9 @@ const nx::FacHeader::sSection& nx::FacHeader::getContentOwnerIdPos() const
 	return mContentOwnerIdPos;
 }
 
-void nx::FacHeader::setContentOwnerIdSize(size_t size)
+void nx::FacHeader::setContentOwnerIdPos(const sSection& pos)
 {
-	mContentOwnerIdPos.size = size;
+	mContentOwnerIdPos = pos;
 }
 
 const nx::FacHeader::sSection& nx::FacHeader::getSaveDataOwnerIdPos() const
@@ -161,13 +160,7 @@ const nx::FacHeader::sSection& nx::FacHeader::getSaveDataOwnerIdPos() const
 	return mSaveDataOwnerIdPos;
 }
 
-void nx::FacHeader::setSaveDataOwnerIdSize(size_t size)
+void nx::FacHeader::setSaveDataOwnerIdPos(const sSection& pos)
 {
-	mSaveDataOwnerIdPos.size = size;
-}
-
-void nx::FacHeader::calculateOffsets()
-{
-	mContentOwnerIdPos.offset = align(sizeof(sFacHeader), 4);
-	mSaveDataOwnerIdPos.offset = mContentOwnerIdPos.offset + align(mContentOwnerIdPos.size, 4);
+	mSaveDataOwnerIdPos = pos;
 }

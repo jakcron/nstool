@@ -42,22 +42,29 @@ void nx::FacBinary::toBytes()
 {
 	FacHeader hdr;
 
+	FacHeader::sSection content_id_list_pos, savedata_owner_id_list_pos;
+
+	content_id_list_pos.size = mContentOwnerIdList.size() * sizeof(uint32_t);
+	content_id_list_pos.offset = align(sizeof(sFacHeader), 4);
+	savedata_owner_id_list_pos.size = mSaveDataOwnerIdList.size() * sizeof(uint32_t);
+	savedata_owner_id_list_pos.offset = content_id_list_pos.offset + align(content_id_list_pos.size, 4);
+
 	hdr.setFormatVersion(fac::kFacFormatVersion);
 	hdr.setFsaRightsList(mFsaRights);
-	hdr.setContentOwnerIdSize(mContentOwnerIdList.size() * sizeof(uint32_t));
-	hdr.setSaveDataOwnerIdSize(mSaveDataOwnerIdList.size() * sizeof(uint32_t));
+	hdr.setContentOwnerIdPos(content_id_list_pos);
+	hdr.setSaveDataOwnerIdPos(savedata_owner_id_list_pos);
 	hdr.toBytes();
 
 	mRawBinary.alloc(hdr.getFacSize());
 	memcpy(mRawBinary.data(), hdr.getBytes().data(), hdr.getBytes().size());
 
-	uint32_t* rawContentOwnerIds = (uint32_t*)(mRawBinary.data() + hdr.getContentOwnerIdPos().offset);
+	uint32_t* rawContentOwnerIds = (uint32_t*)(mRawBinary.data() + content_id_list_pos.offset);
 	for (size_t i = 0; i < mContentOwnerIdList.size(); i++)
 	{
 		rawContentOwnerIds[i] = le_word(mContentOwnerIdList[i]);
 	}
 
-	uint32_t* rawSaveDataOwnerIds = (uint32_t*)(mRawBinary.data() + hdr.getSaveDataOwnerIdPos().offset);
+	uint32_t* rawSaveDataOwnerIds = (uint32_t*)(mRawBinary.data() + savedata_owner_id_list_pos.offset);
 	for (size_t i = 0; i < mSaveDataOwnerIdList.size(); i++)
 	{
 		rawSaveDataOwnerIds[i] = le_word(mSaveDataOwnerIdList[i]);
