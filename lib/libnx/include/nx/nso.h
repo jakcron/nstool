@@ -7,7 +7,7 @@ namespace nx
 {
 	namespace nso
 	{
-		static const uint32_t kNsoSig = _MAKE_STRUCT_SIGNATURE("NSO0");
+		static const uint32_t kNsoStructMagic = _MAKE_STRUCT_MAGIC("NSO0");
 
 		enum HeaderFlags
 		{
@@ -39,7 +39,7 @@ namespace nx
 
 	struct sNsoHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		le_uint32_t format_version;
 		byte_t reserved_1[4];
 		le_uint32_t flags;

@@ -61,10 +61,10 @@ void nx::AciHeader::toBytes()
 	switch (mType)
 	{
 	case (TYPE_ACI0):
-		hdr->signature = aci::kAciStructSig;
+		hdr->st_magic = aci::kAciStructMagic;
 		break;
 	case (TYPE_ACID):
-		hdr->signature = aci::kAciDescStructSig;
+		hdr->st_magic = aci::kAciDescStructMagic;
 		break;
 	default:
 		throw fnd::Exception(kModuleName, "Unexpected ACI type");
@@ -115,12 +115,12 @@ void nx::AciHeader::fromBytes(const byte_t * bytes, size_t len)
 
 	sAciHeader* hdr = (sAciHeader*)mRawBinary.data();
 
-	switch (hdr->signature.get())
+	switch (hdr->st_magic.get())
 	{
-	case (aci::kAciStructSig):
+	case (aci::kAciStructMagic):
 		mType = TYPE_ACI0;
 		break;
-	case (aci::kAciDescStructSig):
+	case (aci::kAciDescStructMagic):
 		mType = TYPE_ACID;
 		break;
 	default:

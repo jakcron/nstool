@@ -4,10 +4,9 @@
 
 namespace nx
 {
-	// Also known to the public as IVFC
 	namespace hierarchicalintegrity
 	{
-		static const uint32_t kStructSig = _MAKE_STRUCT_SIGNATURE("IVFC");
+		static const uint32_t kStructMagic = _MAKE_STRUCT_MAGIC("IVFC");
 		static const uint32_t kRomfsTypeId = 0x20000;
 		static const size_t kDefaultLayerNum = 6;
 		static const size_t kHeaderAlignLen = 0x20;
@@ -16,7 +15,7 @@ namespace nx
 #pragma pack(push,1)
 	struct sHierarchicalIntegrityHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		le_uint32_t type_id;
 		le_uint32_t master_hash_size;
 		le_uint32_t layer_num;

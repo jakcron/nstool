@@ -6,6 +6,6 @@ namespace nx
 {
 	namespace nro
 	{
-		static const uint64_t kNroHomebrewSig = _MAKE_STRUCT_SIGNATURE_U64("HOMEBREW");
+		static const uint64_t kNroHomebrewStMagic = _MAKE_STRUCT_MAGIC_U64("HOMEBREW");
 	}
 }

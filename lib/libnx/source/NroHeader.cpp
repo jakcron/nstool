@@ -52,7 +52,7 @@ void nx::NroHeader::toBytes()
 	nx::sNroHeader* hdr = (nx::sNroHeader*)mRawBinary.data();
 
 	// set header identifers
-	hdr->signature = nro::kNroSig;
+	hdr->st_magic = nro::kNroStructMagic;
 	hdr->format_version = nro::kDefaultFormatVersion;
 	hdr->flags = 0;
 
@@ -112,7 +112,7 @@ void nx::NroHeader::fromBytes(const byte_t* data, size_t len)
 	const nx::sNroHeader* hdr = (const nx::sNroHeader*)mRawBinary.data();
 	
 	// check NRO signature
-	if (hdr->signature.get() != nro::kNroSig)
+	if (hdr->st_magic.get() != nro::kNroStructMagic)
 	{
 		throw fnd::Exception(kModuleName, "NRO header corrupt (unrecognised header signature)");
 	}

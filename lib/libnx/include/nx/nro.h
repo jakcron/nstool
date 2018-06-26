@@ -6,7 +6,7 @@ namespace nx
 {
 	namespace nro
 	{
-		static const uint32_t kNroSig = _MAKE_STRUCT_SIGNATURE("NRO0");
+		static const uint32_t kNroStructMagic = _MAKE_STRUCT_MAGIC("NRO0");
 
 		static const uint32_t kDefaultFormatVersion = 0;
 		static const size_t kRoCrtSize = 8;
@@ -24,7 +24,7 @@ namespace nx
 	{
 		byte_t ro_crt[nro::kRoCrtSize];
 		byte_t reserved_0[8];
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		le_uint32_t format_version;
 		le_uint32_t size;
 		le_uint32_t flags;

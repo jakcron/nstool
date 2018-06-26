@@ -60,10 +60,10 @@ void nx::NcaHeader::toBytes()
 	switch(mFormatVersion)
 	{
 	case (NCA2_FORMAT):
-		hdr->signature = nca::kNca2Sig;
+		hdr->st_magic = nca::kNca2StMagic;
 		break;
 	case (NCA3_FORMAT):
-		hdr->signature = nca::kNca3Sig;
+		hdr->st_magic = nca::kNca3StMagic;
 		break;
 	default:
 		throw fnd::Exception(kModuleName, "Unsupported format version");
@@ -122,12 +122,12 @@ void nx::NcaHeader::fromBytes(const byte_t * data, size_t len)
 
 	sNcaHeader* hdr = (sNcaHeader*)mRawBinary.data();
 
-	switch(hdr->signature.get())
+	switch(hdr->st_magic.get())
 	{
-		case (nca::kNca2Sig) :
+		case (nca::kNca2StMagic) :
 			mFormatVersion = NCA2_FORMAT;
 			break;
-		case (nca::kNca3Sig) :
+		case (nca::kNca3StMagic) :
 			mFormatVersion = NCA3_FORMAT;
 			break;
 		throw fnd::Exception(kModuleName, "NCA header corrupt");

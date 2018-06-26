@@ -36,7 +36,7 @@ void nx::AssetHeader::toBytes()
 	nx::sAssetHeader* hdr = (nx::sAssetHeader*)mRawBinary.data();
 
 	// set header identifers
-	hdr->signature = aset::kAssetSig;
+	hdr->st_magic = aset::kAssetStructMagic;
 	hdr->format_version = aset::kDefaultAssetFormatVersion;
 
 	// set icon section
@@ -71,7 +71,7 @@ void nx::AssetHeader::fromBytes(const byte_t* bytes, size_t len)
 	const nx::sAssetHeader* hdr = (const nx::sAssetHeader*)mRawBinary.data();
 	
 	// check NRO signature
-	if (hdr->signature.get() != aset::kAssetSig)
+	if (hdr->st_magic.get() != aset::kAssetStructMagic)
 	{
 		throw fnd::Exception(kModuleName, "ASET header corrupt (unrecognised header signature)");
 	}

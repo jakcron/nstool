@@ -54,7 +54,7 @@ void nx::HierarchicalIntegrityHeader::fromBytes(const byte_t* data, size_t len)
 	const nx::sHierarchicalIntegrityHeader* hdr = (const nx::sHierarchicalIntegrityHeader*)data;
 
 	// Validate Header Sig "IVFC"
-	if (hdr->signature.get() != hierarchicalintegrity::kStructSig)
+	if (hdr->st_magic.get() != hierarchicalintegrity::kStructMagic)
 	{
 		throw fnd::Exception(kModuleName, "Invalid struct magic");
 	}

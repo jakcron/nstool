@@ -724,19 +724,19 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #define _ASSERT_SIZE(sz) (scratch.size() >= (sz))
 
 	// test npdm
-	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && _TYPE_PTR(nx::sXciHeaderPage)->header.signature.get() == nx::xci::kXciSig)
+	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && _TYPE_PTR(nx::sXciHeaderPage)->header.st_magic.get() == nx::xci::kXciStructMagic)
 		file_type = FILE_XCI;
 	// test pfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _TYPE_PTR(nx::sPfsHeader)->signature.get() == nx::pfs::kPfsSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _TYPE_PTR(nx::sPfsHeader)->st_magic.get() == nx::pfs::kPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
 	// test hfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _TYPE_PTR(nx::sPfsHeader)->signature.get() == nx::pfs::kHashedPfsSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _TYPE_PTR(nx::sPfsHeader)->st_magic.get() == nx::pfs::kHashedPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
 	// test romfs
 	else if (_ASSERT_SIZE(sizeof(nx::sRomfsHeader)) && _TYPE_PTR(nx::sRomfsHeader)->header_size.get() == sizeof(nx::sRomfsHeader) && _TYPE_PTR(nx::sRomfsHeader)->sections[1].offset.get() == (_TYPE_PTR(nx::sRomfsHeader)->sections[0].offset.get() + _TYPE_PTR(nx::sRomfsHeader)->sections[0].size.get()))
 		file_type = FILE_ROMFS;
 	// test npdm
-	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && _TYPE_PTR(nx::sNpdmHeader)->signature.get() == nx::npdm::kNpdmStructSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && _TYPE_PTR(nx::sNpdmHeader)->st_magic.get() == nx::npdm::kNpdmStructMagic)
 		file_type = FILE_NPDM;
 	// test nca
 	else if (determineValidNcaFromSample(scratch))
@@ -748,13 +748,13 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	else if (determineValidNacpFromSample(scratch))
 		file_type = FILE_NACP;
 	// test nso
-	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && _TYPE_PTR(nx::sNsoHeader)->signature.get() == nx::nso::kNsoSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && _TYPE_PTR(nx::sNsoHeader)->st_magic.get() == nx::nso::kNsoStructMagic)
 		file_type = FILE_NSO;
 	// test nso
-	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _TYPE_PTR(nx::sNroHeader)->signature.get() == nx::nro::kNroSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _TYPE_PTR(nx::sNroHeader)->st_magic.get() == nx::nro::kNroStructMagic)
 		file_type = FILE_NRO;
 	// test hb asset
-	else if (_ASSERT_SIZE(sizeof(nx::sAssetHeader)) && _TYPE_PTR(nx::sAssetHeader)->signature.get() == nx::aset::kAssetSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sAssetHeader)) && _TYPE_PTR(nx::sAssetHeader)->st_magic.get() == nx::aset::kAssetStructMagic)
 		file_type = FILE_HB_ASSET;
 	// else unrecognised
 	else
@@ -777,7 +777,7 @@ bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) c
 
 	nx::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, mKeyset.nca.header_key);
 
-	if (nca_header->signature.get() != nx::nca::kNca2Sig && nca_header->signature.get() != nx::nca::kNca3Sig)
+	if (nca_header->st_magic.get() != nx::nca::kNca2StructMagic && nca_header->st_magic.get() != nx::nca::kNca3StructMagic)
 		return false;
 
 	return true;

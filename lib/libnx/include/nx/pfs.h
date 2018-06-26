@@ -6,15 +6,15 @@ namespace nx
 {
 	namespace pfs
 	{
-		static const uint32_t kPfsSig = _MAKE_STRUCT_SIGNATURE("PFS0");
-		static const uint32_t kHashedPfsSig = _MAKE_STRUCT_SIGNATURE("HFS0");
+		static const uint32_t kPfsStructMagic = _MAKE_STRUCT_MAGIC("PFS0");
+		static const uint32_t kHashedPfsStructMagic = _MAKE_STRUCT_MAGIC("HFS0");
 		static const size_t kHeaderAlign = 64;
 	}
 	
 #pragma pack(push,1)
 	struct sPfsHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		le_uint32_t file_num;
 		le_uint32_t name_table_size;
 		byte_t padding[4];

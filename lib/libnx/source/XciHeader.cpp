@@ -105,7 +105,7 @@ void nx::XciHeader::fromBytes(const byte_t* data, size_t len)
 	const nx::sXciHeader* hdr = (const nx::sXciHeader*)mRawBinary.data();
 	
 	// check XCI signature
-	if (hdr->signature.get() != xci::kXciSig)
+	if (hdr->st_magic.get() != xci::kXciStructMagic)
 	{
 		throw fnd::Exception(kModuleName, "XCI header corrupt");
 	}

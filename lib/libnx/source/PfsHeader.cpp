@@ -63,10 +63,10 @@ void nx::PfsHeader::toBytes()
 	switch (mFsType)
 	{
 		case (TYPE_PFS0):
-			hdr->signature = pfs::kPfsSig;
+			hdr->st_magic = pfs::kPfsStructMagic;
 			break;
 		case (TYPE_HFS0):
-			hdr->signature = pfs::kHashedPfsSig;
+			hdr->st_magic = pfs::kHashedPfsStructMagic;
 			break;
 	}
 	
@@ -131,12 +131,12 @@ void nx::PfsHeader::fromBytes(const byte_t* data, size_t len)
 
 	// check struct signature
 	FsType fs_type;
-	switch(hdr->signature.get())
+	switch(hdr->st_magic.get())
 	{
-		case (pfs::kPfsSig):
+		case (pfs::kPfsStructMagic):
 			fs_type = TYPE_PFS0;
 			break;
-		case (pfs::kHashedPfsSig):
+		case (pfs::kHashedPfsStructMagic):
 			fs_type = TYPE_HFS0;
 			break;	
 		default:

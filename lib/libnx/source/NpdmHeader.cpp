@@ -56,7 +56,7 @@ void nx::NpdmHeader::toBytes()
 	mRawBinary.alloc(sizeof(sNpdmHeader));
 	sNpdmHeader* hdr = (sNpdmHeader*)mRawBinary.data();
 
-	hdr->signature = npdm::kNpdmStructSig;
+	hdr->st_magic = npdm::kNpdmStructMagic;
 	byte_t flag = ((byte_t)(mInstructionType & 1) | (byte_t)((mProcAddressSpaceType & 3) << 1)) & 0xf;
 	hdr->flags = flag;
 	hdr->main_thread_priority = mMainThreadPriority;
@@ -87,7 +87,7 @@ void nx::NpdmHeader::fromBytes(const byte_t* data, size_t len)
 	memcpy(mRawBinary.data(), data, mRawBinary.size());
 	sNpdmHeader* hdr = (sNpdmHeader*)mRawBinary.data();
 
-	if (hdr->signature.get() != npdm::kNpdmStructSig)
+	if (hdr->st_magic.get() != npdm::kNpdmStructMagic)
 	{
 		throw fnd::Exception(kModuleName, "NPDM header corrupt");
 	}

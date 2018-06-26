@@ -49,7 +49,7 @@ void nx::NsoHeader::toBytes()
 	nx::sNsoHeader* hdr = (nx::sNsoHeader*)mRawBinary.data();
 
 	// set header identifers
-	hdr->signature = nso::kNsoSig;
+	hdr->st_magic = nso::kNsoStructMagic;
 	hdr->format_version = nso::kDefaultFormatVersion;
 	
 	// variable to store flags before commiting to header
@@ -144,7 +144,7 @@ void nx::NsoHeader::fromBytes(const byte_t* data, size_t len)
 	const nx::sNsoHeader* hdr = (const nx::sNsoHeader*)mRawBinary.data();
 	
 	// check NSO signature
-	if (hdr->signature.get() != nso::kNsoSig)
+	if (hdr->st_magic.get() != nso::kNsoStructMagic)
 	{
 		throw fnd::Exception(kModuleName, "NSO header corrupt (unrecognised header signature)");
 	}
