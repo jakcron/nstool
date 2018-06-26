@@ -106,7 +106,7 @@ void NroProcess::importHeader()
 
 	// setup homebrew extension
 	nx::sNroHeader* raw_hdr = (nx::sNroHeader*)scratch.data();
-	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nx::nro::kNroHomebrewSig && mFile->size() > mHdr.getNroSize())
+	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nx::nro::kNroHomebrewStructMagic && mFile->size() > mHdr.getNroSize())
 	{
 		mIsHomebrewNro = true;
 		mAssetProc.setInputFile(new OffsetAdjustedIFile(mFile, false, mHdr.getNroSize(), mFile->size() - mHdr.getNroSize()), true);
