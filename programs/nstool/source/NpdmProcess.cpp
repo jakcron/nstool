@@ -44,17 +44,17 @@ void NpdmProcess::process()
 
 		// aci binary
 		displayAciHdr(mNpdm.getAci());
-		displayFac(mNpdm.getAci().getFac());
-		displaySac(mNpdm.getAci().getSac());
-		displayKernelCap(mNpdm.getAci().getKc());
+		displayFac(mNpdm.getAci().getFileSystemAccessControl());
+		displaySac(mNpdm.getAci().getServiceAccessControl());
+		displayKernelCap(mNpdm.getAci().getKernelCapabilities());
 
 		// acid binary
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		{
-			displayAciHdr(mNpdm.getAcid());
-			displayFac(mNpdm.getAcid().getFac());
-			displaySac(mNpdm.getAcid().getSac());
-			displayKernelCap(mNpdm.getAcid().getKc());
+			displayAciDescHdr(mNpdm.getAcid());
+			displayFac(mNpdm.getAcid().getFileSystemAccessControl());
+			displaySac(mNpdm.getAcid().getServiceAccessControl());
+			displayKernelCap(mNpdm.getAcid().getKernelCapabilities());
 		}
 	}
 }
@@ -87,7 +87,41 @@ const nx::NpdmBinary& NpdmProcess::getNpdmBinary() const
 
 const std::string kInstructionType[2] = { "32Bit", "64Bit" };
 const std::string kProcAddrSpace[4] = { "Unknown", "64Bit", "32Bit", "32Bit no reserved" };
-const std::string kAciType[2] = { "ACI0", "ACID" };
+const std::string kAcidFlag[32] = 
+{
+	"Production",
+	"UnqualifiedApproval",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown"
+};
 const std::string kMiscFlag[15] = { "EnableDebug", "ForceDebug", "bit2", "bit3", "bit4", "bit5", "bit6", "bit7", "bit8", "bit9", "bit10", "bit11", "bit12", "bit13", "bit14"};
 const std::string kFsaFlag[64] =
 {
@@ -293,10 +327,10 @@ const std::string kMemMapType[2] = { "Io", "Static" };
  
 const std::string kAcidTarget[2] = { "Development", "Production" };
 
-void NpdmProcess::validateAcidSignature(const nx::AcidBinary& acid)
+void NpdmProcess::validateAcidSignature(const nx::AccessControlInfoDescBinary& acid)
 {
 	try {
-		acid.verifyBinary(mKeyset->acid_sign_key);
+		acid.validateSignature(mKeyset->acid_sign_key);
 	}
 	catch (...) {
 		printf("[WARNING] ACID Signature: FAIL\n");
@@ -304,193 +338,193 @@ void NpdmProcess::validateAcidSignature(const nx::AcidBinary& acid)
 	
 }
 
-void NpdmProcess::validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBinary& acid)
+void NpdmProcess::validateAciFromAcid(const nx::AccessControlInfoBinary& aci, const nx::AccessControlInfoDescBinary& acid)
 {
 	// check Program ID
-	if (acid.getProgramIdMin() > 0 && aci.getProgramId() < acid.getProgramIdMin())
+	if (acid.getProgramIdRestrict().min > 0 && aci.getProgramId() < acid.getProgramIdRestrict().min)
 	{
 		printf("[WARNING] ACI ProgramId: FAIL (Outside Legal Range)\n");
 	}
-	else if (acid.getProgramIdMax() > 0 && aci.getProgramId() > acid.getProgramIdMax())
+	else if (acid.getProgramIdRestrict().max > 0 && aci.getProgramId() > acid.getProgramIdRestrict().max)
 	{
 		printf("[WARNING] ACI ProgramId: FAIL (Outside Legal Range)\n");
 	}
 
-	for (size_t i = 0; i < aci.getFac().getFsaRightsList().size(); i++)
+	for (size_t i = 0; i < aci.getFileSystemAccessControl().getFsaRightsList().size(); i++)
 	{
 		bool fsaRightFound = false;
-		for (size_t j = 0; j < acid.getFac().getFsaRightsList().size() && fsaRightFound == false; j++)
+		for (size_t j = 0; j < acid.getFileSystemAccessControl().getFsaRightsList().size() && fsaRightFound == false; j++)
 		{
-			if (aci.getFac().getFsaRightsList()[i] == acid.getFac().getFsaRightsList()[j])
+			if (aci.getFileSystemAccessControl().getFsaRightsList()[i] == acid.getFileSystemAccessControl().getFsaRightsList()[j])
 				fsaRightFound = true;
 		}
 
 		if (fsaRightFound == false)
 		{
 
-			printf("[WARNING] ACI/FAC FsaRights: FAIL (%s not permitted)\n", kFsaFlag[aci.getFac().getFsaRightsList()[i]].c_str());
+			printf("[WARNING] ACI/FAC FsaRights: FAIL (%s not permitted)\n", kFsaFlag[aci.getFileSystemAccessControl().getFsaRightsList()[i]].c_str());
 		}
 	}
 
-	for (size_t i = 0; i < aci.getFac().getContentOwnerIdList().size(); i++)
+	for (size_t i = 0; i < aci.getFileSystemAccessControl().getContentOwnerIdList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getFac().getContentOwnerIdList().size() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getFileSystemAccessControl().getContentOwnerIdList().size() && rightFound == false; j++)
 		{
-			if (aci.getFac().getContentOwnerIdList()[i] == acid.getFac().getContentOwnerIdList()[j])
+			if (aci.getFileSystemAccessControl().getContentOwnerIdList()[i] == acid.getFileSystemAccessControl().getContentOwnerIdList()[j])
 				rightFound = true;
 		}
 
 		if (rightFound == false)
 		{
 
-			printf("[WARNING] ACI/FAC ContentOwnerId: FAIL (%08x not permitted)\n", aci.getFac().getContentOwnerIdList()[i]);
+			printf("[WARNING] ACI/FAC ContentOwnerId: FAIL (%08x not permitted)\n", aci.getFileSystemAccessControl().getContentOwnerIdList()[i]);
 		}
 	}
 
-	for (size_t i = 0; i < aci.getFac().getSaveDataOwnerIdList().size(); i++)
+	for (size_t i = 0; i < aci.getFileSystemAccessControl().getSaveDataOwnerIdList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getFac().getSaveDataOwnerIdList().size() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getFileSystemAccessControl().getSaveDataOwnerIdList().size() && rightFound == false; j++)
 		{
-			if (aci.getFac().getSaveDataOwnerIdList()[i] == acid.getFac().getSaveDataOwnerIdList()[j])
+			if (aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i] == acid.getFileSystemAccessControl().getSaveDataOwnerIdList()[j])
 				rightFound = true;
 		}
 
 		if (rightFound == false)
 		{
 
-			printf("[WARNING] ACI/FAC ContentOwnerId: FAIL (%08x not permitted)\n", aci.getFac().getSaveDataOwnerIdList()[i]);
+			printf("[WARNING] ACI/FAC ContentOwnerId: FAIL (%08x not permitted)\n", aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i]);
 		}
 	}
 
 	// check SAC
-	for (size_t i = 0; i < aci.getSac().getServiceList().size(); i++)
+	for (size_t i = 0; i < aci.getServiceAccessControl().getServiceList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getSac().getServiceList().size() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getServiceAccessControl().getServiceList().size() && rightFound == false; j++)
 		{
-			if (aci.getSac().getServiceList()[i] == acid.getSac().getServiceList()[j])
+			if (aci.getServiceAccessControl().getServiceList()[i] == acid.getServiceAccessControl().getServiceList()[j])
 				rightFound = true;
 		}
 
 		if (rightFound == false)
 		{
-			printf("[WARNING] ACI/SAC ServiceList: FAIL (%s%s not permitted)\n", aci.getSac().getServiceList()[i].getName().c_str(), aci.getSac().getServiceList()[i].isServer()? " (Server)" : "");
+			printf("[WARNING] ACI/SAC ServiceList: FAIL (%s%s not permitted)\n", aci.getServiceAccessControl().getServiceList()[i].getName().c_str(), aci.getServiceAccessControl().getServiceList()[i].isServer()? " (Server)" : "");
 		}
 	}
 
 	// check KC
 	// check thread info
-	if (aci.getKc().getThreadInfo().getMaxCpuId() != acid.getKc().getThreadInfo().getMaxCpuId())
+	if (aci.getKernelCapabilities().getThreadInfo().getMaxCpuId() != acid.getKernelCapabilities().getThreadInfo().getMaxCpuId())
 	{
-		printf("[WARNING] ACI/KC ThreadInfo/MaxCpuId: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMaxCpuId());
+		printf("[WARNING] ACI/KC ThreadInfo/MaxCpuId: FAIL (%d not permitted)\n", aci.getKernelCapabilities().getThreadInfo().getMaxCpuId());
 	}
-	if (aci.getKc().getThreadInfo().getMinCpuId() != acid.getKc().getThreadInfo().getMinCpuId())
+	if (aci.getKernelCapabilities().getThreadInfo().getMinCpuId() != acid.getKernelCapabilities().getThreadInfo().getMinCpuId())
 	{
-		printf("[WARNING] ACI/KC ThreadInfo/MinCpuId: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMinCpuId());
+		printf("[WARNING] ACI/KC ThreadInfo/MinCpuId: FAIL (%d not permitted)\n", aci.getKernelCapabilities().getThreadInfo().getMinCpuId());
 	}
-	if (aci.getKc().getThreadInfo().getMaxPriority() != acid.getKc().getThreadInfo().getMaxPriority())
+	if (aci.getKernelCapabilities().getThreadInfo().getMaxPriority() != acid.getKernelCapabilities().getThreadInfo().getMaxPriority())
 	{
-		printf("[WARNING] ACI/KC ThreadInfo/MaxPriority: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMaxPriority());
+		printf("[WARNING] ACI/KC ThreadInfo/MaxPriority: FAIL (%d not permitted)\n", aci.getKernelCapabilities().getThreadInfo().getMaxPriority());
 	}
-	if (aci.getKc().getThreadInfo().getMinPriority() != acid.getKc().getThreadInfo().getMinPriority())
+	if (aci.getKernelCapabilities().getThreadInfo().getMinPriority() != acid.getKernelCapabilities().getThreadInfo().getMinPriority())
 	{
-		printf("[WARNING] ACI/KC ThreadInfo/MinPriority: FAIL (%d not permitted)\n", aci.getKc().getThreadInfo().getMinPriority());
+		printf("[WARNING] ACI/KC ThreadInfo/MinPriority: FAIL (%d not permitted)\n", aci.getKernelCapabilities().getThreadInfo().getMinPriority());
 	}
 	// check system calls
-	for (size_t i = 0; i < aci.getKc().getSystemCalls().getSystemCalls().size(); i++)
+	for (size_t i = 0; i < aci.getKernelCapabilities().getSystemCalls().getSystemCalls().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getSystemCalls().getSystemCalls().size() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKernelCapabilities().getSystemCalls().getSystemCalls().size() && rightFound == false; j++)
 		{
-			if (aci.getKc().getSystemCalls().getSystemCalls()[i] == acid.getKc().getSystemCalls().getSystemCalls()[j])
+			if (aci.getKernelCapabilities().getSystemCalls().getSystemCalls()[i] == acid.getKernelCapabilities().getSystemCalls().getSystemCalls()[j])
 				rightFound = true;
 		}
 
 		if (rightFound == false)
 		{
-			printf("[WARNING] ACI/KC SystemCallList: FAIL (%s not permitted)\n", kSysCall[aci.getKc().getSystemCalls().getSystemCalls()[i]].c_str());
+			printf("[WARNING] ACI/KC SystemCallList: FAIL (%s not permitted)\n", kSysCall[aci.getKernelCapabilities().getSystemCalls().getSystemCalls()[i]].c_str());
 		}
 	}
 	// check memory maps
-	for (size_t i = 0; i < aci.getKc().getMemoryMaps().getMemoryMaps().size(); i++)
+	for (size_t i = 0; i < aci.getKernelCapabilities().getMemoryMaps().getMemoryMaps().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getMemoryMaps().getMemoryMaps().size() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKernelCapabilities().getMemoryMaps().getMemoryMaps().size() && rightFound == false; j++)
 		{
-			if (aci.getKc().getMemoryMaps().getMemoryMaps()[i] == acid.getKc().getMemoryMaps().getMemoryMaps()[j])
+			if (aci.getKernelCapabilities().getMemoryMaps().getMemoryMaps()[i] == acid.getKernelCapabilities().getMemoryMaps().getMemoryMaps()[j])
 				rightFound = true;
 		}
 
 		if (rightFound == false)
 		{
-			const nx::MemoryMappingHandler::sMemoryMapping& map = aci.getKc().getMemoryMaps().getMemoryMaps()[i];
+			const nx::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getMemoryMaps()[i];
 
 			printf("[WARNING] ACI/KC MemoryMap: FAIL (0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s) not permitted)\n", (uint64_t)map.addr << 12, ((uint64_t)(map.addr + map.size) << 12) - 1, kMemMapPerm[map.perm].c_str(), kMemMapType[map.type].c_str());
 		}
 	}
-	for (size_t i = 0; i < aci.getKc().getMemoryMaps().getIoMemoryMaps().size(); i++)
+	for (size_t i = 0; i < aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getMemoryMaps().getIoMemoryMaps().size() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps().size() && rightFound == false; j++)
 		{
-			if (aci.getKc().getMemoryMaps().getIoMemoryMaps()[i] == acid.getKc().getMemoryMaps().getIoMemoryMaps()[j])
+			if (aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps()[i] == acid.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps()[j])
 				rightFound = true;
 		}
 
 		if (rightFound == false)
 		{
-			const nx::MemoryMappingHandler::sMemoryMapping& map = aci.getKc().getMemoryMaps().getIoMemoryMaps()[i];
+			const nx::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps()[i];
 
 			printf("[WARNING] ACI/KC IoMemoryMap: FAIL (0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s) not permitted)\n", (uint64_t)map.addr << 12, ((uint64_t)(map.addr + map.size) << 12) - 1, kMemMapPerm[map.perm].c_str(), kMemMapType[map.type].c_str());
 		}
 	}
 	// check interupts
-	for (size_t i = 0; i < aci.getKc().getInterupts().getInteruptList().size(); i++)
+	for (size_t i = 0; i < aci.getKernelCapabilities().getInterupts().getInteruptList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getInterupts().getInteruptList().size() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKernelCapabilities().getInterupts().getInteruptList().size() && rightFound == false; j++)
 		{
-			if (aci.getKc().getInterupts().getInteruptList()[i] == acid.getKc().getInterupts().getInteruptList()[j])
+			if (aci.getKernelCapabilities().getInterupts().getInteruptList()[i] == acid.getKernelCapabilities().getInterupts().getInteruptList()[j])
 				rightFound = true;
 		}
 
 		if (rightFound == false)
 		{
-			printf("[WARNING] ACI/KC InteruptsList: FAIL (0x%0x not permitted)\n", aci.getKc().getInterupts().getInteruptList()[i]);
+			printf("[WARNING] ACI/KC InteruptsList: FAIL (0x%0x not permitted)\n", aci.getKernelCapabilities().getInterupts().getInteruptList()[i]);
 		}
 	}
 	// check misc params
-	if (aci.getKc().getMiscParams().getProgramType() != acid.getKc().getMiscParams().getProgramType())
+	if (aci.getKernelCapabilities().getMiscParams().getProgramType() != acid.getKernelCapabilities().getMiscParams().getProgramType())
 	{
-		printf("[WARNING] ACI/KC ProgramType: FAIL (%d not permitted)\n",  aci.getKc().getMiscParams().getProgramType());
+		printf("[WARNING] ACI/KC ProgramType: FAIL (%d not permitted)\n",  aci.getKernelCapabilities().getMiscParams().getProgramType());
 	}
 	// check kernel version
-	uint32_t aciKernelVersion = (uint32_t)aci.getKc().getKernelVersion().getVerMajor() << 16 |  (uint32_t)aci.getKc().getKernelVersion().getVerMinor();
-	uint32_t acidKernelVersion =  (uint32_t)acid.getKc().getKernelVersion().getVerMajor() << 16 |  (uint32_t)acid.getKc().getKernelVersion().getVerMinor();
+	uint32_t aciKernelVersion = (uint32_t)aci.getKernelCapabilities().getKernelVersion().getVerMajor() << 16 |  (uint32_t)aci.getKernelCapabilities().getKernelVersion().getVerMinor();
+	uint32_t acidKernelVersion =  (uint32_t)acid.getKernelCapabilities().getKernelVersion().getVerMajor() << 16 |  (uint32_t)acid.getKernelCapabilities().getKernelVersion().getVerMinor();
 	if (aciKernelVersion < acidKernelVersion)
 	{
-		printf("[WARNING] ACI/KC RequiredKernelVersion: FAIL (%d.%d not permitted)\n", aci.getKc().getKernelVersion().getVerMajor(), aci.getKc().getKernelVersion().getVerMinor());
+		printf("[WARNING] ACI/KC RequiredKernelVersion: FAIL (%d.%d not permitted)\n", aci.getKernelCapabilities().getKernelVersion().getVerMajor(), aci.getKernelCapabilities().getKernelVersion().getVerMinor());
 	}
 	// check handle table size
-	if (aci.getKc().getHandleTableSize().getHandleTableSize() > acid.getKc().getHandleTableSize().getHandleTableSize())
+	if (aci.getKernelCapabilities().getHandleTableSize().getHandleTableSize() > acid.getKernelCapabilities().getHandleTableSize().getHandleTableSize())
 	{
-		printf("[WARNING] ACI/KC HandleTableSize: FAIL (0x%x too large)\n", aci.getKc().getHandleTableSize().getHandleTableSize());
+		printf("[WARNING] ACI/KC HandleTableSize: FAIL (0x%x too large)\n", aci.getKernelCapabilities().getHandleTableSize().getHandleTableSize());
 	}
 	// check misc flags
-	for (size_t i = 0; i < aci.getKc().getMiscFlags().getFlagList().size(); i++)
+	for (size_t i = 0; i < aci.getKernelCapabilities().getMiscFlags().getFlagList().size(); i++)
 	{
 		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKc().getMiscFlags().getFlagList().size() && rightFound == false; j++)
+		for (size_t j = 0; j < acid.getKernelCapabilities().getMiscFlags().getFlagList().size() && rightFound == false; j++)
 		{
-			if (aci.getKc().getMiscFlags().getFlagList()[i] == acid.getKc().getMiscFlags().getFlagList()[j])
+			if (aci.getKernelCapabilities().getMiscFlags().getFlagList()[i] == acid.getKernelCapabilities().getMiscFlags().getFlagList()[j])
 				rightFound = true;
 		}
 
 		if (rightFound == false)
 		{
-			printf("[WARNING] ACI/KC MiscFlag: FAIL (%s not permitted)\n", kMiscFlag[aci.getKc().getMiscFlags().getFlagList()[i]].c_str());
+			printf("[WARNING] ACI/KC MiscFlag: FAIL (%s not permitted)\n", kMiscFlag[aci.getKernelCapabilities().getMiscFlags().getFlagList()[i]].c_str());
 		}
 	}
 }
@@ -514,26 +548,26 @@ void NpdmProcess::displayNpdmHeader(const nx::NpdmHeader& hdr)
 	}
 }
 
-void NpdmProcess::displayAciHdr(const nx::AciHeader& aci)
+void NpdmProcess::displayAciHdr(const nx::AccessControlInfoBinary& aci)
 {
 	printf("[Access Control Info]\n");
-	printf("  ACI Type:        %s\n", kAciType[aci.getAciType()].c_str());
-	if (aci.getAciType() == nx::AciBinary::TYPE_ACI0)
-	{
-		printf("  ProgramID:       %016" PRIx64 "\n", aci.getProgramId());
-	}
-	else if (aci.getAciType() == nx::AciBinary::TYPE_ACID)
-	{
+	printf("  ProgramID:       0x%016" PRIx64 "\n", aci.getProgramId());
+}
 
-		printf("  ACID Size:       %" PRIx64 "\n", (uint64_t)aci.getAcidSize());
+void NpdmProcess::displayAciDescHdr(const nx::AccessControlInfoDescBinary& acid)
+{
+	printf("[Access Control Info Desc]\n");
+	if (acid.getFlagList().size() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
 		printf("  Flags:           \n");
-		printf("    Production:          %s\n", aci.isProduction() ? "TRUE" : "FALSE");
-		printf("    UnqualifiedApproval: %s\n", aci.isUnqualifiedApproval() ? "TRUE" : "FALSE");
-		printf("  ProgramID Restriction\n");
-		printf("    Min:           %016" PRIx64 "\n", aci.getProgramIdMin());
-		printf("    Max:           %016" PRIx64 "\n", aci.getProgramIdMax());
-		
+		for (size_t i = 0; i < acid.getFlagList().size(); i++)
+		{
+			printf("    %s (%d)\n", kAcidFlag[acid.getFlagList()[i]].c_str(), acid.getFlagList()[i]);
+		}
 	}
+	printf("  ProgramID Restriction\n");
+	printf("    Min:           0x%016" PRIx64 "\n", acid.getProgramIdRestrict().min);
+	printf("    Max:           0x%016" PRIx64 "\n", acid.getProgramIdRestrict().max);
 }
 
 void NpdmProcess::displayFac(const nx::FacBinary& fac)

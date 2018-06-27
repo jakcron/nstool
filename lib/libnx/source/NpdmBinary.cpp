@@ -1,5 +1,7 @@
 #include <nx/NpdmBinary.h>
 
+#include <fnd/SimpleTextOutput.h>
+
 nx::NpdmBinary::NpdmBinary() :
 	mAci(),
 	mAcid()
@@ -42,11 +44,7 @@ bool nx::NpdmBinary::operator!=(const NpdmBinary & other) const
 
 void nx::NpdmBinary::toBytes()
 {
-	mAci.toBytes();
-	mAcid.toBytes();
-
-	setAciSize(mAci.getBytes().size());
-	setAcidSize(mAcid.getBytes().size());
+	throw fnd::Exception(kModuleName, "toBytes() not implemented.");
 }
 
 void nx::NpdmBinary::fromBytes(const byte_t* data, size_t len)
@@ -90,22 +88,22 @@ void nx::NpdmBinary::clear()
 	mAcid.clear();
 }
 
-const nx::AciBinary & nx::NpdmBinary::getAci() const
+const nx::AccessControlInfoBinary & nx::NpdmBinary::getAci() const
 {
 	return mAci;
 }
 
-void nx::NpdmBinary::setAci(const AciBinary & aci)
+void nx::NpdmBinary::setAci(const AccessControlInfoBinary & aci)
 {
 	mAci = aci;
 }
 
-const nx::AcidBinary & nx::NpdmBinary::getAcid() const
+const nx::AccessControlInfoDescBinary & nx::NpdmBinary::getAcid() const
 {
 	return mAcid;
 }
 
-void nx::NpdmBinary::setAcid(const AcidBinary & acid)
+void nx::NpdmBinary::setAcid(const AccessControlInfoDescBinary & acid)
 {
 	mAcid = acid;
 }

@@ -2,8 +2,8 @@
 #include <string>
 #include <fnd/List.h>
 #include <nx/NpdmHeader.h>
-#include <nx/AciBinary.h>
-#include <nx/AcidBinary.h>
+#include <nx/AccessControlInfoBinary.h>
+#include <nx/AccessControlInfoDescBinary.h>
 
 
 namespace nx
@@ -27,11 +27,11 @@ namespace nx
 		// variables
 		void clear();
 
-		const AciBinary& getAci() const;
-		void setAci(const AciBinary& aci);
+		const AccessControlInfoBinary& getAci() const;
+		void setAci(const AccessControlInfoBinary& aci);
 
-		const AcidBinary& getAcid() const;
-		void setAcid(const AcidBinary& acid);
+		const AccessControlInfoDescBinary& getAcid() const;
+		void setAcid(const AccessControlInfoDescBinary& acid);
 	private:
 		const std::string kModuleName = "NPDM_BINARY";
 
@@ -39,8 +39,8 @@ namespace nx
 		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
-		AciBinary mAci;
-		AcidBinary mAcid;
+		AccessControlInfoBinary mAci;
+		AccessControlInfoDescBinary mAcid;
 	};
 
 }
