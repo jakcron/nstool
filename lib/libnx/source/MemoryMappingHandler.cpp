@@ -33,7 +33,7 @@ void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<Kernel
 	fnd::List<MemoryPageEntry> entries;
 	for (size_t i = 0; i < caps.size(); i++)
 	{
-		entries[i].setKernelCapability(caps[i]);
+		entries.addElement(caps[i]);
 	}
 
 	mMemRange.clear();
@@ -43,7 +43,6 @@ void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<Kernel
 		// has flag means "MemMap"
 		if (entries[i].isMultiplePages())
 		{
-
 			// this entry is the last one or the next one isn't a memory map
 			if ((i + 1) == entries.size() || entries[i+1].isMultiplePages() == false)
 			{
