@@ -141,12 +141,12 @@ void nx::AccessControlInfoBinary::setProgramId(uint64_t program_id)
 	mProgramId = program_id;
 }
 
-const nx::FacBinary& nx::AccessControlInfoBinary::getFileSystemAccessControl() const
+const nx::FileSystemAccessControlBinary& nx::AccessControlInfoBinary::getFileSystemAccessControl() const
 {
 	return mFileSystemAccessControl;
 }
 
-void nx::AccessControlInfoBinary::setFileSystemAccessControl(const nx::FacBinary& fac)
+void nx::AccessControlInfoBinary::setFileSystemAccessControl(const nx::FileSystemAccessControlBinary& fac)
 {
 	mFileSystemAccessControl = fac;
 }

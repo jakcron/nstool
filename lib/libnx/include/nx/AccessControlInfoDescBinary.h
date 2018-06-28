@@ -4,7 +4,7 @@
 #include <fnd/List.h>
 #include <fnd/ISerialisable.h>
 #include <nx/aci.h>
-#include <nx/FacBinary.h>
+#include <nx/FileSystemAccessControlBinary.h>
 #include <nx/SacBinary.h>
 #include <nx/KcBinary.h>
 
@@ -63,13 +63,13 @@ namespace nx
 		const sProgramIdRestrict& getProgramIdRestrict() const;
 		void setProgramIdRestrict(const sProgramIdRestrict& pid_restrict);
 
-		const FacBinary& getFileSystemAccessControl() const;
-		void setFileSystemAccessControl(const FacBinary& fac);
+		const nx::FileSystemAccessControlBinary& getFileSystemAccessControl() const;
+		void setFileSystemAccessControl(const FileSystemAccessControlBinary& fac);
 
-		const SacBinary& getServiceAccessControl() const;
+		const nx::SacBinary& getServiceAccessControl() const;
 		void setServiceAccessControl(const SacBinary& sac);
 
-		const KcBinary& getKernelCapabilities() const;
+		const nx::KcBinary& getKernelCapabilities() const;
 		void setKernelCapabilities(const KcBinary& kc);
 	private:
 		const std::string kModuleName = "ACCESS_CONTROL_INFO_DESC_BINARY";
@@ -81,7 +81,7 @@ namespace nx
 		crypto::rsa::sRsa2048Key mNcaHeaderSignature2Key;
 		fnd::List<aci::Flag> mFlags;
 		sProgramIdRestrict mProgramIdRestrict;
-		nx::FacBinary mFileSystemAccessControl;
+		nx::FileSystemAccessControlBinary mFileSystemAccessControl;
 		nx::SacBinary mServiceAccessControl;
 		nx::KcBinary mKernelCapabilities;
 	};

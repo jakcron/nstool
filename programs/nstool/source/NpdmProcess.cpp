@@ -570,9 +570,10 @@ void NpdmProcess::displayAciDescHdr(const nx::AccessControlInfoDescBinary& acid)
 	printf("    Max:           0x%016" PRIx64 "\n", acid.getProgramIdRestrict().max);
 }
 
-void NpdmProcess::displayFac(const nx::FacBinary& fac)
+void NpdmProcess::displayFac(const nx::FileSystemAccessControlBinary& fac)
 {
 	printf("[FS Access Control]\n");
+	printf("  Format Version:  %d\n", fac.getFormatVersion());
 
 	if (fac.getFsaRightsList().size())
 	{
@@ -583,7 +584,12 @@ void NpdmProcess::displayFac(const nx::FacBinary& fac)
 			{
 				printf("%s    ", i != 0 ? "\n" : "");
 			}
-			printf("%s%s", kFsaFlag[fac.getFsaRightsList()[i]].c_str(), fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack() ? ", " : "\n");
+			printf("%s", kFsaFlag[fac.getFsaRightsList()[i]].c_str());
+			if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+				printf(" (mask 0x%" PRIx64 ")", _BIT(fac.getFsaRightsList()[i]));
+			printf("%s", fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack() ? ", " : "\n");
+
+			
 		}
 	}
 	else

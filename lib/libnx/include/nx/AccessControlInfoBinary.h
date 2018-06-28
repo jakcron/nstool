@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/ISerialisable.h>
 #include <nx/aci.h>
-#include <nx/FacBinary.h>
+#include <nx/FileSystemAccessControlBinary.h>
 #include <nx/SacBinary.h>
 #include <nx/KcBinary.h>
 
@@ -30,8 +30,8 @@ namespace nx
 		uint64_t getProgramId() const;
 		void setProgramId(uint64_t program_id);
 
-		const nx::FacBinary& getFileSystemAccessControl() const;
-		void setFileSystemAccessControl(const FacBinary& fac);
+		const nx::FileSystemAccessControlBinary& getFileSystemAccessControl() const;
+		void setFileSystemAccessControl(const FileSystemAccessControlBinary& fac);
 
 		const nx::SacBinary& getServiceAccessControl() const;
 		void setServiceAccessControl(const SacBinary& sac);
@@ -46,7 +46,7 @@ namespace nx
 
 		// variables
 		uint64_t mProgramId;
-		nx::FacBinary mFileSystemAccessControl;
+		nx::FileSystemAccessControlBinary mFileSystemAccessControl;
 		nx::SacBinary mServiceAccessControl;
 		nx::KcBinary mKernelCapabilities;
 	};

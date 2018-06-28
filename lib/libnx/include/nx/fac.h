@@ -32,6 +32,7 @@ namespace nx
 		};
 
 		static const uint32_t kFacFormatVersion = 1;
+		static const size_t kSectionAlignSize = 4;
 	}
 
 #pragma pack(push,1)

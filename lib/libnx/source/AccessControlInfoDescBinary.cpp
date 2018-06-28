@@ -219,12 +219,12 @@ void nx::AccessControlInfoDescBinary::setProgramIdRestrict(const sProgramIdRestr
 	mProgramIdRestrict = pid_restrict;
 }
 
-const nx::FacBinary& nx::AccessControlInfoDescBinary::getFileSystemAccessControl() const
+const nx::FileSystemAccessControlBinary& nx::AccessControlInfoDescBinary::getFileSystemAccessControl() const
 {
 	return mFileSystemAccessControl;
 }
 
-void nx::AccessControlInfoDescBinary::setFileSystemAccessControl(const nx::FacBinary& fac)
+void nx::AccessControlInfoDescBinary::setFileSystemAccessControl(const nx::FileSystemAccessControlBinary& fac)
 {
 	mFileSystemAccessControl = fac;
 }

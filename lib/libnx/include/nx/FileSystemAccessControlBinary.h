@@ -1,29 +1,33 @@
 #pragma once
 #include <string>
+#include <fnd/types.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
 #include <nx/fac.h>
 
+
 namespace nx
 {
-	class FacBinary :
-		public fnd::ISerialisable
+	class FileSystemAccessControlBinary : public fnd::ISerialisable
 	{
 	public:
-		FacBinary();
-		FacBinary(const FacBinary& other);
+		FileSystemAccessControlBinary();
+		FileSystemAccessControlBinary(const FileSystemAccessControlBinary& other);
 
-		void operator=(const FacBinary& other);
-		bool operator==(const FacBinary& other) const;
-		bool operator!=(const FacBinary& other) const;
+		void operator=(const FileSystemAccessControlBinary& other);
+		bool operator==(const FileSystemAccessControlBinary& other) const;
+		bool operator!=(const FileSystemAccessControlBinary& other) const;
 
 		// export/import binary
 		void toBytes();
-		void fromBytes(const byte_t* bytes, size_t len);
+		void fromBytes(const byte_t* data, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
+
+		uint32_t getFormatVersion() const;
+		void setFormatVersion(uint32_t version);
 
 		const fnd::List<fac::FsAccessFlag>& getFsaRightsList() const;
 		void setFsaRightsList(const fnd::List<fac::FsAccessFlag>& list);
@@ -33,17 +37,16 @@ namespace nx
 
 		const fnd::List<uint32_t>& getSaveDataOwnerIdList() const;
 		void setSaveDataOwnerIdList(const fnd::List<uint32_t>& list);
-
 	private:
-		const std::string kModuleName = "FAC_BINARY";
+		const std::string kModuleName = "FILE_SYSTEM_ACCESS_CONTROL_BINARY";
 
-		// raw binary
+		// raw data
 		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
+		uint32_t mVersion;
 		fnd::List<fac::FsAccessFlag> mFsaRights;
 		fnd::List<uint32_t> mContentOwnerIdList;
 		fnd::List<uint32_t> mSaveDataOwnerIdList;
 	};
 }
-
