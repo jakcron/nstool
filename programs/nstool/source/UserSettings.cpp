@@ -22,6 +22,7 @@
 #include <nx/nso.h>
 #include <nx/nro.h>
 #include <nx/aset.h>
+#include <es/SignatureBlock.h>
 
 UserSettings::UserSettings()
 {}
@@ -43,7 +44,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset\n");
 	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset]\n");
+	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset, cert, tik]\n");
 	printf("      -y, --verify    Verify file\n");
 	printf("\n  Output Options:\n");
 	printf("      --showkeys      Show keys generated\n");
@@ -695,6 +696,10 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_NRO;
 	else if (str == "nacp")
 		type = FILE_NACP;
+	else if (str == "cert")
+		type = FILE_ES_CERT;
+	else if (str == "tik")
+		type = FILE_ES_TIK;
 	else if (str == "aset" || str == "asset")
 		type = FILE_HB_ASSET;
 	else
@@ -753,6 +758,12 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test nso
 	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _TYPE_PTR(nx::sNroHeader)->st_magic.get() == nx::nro::kNroStructMagic)
 		file_type = FILE_NRO;
+	// test es certificate
+	else if (determineValidEsCertFromSample(scratch))
+		file_type = FILE_ES_CERT;
+	// test es ticket
+	else if (determineValidEsTikFromSample(scratch))
+		file_type = FILE_ES_TIK;
 	// test hb asset
 	else if (_ASSERT_SIZE(sizeof(nx::sAssetHeader)) && _TYPE_PTR(nx::sAssetHeader)->st_magic.get() == nx::aset::kAssetStructMagic)
 		file_type = FILE_HB_ASSET;
@@ -850,6 +861,50 @@ bool UserSettings::determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) 
 		return false;
 
 	if (data->supported_language_flag.get() == 0)
+		return false;
+
+	return true;
+}
+
+bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const
+{
+	es::SignatureBlock sign;
+
+	try 
+	{
+		sign.fromBytes(sample.data(), sample.size());
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	if (sign.isLittleEndian() == true)
+		return false;
+
+	if (sign.getSignType() != es::sign::SIGN_RSA4096_SHA256 && sign.getSignType() != es::sign::SIGN_RSA2048_SHA256 && sign.getSignType() != es::sign::SIGN_ECDSA240_SHA256)
+		return false;
+
+	return true;
+}
+
+bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const
+{
+	es::SignatureBlock sign;
+
+	try 
+	{
+		sign.fromBytes(sample.data(), sample.size());
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	if (sign.isLittleEndian() == false)
+		return false;
+
+	if (sign.getSignType() != es::sign::SIGN_RSA2048_SHA256)
 		return false;
 
 	return true;

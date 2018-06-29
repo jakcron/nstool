@@ -106,5 +106,7 @@ private:
 	bool determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidCnmtFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) const;
+	bool determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const;
+	bool determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const;
 	nx::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
 };
