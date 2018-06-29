@@ -1,61 +1,87 @@
 #include <nx/PfsHeader.h>
 
-
-
 nx::PfsHeader::PfsHeader()
-{}
+{
+	clear();
+}
 
 nx::PfsHeader::PfsHeader(const PfsHeader & other)
 {
-	copyFrom(other);
+	*this = other;
 }
 
-nx::PfsHeader::PfsHeader(const byte_t * bytes, size_t len)
+void nx::PfsHeader::operator=(const PfsHeader & other)
 {
-	importBinary(bytes, len);
+	if (other.getBytes().size())
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		clear();
+		mFsType = other.mFsType;
+		mFileList = other.mFileList;
+	}
 }
 
-void nx::PfsHeader::exportBinary()
+bool nx::PfsHeader::operator==(const PfsHeader & other) const
+{
+	return (mFsType == other.mFsType) \
+		&& (mFileList == other.mFileList);
+}
+
+bool nx::PfsHeader::operator!=(const PfsHeader & other) const
+{
+	return !(*this == other);
+}
+
+const fnd::Vec<byte_t>& nx::PfsHeader::getBytes() const
+{
+	return mRawBinary;
+}
+
+
+void nx::PfsHeader::toBytes()
 {
 	// calculate name table size
 	size_t name_table_size = 0;
-	for (size_t i = 0; i < mFileList.getSize(); i++)
+	for (size_t i = 0; i < mFileList.size(); i++)
 	{
 		name_table_size += mFileList[i].name.length() + 1;
 	}
 
-	size_t pfs_header_size = align(sizeof(sPfsHeader) + getFileEntrySize(mFsType) * mFileList.getSize() + name_table_size, pfs::kHeaderAlign);
+	size_t pfs_header_size = align(sizeof(sPfsHeader) + getFileEntrySize(mFsType) * mFileList.size() + name_table_size, pfs::kHeaderAlign);
 	
 	// align name_table_size
-	name_table_size = pfs_header_size - (sizeof(sPfsHeader) + getFileEntrySize(mFsType) * mFileList.getSize());
+	name_table_size = pfs_header_size - (sizeof(sPfsHeader) + getFileEntrySize(mFsType) * mFileList.size());
 
 	// allocate pfs header binary
-	mBinaryBlob.alloc(pfs_header_size);
-	sPfsHeader* hdr = (sPfsHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(pfs_header_size);
+	sPfsHeader* hdr = (sPfsHeader*)mRawBinary.data();
 
 	// set header fields
 	switch (mFsType)
 	{
 		case (TYPE_PFS0):
-			hdr->signature = pfs::kPfsSig;
+			hdr->st_magic = pfs::kPfsStructMagic;
 			break;
 		case (TYPE_HFS0):
-			hdr->signature = pfs::kHashedPfsSig;
+			hdr->st_magic = pfs::kHashedPfsStructMagic;
 			break;
 	}
 	
-	hdr->file_num = (uint32_t)mFileList.getSize();
+	hdr->file_num = (uint32_t)mFileList.size();
 	hdr->name_table_size = (uint32_t)name_table_size;
 
 	// set file entries
 	if (mFsType == TYPE_PFS0)
 	{
-		sPfsFile* raw_files = (sPfsFile*)(mBinaryBlob.getBytes() + sizeof(sPfsHeader));
-		char* raw_name_table = (char*)(mBinaryBlob.getBytes() + sizeof(sPfsHeader) + sizeof(sPfsFile) * mFileList.getSize());
+		sPfsFile* raw_files = (sPfsFile*)(mRawBinary.data() + sizeof(sPfsHeader));
+		char* raw_name_table = (char*)(mRawBinary.data() + sizeof(sPfsHeader) + sizeof(sPfsFile) * mFileList.size());
 		size_t raw_name_table_pos = 0;
 
 		calculateOffsets(pfs_header_size);
-		for (size_t i = 0; i < mFileList.getSize(); i++)
+		for (size_t i = 0; i < mFileList.size(); i++)
 		{
 			raw_files[i].data_offset = (mFileList[i].offset - pfs_header_size);
 			raw_files[i].size = mFileList[i].size;
@@ -67,12 +93,12 @@ void nx::PfsHeader::exportBinary()
 	}
 	else if (mFsType == TYPE_HFS0)
 	{
-		sHashedPfsFile* raw_files = (sHashedPfsFile*)(mBinaryBlob.getBytes() + sizeof(sPfsHeader));
-		char* raw_name_table = (char*)(mBinaryBlob.getBytes() + sizeof(sPfsHeader) + sizeof(sHashedPfsFile) * mFileList.getSize());
+		sHashedPfsFile* raw_files = (sHashedPfsFile*)(mRawBinary.data() + sizeof(sPfsHeader));
+		char* raw_name_table = (char*)(mRawBinary.data() + sizeof(sPfsHeader) + sizeof(sHashedPfsFile) * mFileList.size());
 		size_t raw_name_table_pos = 0;
 
 		calculateOffsets(pfs_header_size);
-		for (size_t i = 0; i < mFileList.getSize(); i++)
+		for (size_t i = 0; i < mFileList.size(); i++)
 		{
 			raw_files[i].data_offset = (mFileList[i].offset - pfs_header_size);
 			raw_files[i].size = mFileList[i].size;
@@ -87,27 +113,30 @@ void nx::PfsHeader::exportBinary()
 	
 }
 
-void nx::PfsHeader::importBinary(const byte_t * bytes, size_t len)
+void nx::PfsHeader::fromBytes(const byte_t* data, size_t len)
 {
 	// check input length meets minimum size
 	if (len < sizeof(sPfsHeader))
 	{
 		throw fnd::Exception(kModuleName, "PFS header too small");
 	}
+
+	// clear variables
+	clear();
 	
 	// import minimum header
-	mBinaryBlob.alloc(sizeof(sPfsHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
-	const sPfsHeader* hdr = (const sPfsHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sPfsHeader));
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
+	const sPfsHeader* hdr = (const sPfsHeader*)mRawBinary.data();
 
 	// check struct signature
 	FsType fs_type;
-	switch(hdr->signature.get())
+	switch(hdr->st_magic.get())
 	{
-		case (pfs::kPfsSig):
+		case (pfs::kPfsStructMagic):
 			fs_type = TYPE_PFS0;
 			break;
-		case (pfs::kHashedPfsSig):
+		case (pfs::kHashedPfsStructMagic):
 			fs_type = TYPE_HFS0;
 			break;	
 		default:
@@ -124,19 +153,16 @@ void nx::PfsHeader::importBinary(const byte_t * bytes, size_t len)
 	}
 
 	// import full header
-	mBinaryBlob.alloc(pfs_full_header_size);
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
-	hdr = (const sPfsHeader*)mBinaryBlob.getBytes();
-
-	// clear variables
-	clear();
+	mRawBinary.alloc(pfs_full_header_size);
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
+	hdr = (const sPfsHeader*)mRawBinary.data();
 
 	mFsType = fs_type;
 	if (mFsType == TYPE_PFS0)
 	{
 		// get pointers to raw data
-		const sPfsFile* raw_files = (const sPfsFile*)(mBinaryBlob.getBytes() + sizeof(sPfsHeader));
-		const char* raw_name_table = (const char*)(mBinaryBlob.getBytes() + sizeof(sPfsHeader) + sizeof(sPfsFile) * hdr->file_num.get());
+		const sPfsFile* raw_files = (const sPfsFile*)(mRawBinary.data() + sizeof(sPfsHeader));
+		const char* raw_name_table = (const char*)(mRawBinary.data() + sizeof(sPfsHeader) + sizeof(sPfsFile) * hdr->file_num.get());
 
 		// process file entries
 		for (size_t i = 0; i < hdr->file_num.get(); i++)
@@ -151,8 +177,8 @@ void nx::PfsHeader::importBinary(const byte_t * bytes, size_t len)
 	else if (mFsType == TYPE_HFS0)
 	{
 		// get pointers to raw data
-		const sHashedPfsFile* raw_files = (const sHashedPfsFile*)(mBinaryBlob.getBytes() + sizeof(sPfsHeader));
-		const char* raw_name_table = (const char*)(mBinaryBlob.getBytes() + sizeof(sPfsHeader) + sizeof(sHashedPfsFile) * hdr->file_num.get());
+		const sHashedPfsFile* raw_files = (const sHashedPfsFile*)(mRawBinary.data() + sizeof(sPfsHeader));
+		const char* raw_name_table = (const char*)(mRawBinary.data() + sizeof(sPfsHeader) + sizeof(sHashedPfsFile) * hdr->file_num.get());
 
 		// process file entries
 		for (size_t i = 0; i < hdr->file_num.get(); i++)
@@ -171,7 +197,7 @@ void nx::PfsHeader::importBinary(const byte_t * bytes, size_t len)
 
 void nx::PfsHeader::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mFsType = TYPE_PFS0;
 	mFileList.clear();
 }
@@ -220,52 +246,8 @@ size_t nx::PfsHeader::getFileEntrySize(FsType fs_type)
 
 void nx::PfsHeader::calculateOffsets(size_t data_offset)
 {
-	for (size_t i = 0; i < mFileList.getSize(); i++)
+	for (size_t i = 0; i < mFileList.size(); i++)
 	{
 		mFileList[i].offset = (i == 0) ? data_offset : mFileList[i - 1].offset + mFileList[i - 1].size;
 	}
-}
-
-bool nx::PfsHeader::isEqual(const PfsHeader & other) const
-{
-	return (mFsType == other.mFsType) && (mFileList == other.mFileList);
-}
-
-void nx::PfsHeader::copyFrom(const PfsHeader & other)
-{
-	if (other.getSize())
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		clear();
-		mFsType = other.mFsType;
-		mFileList = other.mFileList;
-	}
-}
-
-bool nx::PfsHeader::operator==(const PfsHeader & other) const
-{
-	return isEqual(other);
-}
-
-bool nx::PfsHeader::operator!=(const PfsHeader & other) const
-{
-	return !isEqual(other);
-}
-
-void nx::PfsHeader::operator=(const PfsHeader & other)
-{
-	copyFrom(other);
-}
-
-const byte_t * nx::PfsHeader::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t nx::PfsHeader::getSize() const
-{
-	return mBinaryBlob.getSize();
 }

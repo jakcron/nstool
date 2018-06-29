@@ -1,28 +1,28 @@
 #pragma once
-#include <string>
 #include <fnd/types.h>
 #include <fnd/List.h>
 #include <crypto/aes.h>
 #include <crypto/sha.h>
 #include <crypto/rsa.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/macro.h>
 
 namespace nx
 {
 	namespace xci
 	{
-		static const uint32_t kXciSig = _MAKE_STRUCT_SIGNATURE("HEAD");
+		static const uint32_t kXciStructMagic = _MAKE_STRUCT_MAGIC_U32("HEAD");
 		static const uint32_t kHeaderEncOffset = 0x90;
 		static const uint32_t kHeaderEncSize = 0x70;
 		static const uint32_t kPageSize = 0x200;
 		static const uint32_t kUppHashLen = 8;
+		/*
 		static const uint32_t kCardKeyAreaPageCount = 8;
 		static const uint32_t kCardHeaderPageCount = 1;
 		static const uint32_t kReservedAreaPageCount = 55;
 		static const uint32_t kCertAreaStartPageAddress = kCardHeaderPageCount + kReservedAreaPageCount + kCardKeyAreaPageCount;
 		static const uint32_t kCertAreaPageCount = 64;
 		static const uint32_t kNormalAreaStartPageAddress = kReservedAreaPageCount + kCertAreaPageCount + kCardHeaderPageCount + kCardKeyAreaPageCount;
+		*/
 
 		const std::string kUpdatePartitionStr = "update"; 
 		const std::string kLogoPartitionStr = "logo"; 
@@ -68,7 +68,7 @@ namespace nx
 #pragma pack(push,1)
 	struct sXciHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		le_uint32_t rom_area_start_page;
 		le_uint32_t backup_area_start_page;
 		byte_t key_flag;

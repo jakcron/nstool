@@ -1,33 +1,28 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
-#include <fnd/ISerialiseableBinary.h>
+#include <fnd/ISerialisable.h>
 #include <es/ticket.h>
 
 namespace es
 {
 	class TicketBody_V2 :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		TicketBody_V2();
 		TicketBody_V2(const TicketBody_V2& other);
-		TicketBody_V2(const byte_t* bytes, size_t len);
 
+		void operator=(const TicketBody_V2& other);
 		bool operator==(const TicketBody_V2& other) const;
 		bool operator!=(const TicketBody_V2& other) const;
-		void operator=(const TicketBody_V2& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		virtual void exportBinary();
-		virtual void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
-		virtual void clear();
+		void clear();
 		
 		const std::string& getIssuer() const;
 		void setIssuer(const std::string& issuer);
@@ -87,7 +82,7 @@ namespace es
 		const std::string kModuleName = "TICKET_BODY_V2";
 		
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		std::string mIssuer;
@@ -108,10 +103,6 @@ namespace es
 		uint32_t mSectHeaderOffset;
 		uint16_t mSectNum;
 		uint16_t mSectEntrySize;
-
-		// helpers
-		bool isEqual(const TicketBody_V2& other) const;
-		void copyFrom(const TicketBody_V2& other);
 	};
 }
 

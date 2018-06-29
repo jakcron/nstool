@@ -30,13 +30,13 @@ namespace nx
 
 		MiscFlagsHandler();
 
+		void operator=(const MiscFlagsHandler& other);
 		bool operator==(const MiscFlagsHandler& other) const;
 		bool operator!=(const MiscFlagsHandler& other) const;
-		void operator=(const MiscFlagsHandler& other);
 
 		// kernel capabilty list in/out
-		void importKernelCapabilityList(const fnd::List<KernelCapability>& caps);
-		void exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const;
+		void importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps);
+		void exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const;
 		void clear();
 		bool isSet() const;
 
@@ -50,9 +50,6 @@ namespace nx
 
 		bool mIsSet;
 		fnd::List<Flags> mFlags;
-
-		void copyFrom(const MiscFlagsHandler& other);
-		bool isEqual(const MiscFlagsHandler& other) const;
 	};
 
 }

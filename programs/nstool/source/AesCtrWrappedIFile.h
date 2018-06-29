@@ -1,5 +1,5 @@
 #include <fnd/IFile.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/Vec.h>
 #include <crypto/aes.h>
 
 class AesCtrWrappedIFile : public fnd::IFile
@@ -25,5 +25,5 @@ private:
 	crypto::aes::sAesIvCtr mBaseCtr, mCurrentCtr;
 	size_t mFileOffset;
 
-	fnd::MemoryBlob mCache;
+	fnd::Vec<byte_t> mCache;
 };

@@ -7,7 +7,7 @@ namespace nx
 {
 	namespace nrr
 	{
-		static const uint32_t kNrrSig = _MAKE_STRUCT_SIGNATURE("NRR0");
+		static const uint32_t kNrrStructMagic = _MAKE_STRUCT_MAGIC_U32("NRR0");
 	}
 
 #pragma pack(push,1)
@@ -21,7 +21,7 @@ namespace nx
 
 	struct sNrrHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		byte_t reserved_0[28];
 		sNrrCertificate certificate;
 		byte_t nrr_body_signature[crypto::rsa::kRsa2048Size];

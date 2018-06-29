@@ -1,13 +1,13 @@
 #pragma once
 #include <nx/hierarchicalintegrity.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
+#include <crypto/sha.h>
 
 namespace nx
 {
 	class HierarchicalIntegrityHeader :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		struct sLayer
@@ -36,19 +36,15 @@ namespace nx
 
 		HierarchicalIntegrityHeader();
 		HierarchicalIntegrityHeader(const HierarchicalIntegrityHeader& other);
-		HierarchicalIntegrityHeader(const byte_t* bytes, size_t len);
 
+		void operator=(const HierarchicalIntegrityHeader& other);
 		bool operator==(const HierarchicalIntegrityHeader& other) const;
 		bool operator!=(const HierarchicalIntegrityHeader& other) const;
-		void operator=(const HierarchicalIntegrityHeader& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -62,14 +58,11 @@ namespace nx
 		const std::string kModuleName = "HIERARCHICAL_INTEGRITY_HEADER";
 
 		// binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// data
 		fnd::List<sLayer> mLayerInfo;
 		fnd::List<crypto::sha::sSha256Hash> mMasterHashList;
-
-		bool isEqual(const HierarchicalIntegrityHeader& other) const;
-		void copyFrom(const HierarchicalIntegrityHeader& other);
 	};
 
 }

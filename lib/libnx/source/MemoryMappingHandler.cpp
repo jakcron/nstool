@@ -1,48 +1,50 @@
 #include <nx/MemoryMappingHandler.h>
 #include <nx/MemoryPageEntry.h>
 
-
 nx::MemoryMappingHandler::MemoryMappingHandler() :
 	mIsSet(false)
 {}
 
+void nx::MemoryMappingHandler::operator=(const MemoryMappingHandler & other)
+{
+	mIsSet = other.mIsSet;
+	mMemRange = other.mMemRange;
+	mMemPage = other.mMemPage;
+}
+
 bool nx::MemoryMappingHandler::operator==(const MemoryMappingHandler & other) const
 {
-	return isEqual(other);
+	return (mIsSet == other.mIsSet) \
+		&& (mMemRange == other.mMemRange) \
+		&& (mMemPage == other.mMemPage);
 }
 
 bool nx::MemoryMappingHandler::operator!=(const MemoryMappingHandler & other) const
 {
-	return !isEqual(other);
+	return !(*this == other);
 }
 
-void nx::MemoryMappingHandler::operator=(const MemoryMappingHandler & other)
+void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
-	copyFrom(other);
-}
-
-void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
-{
-	if (caps.getSize() == 0)
+	if (caps.size() == 0)
 		return;
 
 	// get entry list
 	fnd::List<MemoryPageEntry> entries;
-	for (size_t i = 0; i < caps.getSize(); i++)
+	for (size_t i = 0; i < caps.size(); i++)
 	{
-		entries[i].setKernelCapability(caps[i]);
+		entries.addElement(caps[i]);
 	}
 
 	mMemRange.clear();
 	mMemPage.clear();
-	for (size_t i = 0; i < entries.getSize();)
+	for (size_t i = 0; i < entries.size();)
 	{
 		// has flag means "MemMap"
 		if (entries[i].isMultiplePages())
 		{
-
 			// this entry is the last one or the next one isn't a memory map
-			if ((i + 1) == entries.getSize() || entries[i+1].isMultiplePages() == false)
+			if ((i + 1) == entries.size() || entries[i+1].isMultiplePages() == false)
 			{
 				throw fnd::Exception(kModuleName, "No paired entry");
 			}
@@ -85,7 +87,7 @@ void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<Kernel
 	mIsSet = true;
 }
 
-void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -94,7 +96,7 @@ void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapabi
 
 	// "mem maps"
 	cap.setMapMultiplePages(true);
-	for (size_t i = 0; i < mMemRange.getSize(); i++)
+	for (size_t i = 0; i < mMemRange.size(); i++)
 	{
 		cap.setPage(mMemRange[i].addr & kMaxPageAddr);
 		cap.setFlag(mMemRange[i].perm == MEM_RO);
@@ -107,7 +109,7 @@ void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapabi
 
 	// "io maps"
 	cap.setMapMultiplePages(false);
-	for (size_t i = 0; i < mMemPage.getSize(); i++)
+	for (size_t i = 0; i < mMemPage.size(); i++)
 	{
 		cap.setPage(mMemPage[i].addr & kMaxPageAddr);
 		caps.addElement(cap.getKernelCapability());
@@ -134,18 +136,4 @@ const fnd::List<nx::MemoryMappingHandler::sMemoryMapping>& nx::MemoryMappingHand
 const fnd::List<nx::MemoryMappingHandler::sMemoryMapping>& nx::MemoryMappingHandler::getIoMemoryMaps() const
 {
 	return mMemPage;
-}
-
-void nx::MemoryMappingHandler::copyFrom(const MemoryMappingHandler & other)
-{
-	mIsSet = other.mIsSet;
-	mMemRange = other.mMemRange;
-	mMemPage = other.mMemPage;
-}
-
-bool nx::MemoryMappingHandler::isEqual(const MemoryMappingHandler & other) const
-{
-	return (mIsSet == other.mIsSet) \
-		&& (mMemRange == other.mMemRange) \
-		&& (mMemPage == other.mMemPage);
 }

@@ -6,7 +6,7 @@ namespace nx
 {
 	namespace aset
 	{
-		static const uint32_t kAssetSig = _MAKE_STRUCT_SIGNATURE("ASET");
+		static const uint32_t kAssetStructMagic = _MAKE_STRUCT_MAGIC_U32("ASET");
 
 		static const uint32_t kDefaultAssetFormatVersion = 0;
 	}
@@ -20,7 +20,7 @@ namespace nx
 
 	struct sAssetHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		le_uint32_t format_version;
 		sAssetSection icon;
 		sAssetSection nacp;

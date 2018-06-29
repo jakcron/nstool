@@ -1,5 +1,5 @@
 #include <fnd/SimpleFile.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/Vec.h>
 #include "AssetProcess.h"
 #include "OffsetAdjustedIFile.h"
 
@@ -73,16 +73,16 @@ void AssetProcess::setRomfsExtractPath(const std::string& path)
 
 void AssetProcess::importHeader()
 {
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 	if (mFile->size() < sizeof(nx::sAssetHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt ASET: file too small");
 	}
 
 	scratch.alloc(sizeof(nx::sAssetHeader));
-	mFile->read(scratch.getBytes(), 0, scratch.getSize());
+	mFile->read(scratch.data(), 0, scratch.size());
 
-	mHdr.importBinary(scratch.getBytes(), scratch.getSize());
+	mHdr.fromBytes(scratch.data(), scratch.size());
 }
 
 void AssetProcess::processSections()
@@ -93,11 +93,11 @@ void AssetProcess::processSections()
 			throw fnd::Exception(kModuleName, "ASET geometry for icon beyond file size");
 
 		fnd::SimpleFile outfile(mIconExtractPath.var, fnd::SimpleFile::Create);
-		fnd::MemoryBlob cache;
+		fnd::Vec<byte_t> cache;
 
 		cache.alloc(mHdr.getIconInfo().size);
-		mFile->read(cache.getBytes(), mHdr.getIconInfo().offset, cache.getSize());
-		outfile.write(cache.getBytes(), cache.getSize());
+		mFile->read(cache.data(), mHdr.getIconInfo().offset, cache.size());
+		outfile.write(cache.data(), cache.size());
 		outfile.close();
 	}
 
@@ -109,11 +109,11 @@ void AssetProcess::processSections()
 		if (mNacpExtractPath.isSet)
 		{
 			fnd::SimpleFile outfile(mNacpExtractPath.var, fnd::SimpleFile::Create);
-			fnd::MemoryBlob cache;
+			fnd::Vec<byte_t> cache;
 
 			cache.alloc(mHdr.getNacpInfo().size);
-			mFile->read(cache.getBytes(), mHdr.getNacpInfo().offset, cache.getSize());
-			outfile.write(cache.getBytes(), cache.getSize());
+			mFile->read(cache.data(), mHdr.getNacpInfo().offset, cache.size());
+			outfile.write(cache.data(), cache.size());
 			outfile.close();
 		}
 		

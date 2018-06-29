@@ -10,13 +10,13 @@ namespace nx
 	public:
 		KernelVersionHandler();
 
+		void operator=(const KernelVersionHandler& other);
 		bool operator==(const KernelVersionHandler& other) const;
 		bool operator!=(const KernelVersionHandler& other) const;
-		void operator=(const KernelVersionHandler& other);
 
 		// kernel capabilty list in/out
-		void importKernelCapabilityList(const fnd::List<KernelCapability>& caps);
-		void exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const;
+		void importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps);
+		void exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const;
 		void clear();
 		bool isSet() const;
 
@@ -32,9 +32,6 @@ namespace nx
 
 		bool mIsSet;
 		KernelVersionEntry mEntry;
-
-		void copyFrom(const KernelVersionHandler& other);
-		bool isEqual(const KernelVersionHandler& other) const;
 	};
 }
 

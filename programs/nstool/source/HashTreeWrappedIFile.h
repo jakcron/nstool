@@ -1,7 +1,7 @@
 #pragma once
 #include <sstream>
 #include <fnd/IFile.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/Vec.h>
 #include <crypto/sha.h>
 #include "HashTreeMeta.h"
 
@@ -33,7 +33,7 @@ private:
 	fnd::List<crypto::sha::sSha256Hash> mDataHashLayer;
 	bool mAlignHashCalcToBlock;
 
-	fnd::MemoryBlob mCache;
+	fnd::Vec<byte_t> mCache;
 	size_t mCacheBlockNum;
 
 	inline size_t getOffsetBlock(size_t offset) const { return offset / mDataBlockSize; }

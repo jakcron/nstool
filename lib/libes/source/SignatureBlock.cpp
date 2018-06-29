@@ -7,17 +7,22 @@ es::SignatureBlock::SignatureBlock()
 
 es::SignatureBlock::SignatureBlock(const SignatureBlock& other)
 {
-	copyFrom(other);
+	*this = other;
 }
 
 void es::SignatureBlock::operator=(const SignatureBlock& other)
 {
-	copyFrom(other);
+	mRawBinary = other.mRawBinary;
+	mSignType = other.mSignType;
+	mIsLittleEndian = other.mIsLittleEndian;
+	mSignature = other.mSignature;
 }
 
 bool es::SignatureBlock::operator==(const SignatureBlock& other) const
 {
-	return isEqual(other);
+	return (mSignType == other.mSignType) \
+		&& (mIsLittleEndian == other.mIsLittleEndian) \
+		&& (mSignature == other.mSignature);
 }
 
 bool es::SignatureBlock::operator!=(const SignatureBlock& other) const
@@ -25,7 +30,45 @@ bool es::SignatureBlock::operator!=(const SignatureBlock& other) const
 	return !(*this == other);
 }
 
-void es::SignatureBlock::importBinary(const byte_t* src, size_t size)
+void es::SignatureBlock::toBytes()
+{
+	size_t totalSize = 0;
+	size_t sigSize = 0;
+
+	switch (mSignType)
+	{
+		case (sign::SIGN_RSA4096_SHA1):
+		case (sign::SIGN_RSA4096_SHA256):
+			totalSize = sizeof(sRsa4096SignBlock);
+			sigSize = crypto::rsa::kRsa4096Size;
+			break;
+		case (sign::SIGN_RSA2048_SHA1):
+		case (sign::SIGN_RSA2048_SHA256):
+			totalSize = sizeof(sRsa2048SignBlock);
+			sigSize = crypto::rsa::kRsa2048Size;
+			break;
+		case (sign::SIGN_ECDSA240_SHA1):
+		case (sign::SIGN_ECDSA240_SHA256):
+			totalSize = sizeof(sEcdsa240SignBlock);
+			sigSize = sign::kEcdsaSigSize;
+			break;
+		default:
+			throw fnd::Exception(kModuleName, "Unknown signature type");
+	}
+
+	if (mSignature.size() != sigSize)
+		throw fnd::Exception(kModuleName, "Signature size is incorrect");
+
+	// commit to binary
+	mRawBinary.alloc(totalSize);
+	if (mIsLittleEndian)
+		*(le_uint32_t*)(mRawBinary.data()) = mSignType;
+	else
+		*(be_uint32_t*)(mRawBinary.data()) = mSignType;
+	memcpy(mRawBinary.data() + 4, mSignature.data(), sigSize);
+}
+
+void es::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 {
 	clear();
 
@@ -87,65 +130,22 @@ void es::SignatureBlock::importBinary(const byte_t* src, size_t size)
 		throw fnd::Exception(kModuleName, "Certificate too small");
 	}
 
-	mBinaryBlob.alloc(totalSize);
-	memcpy(mBinaryBlob.getBytes(), src, totalSize);
+	mRawBinary.alloc(totalSize);
+	memcpy(mRawBinary.data(), src, totalSize);
 
 	mSignType = (sign::SignType)signType;
 	mSignature.alloc(sigSize);
-	memcpy(mSignature.getBytes(), mBinaryBlob.getBytes() + 4, sigSize);
+	memcpy(mSignature.data(), mRawBinary.data() + 4, sigSize);
 }
 
-void es::SignatureBlock::exportBinary()
+const fnd::Vec<byte_t>& es::SignatureBlock::getBytes() const
 {
-	size_t totalSize = 0;
-	size_t sigSize = 0;
-
-	switch (mSignType)
-	{
-	case (sign::SIGN_RSA4096_SHA1): 
-	case (sign::SIGN_RSA4096_SHA256):
-		totalSize = sizeof(sRsa4096SignBlock);
-		sigSize = crypto::rsa::kRsa4096Size;
-		break;
-	case (sign::SIGN_RSA2048_SHA1): 
-	case (sign::SIGN_RSA2048_SHA256):
-		totalSize = sizeof(sRsa2048SignBlock);
-		sigSize = crypto::rsa::kRsa2048Size;
-		break;
-	case (sign::SIGN_ECDSA240_SHA1): 
-	case (sign::SIGN_ECDSA240_SHA256):
-		totalSize = sizeof(sEcdsa240SignBlock);
-		sigSize = sign::kEcdsaSigSize;
-		break;
-	default:
-		throw fnd::Exception(kModuleName, "Unknown signature type");
-	}
-
-	if (mSignature.getSize() != sigSize)
-		throw fnd::Exception(kModuleName, "Signature size is incorrect");
-	
-	// commit to binary
-	mBinaryBlob.alloc(totalSize);
-	if (mIsLittleEndian)
-		*(le_uint32_t*)(mBinaryBlob.getBytes()) = mSignType;
-	else
-		*(be_uint32_t*)(mBinaryBlob.getBytes()) = mSignType;
-	memcpy(mBinaryBlob.getBytes() + 4, mSignature.getBytes(), sigSize);
-}
-
-const byte_t* es::SignatureBlock::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t es::SignatureBlock::getSize() const
-{
-	return mBinaryBlob.getSize();
+	return mRawBinary;
 }
 
 void es::SignatureBlock::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mSignType = sign::SIGN_RSA4096_SHA1;
 	mIsLittleEndian = false;
 	mSignature.clear();
@@ -171,27 +171,12 @@ void es::SignatureBlock::setLittleEndian(bool isLE)
 	mIsLittleEndian = isLE;
 }
 
-const fnd::MemoryBlob& es::SignatureBlock::getSignature() const
+const fnd::Vec<byte_t>& es::SignatureBlock::getSignature() const
 {
 	return mSignature;
 }
 
-void es::SignatureBlock::setSignature(const fnd::MemoryBlob& signature)
+void es::SignatureBlock::setSignature(const fnd::Vec<byte_t>& signature)
 {
 	mSignature = signature;
-}
-
-bool es::SignatureBlock::isEqual(const SignatureBlock& other) const
-{
-	return (mSignType == other.mSignType) \
-		&& (mIsLittleEndian == other.mIsLittleEndian) \
-		&& (mSignature == other.mSignature);
-}
-
-void es::SignatureBlock::copyFrom(const SignatureBlock& other)
-{
-	mBinaryBlob = other.mBinaryBlob;
-	mSignType = other.mSignType;
-	mIsLittleEndian = other.mIsLittleEndian;
-	mSignature = other.mSignature;
 }

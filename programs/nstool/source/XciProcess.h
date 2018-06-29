@@ -2,6 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/List.h>
 #include <nx/XciHeader.h>
 
 #include "nstool.h"
@@ -41,6 +42,17 @@ private:
 	{
 		std::string partition_name;
 		std::string extract_path;
+
+		void operator=(const sExtractInfo& other)
+		{
+			partition_name = other.partition_name;
+			extract_path = other.extract_path;
+		}
+
+		bool operator==(const std::string& name) const
+		{
+			return name == partition_name;
+		}
 	};
 
 	bool mListFs;
@@ -48,7 +60,7 @@ private:
 	nx::sXciHeaderPage mHdrPage;
 	nx::XciHeader mHdr;
 	PfsProcess mRootPfs;
-	std::vector<sExtractInfo> mExtractInfo;
+	fnd::List<sExtractInfo> mExtractInfo;
 
 	void displayHeader();
 	bool validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash);

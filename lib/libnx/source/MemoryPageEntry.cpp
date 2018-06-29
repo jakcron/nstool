@@ -1,16 +1,14 @@
 #include <nx/MemoryPageEntry.h>
 
-
-
 nx::MemoryPageEntry::MemoryPageEntry() :
-	mCap(KernelCapability::KC_INVALID),
+	mCap(kc::KC_INVALID),
 	mPage(0),
 	mFlag(false),
 	mUseFlag(false)
 {}
 
-nx::MemoryPageEntry::MemoryPageEntry(const KernelCapability & kernel_cap) :
-	mCap(KernelCapability::KC_INVALID),
+nx::MemoryPageEntry::MemoryPageEntry(const KernelCapabilityEntry & kernel_cap) :
+	mCap(kc::KC_INVALID),
 	mPage(0),
 	mFlag(false),
 	mUseFlag(false)
@@ -19,7 +17,7 @@ nx::MemoryPageEntry::MemoryPageEntry(const KernelCapability & kernel_cap) :
 }
 
 nx::MemoryPageEntry::MemoryPageEntry(uint32_t page) :
-	mCap(KernelCapability::KC_INVALID),
+	mCap(kc::KC_INVALID),
 	mPage(0),
 	mFlag(false),
 	mUseFlag(false)
@@ -28,7 +26,7 @@ nx::MemoryPageEntry::MemoryPageEntry(uint32_t page) :
 }
 
 nx::MemoryPageEntry::MemoryPageEntry(uint32_t page, bool flag) :
-	mCap(KernelCapability::KC_INVALID),
+	mCap(kc::KC_INVALID),
 	mPage(0),
 	mFlag(false),
 	mUseFlag(true)
@@ -37,16 +35,36 @@ nx::MemoryPageEntry::MemoryPageEntry(uint32_t page, bool flag) :
 	setFlag(flag);
 }
 
-const nx::KernelCapability & nx::MemoryPageEntry::getKernelCapability() const
+void nx::MemoryPageEntry::operator=(const MemoryPageEntry& other)
+{
+	mPage = other.mPage;
+	mFlag = other.mFlag;
+	mUseFlag = other.mUseFlag;
+	updateCapField();
+}
+
+bool nx::MemoryPageEntry::operator==(const MemoryPageEntry& other) const
+{
+	return (mPage == other.mPage) \
+		&& (mFlag == other.mFlag) \
+		&& (mUseFlag == other.mUseFlag);
+}
+
+bool nx::MemoryPageEntry::operator!=(const MemoryPageEntry& other) const
+{
+	return !(*this == other);
+}
+
+const nx::KernelCapabilityEntry & nx::MemoryPageEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::MemoryPageEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::MemoryPageEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
-	if (kernel_cap.getType() != KernelCapability::KC_MEMORY_MAP && kernel_cap.getType() != KernelCapability::KC_IO_MEMORY_MAP)
+	if (kernel_cap.getType() != kc::KC_MEMORY_MAP && kernel_cap.getType() != kc::KC_IO_MEMORY_MAP)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'MemoryMap' or 'IOMemoryMap");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'MemoryMap' or 'IOMemoryMap");
 	}
 
 	mCap = kernel_cap;

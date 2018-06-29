@@ -1,18 +1,16 @@
 #pragma once
-#include <string>
 #include <fnd/types.h>
 #include <crypto/aes.h>
 #include <crypto/sha.h>
 #include <crypto/rsa.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/macro.h>
 
 namespace nx
 {
 	namespace nca
 	{
-		static const uint32_t kNca2Sig = _MAKE_STRUCT_SIGNATURE("NCA2");
-		static const uint32_t kNca3Sig = _MAKE_STRUCT_SIGNATURE("NCA3");
+		static const uint32_t kNca2StructMagic = _MAKE_STRUCT_MAGIC_U32("NCA2");
+		static const uint32_t kNca3StructMagic = _MAKE_STRUCT_MAGIC_U32("NCA3");
 		static const size_t kSectorSize = 0x200;
 		static const size_t kPartitionNum = 4;
 		static const size_t kHeaderSectorNum = 6;
@@ -89,7 +87,7 @@ namespace nx
 #pragma pack(push,1)
 	struct sNcaHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		byte_t distribution_type;
 		byte_t content_type;
 		byte_t key_generation;

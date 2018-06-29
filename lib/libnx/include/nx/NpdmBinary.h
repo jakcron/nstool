@@ -1,54 +1,79 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
 #include <fnd/List.h>
-#include <nx/NpdmHeader.h>
-#include <nx/AciBinary.h>
-#include <nx/AcidBinary.h>
+#include <fnd/ISerialisable.h>
+#include <nx/npdm.h>
+#include <nx/AccessControlInfoBinary.h>
+#include <nx/AccessControlInfoDescBinary.h>
 
 
 namespace nx
 {
 	class NpdmBinary :
-		public NpdmHeader
+		public fnd::ISerialisable
 	{
 	public:
 		NpdmBinary();
 		NpdmBinary(const NpdmBinary& other);
-		NpdmBinary(const byte_t* bytes, size_t len);
 
+		void operator=(const NpdmBinary& other);
 		bool operator==(const NpdmBinary& other) const;
 		bool operator!=(const NpdmBinary& other) const;
-		void operator=(const NpdmBinary& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
 
-		const AciBinary& getAci() const;
-		void setAci(const AciBinary& aci);
+		npdm::InstructionType getInstructionType() const;
+		void setInstructionType(npdm::InstructionType type);
 
-		const AcidBinary& getAcid() const;
-		void setAcid(const AcidBinary& acid);
+		npdm::ProcAddrSpaceType getProcAddressSpaceType() const;
+		void setProcAddressSpaceType(npdm::ProcAddrSpaceType type);
+
+		byte_t getMainThreadPriority() const;
+		void setMainThreadPriority(byte_t priority);
+
+		byte_t getMainThreadCpuId() const;
+		void setMainThreadCpuId(byte_t cpu_id);
+
+		uint32_t getVersion() const;
+		void setVersion(uint32_t version);
+
+		uint32_t getMainThreadStackSize() const;
+		void setMainThreadStackSize(uint32_t size);
+
+		const std::string& getName() const;
+		void setName(const std::string& name);
+
+		const std::string& getProductCode() const;
+		void setProductCode(const std::string& product_code);
+
+		const AccessControlInfoBinary& getAci() const;
+		void setAci(const AccessControlInfoBinary& aci);
+
+		const AccessControlInfoDescBinary& getAcid() const;
+		void setAcid(const AccessControlInfoDescBinary& acid);
 	private:
 		const std::string kModuleName = "NPDM_BINARY";
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
-		AciBinary mAci;
-		AcidBinary mAcid;
-
-		bool isEqual(const NpdmBinary& other) const;
-		void copyFrom(const NpdmBinary& other);
+		npdm::InstructionType mInstructionType;
+		npdm::ProcAddrSpaceType mProcAddressSpaceType;
+		byte_t mMainThreadPriority;
+		byte_t mMainThreadCpuId;
+		uint32_t mVersion;
+		uint32_t mMainThreadStackSize;
+		std::string mName;
+		std::string mProductCode;
+		AccessControlInfoBinary mAci;
+		AccessControlInfoDescBinary mAcid;
 	};
 
 }

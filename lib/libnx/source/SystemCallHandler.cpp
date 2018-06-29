@@ -1,36 +1,37 @@
 #include <nx/SystemCallHandler.h>
 #include <nx/SystemCallEntry.h>
 
-
 nx::SystemCallHandler::SystemCallHandler() :
 	mIsSet(false),
 	mSystemCalls()
 {}
 
+void nx::SystemCallHandler::operator=(const SystemCallHandler & other)
+{
+	mIsSet = other.mIsSet;
+	mSystemCalls = other.mSystemCalls;
+}
+
 bool nx::SystemCallHandler::operator==(const SystemCallHandler & other) const
 {
-	return isEqual(other);
+	return (mIsSet == other.mIsSet) \
+		&& (mSystemCalls == other.mSystemCalls);
 }
 
 bool nx::SystemCallHandler::operator!=(const SystemCallHandler & other) const
 {
-	return !isEqual(other);
+	return !(*this == other);
 }
 
-void nx::SystemCallHandler::operator=(const SystemCallHandler & other)
+void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
-	copyFrom(other);
-}
-
-void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
-{
-	if (caps.getSize() == 0)
+	if (caps.size() == 0)
 		return;
 
 	SystemCallEntry entry;
 
 	uint8_t syscallUpper, syscall;
-	for (size_t i = 0; i < caps.getSize(); i++)
+	for (size_t i = 0; i < caps.size(); i++)
 	{
 		entry.setKernelCapability(caps[i]);
 		syscallUpper = 24 * entry.getSystemCallUpperBits();
@@ -48,7 +49,7 @@ void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCap
 	mIsSet = true;
 }
 
-void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -60,7 +61,7 @@ void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapabilit
 		entries[i].setSystemCallLowerBits(0);
 	}
 
-	for (size_t i = 0; i < mSystemCalls.getSize(); i++)
+	for (size_t i = 0; i < mSystemCalls.size(); i++)
 	{
 		if (mSystemCalls[i] > kMaxSystemCall)
 		{
@@ -70,7 +71,7 @@ void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapabilit
 		entries[mSystemCalls[i] / 24].setSystemCallLowerBits(entries[mSystemCalls[i] / 24].getSystemCallLowerBits() | BIT(mSystemCalls[i] % 24));
 	}
 
-	for (size_t i = 0; i < entries.getSize(); i++)
+	for (size_t i = 0; i < entries.size(); i++)
 	{
 		if (entries[i].getSystemCallLowerBits() != 0)
 		{
@@ -98,7 +99,7 @@ const fnd::List<uint8_t>& nx::SystemCallHandler::getSystemCalls() const
 void nx::SystemCallHandler::setSystemCallList(const fnd::List<uint8_t>& calls)
 {
 	mSystemCalls.clear();
-	for (size_t i = 0; i < calls.getSize(); i++)
+	for (size_t i = 0; i < calls.size(); i++)
 	{
 		if (mSystemCalls[i] > kMaxSystemCall)
 		{
@@ -109,16 +110,4 @@ void nx::SystemCallHandler::setSystemCallList(const fnd::List<uint8_t>& calls)
 	}
 
 	mIsSet = true;
-}
-
-void nx::SystemCallHandler::copyFrom(const SystemCallHandler & other)
-{
-	mIsSet = other.mIsSet;
-	mSystemCalls = other.mSystemCalls;
-}
-
-bool nx::SystemCallHandler::isEqual(const SystemCallHandler & other) const
-{
-	return (mIsSet == other.mIsSet) \
-		&& (mSystemCalls == other.mSystemCalls);
 }

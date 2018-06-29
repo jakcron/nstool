@@ -1,13 +1,12 @@
 #pragma once
 #include <nx/nro.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
 	class NroHeader : 
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		struct sRoCrt
@@ -75,19 +74,15 @@ namespace nx
 
 		NroHeader();
 		NroHeader(const NroHeader& other);
-		NroHeader(const byte_t* bytes, size_t len);
 
+		void operator=(const NroHeader& other);
 		bool operator==(const NroHeader& other) const;
 		bool operator!=(const NroHeader& other) const;
-		void operator=(const NroHeader& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -125,7 +120,7 @@ namespace nx
 		const std::string kModuleName = "NRO_HEADER";
 
 		// binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// data
 		sRoCrt mRoCrt;
@@ -138,10 +133,6 @@ namespace nx
 		sSection mRoEmbeddedInfo;
 		sSection mRoDynStrInfo;
 		sSection mRoDynSymInfo;
-		
-		// helpers
-		bool isEqual(const NroHeader& other) const;
-		void copyFrom(const NroHeader& other);
 	};
 
 }

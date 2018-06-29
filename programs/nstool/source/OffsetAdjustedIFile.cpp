@@ -25,7 +25,7 @@ size_t OffsetAdjustedIFile::size()
 
 void OffsetAdjustedIFile::seek(size_t offset)
 {
-	mCurrentOffset = MIN(offset, mSize);
+	mCurrentOffset = _MIN(offset, mSize);
 }
 
 void OffsetAdjustedIFile::read(byte_t* out, size_t len)

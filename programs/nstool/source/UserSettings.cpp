@@ -8,7 +8,7 @@
 #include <fnd/io.h>
 #include <fnd/SimpleFile.h>
 #include <fnd/SimpleTextOutput.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/Vec.h>
 #include <fnd/ResourceFileReader.h>
 #include <nx/NcaUtils.h>
 #include <nx/AesKeygen.h>
@@ -708,37 +708,35 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	static const size_t kMaxReadSize = 0x4000;
 	FileType file_type = FILE_INVALID;
 	fnd::SimpleFile file;
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 
 	// open file
 	file.open(path, file.Read);
 
 	// read file
-	scratch.alloc(MIN(kMaxReadSize, file.size()));
-	file.read(scratch.getBytes(), 0, scratch.getSize());
+	scratch.alloc(_MIN(kMaxReadSize, file.size()));
+	file.read(scratch.data(), 0, scratch.size());
 	// close file
 	file.close();
 
-	
-
-	// _QUICK_CAST resolves to a pointer of type 'st' located at scratch.getBytes() + 'oft'
-#define _QUICK_CAST(st, oft) ((st*)(scratch.getBytes() + (oft)))
-#define _ASSERT_SIZE(size) (scratch.getSize() >= (size))
+	// _TYPE_PTR resolves to a pointer of type 'st' located at scratch.data()
+#define _TYPE_PTR(st) ((st*)(scratch.data()))
+#define _ASSERT_SIZE(sz) (scratch.size() >= (sz))
 
 	// test npdm
-	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && _QUICK_CAST(nx::sXciHeaderPage, 0)->header.signature.get() == nx::xci::kXciSig)
+	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && _TYPE_PTR(nx::sXciHeaderPage)->header.st_magic.get() == nx::xci::kXciStructMagic)
 		file_type = FILE_XCI;
 	// test pfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _QUICK_CAST(nx::sPfsHeader, 0)->signature.get() == nx::pfs::kPfsSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _TYPE_PTR(nx::sPfsHeader)->st_magic.get() == nx::pfs::kPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
 	// test hfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _QUICK_CAST(nx::sPfsHeader, 0)->signature.get() == nx::pfs::kHashedPfsSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _TYPE_PTR(nx::sPfsHeader)->st_magic.get() == nx::pfs::kHashedPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
 	// test romfs
-	else if (_ASSERT_SIZE(sizeof(nx::sRomfsHeader)) && _QUICK_CAST(nx::sRomfsHeader, 0)->header_size.get() == sizeof(nx::sRomfsHeader) && _QUICK_CAST(nx::sRomfsHeader, 0)->sections[1].offset.get() == (_QUICK_CAST(nx::sRomfsHeader, 0)->sections[0].offset.get() + _QUICK_CAST(nx::sRomfsHeader, 0)->sections[0].size.get()))
+	else if (_ASSERT_SIZE(sizeof(nx::sRomfsHeader)) && _TYPE_PTR(nx::sRomfsHeader)->header_size.get() == sizeof(nx::sRomfsHeader) && _TYPE_PTR(nx::sRomfsHeader)->sections[1].offset.get() == (_TYPE_PTR(nx::sRomfsHeader)->sections[0].offset.get() + _TYPE_PTR(nx::sRomfsHeader)->sections[0].size.get()))
 		file_type = FILE_ROMFS;
 	// test npdm
-	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && _QUICK_CAST(nx::sNpdmHeader, 0)->signature.get() == nx::npdm::kNpdmStructSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && _TYPE_PTR(nx::sNpdmHeader)->st_magic.get() == nx::npdm::kNpdmStructMagic)
 		file_type = FILE_NPDM;
 	// test nca
 	else if (determineValidNcaFromSample(scratch))
@@ -750,62 +748,62 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	else if (determineValidNacpFromSample(scratch))
 		file_type = FILE_NACP;
 	// test nso
-	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && _QUICK_CAST(nx::sNsoHeader, 0)->signature.get() == nx::nso::kNsoSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && _TYPE_PTR(nx::sNsoHeader)->st_magic.get() == nx::nso::kNsoStructMagic)
 		file_type = FILE_NSO;
 	// test nso
-	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _QUICK_CAST(nx::sNroHeader, 0)->signature.get() == nx::nro::kNroSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _TYPE_PTR(nx::sNroHeader)->st_magic.get() == nx::nro::kNroStructMagic)
 		file_type = FILE_NRO;
 	// test hb asset
-	else if (_ASSERT_SIZE(sizeof(nx::sAssetHeader)) && _QUICK_CAST(nx::sAssetHeader, 0)->signature.get() == nx::aset::kAssetSig)
+	else if (_ASSERT_SIZE(sizeof(nx::sAssetHeader)) && _TYPE_PTR(nx::sAssetHeader)->st_magic.get() == nx::aset::kAssetStructMagic)
 		file_type = FILE_HB_ASSET;
 	// else unrecognised
 	else
 		file_type = FILE_INVALID;
 
 #undef _ASSERT_SIZE
-#undef _QUICK_CAST
+#undef _TYPE_PTR
 
 	return file_type;
 }
 
-bool UserSettings::determineValidNcaFromSample(const fnd::MemoryBlob& sample) const
+bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) const
 {
 	// prepare decrypted NCA data
 	byte_t nca_raw[nx::nca::kHeaderSize];
 	nx::sNcaHeader* nca_header = (nx::sNcaHeader*)(nca_raw + nx::NcaUtils::sectorToOffset(1));
 	
-	if (sample.getSize() < nx::nca::kHeaderSize)
+	if (sample.size() < nx::nca::kHeaderSize)
 		return false;
 
-	nx::NcaUtils::decryptNcaHeader(sample.getBytes(), nca_raw, mKeyset.nca.header_key);
+	nx::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, mKeyset.nca.header_key);
 
-	if (nca_header->signature.get() != nx::nca::kNca2Sig && nca_header->signature.get() != nx::nca::kNca3Sig)
+	if (nca_header->st_magic.get() != nx::nca::kNca2StructMagic && nca_header->st_magic.get() != nx::nca::kNca3StructMagic)
 		return false;
 
 	return true;
 }
 
-bool UserSettings::determineValidCnmtFromSample(const fnd::MemoryBlob& sample) const
+bool UserSettings::determineValidCnmtFromSample(const fnd::Vec<byte_t>& sample) const
 {
-	if (sample.getSize() < sizeof(nx::sContentMetaHeader))
+	if (sample.size() < sizeof(nx::sContentMetaHeader))
 		return false;
 
-	const nx::sContentMetaHeader* data = (const nx::sContentMetaHeader*)sample.getBytes();
+	const nx::sContentMetaHeader* data = (const nx::sContentMetaHeader*)sample.data();
 
 	size_t minimum_size = sizeof(nx::sContentMetaHeader) + data->exhdr_size.get() + data->content_count.get() * sizeof(nx::sContentInfo) + data->content_meta_count.get() * sizeof(nx::sContentMetaInfo) + nx::cnmt::kDigestLen;
 
-	if (sample.getSize() < minimum_size)
+	if (sample.size() < minimum_size)
 		return false;
 
 	if (data->type == nx::cnmt::METATYPE_APPLICATION)
 	{
-		const nx::sApplicationMetaExtendedHeader* meta = (const nx::sApplicationMetaExtendedHeader*)(sample.getBytes() + sizeof(nx::sContentMetaHeader));
+		const nx::sApplicationMetaExtendedHeader* meta = (const nx::sApplicationMetaExtendedHeader*)(sample.data() + sizeof(nx::sContentMetaHeader));
 		if ((meta->patch_id.get() & data->id.get()) != data->id.get())
 			return false;
 	}
 	else if (data->type == nx::cnmt::METATYPE_PATCH)
 	{
-		const nx::sPatchMetaExtendedHeader* meta = (const nx::sPatchMetaExtendedHeader*)(sample.getBytes() + sizeof(nx::sContentMetaHeader));
+		const nx::sPatchMetaExtendedHeader* meta = (const nx::sPatchMetaExtendedHeader*)(sample.data() + sizeof(nx::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
 			return false;
 
@@ -813,31 +811,31 @@ bool UserSettings::determineValidCnmtFromSample(const fnd::MemoryBlob& sample) c
 	}
 	else if (data->type == nx::cnmt::METATYPE_ADD_ON_CONTENT)
 	{
-		const nx::sAddOnContentMetaExtendedHeader* meta = (const nx::sAddOnContentMetaExtendedHeader*)(sample.getBytes() + sizeof(nx::sContentMetaHeader));
+		const nx::sAddOnContentMetaExtendedHeader* meta = (const nx::sAddOnContentMetaExtendedHeader*)(sample.data() + sizeof(nx::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
 			return false;
 	}
 	else if (data->type == nx::cnmt::METATYPE_DELTA)
 	{
-		const nx::sDeltaMetaExtendedHeader* meta = (const nx::sDeltaMetaExtendedHeader*)(sample.getBytes() + sizeof(nx::sContentMetaHeader));
+		const nx::sDeltaMetaExtendedHeader* meta = (const nx::sDeltaMetaExtendedHeader*)(sample.data() + sizeof(nx::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
 			return false;
 
 		minimum_size += meta->extended_data_size.get();
 	}
 
-	if (sample.getSize() != minimum_size)
+	if (sample.size() != minimum_size)
 		return false;
 
 	return true;
 }
 
-bool UserSettings::determineValidNacpFromSample(const fnd::MemoryBlob& sample) const
+bool UserSettings::determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) const
 {
-	if (sample.getSize() != sizeof(nx::sApplicationControlProperty))
+	if (sample.size() != sizeof(nx::sApplicationControlProperty))
 		return false;
 
-	const nx::sApplicationControlProperty* data = (const nx::sApplicationControlProperty*)sample.getBytes();
+	const nx::sApplicationControlProperty* data = (const nx::sApplicationControlProperty*)sample.data();
 
 	if (data->logo_type > nx::nacp::LOGO_Nintendo)
 		return false;

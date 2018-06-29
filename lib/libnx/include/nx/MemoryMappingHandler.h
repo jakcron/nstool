@@ -52,13 +52,13 @@ namespace nx
 
 		MemoryMappingHandler();
 
+		void operator=(const MemoryMappingHandler& other);
 		bool operator==(const MemoryMappingHandler& other) const;
 		bool operator!=(const MemoryMappingHandler& other) const;
-		void operator=(const MemoryMappingHandler& other);
 
 		// kernel capabilty list in/out
-		void importKernelCapabilityList(const fnd::List<KernelCapability>& caps);
-		void exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const;
+		void importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps);
+		void exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const;
 		void clear();
 		bool isSet() const;
 
@@ -73,9 +73,6 @@ namespace nx
 		bool mIsSet;
 		fnd::List<sMemoryMapping> mMemRange;
 		fnd::List<sMemoryMapping> mMemPage;
-
-		void copyFrom(const MemoryMappingHandler& other);
-		bool isEqual(const MemoryMappingHandler& other) const;
 	};
 }
 

@@ -1,20 +1,16 @@
 #pragma once
-#include <string>
 #include <fnd/types.h>
-#include <crypto/aes.h>
-#include <crypto/sha.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/macro.h>
 
 namespace nx
 {
 	namespace npdm
 	{
-		static const uint32_t kNpdmStructSig = _MAKE_STRUCT_SIGNATURE("META");
+		static const uint32_t kNpdmStructMagic = _MAKE_STRUCT_MAGIC_U32("META");
 		static const size_t kNameMaxLen = 0x10;
 		static const size_t kProductCodeMaxLen = 0x10;
-		static const uint32_t kMaxPriority = BIT(6) -1 ;
-		static const size_t kNpdmAlignSize = 0x10;
+		static const uint32_t kMaxPriority = BIT(6) - 1;
+		static const size_t kSectionAlignSize = 0x10;
 		static const uint32_t kDefaultMainThreadStackSize = 4096;
 
 		enum InstructionType
@@ -34,7 +30,7 @@ namespace nx
 
 	struct sNpdmHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		byte_t reserved_0[8];
 		byte_t flags;
 		byte_t reserved_1;

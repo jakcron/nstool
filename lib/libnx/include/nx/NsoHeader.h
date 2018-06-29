@@ -1,13 +1,12 @@
 #pragma once
 #include <nx/nso.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
 	class NsoHeader : 
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		struct sModuleId
@@ -87,19 +86,15 @@ namespace nx
 
 		NsoHeader();
 		NsoHeader(const NsoHeader& other);
-		NsoHeader(const byte_t* bytes, size_t len);
 
+		void operator=(const NsoHeader& other);
 		bool operator==(const NsoHeader& other) const;
 		bool operator!=(const NsoHeader& other) const;
-		void operator=(const NsoHeader& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -134,7 +129,7 @@ namespace nx
 		const std::string kModuleName = "NSO_HEADER";
 
 		// binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// data
 		sModuleId mModuleId;
@@ -146,10 +141,6 @@ namespace nx
 		sLayout mRoEmbeddedInfo;
 		sLayout mRoDynStrInfo;
 		sLayout mRoDynSymInfo;
-		
-		// helpers
-		bool isEqual(const NsoHeader& other) const;
-		void copyFrom(const NsoHeader& other);
 	};
 
 }

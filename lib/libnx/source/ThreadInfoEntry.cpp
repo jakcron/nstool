@@ -1,7 +1,5 @@
 #include <nx/ThreadInfoEntry.h>
 
-
-
 nx::ThreadInfoEntry::ThreadInfoEntry() :
 	mCap(kCapId),
 	mMinPriority(kDefaultPriority),
@@ -10,7 +8,7 @@ nx::ThreadInfoEntry::ThreadInfoEntry() :
 	mMaxCpuId(kDefaultCpuId)
 {}
 
-nx::ThreadInfoEntry::ThreadInfoEntry(const KernelCapability & kernel_cap) :
+nx::ThreadInfoEntry::ThreadInfoEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mMinPriority(kDefaultPriority),
 	mMaxPriority(kDefaultPriority),
@@ -33,16 +31,38 @@ nx::ThreadInfoEntry::ThreadInfoEntry(uint8_t min_priority, uint8_t max_priority,
 	setMaxCpuId(max_core_number);
 }
 
-const nx::KernelCapability & nx::ThreadInfoEntry::getKernelCapability() const
+void nx::ThreadInfoEntry::operator=(const ThreadInfoEntry& other)
+{
+	mMinPriority = other.mMinPriority;
+	mMaxPriority = other.mMaxPriority;
+	mMinCpuId = other.mMinCpuId;
+	mMaxCpuId = other.mMaxCpuId;
+	updateCapField();
+}
+
+bool nx::ThreadInfoEntry::operator==(const ThreadInfoEntry& other) const
+{
+	return (mMinPriority == other.mMinPriority) \
+		&& (mMaxPriority == other.mMaxPriority) \
+		&& (mMinCpuId == other.mMinCpuId) \
+		&& (mMaxCpuId == other.mMaxCpuId);
+}
+
+bool nx::ThreadInfoEntry::operator!=(const ThreadInfoEntry& other) const
+{
+	return !(*this == other);
+}
+
+const nx::KernelCapabilityEntry & nx::ThreadInfoEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::ThreadInfoEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::ThreadInfoEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'ThreadInfo'");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'ThreadInfo'");
 	}
 
 	mCap = kernel_cap;

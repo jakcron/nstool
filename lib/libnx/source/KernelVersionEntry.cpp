@@ -1,14 +1,12 @@
 #include <nx/KernelVersionEntry.h>
 
-
-
 nx::KernelVersionEntry::KernelVersionEntry() :
 	mCap(kCapId),
 	mVerMajor(0),
 	mVerMinor(0)
 {}
 
-nx::KernelVersionEntry::KernelVersionEntry(const KernelCapability & kernel_cap) :
+nx::KernelVersionEntry::KernelVersionEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mVerMajor(0),
 	mVerMinor(0)
@@ -25,16 +23,34 @@ nx::KernelVersionEntry::KernelVersionEntry(uint16_t major, uint8_t minor) :
 	setVerMinor(minor);
 }
 
-const nx::KernelCapability & nx::KernelVersionEntry::getKernelCapability() const
+void nx::KernelVersionEntry::operator=(const KernelVersionEntry& other)
+{
+	mVerMajor = other.mVerMajor;
+	mVerMinor = other.mVerMinor;
+	updateCapField();
+}
+
+bool nx::KernelVersionEntry::operator==(const KernelVersionEntry& other) const
+{
+	return (mVerMajor == other.mVerMajor) \
+		&& (mVerMinor == other.mVerMinor);
+}
+
+bool nx::KernelVersionEntry::operator!=(const KernelVersionEntry& other) const
+{
+	return !(*this == other);
+}
+
+const nx::KernelCapabilityEntry & nx::KernelVersionEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::KernelVersionEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::KernelVersionEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'KernelVersion'");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'KernelVersion'");
 	}
 
 	mCap = kernel_cap;

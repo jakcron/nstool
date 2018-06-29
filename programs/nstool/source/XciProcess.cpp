@@ -25,7 +25,7 @@ XciProcess::~XciProcess()
 
 void XciProcess::process()
 {
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 
 	if (mFile == nullptr)
 	{
@@ -37,7 +37,7 @@ void XciProcess::process()
 
 	// allocate memory for and decrypt sXciHeader
 	scratch.alloc(sizeof(nx::sXciHeader));
-	nx::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.getBytes(), mKeyset->xci.header_key.key);
+	nx::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.data(), mKeyset->xci.header_key.key);
 
 	// validate header signature
 	if (mVerify)
@@ -46,7 +46,7 @@ void XciProcess::process()
 	}
 
 	// deserialise header
-	mHdr.importBinary(scratch.getBytes(), scratch.getSize());
+	mHdr.fromBytes(scratch.data(), scratch.size());
 
 	// display header
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
@@ -82,7 +82,7 @@ void XciProcess::setVerifyMode(bool verify)
 
 void XciProcess::setPartitionForExtract(const std::string& partition_name, const std::string& extract_path)
 {
-	mExtractInfo.push_back({partition_name, extract_path});
+	mExtractInfo.addElement({partition_name, extract_path});
 }
 
 void XciProcess::setListFs(bool list_fs)
@@ -219,11 +219,11 @@ void XciProcess::displayHeader()
 
 bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
 {
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 	crypto::sha::sSha256Hash calc_hash;
 	scratch.alloc(len);
-	mFile->read(scratch.getBytes(), offset, len);
-	crypto::sha::Sha256(scratch.getBytes(), scratch.getSize(), calc_hash.bytes);
+	mFile->read(scratch.data(), offset, scratch.size());
+	crypto::sha::Sha256(scratch.data(), scratch.size(), calc_hash.bytes);
 	return calc_hash.compare(test_hash);
 }
 
@@ -254,7 +254,7 @@ void XciProcess::processRootPfs()
 void XciProcess::processPartitionPfs()
 {
 	const fnd::List<nx::PfsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
-	for (size_t i = 0; i < rootPartitions.getSize(); i++)
+	for (size_t i = 0; i < rootPartitions.size(); i++)
 	{
 		// this must be validated here because only the size of the root partiton header is known at verification time
 		if (mVerify && validateRegionOfFile(mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].hash_protected_size, rootPartitions[i].hash.bytes) == false)
@@ -268,13 +268,9 @@ void XciProcess::processPartitionPfs()
 		tmp.setVerifyMode(mVerify);
 		tmp.setCliOutputMode(mCliOutputMode);
 		tmp.setMountPointName(kXciMountPointName + rootPartitions[i].name);
-		for (size_t j = 0; j < mExtractInfo.size(); j++)
-		{
-			if (mExtractInfo[j].partition_name == rootPartitions[i].name)
-			{
-				tmp.setExtractPath(mExtractInfo[j].extract_path);
-			}
-		}
+		if (mExtractInfo.hasElement<std::string>(rootPartitions[i].name))
+			tmp.setExtractPath(mExtractInfo.getElement<std::string>(rootPartitions[i].name).extract_path);
+	
 		tmp.process();
 	}
 }

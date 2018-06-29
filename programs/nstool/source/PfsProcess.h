@@ -40,7 +40,7 @@ private:
 	std::string mMountName;
 	bool mListFs;
 
-	fnd::MemoryBlob mCache;
+	fnd::Vec<byte_t> mCache;
 
 	nx::PfsHeader mPfs;
 

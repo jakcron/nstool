@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <nx/KernelCapability.h>
+#include <nx/KernelCapabilityEntry.h>
 
 namespace nx
 {
@@ -13,12 +13,16 @@ namespace nx
 		static const uint32_t kInteruptNum = 2;
 
 		InteruptEntry();
-		InteruptEntry(const KernelCapability& kernel_cap);
+		InteruptEntry(const KernelCapabilityEntry& kernel_cap);
 		InteruptEntry(uint32_t interupt0, uint32_t interupt1);
 
+		void operator=(const InteruptEntry& other);
+		bool operator==(const InteruptEntry& other) const;
+		bool operator!=(const InteruptEntry& other) const;
+
 		// kernel capability
-		const KernelCapability& getKernelCapability() const;
-		void setKernelCapability(const KernelCapability& kernel_cap);
+		const KernelCapabilityEntry& getKernelCapability() const;
+		void setKernelCapability(const KernelCapabilityEntry& kernel_cap);
 
 		// variables
 		uint32_t operator[](size_t index) const;
@@ -28,9 +32,9 @@ namespace nx
 
 	private:
 		const std::string kModuleName = "INTERUPT_ENTRY";
-		static const KernelCapability::KernelCapId kCapId = KernelCapability::KC_ENABLE_INTERUPTS;
+		static const kc::KernelCapId kCapId = kc::KC_ENABLE_INTERUPTS;
 
-		KernelCapability mCap;
+		KernelCapabilityEntry mCap;
 		uint32_t mInterupt[kInteruptNum];
 
 		inline void updateCapField()

@@ -1,5 +1,5 @@
 #include <fnd/SimpleTextOutput.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/Vec.h>
 #include <compress/lz4.h>
 #include <nx/nro-hb.h>
 #include "OffsetAdjustedIFile.h"
@@ -93,20 +93,20 @@ void NroProcess::setAssetRomfsExtractPath(const std::string& path)
 
 void NroProcess::importHeader()
 {
-	fnd::MemoryBlob scratch;
+	fnd::Vec<byte_t> scratch;
 	if (mFile->size() < sizeof(nx::sNroHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt NRO: file too small");
 	}
 
 	scratch.alloc(sizeof(nx::sNroHeader));
-	mFile->read(scratch.getBytes(), 0, scratch.getSize());
+	mFile->read(scratch.data(), 0, scratch.size());
 
-	mHdr.importBinary(scratch.getBytes(), scratch.getSize());
+	mHdr.fromBytes(scratch.data(), scratch.size());
 
 	// setup homebrew extension
-	nx::sNroHeader* raw_hdr = (nx::sNroHeader*)scratch.getBytes();
-	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nx::nro::kNroHomebrewSig && mFile->size() > mHdr.getNroSize())
+	nx::sNroHeader* raw_hdr = (nx::sNroHeader*)scratch.data();
+	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nx::nro::kNroHomebrewStructMagic && mFile->size() > mHdr.getNroSize())
 	{
 		mIsHomebrewNro = true;
 		mAssetProc.setInputFile(new OffsetAdjustedIFile(mFile, false, mHdr.getNroSize(), mFile->size() - mHdr.getNroSize()), true);
@@ -120,11 +120,11 @@ void NroProcess::importHeader()
 void NroProcess::importCodeSegments()
 {
 	mTextBlob.alloc(mHdr.getTextInfo().size);
-	mFile->read(mTextBlob.getBytes(), mHdr.getTextInfo().memory_offset, mTextBlob.getSize());
+	mFile->read(mTextBlob.data(), mHdr.getTextInfo().memory_offset, mTextBlob.size());
 	mRoBlob.alloc(mHdr.getRoInfo().size);
-	mFile->read(mRoBlob.getBytes(), mHdr.getRoInfo().memory_offset, mRoBlob.getSize());
+	mFile->read(mRoBlob.data(), mHdr.getRoInfo().memory_offset, mRoBlob.size());
 	mDataBlob.alloc(mHdr.getDataInfo().size);
-	mFile->read(mDataBlob.getBytes(), mHdr.getDataInfo().memory_offset, mDataBlob.getSize());
+	mFile->read(mDataBlob.data(), mHdr.getDataInfo().memory_offset, mDataBlob.size());
 }
 
 void NroProcess::displayHeader()
@@ -168,7 +168,7 @@ void NroProcess::displayHeader()
 
 void NroProcess::processRoMeta()
 {
-	if (mRoBlob.getSize())
+	if (mRoBlob.size())
 	{
 		// setup ro metadata
 		mRoMeta.setApiInfo(mHdr.getRoEmbeddedInfo().memory_offset, mHdr.getRoEmbeddedInfo().size);

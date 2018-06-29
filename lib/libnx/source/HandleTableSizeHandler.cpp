@@ -1,42 +1,42 @@
 #include <nx/HandleTableSizeHandler.h>
 
-
-
 nx::HandleTableSizeHandler::HandleTableSizeHandler() :
 	mIsSet(false),
 	mEntry(0)
 {}
 
+void nx::HandleTableSizeHandler::operator=(const HandleTableSizeHandler & other)
+{
+	mIsSet = other.mIsSet;
+	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
+}
+
 bool nx::HandleTableSizeHandler::operator==(const HandleTableSizeHandler & other) const
 {
-	return isEqual(other);
+	return (mIsSet == other.mIsSet) \
+		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }
 
 bool nx::HandleTableSizeHandler::operator!=(const HandleTableSizeHandler & other) const
 {
-	return !isEqual(other);
+	return !(*this == other);
 }
 
-void nx::HandleTableSizeHandler::operator=(const HandleTableSizeHandler & other)
+void nx::HandleTableSizeHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
-	copyFrom(other);
-}
-
-void nx::HandleTableSizeHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
-{
-	if (caps.getSize() > kMaxKernelCapNum)
+	if (caps.size() > kMaxKernelCapNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many kernel capabilities");
 	}
 
-	if (caps.getSize() == 0)
+	if (caps.size() == 0)
 		return;
 
 	mEntry.setKernelCapability(caps[0]);
 	mIsSet = true;
 }
 
-void nx::HandleTableSizeHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::HandleTableSizeHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -64,16 +64,4 @@ void nx::HandleTableSizeHandler::setHandleTableSize(uint16_t size)
 {
 	mEntry.setHandleTableSize(size);
 	mIsSet = true;
-}
-
-void nx::HandleTableSizeHandler::copyFrom(const HandleTableSizeHandler & other)
-{
-	mIsSet = other.mIsSet;
-	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
-}
-
-bool nx::HandleTableSizeHandler::isEqual(const HandleTableSizeHandler & other) const
-{
-	return (mIsSet == other.mIsSet) \
-		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }

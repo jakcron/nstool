@@ -32,12 +32,13 @@ private:
 
 	nx::NpdmBinary mNpdm;
 
-	void validateAcidSignature(const nx::AcidBinary& acid);
-	void validateAciFromAcid(const nx::AciBinary& aci, const nx::AcidBinary& acid);
+	void validateAcidSignature(const nx::AccessControlInfoDescBinary& acid);
+	void validateAciFromAcid(const nx::AccessControlInfoBinary& aci, const nx::AccessControlInfoDescBinary& acid);
 
-	void displayNpdmHeader(const nx::NpdmHeader& hdr);
-	void displayAciHdr(const nx::AciHeader& aci);
-	void displayFac(const nx::FacBinary& fac);
-	void displaySac(const nx::SacBinary& sac);
-	void displayKernelCap(const nx::KcBinary& kern);
+	void displayNpdmHeader(const nx::NpdmBinary& hdr);
+	void displayAciHdr(const nx::AccessControlInfoBinary& aci);
+	void displayAciDescHdr(const nx::AccessControlInfoDescBinary& aci);
+	void displayFac(const nx::FileSystemAccessControlBinary& fac);
+	void displaySac(const nx::ServiceAccessControlBinary& sac);
+	void displayKernelCap(const nx::KernelCapabilityBinary& kern);
 };

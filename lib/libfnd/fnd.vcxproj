@@ -120,32 +120,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="include\fnd\BitMath.h" />
     <ClInclude Include="include\fnd\elf.h" />
     <ClInclude Include="include\fnd\Endian.h" />
     <ClInclude Include="include\fnd\Exception.h" />
     <ClInclude Include="include\fnd\IFile.h" />
     <ClInclude Include="include\fnd\io.h" />
-    <ClInclude Include="include\fnd\ISerialiseableBinary.h" />
+    <ClInclude Include="include\fnd\ISerialisable.h" />
     <ClInclude Include="include\fnd\List.h" />
-    <ClInclude Include="include\fnd\MemoryBlob.h" />
     <ClInclude Include="include\fnd\ResourceFileReader.h" />
     <ClInclude Include="include\fnd\SimpleFile.h" />
     <ClInclude Include="include\fnd\SimpleTextOutput.h" />
     <ClInclude Include="include\fnd\StringConv.h" />
     <ClInclude Include="include\fnd\types.h" />
+    <ClInclude Include="include\fnd\Vec.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Exception.cpp" />
     <ClCompile Include="source\io.cpp" />
-    <ClCompile Include="source\MemoryBlob.cpp" />
     <ClCompile Include="source\ResourceFileReader.cpp" />
     <ClCompile Include="source\SimpleFile.cpp" />
     <ClCompile Include="source\SimpleTextOutput.cpp" />
     <ClCompile Include="source\StringConv.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="makefile" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

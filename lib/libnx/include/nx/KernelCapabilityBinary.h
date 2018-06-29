@@ -1,9 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/ThreadInfoHandler.h>
 #include <nx/SystemCallHandler.h>
 #include <nx/MemoryMappingHandler.h>
@@ -15,25 +14,21 @@
 
 namespace nx
 {
-	class KcBinary :
-		public fnd::ISerialiseableBinary
+	class KernelCapabilityBinary :
+		public fnd::ISerialisable
 	{
 	public:
-		KcBinary();
-		KcBinary(const KcBinary& other);
-		KcBinary(const byte_t* bytes, size_t len);
+		KernelCapabilityBinary();
+		KernelCapabilityBinary(const KernelCapabilityBinary& other);
 
-		bool operator==(const KcBinary& other) const;
-		bool operator!=(const KcBinary& other) const;
-		void operator=(const KcBinary& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
+		void operator=(const KernelCapabilityBinary& other);
+		bool operator==(const KernelCapabilityBinary& other) const;
+		bool operator!=(const KernelCapabilityBinary& other) const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		virtual const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables (consider further abstraction?)
 		void clear();
@@ -65,7 +60,7 @@ namespace nx
 		const std::string kModuleName = "KC_BINARY";
 
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		ThreadInfoHandler mThreadInfo;
@@ -76,11 +71,6 @@ namespace nx
 		KernelVersionHandler mKernelVersion;
 		HandleTableSizeHandler mHandleTableSize;
 		MiscFlagsHandler mMiscFlags;
-		
-
-		void clearVariables();
-		bool isEqual(const KcBinary& other) const;
-		void copyFrom(const KcBinary& other);
 	};
 }
 

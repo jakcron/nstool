@@ -5,6 +5,12 @@
 class HashTreeMeta
 {
 public:
+	enum HashTreeType
+	{
+		HASH_TYPE_INTEGRITY,
+		HASH_TYPE_SHA256
+	};
+
 	struct sLayer
 	{
 		size_t offset;
@@ -30,15 +36,13 @@ public:
 	};
 
 	HashTreeMeta();
-	HashTreeMeta(const nx::HierarchicalIntegrityHeader& hdr);
-	HashTreeMeta(const nx::HierarchicalSha256Header& hdr);
+	HashTreeMeta(const byte_t* data, size_t len, HashTreeType type);
 
+	void operator=(const HashTreeMeta& other);
 	bool operator==(const HashTreeMeta& other) const;
 	bool operator!=(const HashTreeMeta& other) const;
-	void operator=(const HashTreeMeta& other);
 
-	void importHierarchicalIntergityHeader(const nx::HierarchicalIntegrityHeader& hdr);
-	void importHierarchicalSha256Header(const nx::HierarchicalSha256Header& hdr);
+	void importData(const byte_t* data, size_t len, HashTreeType type);
 
 	const fnd::List<sLayer>& getHashLayerInfo() const;
 	void setHashLayerInfo(const fnd::List<sLayer>& layer_info);
@@ -57,8 +61,8 @@ private:
 	fnd::List<sLayer> mLayerInfo;
 	sLayer mDataLayer;
 	fnd::List<crypto::sha::sSha256Hash> mMasterHashList;
-	bool mDoAlignHashToBlock;	
+	bool mDoAlignHashToBlock;
 
-	bool isEqual(const HashTreeMeta& other) const;
-	void copyFrom(const HashTreeMeta& other);
+	void importHierarchicalIntergityHeader(const nx::HierarchicalIntegrityHeader& hdr);
+	void importHierarchicalSha256Header(const nx::HierarchicalSha256Header& hdr);
 };

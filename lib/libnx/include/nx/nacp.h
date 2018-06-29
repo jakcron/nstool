@@ -1,12 +1,22 @@
 #pragma once
-#include <string>
 #include <fnd/types.h>
-#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
 	namespace nacp
 	{
+		static const size_t kNameLength = 0x200;
+		static const size_t kPublisherLength = 0x100;
+		static const size_t kMaxLanguageCount = 16;
+		static const size_t kIsbnLength = 37;
+		static const size_t kRatingAgeCount = 32;
+		static const size_t kDisplayVersionLength = 16;
+		static const size_t kApplicationErrorCodeCategoryLength = 8;
+		static const size_t kLocalCommunicationIdCount = 8;
+		static const size_t kBcatPassphraseLength = 65;
+		static const size_t kPlayLogQueryableApplicationIdCount = 16;
+		static const int8_t kUnusedAgeRating = -1;
+
 		enum AocRegistrationType
 		{
 			AOC_AllOnLaunch,
@@ -144,18 +154,6 @@ namespace nx
 			VCAP_Manual,
 			VCAP_Enable
 		};
-
-		static const size_t kNameLength = 0x200;
-		static const size_t kPublisherLength = 0x100;
-		static const size_t kMaxLanguageCount = 16;
-		static const size_t kIsbnLength = 37;
-		static const size_t kRatingAgeCount = 32;
-		static const size_t kDisplayVersionLength = 16;
-		static const size_t kApplicationErrorCodeCategoryLength = 8;
-		static const size_t kLocalCommunicationIdCount = 8;
-		static const size_t kBcatPassphraseLength = 65;
-		static const size_t kPlayLogQueryableApplicationIdCount = 16;
-		static const int8_t kUnusedAgeRating = -1;
 	}
 
 

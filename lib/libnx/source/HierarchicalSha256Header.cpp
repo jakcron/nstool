@@ -1,7 +1,6 @@
 #include <sstream>
 #include <nx/HierarchicalSha256Header.h>
 
-
 nx::HierarchicalSha256Header::HierarchicalSha256Header()
 {
 	clear();
@@ -9,45 +8,41 @@ nx::HierarchicalSha256Header::HierarchicalSha256Header()
 
 nx::HierarchicalSha256Header::HierarchicalSha256Header(const HierarchicalSha256Header & other)
 {
-	copyFrom(other);
-}
-
-nx::HierarchicalSha256Header::HierarchicalSha256Header(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
-bool nx::HierarchicalSha256Header::operator==(const HierarchicalSha256Header & other) const
-{
-	return isEqual(other);
-}
-
-bool nx::HierarchicalSha256Header::operator!=(const HierarchicalSha256Header & other) const
-{
-	return !isEqual(other);
+	*this = other;
 }
 
 void nx::HierarchicalSha256Header::operator=(const HierarchicalSha256Header & other)
 {
-	copyFrom(other);
+	if (other.getBytes().size() != 0)
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		mMasterHash = other.mMasterHash;
+		mHashBlockSize = other.mHashBlockSize;
+		mLayerInfo = other.mLayerInfo;
+	}
 }
 
-const byte_t * nx::HierarchicalSha256Header::getBytes() const
+bool nx::HierarchicalSha256Header::operator==(const HierarchicalSha256Header & other) const
 {
-	return mBinaryBlob.getBytes();
+	return (mMasterHash == other.mMasterHash) \
+		&& (mHashBlockSize == other.mHashBlockSize) \
+		&& (mLayerInfo == other.mLayerInfo);
 }
 
-size_t nx::HierarchicalSha256Header::getSize() const
+bool nx::HierarchicalSha256Header::operator!=(const HierarchicalSha256Header & other) const
 {
-	return mBinaryBlob.getSize();
+	return !(*this == other);
 }
 
-void nx::HierarchicalSha256Header::exportBinary()
+void nx::HierarchicalSha256Header::toBytes()
 {
 	throw fnd::Exception(kModuleName, "exportBinary() not implemented");
 }
 
-void nx::HierarchicalSha256Header::importBinary(const byte_t * bytes, size_t len)
+void nx::HierarchicalSha256Header::fromBytes(const byte_t* data, size_t len)
 {
 	std::stringstream error_str;
 
@@ -56,7 +51,7 @@ void nx::HierarchicalSha256Header::importBinary(const byte_t * bytes, size_t len
 		throw fnd::Exception(kModuleName, "Header too small");
 	}
 
-	const nx::sHierarchicalSha256Header* hdr = (const nx::sHierarchicalSha256Header*)bytes;
+	const nx::sHierarchicalSha256Header* hdr = (const nx::sHierarchicalSha256Header*)data;
 
 	if (hdr->layer_num.get() != nx::hierarchicalsha256::kDefaultLayerNum)
 	{
@@ -72,6 +67,11 @@ void nx::HierarchicalSha256Header::importBinary(const byte_t * bytes, size_t len
 	{
 		mLayerInfo.addElement({hdr->layer[i].offset.get(), hdr->layer[i].size.get()});
 	}
+}
+
+const fnd::Vec<byte_t>& nx::HierarchicalSha256Header::getBytes() const
+{
+	return mRawBinary;
 }
 
 void nx::HierarchicalSha256Header::clear()
@@ -109,25 +109,4 @@ const fnd::List<nx::HierarchicalSha256Header::sLayer>& nx::HierarchicalSha256Hea
 void nx::HierarchicalSha256Header::setLayerInfo(const fnd::List<sLayer>& layer_info)
 {
 	mLayerInfo = layer_info;
-}
-
-bool nx::HierarchicalSha256Header::isEqual(const HierarchicalSha256Header & other) const
-{
-	return (mMasterHash == other.mMasterHash) \
-		&& (mHashBlockSize == other.mHashBlockSize) \
-		&& (mLayerInfo == other.mLayerInfo);
-}
-
-void nx::HierarchicalSha256Header::copyFrom(const HierarchicalSha256Header & other)
-{
-	if (other.getSize() != 0)
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		mMasterHash = other.mMasterHash;
-		mHashBlockSize = other.mHashBlockSize;
-		mLayerInfo = other.mLayerInfo;
-	}
 }

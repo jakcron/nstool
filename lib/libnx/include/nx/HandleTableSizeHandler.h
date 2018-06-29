@@ -10,13 +10,13 @@ namespace nx
 	public:
 		HandleTableSizeHandler();
 
+		void operator=(const HandleTableSizeHandler& other);
 		bool operator==(const HandleTableSizeHandler& other) const;
 		bool operator!=(const HandleTableSizeHandler& other) const;
-		void operator=(const HandleTableSizeHandler& other);
 
 		// kernel capabilty list in/out
-		void importKernelCapabilityList(const fnd::List<KernelCapability>& caps);
-		void exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const;
+		void importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps);
+		void exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const;
 		void clear();
 		bool isSet() const;
 
@@ -30,9 +30,6 @@ namespace nx
 
 		bool mIsSet;
 		HandleTableSizeEntry mEntry;
-
-		void copyFrom(const HandleTableSizeHandler& other);
-		bool isEqual(const HandleTableSizeHandler& other) const;
 	};
 }
 

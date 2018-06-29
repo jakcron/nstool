@@ -23,7 +23,7 @@ RoMetadataProcess::RoMetadataProcess() :
 
 void RoMetadataProcess::process()
 {
-	if (mRoBlob.getSize() == 0)
+	if (mRoBlob.size() == 0)
 	{
 		throw fnd::Exception(kModuleName, "No ro binary set.");
 	}
@@ -33,7 +33,7 @@ void RoMetadataProcess::process()
 		displayRoMetaData();
 }
 
-void RoMetadataProcess::setRoBinary(const fnd::MemoryBlob& bin)
+void RoMetadataProcess::setRoBinary(const fnd::Vec<byte_t>& bin)
 {
 	mRoBlob = bin;
 }
@@ -78,7 +78,7 @@ void RoMetadataProcess::importApiList()
 {
 	if (mApiInfo.size > 0)
 	{
-		std::stringstream list_stream(std::string((char*)mRoBlob.getBytes() + mApiInfo.offset, mApiInfo.size));
+		std::stringstream list_stream(std::string((char*)mRoBlob.data() + mApiInfo.offset, mApiInfo.size));
 		std::string api_str;
 
 		while(std::getline(list_stream, api_str, (char)0x00))
@@ -98,7 +98,7 @@ void RoMetadataProcess::importApiList()
 
 	if (mDynSym.size > 0)
 	{
-		mSymbolList.parseData(mRoBlob.getBytes() + mDynSym.offset, mDynSym.size, mRoBlob.getBytes() + mDynStr.offset, mDynStr.size, mInstructionType == nx::npdm::INSTR_64BIT);
+		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mInstructionType == nx::npdm::INSTR_64BIT);
 	}
 }
 
@@ -138,10 +138,10 @@ void RoMetadataProcess::displayRoMetaData()
 			}
 		}
 	}
-	if (mSymbolList.getSymbolList().getSize() > 0 && (mListSymbols || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
+	if (mSymbolList.getSymbolList().size() > 0 && (mListSymbols || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
 		printf("[Symbol List]\n");
-		for (size_t i = 0; i < mSymbolList.getSymbolList().getSize(); i++)
+		for (size_t i = 0; i < mSymbolList.getSymbolList().size(); i++)
 		{
 			const ElfSymbolParser::sElfSymbol& symbol = mSymbolList.getSymbolList()[i];
 			printf("  %s [SHN=%s (%04x)][STT=%s][STB=%s]\n", symbol.name.c_str(), getSectionIndexStr(symbol.shn_index), symbol.shn_index, getSymbolTypeStr(symbol.symbol_type), getSymbolBindingStr(symbol.symbol_binding));

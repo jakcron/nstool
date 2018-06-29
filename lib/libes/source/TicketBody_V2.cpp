@@ -9,43 +9,68 @@ es::TicketBody_V2::TicketBody_V2()
 
 es::TicketBody_V2::TicketBody_V2(const TicketBody_V2 & other)
 {
-	copyFrom(other);
-}
-
-es::TicketBody_V2::TicketBody_V2(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
-bool es::TicketBody_V2::operator==(const TicketBody_V2 & other) const
-{
-	return isEqual(other);
-}
-
-bool es::TicketBody_V2::operator!=(const TicketBody_V2 & other) const
-{
-	return !isEqual(other);
+	*this = other;
 }
 
 void es::TicketBody_V2::operator=(const TicketBody_V2 & other)
 {
-	copyFrom(other);
+	if (other.getBytes().size())
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		clear();
+		mIssuer = other.mIssuer;
+		memcpy(mEncTitleKey, other.mEncTitleKey, ticket::kEncTitleKeySize);
+		mEncType = other.mEncType;
+		mTicketVersion = other.mTicketVersion;
+		mLicenseType = other.mLicenseType;
+		mPreInstall = other.mPreInstall;
+		mSharedTitle = other.mSharedTitle;
+		mAllowAllContent = other.mAllowAllContent;
+		memcpy(mReservedRegion, other.mReservedRegion, ticket::kReservedRegionSize);
+		mTicketId = other.mTicketId;
+		mDeviceId = other.mDeviceId;
+		memcpy(mRightsId, other.mRightsId, ticket::kRightsIdSize);
+		mAccountId = other.mAccountId;
+		mSectTotalSize = other.mSectTotalSize;
+		mSectHeaderOffset = other.mSectHeaderOffset;
+		mSectNum = other.mSectNum;
+		mSectEntrySize = other.mSectEntrySize;
+	}
 }
 
-const byte_t * es::TicketBody_V2::getBytes() const
+bool es::TicketBody_V2::operator==(const TicketBody_V2 & other) const
 {
-	return mBinaryBlob.getBytes();
+	return (mIssuer == other.mIssuer) \
+		&& (memcmp(mEncTitleKey, other.mEncTitleKey, ticket::kEncTitleKeySize) == 0) \
+		&& (mEncType == other.mEncType) \
+		&& (mTicketVersion == other.mTicketVersion) \
+		&& (mLicenseType == other.mLicenseType) \
+		&& (mPreInstall == other.mPreInstall) \
+		&& (mSharedTitle == other.mSharedTitle) \
+		&& (mAllowAllContent == other.mAllowAllContent) \
+		&& (memcmp(mReservedRegion, other.mReservedRegion, ticket::kReservedRegionSize) == 0) \
+		&& (mTicketId == other.mTicketId) \
+		&& (mDeviceId == other.mDeviceId) \
+		&& (memcmp(mRightsId, other.mRightsId, ticket::kRightsIdSize) == 0) \
+		&& (mAccountId == other.mAccountId) \
+		&& (mSectTotalSize == other.mSectTotalSize) \
+		&& (mSectHeaderOffset == other.mSectHeaderOffset) \
+		&& (mSectNum == other.mSectNum) \
+		&& (mSectEntrySize == other.mSectEntrySize);
 }
 
-size_t es::TicketBody_V2::getSize() const
+bool es::TicketBody_V2::operator!=(const TicketBody_V2 & other) const
 {
-	return mBinaryBlob.getSize();
+	return !(*this == other);
 }
 
-void es::TicketBody_V2::exportBinary()
+void es::TicketBody_V2::toBytes()
 {
-	mBinaryBlob.alloc(sizeof(sTicketBody_v2));
-	sTicketBody_v2* body = (sTicketBody_v2*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sTicketBody_v2));
+	sTicketBody_v2* body = (sTicketBody_v2*)mRawBinary.data();
 
 	body->format_version = (ticket::kFormatVersion);
 
@@ -69,7 +94,7 @@ void es::TicketBody_V2::exportBinary()
 	body->sect_entry_size = (mSectEntrySize);
 }
 
-void es::TicketBody_V2::importBinary(const byte_t * bytes, size_t len)
+void es::TicketBody_V2::fromBytes(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sTicketBody_v2))
 	{
@@ -78,9 +103,9 @@ void es::TicketBody_V2::importBinary(const byte_t * bytes, size_t len)
 
 	clear();
 
-	mBinaryBlob.alloc(sizeof(sTicketBody_v2));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
-	sTicketBody_v2* body = (sTicketBody_v2*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sTicketBody_v2));
+	memcpy(mRawBinary.data(), bytes, mRawBinary.size());
+	sTicketBody_v2* body = (sTicketBody_v2*)mRawBinary.data();
 
 	if (body->format_version != ticket::kFormatVersion)
 	{
@@ -106,9 +131,14 @@ void es::TicketBody_V2::importBinary(const byte_t * bytes, size_t len)
 	mSectEntrySize = body->sect_entry_size.get();
 }
 
+const fnd::Vec<byte_t>& es::TicketBody_V2::getBytes() const
+{
+	return mRawBinary;
+}
+
 void es::TicketBody_V2::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	mIssuer.clear();
 	memset(mEncTitleKey, 0, ticket::kEncTitleKeySize);
 	mEncType = ticket::AES128_CBC;
@@ -151,7 +181,7 @@ const byte_t * es::TicketBody_V2::getEncTitleKey() const
 void es::TicketBody_V2::setEncTitleKey(const byte_t * data, size_t len)
 {
 	memset(mEncTitleKey, 0, ticket::kEncTitleKeySize);
-	memcpy(mEncTitleKey, data, MIN(len, ticket::kEncTitleKeySize));
+	memcpy(mEncTitleKey, data, _MIN(len, ticket::kEncTitleKeySize));
 }
 
 es::ticket::TitleKeyEncType es::TicketBody_V2::getTitleKeyEncType() const
@@ -232,7 +262,7 @@ const byte_t * es::TicketBody_V2::getReservedRegion() const
 void es::TicketBody_V2::setReservedRegion(const byte_t * data, size_t len)
 {
 	memset(mReservedRegion, 0, ticket::kReservedRegionSize);
-	memcpy(mReservedRegion, data, MIN(len, ticket::kReservedRegionSize));
+	memcpy(mReservedRegion, data, _MIN(len, ticket::kReservedRegionSize));
 }
 
 uint64_t es::TicketBody_V2::getTicketId() const
@@ -313,54 +343,4 @@ uint16_t es::TicketBody_V2::getSectionEntrySize() const
 void es::TicketBody_V2::setSectionEntrySize(uint16_t size)
 {
 	mSectEntrySize = size;
-}
-
-bool es::TicketBody_V2::isEqual(const TicketBody_V2 & other) const
-{
-	return (mIssuer == other.mIssuer) \
-		&& (memcmp(mEncTitleKey, other.mEncTitleKey, ticket::kEncTitleKeySize) == 0) \
-		&& (mEncType == other.mEncType) \
-		&& (mTicketVersion == other.mTicketVersion) \
-		&& (mLicenseType == other.mLicenseType) \
-		&& (mPreInstall == other.mPreInstall) \
-		&& (mSharedTitle == other.mSharedTitle) \
-		&& (mAllowAllContent == other.mAllowAllContent) \
-		&& (memcmp(mReservedRegion, other.mReservedRegion, ticket::kReservedRegionSize) == 0) \
-		&& (mTicketId == other.mTicketId) \
-		&& (mDeviceId == other.mDeviceId) \
-		&& (memcmp(mRightsId, other.mRightsId, ticket::kRightsIdSize) == 0) \
-		&& (mAccountId == other.mAccountId) \
-		&& (mSectTotalSize == other.mSectTotalSize) \
-		&& (mSectHeaderOffset == other.mSectHeaderOffset) \
-		&& (mSectNum == other.mSectNum) \
-		&& (mSectEntrySize == other.mSectEntrySize);
-}
-
-void es::TicketBody_V2::copyFrom(const TicketBody_V2 & other)
-{
-	if (other.getSize())
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		clear();
-		mIssuer = other.mIssuer;
-		memcpy(mEncTitleKey, other.mEncTitleKey, ticket::kEncTitleKeySize);
-		mEncType = other.mEncType;
-		mTicketVersion = other.mTicketVersion;
-		mLicenseType = other.mLicenseType;
-		mPreInstall = other.mPreInstall;
-		mSharedTitle = other.mSharedTitle;
-		mAllowAllContent = other.mAllowAllContent;
-		memcpy(mReservedRegion, other.mReservedRegion, ticket::kReservedRegionSize);
-		mTicketId = other.mTicketId;
-		mDeviceId = other.mDeviceId;
-		memcpy(mRightsId, other.mRightsId, ticket::kRightsIdSize);
-		mAccountId = other.mAccountId;
-		mSectTotalSize = other.mSectTotalSize;
-		mSectHeaderOffset = other.mSectHeaderOffset;
-		mSectNum = other.mSectNum;
-		mSectEntrySize = other.mSectEntrySize;
-	}
 }

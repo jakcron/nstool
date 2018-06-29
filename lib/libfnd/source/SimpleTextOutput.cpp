@@ -6,7 +6,7 @@ void fnd::SimpleTextOutput::hxdStyleDump(const byte_t* data, size_t len, size_t 
 	// iterate over blocks
 	for (size_t i = 0; i < (len / row_len); i++)
 	{
-		printf("%08" PRIx64 " | ", i*row_len);
+		printf("%08" PRIx64 " | ", (uint64_t)(i * row_len));
 		// for block i print each byte
 		for (size_t j = 0; j < row_len; j++)
 		{
@@ -26,7 +26,7 @@ void fnd::SimpleTextOutput::hxdStyleDump(const byte_t* data, size_t len, size_t 
 	if ((len % row_len) > 0)
 	{
 		size_t i = (len / row_len);
-		printf("%08" PRIx64 " | ", i * row_len);
+		printf("%08" PRIx64 " | ", (uint64_t)(i * row_len));
 		// for block i print each byte
 		for (size_t j = 0; j < row_len; j++)
 		{

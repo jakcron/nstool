@@ -1,13 +1,11 @@
 #include <nx/MiscParamsEntry.h>
 
-
-
 nx::MiscParamsEntry::MiscParamsEntry() :
 	mCap(kCapId),
 	mProgramType(0)
 {}
 
-nx::MiscParamsEntry::MiscParamsEntry(const KernelCapability & kernel_cap) :
+nx::MiscParamsEntry::MiscParamsEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mProgramType(0)
 {
@@ -21,16 +19,32 @@ nx::MiscParamsEntry::MiscParamsEntry(uint8_t program_type) :
 	setProgramType(program_type);
 }
 
-const nx::KernelCapability & nx::MiscParamsEntry::getKernelCapability() const
+void nx::MiscParamsEntry::operator=(const MiscParamsEntry& other)
+{
+	mProgramType = other.mProgramType;
+	updateCapField();
+}
+
+bool nx::MiscParamsEntry::operator==(const MiscParamsEntry& other) const
+{
+	return (mProgramType == other.mProgramType);
+}
+
+bool nx::MiscParamsEntry::operator!=(const MiscParamsEntry& other) const
+{
+	return !(*this == other);
+}
+
+const nx::KernelCapabilityEntry & nx::MiscParamsEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::MiscParamsEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::MiscParamsEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'ThreadInfo'");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'ThreadInfo'");
 	}
 
 	mCap = kernel_cap;

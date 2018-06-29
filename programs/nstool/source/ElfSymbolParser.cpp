@@ -5,19 +5,19 @@ ElfSymbolParser::ElfSymbolParser()
 	mSymbolList.clear();
 }
 
+void ElfSymbolParser::operator=(const ElfSymbolParser& other)
+{
+	mSymbolList = other.mSymbolList;
+}
+
 bool ElfSymbolParser::operator==(const ElfSymbolParser& other) const
 {
-	return isEqual(other);
+	return mSymbolList == other.mSymbolList;
 }
 
 bool ElfSymbolParser::operator!=(const ElfSymbolParser& other) const
 {
-	return !isEqual(other);
-}
-
-void ElfSymbolParser::operator=(const ElfSymbolParser& other)
-{
-	copyFrom(other);
+	return !(*this == other);
 }
 
 void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, const byte_t *dyn_str, size_t dyn_str_size, bool is64Bit)
@@ -59,14 +59,4 @@ void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, cons
 const fnd::List<ElfSymbolParser::sElfSymbol>& ElfSymbolParser::getSymbolList() const
 {
 	return mSymbolList;
-}
-
-bool ElfSymbolParser::isEqual(const ElfSymbolParser& other) const
-{
-	return mSymbolList == other.mSymbolList;
-}
-
-void ElfSymbolParser::copyFrom(const ElfSymbolParser& other)
-{
-	mSymbolList = other.mSymbolList;
 }

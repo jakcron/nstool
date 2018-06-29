@@ -8,45 +8,40 @@ nx::HierarchicalIntegrityHeader::HierarchicalIntegrityHeader()
 
 nx::HierarchicalIntegrityHeader::HierarchicalIntegrityHeader(const HierarchicalIntegrityHeader & other)
 {
-	copyFrom(other);
-}
-
-nx::HierarchicalIntegrityHeader::HierarchicalIntegrityHeader(const byte_t * bytes, size_t len)
-{
-	importBinary(bytes, len);
-}
-
-bool nx::HierarchicalIntegrityHeader::operator==(const HierarchicalIntegrityHeader & other) const
-{
-	return isEqual(other);
-}
-
-bool nx::HierarchicalIntegrityHeader::operator!=(const HierarchicalIntegrityHeader & other) const
-{
-	return !isEqual(other);
+	*this = other;
 }
 
 void nx::HierarchicalIntegrityHeader::operator=(const HierarchicalIntegrityHeader & other)
 {
-	copyFrom(other);
+	if (other.getBytes().size() != 0)
+	{
+		fromBytes(other.getBytes().data(), other.getBytes().size());
+	}
+	else
+	{
+		clear();
+		mLayerInfo = other.mLayerInfo;
+		mMasterHashList = other.mMasterHashList;
+	}
 }
 
-const byte_t * nx::HierarchicalIntegrityHeader::getBytes() const
+bool nx::HierarchicalIntegrityHeader::operator==(const HierarchicalIntegrityHeader & other) const
 {
-	return mBinaryBlob.getBytes();
+	return (mLayerInfo == other.mLayerInfo) \
+		&& (mMasterHashList == other.mMasterHashList);
 }
 
-size_t nx::HierarchicalIntegrityHeader::getSize() const
+bool nx::HierarchicalIntegrityHeader::operator!=(const HierarchicalIntegrityHeader & other) const
 {
-	return mBinaryBlob.getSize();
+	return !(*this == other);
 }
 
-void nx::HierarchicalIntegrityHeader::exportBinary()
+void nx::HierarchicalIntegrityHeader::toBytes()
 {
 	throw fnd::Exception(kModuleName, "exportBinary() not implemented");
 }
 
-void nx::HierarchicalIntegrityHeader::importBinary(const byte_t * bytes, size_t len)
+void nx::HierarchicalIntegrityHeader::fromBytes(const byte_t* data, size_t len)
 {
 	std::stringstream error_str;
 
@@ -56,10 +51,10 @@ void nx::HierarchicalIntegrityHeader::importBinary(const byte_t * bytes, size_t 
 		throw fnd::Exception(kModuleName, "Header too small");
 	}
 
-	const nx::sHierarchicalIntegrityHeader* hdr = (const nx::sHierarchicalIntegrityHeader*)bytes;
+	const nx::sHierarchicalIntegrityHeader* hdr = (const nx::sHierarchicalIntegrityHeader*)data;
 
 	// Validate Header Sig "IVFC"
-	if (hdr->signature.get() != hierarchicalintegrity::kStructSig)
+	if (hdr->st_magic.get() != hierarchicalintegrity::kStructMagic)
 	{
 		throw fnd::Exception(kModuleName, "Invalid struct magic");
 	}
@@ -92,22 +87,27 @@ void nx::HierarchicalIntegrityHeader::importBinary(const byte_t * bytes, size_t 
 	}
 
 	// copy to internal storage
-	mBinaryBlob.alloc(total_size);
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(total_size);
+	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// save layer info
-	const nx::sHierarchicalIntegrityLayerInfo* layer_info = (const nx::sHierarchicalIntegrityLayerInfo*)(mBinaryBlob.getBytes() + sizeof(nx::sHierarchicalIntegrityHeader));
+	const nx::sHierarchicalIntegrityLayerInfo* layer_info = (const nx::sHierarchicalIntegrityLayerInfo*)(mRawBinary.data() + sizeof(nx::sHierarchicalIntegrityHeader));
 	for (size_t i = 0; i < hierarchicalintegrity::kDefaultLayerNum; i++)
 	{
 		mLayerInfo.addElement({layer_info[i].offset.get(), layer_info[i].size.get(), layer_info[i].block_size.get()});
 	}
 
 	// save hash list
-	const crypto::sha::sSha256Hash* hash_list = (const crypto::sha::sSha256Hash*)(mBinaryBlob.getBytes() + master_hash_offset);
+	const crypto::sha::sSha256Hash* hash_list = (const crypto::sha::sSha256Hash*)(mRawBinary.data() + master_hash_offset);
 	for (size_t i = 0; i < hdr->master_hash_size.get()/sizeof(crypto::sha::sSha256Hash); i++)
 	{
 		mMasterHashList.addElement(hash_list[i]);
 	}
+}
+
+const fnd::Vec<byte_t>& nx::HierarchicalIntegrityHeader::getBytes() const
+{
+	return mRawBinary;
 }
 
 void nx::HierarchicalIntegrityHeader::clear()
@@ -134,23 +134,4 @@ const fnd::List<crypto::sha::sSha256Hash>& nx::HierarchicalIntegrityHeader::getM
 void nx::HierarchicalIntegrityHeader::setMasterHashList(const fnd::List<crypto::sha::sSha256Hash>& master_hash_list)
 {
 	mMasterHashList = master_hash_list;
-}
-
-bool nx::HierarchicalIntegrityHeader::isEqual(const HierarchicalIntegrityHeader & other) const
-{
-	return (mLayerInfo == other.mLayerInfo) \
-		&& (mMasterHashList == other.mMasterHashList);
-}
-
-void nx::HierarchicalIntegrityHeader::copyFrom(const HierarchicalIntegrityHeader & other)
-{
-	if (other.getSize() != 0)
-	{
-		importBinary(other.getBytes(), other.getSize());
-	}
-	else
-	{
-		mLayerInfo = other.mLayerInfo;
-		mMasterHashList = other.mMasterHashList;
-	}
 }

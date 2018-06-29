@@ -7,7 +7,9 @@ namespace nx
 {
 	namespace nso
 	{
-		static const uint32_t kNsoSig = _MAKE_STRUCT_SIGNATURE("NSO0");
+		static const uint32_t kNsoStructMagic = _MAKE_STRUCT_MAGIC_U32("NSO0");
+		static const uint32_t kDefaultFormatVersion = 0;
+		static const size_t kModuleIdSize = 32;
 
 		enum HeaderFlags
 		{
@@ -18,9 +20,6 @@ namespace nx
 			FLAG_RO_HASH,
 			FLAG_DATA_HASH
 		};
-
-		static const uint32_t kDefaultFormatVersion = 0;
-		static const size_t kModuleIdSize = 32;
 	}
 	
 #pragma pack(push,1)
@@ -39,7 +38,7 @@ namespace nx
 
 	struct sNsoHeader
 	{
-		le_uint32_t signature;
+		le_uint32_t st_magic;
 		le_uint32_t format_version;
 		byte_t reserved_1[4];
 		le_uint32_t flags;

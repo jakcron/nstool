@@ -1,34 +1,34 @@
 #include <nx/MiscFlagsHandler.h>
 
-
-
 nx::MiscFlagsHandler::MiscFlagsHandler() :
 	mIsSet(false)
 {}
 
+void nx::MiscFlagsHandler::operator=(const MiscFlagsHandler & other)
+{
+	mIsSet = other.mIsSet;
+	mFlags = other.mFlags;
+}
+
 bool nx::MiscFlagsHandler::operator==(const MiscFlagsHandler & other) const
 {
-	return isEqual(other);
+	return (mIsSet == other.mIsSet) \
+		&& (mFlags == other.mFlags);
 }
 
 bool nx::MiscFlagsHandler::operator!=(const MiscFlagsHandler & other) const
 {
-	return !isEqual(other);
+	return !(*this == other);
 }
 
-void nx::MiscFlagsHandler::operator=(const MiscFlagsHandler & other)
+void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
-	copyFrom(other);
-}
-
-void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
-{
-	if (caps.getSize() > kMaxKernelCapNum)
+	if (caps.size() > kMaxKernelCapNum)
 	{
 		throw fnd::Exception(kModuleName, "Too many kernel capabilities");
 	}
 
-	if (caps.getSize() == 0)
+	if (caps.size() == 0)
 		return;
 
 	MiscFlagsEntry entry;
@@ -46,14 +46,14 @@ void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapa
 	mIsSet = true;
 }
 
-void nx::MiscFlagsHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::MiscFlagsHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
 
 	// convert list to word flags
 	uint32_t flag = 0;
-	for (size_t i = 0; i < mFlags.getSize(); i++)
+	for (size_t i = 0; i < mFlags.size(); i++)
 	{
 		flag |= BIT(mFlags[i]);
 	}
@@ -86,16 +86,4 @@ void nx::MiscFlagsHandler::setFlagList(fnd::List<Flags> flags)
 {
 	mFlags = flags;
 	mIsSet = true;
-}
-
-void nx::MiscFlagsHandler::copyFrom(const MiscFlagsHandler & other)
-{
-	mIsSet = other.mIsSet;
-	mFlags = other.mFlags;
-}
-
-bool nx::MiscFlagsHandler::isEqual(const MiscFlagsHandler & other) const
-{
-	return (mIsSet == other.mIsSet) \
-		&& (mFlags == other.mFlags);
 }

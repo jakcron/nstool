@@ -1,30 +1,25 @@
 #pragma once
 #include <string>
-#include <fnd/MemoryBlob.h>
-#include <fnd/ISerialiseableBinary.h>
+#include <fnd/ISerialisable.h>
 #include <es/ticket.h>
 
 namespace es
 {
 	class SectionHeader_V2 :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		SectionHeader_V2();
 		SectionHeader_V2(const SectionHeader_V2& other);
-		SectionHeader_V2(const byte_t* bytes, size_t len);
 
+		void operator=(const SectionHeader_V2& other);
 		bool operator==(const SectionHeader_V2& other) const;
 		bool operator!=(const SectionHeader_V2& other) const;
-		void operator=(const SectionHeader_V2& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		virtual void exportBinary();
-		virtual void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* data, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		virtual void clear();
@@ -48,7 +43,7 @@ namespace es
 		const std::string kModuleName = "SECTION_HEADER_V2";
 		
 		// raw binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		uint32_t mSectionOffset;
@@ -56,11 +51,6 @@ namespace es
 		uint32_t mSectionSize;
 		uint16_t mRecordNum;
 		ticket::SectionType mSectionType;
-
-		// helpers
-		bool isEqual(const SectionHeader_V2& other) const;
-		void copyFrom(const SectionHeader_V2& other);
-
 	};
 
 }

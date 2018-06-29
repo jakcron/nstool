@@ -1,15 +1,14 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/nacp.h>
 
 namespace nx
 {
 	class ApplicationControlPropertyBinary :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		struct sTitle
@@ -86,19 +85,15 @@ namespace nx
 
 		ApplicationControlPropertyBinary();
 		ApplicationControlPropertyBinary(const ApplicationControlPropertyBinary& other);
-		ApplicationControlPropertyBinary(const byte_t* bytes, size_t len);
 
+		void operator=(const ApplicationControlPropertyBinary& other);
 		bool operator==(const ApplicationControlPropertyBinary& other) const;
 		bool operator!=(const ApplicationControlPropertyBinary& other) const;
-		void operator=(const ApplicationControlPropertyBinary& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
@@ -222,7 +217,7 @@ namespace nx
 		const std::string kModuleName = "APPLICATION_CONTROL_PROPERTY";
 
 		// raw data
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		fnd::List<sTitle> mTitle;
@@ -263,8 +258,5 @@ namespace nx
 		nacp::PlayLogQueryCapability mPlayLogQueryCapability;
 		nacp::RepairFlag mRepairFlag;
 		byte_t mProgramIndex;
-
-		bool isEqual(const ApplicationControlPropertyBinary& other) const;
-		void copyFrom(const ApplicationControlPropertyBinary& other);
 	};
 }

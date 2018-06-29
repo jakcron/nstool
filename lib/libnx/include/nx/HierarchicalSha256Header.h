@@ -1,13 +1,12 @@
 #pragma once
 #include <nx/hierarchicalsha256.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 
 namespace nx
 {
 	class HierarchicalSha256Header :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		struct sLayer
@@ -34,19 +33,15 @@ namespace nx
 
 		HierarchicalSha256Header();
 		HierarchicalSha256Header(const HierarchicalSha256Header& other);
-		HierarchicalSha256Header(const byte_t* bytes, size_t len);
 
+		void operator=(const HierarchicalSha256Header& other);
 		bool operator==(const HierarchicalSha256Header& other) const;
 		bool operator!=(const HierarchicalSha256Header& other) const;
-		void operator=(const HierarchicalSha256Header& other);
-
-		// to be used after export
-		const byte_t* getBytes() const;
-		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>&  getBytes() const;
 
 		// variables
 		void clear();
@@ -63,15 +58,12 @@ namespace nx
 		const std::string kModuleName = "HIERARCHICAL_SHA256_HEADER";
 
 		// binary
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// data
 		crypto::sha::sSha256Hash mMasterHash;
 		size_t mHashBlockSize;
 		fnd::List<sLayer> mLayerInfo;
-
-		bool isEqual(const HierarchicalSha256Header& other) const;
-		void copyFrom(const HierarchicalSha256Header& other);
 	};
 
 }

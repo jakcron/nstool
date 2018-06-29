@@ -7,17 +7,22 @@ nx::AssetHeader::AssetHeader()
 
 nx::AssetHeader::AssetHeader(const AssetHeader& other)
 {
-	copyFrom(other);
+	*this = other;
 }
 
-nx::AssetHeader::AssetHeader(const byte_t* bytes, size_t len)
+void nx::AssetHeader::operator=(const AssetHeader& other)
 {
-	importBinary(bytes, len);
+	mRawBinary = other.mRawBinary;
+	mIconInfo = other.mIconInfo;
+	mNacpInfo = other.mNacpInfo;
+	mRomfsInfo = other.mRomfsInfo;
 }
 
 bool nx::AssetHeader::operator==(const AssetHeader& other) const
 {
-	return isEqual(other);
+	return (mIconInfo == other.mIconInfo) \
+		&& (mNacpInfo == other.mNacpInfo) \
+		&& (mRomfsInfo == other.mRomfsInfo);
 }
 
 bool nx::AssetHeader::operator!=(const AssetHeader& other) const
@@ -25,28 +30,13 @@ bool nx::AssetHeader::operator!=(const AssetHeader& other) const
 	return !(*this == other);
 }
 
-void nx::AssetHeader::operator=(const AssetHeader& other)
+void nx::AssetHeader::toBytes()
 {
-	copyFrom(other);
-}
-
-const byte_t* nx::AssetHeader::getBytes() const
-{
-	return mBinaryBlob.getBytes();
-}
-
-size_t nx::AssetHeader::getSize() const
-{
-	return mBinaryBlob.getSize();
-}
-
-void nx::AssetHeader::exportBinary()
-{
-	mBinaryBlob.alloc(sizeof(sAssetHeader));
-	nx::sAssetHeader* hdr = (nx::sAssetHeader*)mBinaryBlob.getBytes();
+	mRawBinary.alloc(sizeof(sAssetHeader));
+	nx::sAssetHeader* hdr = (nx::sAssetHeader*)mRawBinary.data();
 
 	// set header identifers
-	hdr->signature = aset::kAssetSig;
+	hdr->st_magic = aset::kAssetStructMagic;
 	hdr->format_version = aset::kDefaultAssetFormatVersion;
 
 	// set icon section
@@ -62,7 +52,7 @@ void nx::AssetHeader::exportBinary()
 	hdr->romfs.size = mRomfsInfo.size;
 }
 
-void nx::AssetHeader::importBinary(const byte_t* bytes, size_t len)
+void nx::AssetHeader::fromBytes(const byte_t* bytes, size_t len)
 {
 	// check input data size
 	if (len < sizeof(sAssetHeader))
@@ -74,14 +64,14 @@ void nx::AssetHeader::importBinary(const byte_t* bytes, size_t len)
 	clear();
 
 	// allocate internal local binary copy
-	mBinaryBlob.alloc(sizeof(sAssetHeader));
-	memcpy(mBinaryBlob.getBytes(), bytes, mBinaryBlob.getSize());
+	mRawBinary.alloc(sizeof(sAssetHeader));
+	memcpy(mRawBinary.data(), bytes, mRawBinary.size());
 
 	// get sAssetHeader ptr
-	const nx::sAssetHeader* hdr = (const nx::sAssetHeader*)mBinaryBlob.getBytes();
+	const nx::sAssetHeader* hdr = (const nx::sAssetHeader*)mRawBinary.data();
 	
 	// check NRO signature
-	if (hdr->signature.get() != aset::kAssetSig)
+	if (hdr->st_magic.get() != aset::kAssetStructMagic)
 	{
 		throw fnd::Exception(kModuleName, "ASET header corrupt (unrecognised header signature)");
 	}
@@ -100,9 +90,14 @@ void nx::AssetHeader::importBinary(const byte_t* bytes, size_t len)
 	mRomfsInfo.size = hdr->romfs.size.get();
 }
 
+const fnd::Vec<byte_t>& nx::AssetHeader::getBytes() const
+{
+	return mRawBinary;
+}
+
 void nx::AssetHeader::clear()
 {
-	mBinaryBlob.clear();
+	mRawBinary.clear();
 	memset(&mIconInfo, 0, sizeof(mIconInfo));
 	memset(&mNacpInfo, 0, sizeof(mNacpInfo));
 	memset(&mRomfsInfo, 0, sizeof(mRomfsInfo));
@@ -136,18 +131,4 @@ const nx::AssetHeader::sSection& nx::AssetHeader::getRomfsInfo() const
 void nx::AssetHeader::setRomfsInfo(const sSection& info)
 {
 	mRomfsInfo = info;
-}
-
-bool nx::AssetHeader::isEqual(const AssetHeader& other) const
-{
-	return (mIconInfo == other.mIconInfo) \
-		&& (mNacpInfo == other.mNacpInfo) \
-		&& (mRomfsInfo == other.mRomfsInfo);
-}
-
-void nx::AssetHeader::copyFrom(const AssetHeader& other)
-{
-	mIconInfo = other.mIconInfo;
-	mNacpInfo = other.mNacpInfo;
-	mRomfsInfo = other.mRomfsInfo;
 }

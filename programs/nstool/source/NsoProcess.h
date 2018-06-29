@@ -37,7 +37,7 @@ private:
 	bool mListSymbols;
 
 	nx::NsoHeader mHdr;
-	fnd::MemoryBlob mTextBlob, mRoBlob, mDataBlob;
+	fnd::Vec<byte_t> mTextBlob, mRoBlob, mDataBlob;
 	RoMetadataProcess mRoMeta;
 
 	void importHeader();

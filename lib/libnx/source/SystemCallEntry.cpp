@@ -1,7 +1,5 @@
 #include <nx/SystemCallEntry.h>
 
-
-
 nx::SystemCallEntry::SystemCallEntry() :
 	mCap(kCapId),
 	mSystemCallUpper(0),
@@ -10,7 +8,7 @@ nx::SystemCallEntry::SystemCallEntry() :
 
 }
 
-nx::SystemCallEntry::SystemCallEntry(const KernelCapability & kernel_cap) :
+nx::SystemCallEntry::SystemCallEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mSystemCallUpper(0),
 	mSystemCallLower(0)
@@ -27,16 +25,34 @@ nx::SystemCallEntry::SystemCallEntry(uint32_t upper_bits, uint32_t lower_bits) :
 	setSystemCallLowerBits(lower_bits);
 }
 
-const nx::KernelCapability & nx::SystemCallEntry::getKernelCapability() const
+void nx::SystemCallEntry::operator=(const SystemCallEntry& other)
+{
+	mSystemCallUpper = other.mSystemCallUpper;
+	mSystemCallLower = other.mSystemCallLower;
+	updateCapField();
+}
+
+bool nx::SystemCallEntry::operator==(const SystemCallEntry& other) const
+{
+	return (mSystemCallUpper == other.mSystemCallUpper) \
+		&& (mSystemCallLower == other.mSystemCallLower);
+}
+
+bool nx::SystemCallEntry::operator!=(const SystemCallEntry& other) const
+{
+	return !(*this == other);
+}
+
+const nx::KernelCapabilityEntry & nx::SystemCallEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::SystemCallEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::SystemCallEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'EnableSystemCalls'");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'EnableSystemCalls'");
 	}
 
 	mCap = kernel_cap;

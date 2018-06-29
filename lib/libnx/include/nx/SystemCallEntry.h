@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <nx/KernelCapability.h>
+#include <nx/KernelCapabilityEntry.h>
 
 namespace nx
 {
@@ -9,12 +9,16 @@ namespace nx
 	{
 	public:
 		SystemCallEntry();
-		SystemCallEntry(const KernelCapability& kernel_cap);
+		SystemCallEntry(const KernelCapabilityEntry& kernel_cap);
 		SystemCallEntry(uint32_t upper_bits, uint32_t lower_bits);
 
+		void operator=(const SystemCallEntry& other);
+		bool operator==(const SystemCallEntry& other) const;
+		bool operator!=(const SystemCallEntry& other) const;
+
 		// kernel capability
-		const KernelCapability& getKernelCapability() const;
-		void setKernelCapability(const KernelCapability& kernel_cap);
+		const KernelCapabilityEntry& getKernelCapability() const;
+		void setKernelCapability(const KernelCapabilityEntry& kernel_cap);
 
 		// variables
 		uint32_t getSystemCallUpperBits() const;
@@ -24,13 +28,13 @@ namespace nx
 		
 	private:
 		const std::string kModuleName = "SYSTEM_CALL_ENTRY";
-		static const KernelCapability::KernelCapId kCapId = KernelCapability::KC_ENABLE_SYSTEM_CALLS;
+		static const kc::KernelCapId kCapId = kc::KC_ENABLE_SYSTEM_CALLS;
 		static const uint32_t kSysCallUpperBits = 3;
 		static const uint32_t kSysCallLowerBits = 24;
 		static const uint32_t kSysCallUpperMax = BIT(kSysCallUpperBits) - 1;
 		static const uint32_t kSysCallLowerMax = BIT(kSysCallLowerBits) - 1;
 
-		KernelCapability mCap;
+		KernelCapabilityEntry mCap;
 		uint32_t mSystemCallUpper;
 		uint32_t mSystemCallLower;
 

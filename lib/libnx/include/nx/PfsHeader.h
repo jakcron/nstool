@@ -1,16 +1,15 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/MemoryBlob.h>
+#include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <fnd/ISerialiseableBinary.h>
 #include <nx/pfs.h>
 
 
 namespace nx
 {
 	class PfsHeader :
-		public fnd::ISerialiseableBinary
+		public fnd::ISerialisable
 	{
 	public:
 		enum FsType
@@ -64,23 +63,21 @@ namespace nx
 
 		PfsHeader();
 		PfsHeader(const PfsHeader& other);
-		PfsHeader(const byte_t* bytes, size_t len);
 
+		void operator=(const PfsHeader& other);
 		bool operator==(const PfsHeader& other) const;
 		bool operator!=(const PfsHeader& other) const;
-		void operator=(const PfsHeader& other);
 
 		// to be used after export
-		const byte_t* getBytes() const;
 		size_t getSize() const;
 
 		// export/import binary
-		void exportBinary();
-		void importBinary(const byte_t* bytes, size_t len);
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
 
 		// variables
 		void clear();
-
 
 		FsType getFsType() const;
 		void setFsType(FsType type);
@@ -92,7 +89,7 @@ namespace nx
 		const std::string kModuleName = "PFS_HEADER";
 
 		// binary blob
-		fnd::MemoryBlob mBinaryBlob;
+		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
 		FsType mFsType;
@@ -100,8 +97,6 @@ namespace nx
 
 		size_t getFileEntrySize(FsType fs_type);
 		void calculateOffsets(size_t data_offset);
-		bool isEqual(const PfsHeader& other) const;
-		void copyFrom(const PfsHeader& other);
 	};
 }
 

@@ -10,13 +10,13 @@ namespace nx
 	public:
 		MiscParamsHandler();
 
+		void operator=(const MiscParamsHandler& other);
 		bool operator==(const MiscParamsHandler& other) const;
 		bool operator!=(const MiscParamsHandler& other) const;
-		void operator=(const MiscParamsHandler& other);
 
 		// kernel capabilty list in/out
-		void importKernelCapabilityList(const fnd::List<KernelCapability>& caps);
-		void exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const;
+		void importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps);
+		void exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const;
 		void clear();
 		bool isSet() const;
 
@@ -30,9 +30,6 @@ namespace nx
 
 		bool mIsSet;
 		MiscParamsEntry mEntry;
-
-		void copyFrom(const MiscParamsHandler& other);
-		bool isEqual(const MiscParamsHandler& other) const;
 	};
 }
 
