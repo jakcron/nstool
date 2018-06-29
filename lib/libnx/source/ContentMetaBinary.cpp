@@ -116,12 +116,14 @@ void nx::ContentMetaBinary::fromBytes(const byte_t* data, size_t len)
 	if (hdr->content_count.get() > 0)
 	{
 		const sContentInfo* info = (const sContentInfo*)(data + getContentInfoOffset(hdr->exhdr_size.get()));
+		ContentInfo cinfo;
 		for (size_t i = 0; i < hdr->content_count.get(); i++)
 		{
-			mContentInfo[i].hash = info[i].content_hash;
-			memcpy(mContentInfo[i].nca_id, info[i].content_id, cnmt::kContentIdLen);
-			mContentInfo[i].size = (uint64_t)(info[i].size_lower.get()) | (uint64_t)(info[i].size_higher.get()) << 32;
-			mContentInfo[i].type = (cnmt::ContentType)info[i].content_type;
+			cinfo.hash = info[i].content_hash;
+			memcpy(cinfo.nca_id, info[i].content_id, cnmt::kContentIdLen);
+			cinfo.size = (uint64_t)(info[i].size_lower.get()) | (uint64_t)(info[i].size_higher.get()) << 32;
+			cinfo.type = (cnmt::ContentType)info[i].content_type;
+			mContentInfo.addElement(cinfo);
 		}
 	}
 
@@ -129,12 +131,14 @@ void nx::ContentMetaBinary::fromBytes(const byte_t* data, size_t len)
 	if (hdr->content_meta_count.get() > 0)
 	{
 		const sContentMetaInfo* info = (const sContentMetaInfo*)(data + getContentMetaInfoOffset(hdr->exhdr_size.get(), hdr->content_count.get()));
+		ContentMetaInfo cmeta;
 		for (size_t i = 0; i < hdr->content_meta_count.get(); i++)
-		{
-			mContentMetaInfo[i].id = info[i].id.get();
-			mContentMetaInfo[i].version = info[i].version.get();
-			mContentMetaInfo[i].type = (cnmt::ContentMetaType)info[i].type;
-			mContentMetaInfo[i].attributes = info[i].attributes;
+		{	
+			cmeta.id = info[i].id.get();
+			cmeta.version = info[i].version.get();
+			cmeta.type = (cnmt::ContentMetaType)info[i].type;
+			cmeta.attributes = info[i].attributes;
+			mContentMetaInfo.addElement(cmeta);
 		}
 	}
 
@@ -147,7 +151,6 @@ void nx::ContentMetaBinary::fromBytes(const byte_t* data, size_t len)
 
 	// save digest
 	memcpy(mDigest.data, data + getDigestOffset(hdr->exhdr_size.get(), hdr->content_count.get(), hdr->content_meta_count.get(), exdata_size), cnmt::kDigestLen);
-
 }
 
 const fnd::Vec<byte_t>& nx::ContentMetaBinary::getBytes() const
