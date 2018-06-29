@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\nx\AccessControlInfoBinary.h" />
+    <ClInclude Include="include\nx\AccessControlInfoDescBinary.h" />
     <ClInclude Include="include\nx\aci.h" />
-    <ClInclude Include="include\nx\AciBinary.h" />
-    <ClInclude Include="include\nx\AcidBinary.h" />
-    <ClInclude Include="include\nx\AciHeader.h" />
     <ClInclude Include="include\nx\AesKeygen.h" />
     <ClInclude Include="include\nx\ApplicationControlPropertyBinary.h" />
     <ClInclude Include="include\nx\ApplicationControlPropertyUtils.h" />
@@ -30,19 +32,19 @@
     <ClInclude Include="include\nx\ContentMetaBinary.h" />
     <ClInclude Include="include\nx\elf.h" />
     <ClInclude Include="include\nx\fac.h" />
-    <ClInclude Include="include\nx\FacBinary.h" />
-    <ClInclude Include="include\nx\FacHeader.h" />
+    <ClInclude Include="include\nx\FileSystemAccessControlBinary.h" />
     <ClInclude Include="include\nx\HandleTableSizeEntry.h" />
     <ClInclude Include="include\nx\HandleTableSizeHandler.h" />
+    <ClInclude Include="include\nx\hierarchicalintegrity.h" />
     <ClInclude Include="include\nx\HierarchicalIntegrityHeader.h" />
     <ClInclude Include="include\nx\hierarchicalsha256.h" />
     <ClInclude Include="include\nx\HierarchicalSha256Header.h" />
     <ClInclude Include="include\nx\IKernelCapabilityHandler.h" />
     <ClInclude Include="include\nx\InteruptEntry.h" />
     <ClInclude Include="include\nx\InteruptHandler.h" />
-    <ClInclude Include="include\nx\hierarchicalintegrity.h" />
-    <ClInclude Include="include\nx\KcBinary.h" />
-    <ClInclude Include="include\nx\KernelCapability.h" />
+    <ClInclude Include="include\nx\kc.h" />
+    <ClInclude Include="include\nx\KernelCapabilityBinary.h" />
+    <ClInclude Include="include\nx\KernelCapabilityEntry.h" />
     <ClInclude Include="include\nx\KernelVersionEntry.h" />
     <ClInclude Include="include\nx\KernelVersionHandler.h" />
     <ClInclude Include="include\nx\macro.h" />
@@ -54,22 +56,20 @@
     <ClInclude Include="include\nx\MiscParamsHandler.h" />
     <ClInclude Include="include\nx\nacp.h" />
     <ClInclude Include="include\nx\nca.h" />
+    <ClInclude Include="include\nx\NcaHeader.h" />
     <ClInclude Include="include\nx\NcaUtils.h" />
     <ClInclude Include="include\nx\npdm.h" />
     <ClInclude Include="include\nx\NpdmBinary.h" />
-    <ClInclude Include="include\nx\NpdmHeader.h" />
-    <ClInclude Include="include\nx\NcaHeader.h" />
     <ClInclude Include="include\nx\nro.h" />
     <ClInclude Include="include\nx\NroHeader.h" />
     <ClInclude Include="include\nx\nrr.h" />
     <ClInclude Include="include\nx\nso.h" />
     <ClInclude Include="include\nx\NsoHeader.h" />
-    <ClInclude Include="include\nx\NXCrypto.h" />
     <ClInclude Include="include\nx\pfs.h" />
     <ClInclude Include="include\nx\PfsHeader.h" />
     <ClInclude Include="include\nx\romfs.h" />
-    <ClInclude Include="include\nx\SacBinary.h" />
-    <ClInclude Include="include\nx\SacEntry.h" />
+    <ClInclude Include="include\nx\ServiceAccessControlBinary.h" />
+    <ClInclude Include="include\nx\ServiceAccessControlEntry.h" />
     <ClInclude Include="include\nx\SystemCallEntry.h" />
     <ClInclude Include="include\nx\SystemCallHandler.h" />
     <ClInclude Include="include\nx\ThreadInfoEntry.h" />
@@ -79,26 +79,21 @@
     <ClInclude Include="include\nx\XciUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="makefile" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="source\AciBinary.cpp" />
-    <ClCompile Include="source\AcidBinary.cpp" />
-    <ClCompile Include="source\AciHeader.cpp" />
+    <ClCompile Include="source\AccessControlInfoBinary.cpp" />
+    <ClCompile Include="source\AccessControlInfoDescBinary.cpp" />
     <ClCompile Include="source\AesKeygen.cpp" />
     <ClCompile Include="source\ApplicationControlPropertyBinary.cpp" />
     <ClCompile Include="source\ApplicationControlPropertyUtils.cpp" />
     <ClCompile Include="source\ContentMetaBinary.cpp" />
-    <ClCompile Include="source\FacBinary.cpp" />
-    <ClCompile Include="source\FacHeader.cpp" />
+    <ClCompile Include="source\FileSystemAccessControlBinary.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
     <ClCompile Include="source\HandleTableSizeHandler.cpp" />
     <ClCompile Include="source\HierarchicalIntegrityHeader.cpp" />
     <ClCompile Include="source\HierarchicalSha256Header.cpp" />
     <ClCompile Include="source\InteruptEntry.cpp" />
     <ClCompile Include="source\InteruptHandler.cpp" />
-    <ClCompile Include="source\KcBinary.cpp" />
-    <ClCompile Include="source\KernelCapability.cpp" />
+    <ClCompile Include="source\KernelCapabilityBinary.cpp" />
+    <ClCompile Include="source\KernelCapabilityEntry.cpp" />
     <ClCompile Include="source\KernelVersionEntry.cpp" />
     <ClCompile Include="source\KernelVersionHandler.cpp" />
     <ClCompile Include="source\MemoryMappingHandler.cpp" />
@@ -110,12 +105,11 @@
     <ClCompile Include="source\NcaHeader.cpp" />
     <ClCompile Include="source\NcaUtils.cpp" />
     <ClCompile Include="source\NpdmBinary.cpp" />
-    <ClCompile Include="source\NpdmHeader.cpp" />
     <ClCompile Include="source\NroHeader.cpp" />
     <ClCompile Include="source\NsoHeader.cpp" />
     <ClCompile Include="source\PfsHeader.cpp" />
-    <ClCompile Include="source\SacBinary.cpp" />
-    <ClCompile Include="source\SacEntry.cpp" />
+    <ClCompile Include="source\ServiceAccessControlBinary.cpp" />
+    <ClCompile Include="source\ServiceAccessControlEntry.cpp" />
     <ClCompile Include="source\SystemCallEntry.cpp" />
     <ClCompile Include="source\SystemCallHandler.cpp" />
     <ClCompile Include="source\ThreadInfoEntry.cpp" />
