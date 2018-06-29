@@ -229,12 +229,12 @@ void nx::AccessControlInfoDescBinary::setFileSystemAccessControl(const nx::FileS
 	mFileSystemAccessControl = fac;
 }
 
-const nx::SacBinary& nx::AccessControlInfoDescBinary::getServiceAccessControl() const
+const nx::ServiceAccessControlBinary& nx::AccessControlInfoDescBinary::getServiceAccessControl() const
 {
 	return mServiceAccessControl;
 }
 
-void nx::AccessControlInfoDescBinary::setServiceAccessControl(const nx::SacBinary& sac)
+void nx::AccessControlInfoDescBinary::setServiceAccessControl(const nx::ServiceAccessControlBinary& sac)
 {
 	mServiceAccessControl = sac;
 }

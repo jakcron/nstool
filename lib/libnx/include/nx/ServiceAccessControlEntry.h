@@ -5,17 +5,17 @@
 
 namespace nx
 {
-	class SacEntry : 
+	class ServiceAccessControlEntry : 
 		public fnd::ISerialisable
 	{
 	public:
-		SacEntry();
-		SacEntry(const std::string& name, bool isServer);
-		SacEntry(const SacEntry& other);
+		ServiceAccessControlEntry();
+		ServiceAccessControlEntry(const std::string& name, bool isServer);
+		ServiceAccessControlEntry(const ServiceAccessControlEntry& other);
 
-		void operator=(const SacEntry& other);
-		bool operator==(const SacEntry& other) const;
-		bool operator!=(const SacEntry& other) const;
+		void operator=(const ServiceAccessControlEntry& other);
+		bool operator==(const ServiceAccessControlEntry& other) const;
+		bool operator!=(const ServiceAccessControlEntry& other) const;
 
 		// export/import binary
 		void toBytes();
@@ -29,10 +29,10 @@ namespace nx
 		const std::string& getName() const;
 		void setName(const std::string& name);
 	private:
-		const std::string kModuleName = "SAC_ENTRY";
+		const std::string kModuleName = "SERVICE_ACCESS_CONTROL_ENTRY";
 		static const size_t kMaxServiceNameLen = 8;
 
-		enum SacEntryFlag
+		enum ServiceAccessControlEntryFlag
 		{
 			SAC_IS_SERVER = _BIT(7),
 			SAC_NAME_LEN_MASK = _BIT(7) - 1
@@ -45,7 +45,7 @@ namespace nx
 		bool mIsServer;
 		std::string mName;
 
-		bool isEqual(const SacEntry& other) const;
-		void copyFrom(const SacEntry& other);
+		bool isEqual(const ServiceAccessControlEntry& other) const;
+		void copyFrom(const ServiceAccessControlEntry& other);
 	};
 }

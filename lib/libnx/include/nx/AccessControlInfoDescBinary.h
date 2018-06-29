@@ -5,7 +5,7 @@
 #include <fnd/ISerialisable.h>
 #include <nx/aci.h>
 #include <nx/FileSystemAccessControlBinary.h>
-#include <nx/SacBinary.h>
+#include <nx/ServiceAccessControlBinary.h>
 #include <nx/KcBinary.h>
 
 namespace nx
@@ -66,8 +66,8 @@ namespace nx
 		const nx::FileSystemAccessControlBinary& getFileSystemAccessControl() const;
 		void setFileSystemAccessControl(const FileSystemAccessControlBinary& fac);
 
-		const nx::SacBinary& getServiceAccessControl() const;
-		void setServiceAccessControl(const SacBinary& sac);
+		const nx::ServiceAccessControlBinary& getServiceAccessControl() const;
+		void setServiceAccessControl(const ServiceAccessControlBinary& sac);
 
 		const nx::KcBinary& getKernelCapabilities() const;
 		void setKernelCapabilities(const KcBinary& kc);
@@ -82,7 +82,7 @@ namespace nx
 		fnd::List<aci::Flag> mFlags;
 		sProgramIdRestrict mProgramIdRestrict;
 		nx::FileSystemAccessControlBinary mFileSystemAccessControl;
-		nx::SacBinary mServiceAccessControl;
+		nx::ServiceAccessControlBinary mServiceAccessControl;
 		nx::KcBinary mKernelCapabilities;
 	};
 }

@@ -1,23 +1,23 @@
-#include <nx/SacEntry.h>
+#include <nx/ServiceAccessControlEntry.h>
 
-nx::SacEntry::SacEntry()
+nx::ServiceAccessControlEntry::ServiceAccessControlEntry()
 {
 	clear();
 }
 
-nx::SacEntry::SacEntry(const std::string & name, bool isServer) :
+nx::ServiceAccessControlEntry::ServiceAccessControlEntry(const std::string & name, bool isServer) :
 	mIsServer(isServer),
 	mName(name)
 {
 	toBytes();
 }
 
-nx::SacEntry::SacEntry(const SacEntry & other)
+nx::ServiceAccessControlEntry::ServiceAccessControlEntry(const ServiceAccessControlEntry & other)
 {
 	*this = other;
 }
 
-void nx::SacEntry::operator=(const SacEntry & other)
+void nx::ServiceAccessControlEntry::operator=(const ServiceAccessControlEntry & other)
 {
 	if (other.getBytes().size())
 	{
@@ -31,26 +31,26 @@ void nx::SacEntry::operator=(const SacEntry & other)
 	}
 }
 
-bool nx::SacEntry::operator==(const SacEntry & other) const
+bool nx::ServiceAccessControlEntry::operator==(const ServiceAccessControlEntry & other) const
 {
 	return (mIsServer == other.mIsServer) \
 		&& (mName == other.mName);
 }
 
-bool nx::SacEntry::operator!=(const SacEntry & other) const
+bool nx::ServiceAccessControlEntry::operator!=(const ServiceAccessControlEntry & other) const
 {
 	return !(*this == other);
 }
 
 
-void nx::SacEntry::toBytes()
+void nx::ServiceAccessControlEntry::toBytes()
 {
 	try {
 		mRawBinary.alloc(mName.size() + 1);
 	}
 	catch (const fnd::Exception& e)
 	{
-		throw fnd::Exception(kModuleName, "Failed to allocate memory for SacEntry: " + std::string(e.what()));
+		throw fnd::Exception(kModuleName, "Failed to allocate memory for ServiceAccessControlEntry: " + std::string(e.what()));
 	}
 
 	if (mName.length() == 0)
@@ -68,7 +68,7 @@ void nx::SacEntry::toBytes()
 	memcpy(mRawBinary.data() + 1, mName.c_str(), mName.length());
 }
 
-void nx::SacEntry::fromBytes(const byte_t* data, size_t len)
+void nx::ServiceAccessControlEntry::fromBytes(const byte_t* data, size_t len)
 {
 	bool isServer = (data[0] & SAC_IS_SERVER) == SAC_IS_SERVER;
 	size_t nameLen = (data[0] & SAC_NAME_LEN_MASK) + 1; // bug?
@@ -94,33 +94,33 @@ void nx::SacEntry::fromBytes(const byte_t* data, size_t len)
 	mName = std::string((const char*)(mRawBinary.data() + 1), nameLen);
 }
 
-const fnd::Vec<byte_t>& nx::SacEntry::getBytes() const
+const fnd::Vec<byte_t>& nx::ServiceAccessControlEntry::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::SacEntry::clear()
+void nx::ServiceAccessControlEntry::clear()
 {
 	mIsServer = false;
 	mName.clear();
 }
 
-bool nx::SacEntry::isServer() const
+bool nx::ServiceAccessControlEntry::isServer() const
 {
 	return mIsServer;
 }
 
-void nx::SacEntry::setIsServer(bool isServer)
+void nx::ServiceAccessControlEntry::setIsServer(bool isServer)
 {
 	mIsServer = isServer;
 }
 
-const std::string & nx::SacEntry::getName() const
+const std::string & nx::ServiceAccessControlEntry::getName() const
 {
 	return mName;
 }
 
-void nx::SacEntry::setName(const std::string & name)
+void nx::ServiceAccessControlEntry::setName(const std::string & name)
 {
 	if (name.length() > kMaxServiceNameLen)
 	{

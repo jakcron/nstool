@@ -39,6 +39,6 @@ private:
 	void displayAciHdr(const nx::AccessControlInfoBinary& aci);
 	void displayAciDescHdr(const nx::AccessControlInfoDescBinary& aci);
 	void displayFac(const nx::FileSystemAccessControlBinary& fac);
-	void displaySac(const nx::SacBinary& sac);
+	void displaySac(const nx::ServiceAccessControlBinary& sac);
 	void displayKernelCap(const nx::KcBinary& kern);
 };

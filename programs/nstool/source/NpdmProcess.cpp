@@ -586,7 +586,7 @@ void NpdmProcess::displayFac(const nx::FileSystemAccessControlBinary& fac)
 			}
 			printf("%s", kFsaFlag[fac.getFsaRightsList()[i]].c_str());
 			if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-				printf(" (mask 0x%" PRIx64 ")", _BIT(fac.getFsaRightsList()[i]));
+				printf(" (bit %" PRId32 ")", fac.getFsaRightsList()[i]);
 			printf("%s", fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack() ? ", " : "\n");
 
 			
@@ -616,7 +616,7 @@ void NpdmProcess::displayFac(const nx::FileSystemAccessControlBinary& fac)
 	
 }
 
-void NpdmProcess::displaySac(const nx::SacBinary& sac)
+void NpdmProcess::displaySac(const nx::ServiceAccessControlBinary& sac)
 {
 	printf("[Service Access Control]\n");
 	printf("  Service List:\n");
