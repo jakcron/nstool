@@ -9,8 +9,8 @@ namespace nx
 		static const uint32_t kNpdmStructMagic = _MAKE_STRUCT_MAGIC("META");
 		static const size_t kNameMaxLen = 0x10;
 		static const size_t kProductCodeMaxLen = 0x10;
-		static const uint32_t kMaxPriority = BIT(6) -1;
-		static const size_t kNpdmAlignSize = 0x10;
+		static const uint32_t kMaxPriority = BIT(6) - 1;
+		static const size_t kSectionAlignSize = 0x10;
 		static const uint32_t kDefaultMainThreadStackSize = 4096;
 
 		enum InstructionType

@@ -529,7 +529,7 @@ void NpdmProcess::validateAciFromAcid(const nx::AccessControlInfoBinary& aci, co
 	}
 }
 
-void NpdmProcess::displayNpdmHeader(const nx::NpdmHeader& hdr)
+void NpdmProcess::displayNpdmHeader(const nx::NpdmBinary& hdr)
 {
 	printf("[NPDM HEADER]\n");
 	printf("  Process Architecture Params:\n");

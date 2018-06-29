@@ -35,7 +35,7 @@ private:
 	void validateAcidSignature(const nx::AccessControlInfoDescBinary& acid);
 	void validateAciFromAcid(const nx::AccessControlInfoBinary& aci, const nx::AccessControlInfoDescBinary& acid);
 
-	void displayNpdmHeader(const nx::NpdmHeader& hdr);
+	void displayNpdmHeader(const nx::NpdmBinary& hdr);
 	void displayAciHdr(const nx::AccessControlInfoBinary& aci);
 	void displayAciDescHdr(const nx::AccessControlInfoDescBinary& aci);
 	void displayFac(const nx::FileSystemAccessControlBinary& fac);
