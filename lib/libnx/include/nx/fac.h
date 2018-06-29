@@ -5,6 +5,9 @@ namespace nx
 {
 	namespace fac
 	{
+		static const uint32_t kFacFormatVersion = 1;
+		static const size_t kSectionAlignSize = 4;
+		
 		enum FsAccessFlag
 		{
 			FSA_APPLICATION_INFO,
@@ -30,9 +33,6 @@ namespace nx
 			FSA_DEBUG = 62,
 			FSA_FULL_PERMISSION = 63,
 		};
-
-		static const uint32_t kFacFormatVersion = 1;
-		static const size_t kSectionAlignSize = 4;
 	}
 
 #pragma pack(push,1)

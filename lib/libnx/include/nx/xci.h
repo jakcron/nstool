@@ -15,12 +15,14 @@ namespace nx
 		static const uint32_t kHeaderEncSize = 0x70;
 		static const uint32_t kPageSize = 0x200;
 		static const uint32_t kUppHashLen = 8;
+		/*
 		static const uint32_t kCardKeyAreaPageCount = 8;
 		static const uint32_t kCardHeaderPageCount = 1;
 		static const uint32_t kReservedAreaPageCount = 55;
 		static const uint32_t kCertAreaStartPageAddress = kCardHeaderPageCount + kReservedAreaPageCount + kCardKeyAreaPageCount;
 		static const uint32_t kCertAreaPageCount = 64;
 		static const uint32_t kNormalAreaStartPageAddress = kReservedAreaPageCount + kCertAreaPageCount + kCardHeaderPageCount + kCardKeyAreaPageCount;
+		*/
 
 		const std::string kUpdatePartitionStr = "update"; 
 		const std::string kLogoPartitionStr = "logo"; 

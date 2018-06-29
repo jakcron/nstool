@@ -5,6 +5,9 @@ namespace nx
 {
 	namespace romfs
 	{
+		static const uint64_t kRomfsHeaderAlign = 0x200;
+		static const uint32_t kInvalidAddr = 0xffffffff;
+
 		enum HeaderSectionIndex
 		{
 			DIR_HASHMAP_TABLE,
@@ -13,9 +16,6 @@ namespace nx
 			FILE_NODE_TABLE,
 			SECTION_NUM
 		};
-
-		static const uint64_t kRomfsHeaderAlign = 0x200;
-		static const uint32_t kInvalidAddr = 0xffffffff;
 	}
 	
 #pragma pack(push,1)
