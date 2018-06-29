@@ -6,8 +6,8 @@ namespace nx
 {
 	namespace pfs
 	{
-		static const uint32_t kPfsStructMagic = _MAKE_STRUCT_MAGIC("PFS0");
-		static const uint32_t kHashedPfsStructMagic = _MAKE_STRUCT_MAGIC("HFS0");
+		static const uint32_t kPfsStructMagic = _MAKE_STRUCT_MAGIC_U32("PFS0");
+		static const uint32_t kHashedPfsStructMagic = _MAKE_STRUCT_MAGIC_U32("HFS0");
 		static const size_t kHeaderAlign = 64;
 	}
 	

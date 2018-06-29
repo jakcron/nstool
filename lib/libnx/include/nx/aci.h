@@ -7,8 +7,8 @@ namespace nx
 {
 	namespace aci
 	{
-		static const uint32_t kAciStructMagic = _MAKE_STRUCT_MAGIC("ACI0");
-		static const uint32_t kAciDescStructMagic = _MAKE_STRUCT_MAGIC("ACID");
+		static const uint32_t kAciStructMagic = _MAKE_STRUCT_MAGIC_U32("ACI0");
+		static const uint32_t kAciDescStructMagic = _MAKE_STRUCT_MAGIC_U32("ACID");
 		static const size_t kSectionAlignSize = 0x10;
 
 		enum Flag

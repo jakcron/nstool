@@ -9,8 +9,8 @@ namespace nx
 {
 	namespace nca
 	{
-		static const uint32_t kNca2StructMagic = _MAKE_STRUCT_MAGIC("NCA2");
-		static const uint32_t kNca3StructMagic = _MAKE_STRUCT_MAGIC("NCA3");
+		static const uint32_t kNca2StructMagic = _MAKE_STRUCT_MAGIC_U32("NCA2");
+		static const uint32_t kNca3StructMagic = _MAKE_STRUCT_MAGIC_U32("NCA3");
 		static const size_t kSectorSize = 0x200;
 		static const size_t kPartitionNum = 4;
 		static const size_t kHeaderSectorNum = 6;

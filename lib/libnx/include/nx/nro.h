@@ -6,7 +6,7 @@ namespace nx
 {
 	namespace nro
 	{
-		static const uint32_t kNroStructMagic = _MAKE_STRUCT_MAGIC("NRO0");
+		static const uint32_t kNroStructMagic = _MAKE_STRUCT_MAGIC_U32("NRO0");
 		static const uint32_t kDefaultFormatVersion = 0;
 		static const size_t kRoCrtSize = 8;
 		static const size_t kModuleIdSize = 32;

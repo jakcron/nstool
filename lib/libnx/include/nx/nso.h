@@ -7,7 +7,7 @@ namespace nx
 {
 	namespace nso
 	{
-		static const uint32_t kNsoStructMagic = _MAKE_STRUCT_MAGIC("NSO0");
+		static const uint32_t kNsoStructMagic = _MAKE_STRUCT_MAGIC_U32("NSO0");
 		static const uint32_t kDefaultFormatVersion = 0;
 		static const size_t kModuleIdSize = 32;
 

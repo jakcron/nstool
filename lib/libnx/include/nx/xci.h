@@ -10,7 +10,7 @@ namespace nx
 {
 	namespace xci
 	{
-		static const uint32_t kXciStructMagic = _MAKE_STRUCT_MAGIC("HEAD");
+		static const uint32_t kXciStructMagic = _MAKE_STRUCT_MAGIC_U32("HEAD");
 		static const uint32_t kHeaderEncOffset = 0x90;
 		static const uint32_t kHeaderEncSize = 0x70;
 		static const uint32_t kPageSize = 0x200;

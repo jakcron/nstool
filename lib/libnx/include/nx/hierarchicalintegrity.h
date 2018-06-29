@@ -6,7 +6,7 @@ namespace nx
 {
 	namespace hierarchicalintegrity
 	{
-		static const uint32_t kStructMagic = _MAKE_STRUCT_MAGIC("IVFC");
+		static const uint32_t kStructMagic = _MAKE_STRUCT_MAGIC_U32("IVFC");
 		static const uint32_t kRomfsTypeId = 0x20000;
 		static const size_t kDefaultLayerNum = 6;
 		static const size_t kHeaderAlignLen = 0x20;

@@ -7,7 +7,7 @@ namespace nx
 {
 	namespace nrr
 	{
-		static const uint32_t kNrrStructMagic = _MAKE_STRUCT_MAGIC("NRR0");
+		static const uint32_t kNrrStructMagic = _MAKE_STRUCT_MAGIC_U32("NRR0");
 	}
 
 #pragma pack(push,1)

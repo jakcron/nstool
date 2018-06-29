@@ -6,7 +6,7 @@ namespace nx
 {
 	namespace aset
 	{
-		static const uint32_t kAssetStructMagic = _MAKE_STRUCT_MAGIC("ASET");
+		static const uint32_t kAssetStructMagic = _MAKE_STRUCT_MAGIC_U32("ASET");
 
 		static const uint32_t kDefaultAssetFormatVersion = 0;
 	}

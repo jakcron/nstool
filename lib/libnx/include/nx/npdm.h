@@ -6,7 +6,7 @@ namespace nx
 {
 	namespace npdm
 	{
-		static const uint32_t kNpdmStructMagic = _MAKE_STRUCT_MAGIC("META");
+		static const uint32_t kNpdmStructMagic = _MAKE_STRUCT_MAGIC_U32("META");
 		static const size_t kNameMaxLen = 0x10;
 		static const size_t kProductCodeMaxLen = 0x10;
 		static const uint32_t kMaxPriority = BIT(6) - 1;
