@@ -587,9 +587,7 @@ void NpdmProcess::displayFac(const nx::FileSystemAccessControlBinary& fac)
 			printf("%s", kFsaFlag[fac.getFsaRightsList()[i]].c_str());
 			if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 				printf(" (bit %" PRId32 ")", fac.getFsaRightsList()[i]);
-			printf("%s", fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack() ? ", " : "\n");
-
-			
+			printf("%s", fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack() ? ", " : "\n");			
 		}
 	}
 	else
