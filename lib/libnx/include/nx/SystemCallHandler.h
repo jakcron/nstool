@@ -16,8 +16,8 @@ namespace nx
 		bool operator!=(const SystemCallHandler& other) const;
 
 		// kernel capabilty list in/out
-		void importKernelCapabilityList(const fnd::List<KernelCapability>& caps);
-		void exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const;
+		void importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps);
+		void exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const;
 		void clear();
 		bool isSet() const;
 

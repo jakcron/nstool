@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <nx/KernelCapability.h>
+#include <nx/KernelCapabilityEntry.h>
 
 namespace nx
 {
@@ -9,7 +9,7 @@ namespace nx
 	{
 	public:
 		KernelVersionEntry();
-		KernelVersionEntry(const KernelCapability& kernel_cap);
+		KernelVersionEntry(const KernelCapabilityEntry& kernel_cap);
 		KernelVersionEntry(uint16_t major, uint8_t minor);
 
 		void operator=(const KernelVersionEntry& other);
@@ -17,8 +17,8 @@ namespace nx
 		bool operator!=(const KernelVersionEntry& other) const;
 
 		// kernel capability
-		const KernelCapability& getKernelCapability() const;
-		void setKernelCapability(const KernelCapability& kernel_cap);
+		const KernelCapabilityEntry& getKernelCapability() const;
+		void setKernelCapability(const KernelCapabilityEntry& kernel_cap);
 
 		// variables
 		uint16_t getVerMajor() const;
@@ -27,13 +27,13 @@ namespace nx
 		void setVerMinor(uint8_t minor);
 	private:
 		const std::string kModuleName = "KERNEL_VERSION_ENTRY";
-		static const KernelCapability::KernelCapId kCapId = KernelCapability::KC_KERNEL_VERSION;
+		static const kc::KernelCapId kCapId = kc::KC_KERNEL_VERSION;
 		static const uint32_t kVerMajorBits = 13;
 		static const uint32_t kVerMajorMax = BIT(kVerMajorBits) - 1;
 		static const uint32_t kVerMinorBits = 4;
 		static const uint32_t kVerMinorMax = BIT(kVerMinorBits) - 1;
 
-		KernelCapability mCap;
+		KernelCapabilityEntry mCap;
 		uint16_t mVerMajor;
 		uint8_t mVerMinor;
 

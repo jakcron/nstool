@@ -14,16 +14,16 @@
 
 namespace nx
 {
-	class KcBinary :
+	class KernelCapabilityBinary :
 		public fnd::ISerialisable
 	{
 	public:
-		KcBinary();
-		KcBinary(const KcBinary& other);
+		KernelCapabilityBinary();
+		KernelCapabilityBinary(const KernelCapabilityBinary& other);
 
-		void operator=(const KcBinary& other);
-		bool operator==(const KcBinary& other) const;
-		bool operator!=(const KcBinary& other) const;
+		void operator=(const KernelCapabilityBinary& other);
+		bool operator==(const KernelCapabilityBinary& other) const;
+		bool operator!=(const KernelCapabilityBinary& other) const;
 
 		// export/import binary
 		void toBytes();

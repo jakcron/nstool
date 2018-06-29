@@ -161,12 +161,12 @@ void nx::AccessControlInfoBinary::setServiceAccessControl(const nx::ServiceAcces
 	mServiceAccessControl = sac;
 }
 
-const nx::KcBinary& nx::AccessControlInfoBinary::getKernelCapabilities() const
+const nx::KernelCapabilityBinary& nx::AccessControlInfoBinary::getKernelCapabilities() const
 {
 	return mKernelCapabilities;
 }
 
-void nx::AccessControlInfoBinary::setKernelCapabilities(const nx::KcBinary& kc)
+void nx::AccessControlInfoBinary::setKernelCapabilities(const nx::KernelCapabilityBinary& kc)
 {
 	mKernelCapabilities = kc;
 }

@@ -22,7 +22,7 @@ bool nx::KernelVersionHandler::operator!=(const KernelVersionHandler & other) co
 	return !(*this == other);
 }
 
-void nx::KernelVersionHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
+void nx::KernelVersionHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{ 
@@ -37,7 +37,7 @@ void nx::KernelVersionHandler::importKernelCapabilityList(const fnd::List<Kernel
 	mIsSet = true;
 }
 
-void nx::KernelVersionHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::KernelVersionHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;

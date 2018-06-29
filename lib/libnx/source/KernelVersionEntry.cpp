@@ -6,7 +6,7 @@ nx::KernelVersionEntry::KernelVersionEntry() :
 	mVerMinor(0)
 {}
 
-nx::KernelVersionEntry::KernelVersionEntry(const KernelCapability & kernel_cap) :
+nx::KernelVersionEntry::KernelVersionEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mVerMajor(0),
 	mVerMinor(0)
@@ -41,16 +41,16 @@ bool nx::KernelVersionEntry::operator!=(const KernelVersionEntry& other) const
 	return !(*this == other);
 }
 
-const nx::KernelCapability & nx::KernelVersionEntry::getKernelCapability() const
+const nx::KernelCapabilityEntry & nx::KernelVersionEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::KernelVersionEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::KernelVersionEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'KernelVersion'");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'KernelVersion'");
 	}
 
 	mCap = kernel_cap;

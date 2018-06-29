@@ -7,7 +7,7 @@ nx::InteruptEntry::InteruptEntry() :
 	
 }
 
-nx::InteruptEntry::InteruptEntry(const KernelCapability & kernel_cap) :
+nx::InteruptEntry::InteruptEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mInterupt{ 0,0 }
 {
@@ -40,16 +40,16 @@ bool nx::InteruptEntry::operator!=(const InteruptEntry& other) const
 	return !(*this == other);
 }
 
-const nx::KernelCapability & nx::InteruptEntry::getKernelCapability() const
+const nx::KernelCapabilityEntry & nx::InteruptEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::InteruptEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::InteruptEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'EnableInterupts'");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'EnableInterupts'");
 	}
 
 	mCap = kernel_cap;

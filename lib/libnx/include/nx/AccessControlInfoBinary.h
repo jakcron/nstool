@@ -5,7 +5,7 @@
 #include <nx/aci.h>
 #include <nx/FileSystemAccessControlBinary.h>
 #include <nx/ServiceAccessControlBinary.h>
-#include <nx/KcBinary.h>
+#include <nx/KernelCapabilityBinary.h>
 
 namespace nx
 {
@@ -36,8 +36,8 @@ namespace nx
 		const nx::ServiceAccessControlBinary& getServiceAccessControl() const;
 		void setServiceAccessControl(const ServiceAccessControlBinary& sac);
 
-		const nx::KcBinary& getKernelCapabilities() const;
-		void setKernelCapabilities(const KcBinary& kc);
+		const nx::KernelCapabilityBinary& getKernelCapabilities() const;
+		void setKernelCapabilities(const KernelCapabilityBinary& kc);
 	private:
 		const std::string kModuleName = "ACCESS_CONTROL_INFO_BINARY";
 
@@ -48,6 +48,6 @@ namespace nx
 		uint64_t mProgramId;
 		nx::FileSystemAccessControlBinary mFileSystemAccessControl;
 		nx::ServiceAccessControlBinary mServiceAccessControl;
-		nx::KcBinary mKernelCapabilities;
+		nx::KernelCapabilityBinary mKernelCapabilities;
 	};
 }

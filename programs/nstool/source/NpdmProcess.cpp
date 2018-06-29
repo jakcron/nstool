@@ -628,7 +628,7 @@ void NpdmProcess::displaySac(const nx::ServiceAccessControlBinary& sac)
 	}
 }
 
-void NpdmProcess::displayKernelCap(const nx::KcBinary& kern)
+void NpdmProcess::displayKernelCap(const nx::KernelCapabilityBinary& kern)
 {
 	printf("[Kernel Capabilities]\n");
 	if (kern.getThreadInfo().isSet())

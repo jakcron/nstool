@@ -1,14 +1,14 @@
-#include <nx/KcBinary.h>
+#include <nx/KernelCapabilityBinary.h>
 
-nx::KcBinary::KcBinary()
+nx::KernelCapabilityBinary::KernelCapabilityBinary()
 {}
 
-nx::KcBinary::KcBinary(const KcBinary & other)
+nx::KernelCapabilityBinary::KernelCapabilityBinary(const KernelCapabilityBinary & other)
 {
 	*this = other;
 }
 
-void nx::KcBinary::operator=(const KcBinary & other)
+void nx::KernelCapabilityBinary::operator=(const KernelCapabilityBinary & other)
 {
 	clear();
 	mThreadInfo = other.mThreadInfo;
@@ -21,7 +21,7 @@ void nx::KcBinary::operator=(const KcBinary & other)
 	mMiscFlags = other.mMiscFlags;
 }
 
-bool nx::KcBinary::operator==(const KcBinary & other) const
+bool nx::KernelCapabilityBinary::operator==(const KernelCapabilityBinary & other) const
 {
 	return (mThreadInfo == other.mThreadInfo) \
 		&& (mSystemCalls == other.mSystemCalls) \
@@ -33,14 +33,14 @@ bool nx::KcBinary::operator==(const KcBinary & other) const
 		&& (mMiscFlags == other.mMiscFlags);
 }
 
-bool nx::KcBinary::operator!=(const KcBinary & other) const
+bool nx::KernelCapabilityBinary::operator!=(const KernelCapabilityBinary & other) const
 {
 	return !(*this == other);
 }
 
-void nx::KcBinary::toBytes()
+void nx::KernelCapabilityBinary::toBytes()
 {
-	fnd::List<KernelCapability> caps;
+	fnd::List<KernelCapabilityEntry> caps;
 
 	// get kernel capabiliteis
 	mThreadInfo.exportKernelCapabilityList(caps);
@@ -63,57 +63,57 @@ void nx::KcBinary::toBytes()
 	}
 }
 
-void nx::KcBinary::fromBytes(const byte_t * data, size_t len)
+void nx::KernelCapabilityBinary::fromBytes(const byte_t * data, size_t len)
 {
 	if ((len % sizeof(uint32_t)) != 0)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability list must be aligned to 4 bytes");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry list must be aligned to 4 bytes");
 	}
 
-	// save copy of KcBinary
+	// save copy of KernelCapabilityBinary
 	mRawBinary.alloc(len);
 	memcpy(mRawBinary.data(), data, len);
 
-	fnd::List<KernelCapability> threadInfoCaps;
-	fnd::List<KernelCapability> systemCallCaps;
-	fnd::List<KernelCapability> memoryMapCaps;
-	fnd::List<KernelCapability> interuptCaps;
-	fnd::List<KernelCapability> miscParamCaps;
-	fnd::List<KernelCapability> kernelVersionCaps;
-	fnd::List<KernelCapability> handleTableSizeCaps;
-	fnd::List<KernelCapability> miscFlagsCaps;
+	fnd::List<KernelCapabilityEntry> threadInfoCaps;
+	fnd::List<KernelCapabilityEntry> systemCallCaps;
+	fnd::List<KernelCapabilityEntry> memoryMapCaps;
+	fnd::List<KernelCapabilityEntry> interuptCaps;
+	fnd::List<KernelCapabilityEntry> miscParamCaps;
+	fnd::List<KernelCapabilityEntry> kernelVersionCaps;
+	fnd::List<KernelCapabilityEntry> handleTableSizeCaps;
+	fnd::List<KernelCapabilityEntry> miscFlagsCaps;
 
 	const uint32_t* raw_caps = (const uint32_t*)mRawBinary.data();
 	size_t cap_num = mRawBinary.size() / sizeof(uint32_t);
-	KernelCapability cap;
+	KernelCapabilityEntry cap;
 	for (size_t i = 0; i < cap_num; i++)
 	{
 		cap.setCap(le_word(raw_caps[i]));
 		switch (cap.getType())
 		{
-			case (KernelCapability::KC_THREAD_INFO) :
+			case (kc::KC_THREAD_INFO) :
 				threadInfoCaps.addElement(cap);
 				break;
-			case (KernelCapability::KC_ENABLE_SYSTEM_CALLS):
+			case (kc::KC_ENABLE_SYSTEM_CALLS):
 				systemCallCaps.addElement(cap);
 				break;
-			case (KernelCapability::KC_MEMORY_MAP):
-			case (KernelCapability::KC_IO_MEMORY_MAP):
+			case (kc::KC_MEMORY_MAP):
+			case (kc::KC_IO_MEMORY_MAP):
 				memoryMapCaps.addElement(cap);
 				break;
-			case (KernelCapability::KC_ENABLE_INTERUPTS):
+			case (kc::KC_ENABLE_INTERUPTS):
 				interuptCaps.addElement(cap);
 				break;
-			case (KernelCapability::KC_MISC_PARAMS):
+			case (kc::KC_MISC_PARAMS):
 				miscParamCaps.addElement(cap);
 				break;
-			case (KernelCapability::KC_KERNEL_VERSION):
+			case (kc::KC_KERNEL_VERSION):
 				kernelVersionCaps.addElement(cap);
 				break;
-			case (KernelCapability::KC_HANDLE_TABLE_SIZE):
+			case (kc::KC_HANDLE_TABLE_SIZE):
 				handleTableSizeCaps.addElement(cap);
 				break;
-			case (KernelCapability::KC_MISC_FLAGS):
+			case (kc::KC_MISC_FLAGS):
 				miscFlagsCaps.addElement(cap);
 				break;
 			default:
@@ -131,12 +131,12 @@ void nx::KcBinary::fromBytes(const byte_t * data, size_t len)
 	mMiscFlags.importKernelCapabilityList(miscFlagsCaps);
 }
 
-const fnd::Vec<byte_t>& nx::KcBinary::getBytes() const
+const fnd::Vec<byte_t>& nx::KernelCapabilityBinary::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::KcBinary::clear()
+void nx::KernelCapabilityBinary::clear()
 {
 	mRawBinary.clear();
 	mThreadInfo.clear();
@@ -149,82 +149,82 @@ void nx::KcBinary::clear()
 	mMiscFlags.clear();
 }
 
-const nx::ThreadInfoHandler & nx::KcBinary::getThreadInfo() const
+const nx::ThreadInfoHandler & nx::KernelCapabilityBinary::getThreadInfo() const
 {
 	return mThreadInfo;
 }
 
-nx::ThreadInfoHandler & nx::KcBinary::getThreadInfo()
+nx::ThreadInfoHandler & nx::KernelCapabilityBinary::getThreadInfo()
 {
 	return mThreadInfo;
 }
 
-const nx::SystemCallHandler & nx::KcBinary::getSystemCalls() const
+const nx::SystemCallHandler & nx::KernelCapabilityBinary::getSystemCalls() const
 {
 	return mSystemCalls;
 }
 
-nx::SystemCallHandler & nx::KcBinary::getSystemCalls()
+nx::SystemCallHandler & nx::KernelCapabilityBinary::getSystemCalls()
 {
 	return mSystemCalls;
 }
 
-const nx::MemoryMappingHandler & nx::KcBinary::getMemoryMaps() const
+const nx::MemoryMappingHandler & nx::KernelCapabilityBinary::getMemoryMaps() const
 {
 	return mMemoryMap;
 }
 
-nx::MemoryMappingHandler & nx::KcBinary::getMemoryMaps()
+nx::MemoryMappingHandler & nx::KernelCapabilityBinary::getMemoryMaps()
 {
 	return mMemoryMap;
 }
 
-const nx::InteruptHandler & nx::KcBinary::getInterupts() const
+const nx::InteruptHandler & nx::KernelCapabilityBinary::getInterupts() const
 {
 	return mInterupts;
 }
 
-nx::InteruptHandler & nx::KcBinary::getInterupts()
+nx::InteruptHandler & nx::KernelCapabilityBinary::getInterupts()
 {
 	return mInterupts;
 }
 
-const nx::MiscParamsHandler & nx::KcBinary::getMiscParams() const
+const nx::MiscParamsHandler & nx::KernelCapabilityBinary::getMiscParams() const
 {
 	return mMiscParams;
 }
 
-nx::MiscParamsHandler & nx::KcBinary::getMiscParams()
+nx::MiscParamsHandler & nx::KernelCapabilityBinary::getMiscParams()
 {
 	return mMiscParams;
 }
 
-const nx::KernelVersionHandler & nx::KcBinary::getKernelVersion() const
+const nx::KernelVersionHandler & nx::KernelCapabilityBinary::getKernelVersion() const
 {
 	return mKernelVersion;
 }
 
-nx::KernelVersionHandler & nx::KcBinary::getKernelVersion()
+nx::KernelVersionHandler & nx::KernelCapabilityBinary::getKernelVersion()
 {
 	return mKernelVersion;
 }
 
-const nx::HandleTableSizeHandler & nx::KcBinary::getHandleTableSize() const
+const nx::HandleTableSizeHandler & nx::KernelCapabilityBinary::getHandleTableSize() const
 {
 	return mHandleTableSize;
 }
 
-nx::HandleTableSizeHandler & nx::KcBinary::getHandleTableSize()
+nx::HandleTableSizeHandler & nx::KernelCapabilityBinary::getHandleTableSize()
 {
 	return mHandleTableSize;
 }
 
-const nx::MiscFlagsHandler & nx::KcBinary::getMiscFlags() const
+const nx::MiscFlagsHandler & nx::KernelCapabilityBinary::getMiscFlags() const
 {
 	return mMiscFlags;
 }
 
-nx::MiscFlagsHandler & nx::KcBinary::getMiscFlags()
+nx::MiscFlagsHandler & nx::KernelCapabilityBinary::getMiscFlags()
 {
 	return mMiscFlags;
 }

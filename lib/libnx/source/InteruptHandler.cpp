@@ -22,7 +22,7 @@ bool nx::InteruptHandler::operator!=(const InteruptHandler & other) const
 	return !(*this == other);
 }
 
-void nx::InteruptHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
+void nx::InteruptHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() == 0)
 		return;
@@ -58,7 +58,7 @@ void nx::InteruptHandler::importKernelCapabilityList(const fnd::List<KernelCapab
 	mIsSet = true;
 }
 
-void nx::InteruptHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::InteruptHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;

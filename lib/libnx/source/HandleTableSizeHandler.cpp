@@ -22,7 +22,7 @@ bool nx::HandleTableSizeHandler::operator!=(const HandleTableSizeHandler & other
 	return !(*this == other);
 }
 
-void nx::HandleTableSizeHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
+void nx::HandleTableSizeHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{
@@ -36,7 +36,7 @@ void nx::HandleTableSizeHandler::importKernelCapabilityList(const fnd::List<Kern
 	mIsSet = true;
 }
 
-void nx::HandleTableSizeHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::HandleTableSizeHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;

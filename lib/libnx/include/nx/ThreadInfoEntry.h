@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <nx/KernelCapability.h>
+#include <nx/KernelCapabilityEntry.h>
 
 namespace nx
 {
@@ -9,7 +9,7 @@ namespace nx
 	{
 	public:
 		ThreadInfoEntry();
-		ThreadInfoEntry(const KernelCapability& kernel_cap);
+		ThreadInfoEntry(const KernelCapabilityEntry& kernel_cap);
 		ThreadInfoEntry(uint8_t min_priority, uint8_t max_priority, uint8_t min_cpu_id, uint8_t max_cpu_id);
 
 		void operator=(const ThreadInfoEntry& other);
@@ -17,8 +17,8 @@ namespace nx
 		bool operator!=(const ThreadInfoEntry& other) const;
 
 		// kernel capability
-		const KernelCapability& getKernelCapability() const;
-		void setKernelCapability(const KernelCapability& kernel_cap);
+		const KernelCapabilityEntry& getKernelCapability() const;
+		void setKernelCapability(const KernelCapabilityEntry& kernel_cap);
 
 		// variables
 		uint8_t getMinPriority() const;
@@ -32,13 +32,13 @@ namespace nx
 
 	private:
 		const std::string kModuleName = "THREAD_INFO_ENTRY";
-		static const KernelCapability::KernelCapId kCapId = KernelCapability::KC_THREAD_INFO;
+		static const kc::KernelCapId kCapId = kc::KC_THREAD_INFO;
 		static const uint8_t kValBits = 6;
 		static const uint8_t kMaxVal = BIT(kValBits)-1;
 		static const uint8_t kDefaultPriority = 6;
 		static const uint8_t kDefaultCpuId = 8;
 
-		KernelCapability mCap;
+		KernelCapabilityEntry mCap;
 		uint8_t mMinPriority;
 		uint8_t mMaxPriority;
 		uint8_t mMinCpuId;

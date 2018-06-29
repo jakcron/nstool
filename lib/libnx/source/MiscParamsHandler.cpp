@@ -22,7 +22,7 @@ bool nx::MiscParamsHandler::operator!=(const MiscParamsHandler & other) const
 	return !(*this == other);
 }
 
-void nx::MiscParamsHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
+void nx::MiscParamsHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{
@@ -37,7 +37,7 @@ void nx::MiscParamsHandler::importKernelCapabilityList(const fnd::List<KernelCap
 	mIsSet = true;
 }
 
-void nx::MiscParamsHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::MiscParamsHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;

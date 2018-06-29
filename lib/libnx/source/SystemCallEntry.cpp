@@ -8,7 +8,7 @@ nx::SystemCallEntry::SystemCallEntry() :
 
 }
 
-nx::SystemCallEntry::SystemCallEntry(const KernelCapability & kernel_cap) :
+nx::SystemCallEntry::SystemCallEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mSystemCallUpper(0),
 	mSystemCallLower(0)
@@ -43,16 +43,16 @@ bool nx::SystemCallEntry::operator!=(const SystemCallEntry& other) const
 	return !(*this == other);
 }
 
-const nx::KernelCapability & nx::SystemCallEntry::getKernelCapability() const
+const nx::KernelCapabilityEntry & nx::SystemCallEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::SystemCallEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::SystemCallEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'EnableSystemCalls'");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'EnableSystemCalls'");
 	}
 
 	mCap = kernel_cap;

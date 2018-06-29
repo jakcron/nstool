@@ -24,7 +24,7 @@ bool nx::MemoryMappingHandler::operator!=(const MemoryMappingHandler & other) co
 	return !(*this == other);
 }
 
-void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
+void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() == 0)
 		return;
@@ -87,7 +87,7 @@ void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<Kernel
 	mIsSet = true;
 }
 
-void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;

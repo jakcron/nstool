@@ -23,7 +23,7 @@ bool nx::SystemCallHandler::operator!=(const SystemCallHandler & other) const
 	return !(*this == other);
 }
 
-void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
+void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() == 0)
 		return;
@@ -49,7 +49,7 @@ void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCap
 	mIsSet = true;
 }
 
-void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;

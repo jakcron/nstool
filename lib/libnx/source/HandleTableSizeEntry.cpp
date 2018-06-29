@@ -5,7 +5,7 @@ nx::HandleTableSizeEntry::HandleTableSizeEntry() :
 	mHandleTableSize(0)
 {}
 
-nx::HandleTableSizeEntry::HandleTableSizeEntry(const KernelCapability & kernel_cap) :
+nx::HandleTableSizeEntry::HandleTableSizeEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mHandleTableSize(0)
 {
@@ -36,16 +36,16 @@ bool nx::HandleTableSizeEntry::operator!=(const HandleTableSizeEntry& other) con
 }
 
 
-const nx::KernelCapability & nx::HandleTableSizeEntry::getKernelCapability() const
+const nx::KernelCapabilityEntry & nx::HandleTableSizeEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::HandleTableSizeEntry::setKernelCapability(const KernelCapability & kernel_cap)
+void nx::HandleTableSizeEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
-		throw fnd::Exception(kModuleName, "KernelCapability is not type 'HandleTableSize'");
+		throw fnd::Exception(kModuleName, "KernelCapabilityEntry is not type 'HandleTableSize'");
 	}
 
 	mCap = kernel_cap;

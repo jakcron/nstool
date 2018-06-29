@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <nx/KernelCapability.h>
+#include <nx/KernelCapabilityEntry.h>
 
 namespace nx
 {
@@ -9,7 +9,7 @@ namespace nx
 	{
 	public:
 		MemoryPageEntry();
-		MemoryPageEntry(const KernelCapability& kernel_cap);
+		MemoryPageEntry(const KernelCapabilityEntry& kernel_cap);
 		MemoryPageEntry(uint32_t page);
 		MemoryPageEntry(uint32_t page, bool flag);
 
@@ -18,8 +18,8 @@ namespace nx
 		bool operator!=(const MemoryPageEntry& other) const;
 
 		// kernel capability
-		const KernelCapability& getKernelCapability() const;
-		void setKernelCapability(const KernelCapability& kernel_cap);
+		const KernelCapabilityEntry& getKernelCapability() const;
+		void setKernelCapability(const KernelCapabilityEntry& kernel_cap);
 
 		// variables
 		uint32_t getPage() const;
@@ -34,7 +34,7 @@ namespace nx
 		static const uint32_t kPageBits = 24;
 		static const uint32_t kMaxPage = BIT(kPageBits) - 1;
 
-		KernelCapability mCap;
+		KernelCapabilityEntry mCap;
 		uint32_t mPage;
 		bool mFlag;
 		bool mUseFlag;
@@ -45,7 +45,7 @@ namespace nx
 			field |= (uint32_t)(mPage & kMaxPage) << 0;
 			field |= (uint32_t)(mFlag) << kPageBits;
 			mCap.setField(field);
-			mCap.setType(mUseFlag ? KernelCapability::KC_MEMORY_MAP : KernelCapability::KC_IO_MEMORY_MAP);
+			mCap.setType(mUseFlag ? kc::KC_MEMORY_MAP : kc::KC_IO_MEMORY_MAP);
 		}
 
 		inline void processCapField()
@@ -53,7 +53,7 @@ namespace nx
 			uint32_t field = mCap.getField();
 			mPage = (field >> 0) & kMaxPage;
 			mFlag = (field >> kPageBits);
-			mUseFlag = mCap.getType() == KernelCapability::KC_MEMORY_MAP;
+			mUseFlag = mCap.getType() == kc::KC_MEMORY_MAP;
 		}
 	};
 

@@ -22,7 +22,7 @@ bool nx::ThreadInfoHandler::operator!=(const ThreadInfoHandler & other) const
 	return !(*this == other);
 }
 
-void nx::ThreadInfoHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
+void nx::ThreadInfoHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{
@@ -36,7 +36,7 @@ void nx::ThreadInfoHandler::importKernelCapabilityList(const fnd::List<KernelCap
 	mIsSet = true;
 }
 
-void nx::ThreadInfoHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::ThreadInfoHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;

@@ -21,7 +21,7 @@ bool nx::MiscFlagsHandler::operator!=(const MiscFlagsHandler & other) const
 	return !(*this == other);
 }
 
-void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapability>& caps)
+void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{
@@ -46,7 +46,7 @@ void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapa
 	mIsSet = true;
 }
 
-void nx::MiscFlagsHandler::exportKernelCapabilityList(fnd::List<KernelCapability>& caps) const
+void nx::MiscFlagsHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
