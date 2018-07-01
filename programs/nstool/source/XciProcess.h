@@ -67,4 +67,9 @@ private:
 	void validateXciSignature();
 	void processRootPfs();
 	void processPartitionPfs();
+
+	// strings
+	const char* getRomSizeStr(byte_t rom_size) const;
+	const char* getHeaderFlagStr(byte_t flag) const;
+	const char* getCardClockRate(uint32_t acc_ctrl_1) const;
 };
