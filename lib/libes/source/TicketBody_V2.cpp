@@ -86,7 +86,7 @@ void es::TicketBody_V2::toBytes()
 	memcpy(body->reserved_region, mReservedRegion, ticket::kReservedRegionSize);
 	body->ticket_id = (mTicketId);
 	body->device_id = (mDeviceId);
-	memcmp(body->rights_id, mRightsId, ticket::kRightsIdSize);
+	memcpy(body->rights_id, mRightsId, ticket::kRightsIdSize);
 	body->account_id = (mAccountId);
 	body->sect_total_size = (mSectTotalSize);
 	body->sect_header_offset = (mSectHeaderOffset);
