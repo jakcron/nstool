@@ -20,6 +20,9 @@ namespace es
 		};
 
 		static const size_t kEcdsaSigSize = 0x3C;
+
+		static const std::string kRootIssuerStr = "Root";
+		static const std::string kIdentDelimiter = "-";
 	}
 #pragma pack(push,1)
 	struct sRsa4096SignBlock
