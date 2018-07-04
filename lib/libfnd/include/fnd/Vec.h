@@ -146,6 +146,11 @@ namespace fnd
 		{
 			fnd::Exception("Vec", "Failed to allocate memory for vector");
 		}
+		for (size_t i = 0; i < new_size; i++)
+		{
+			m_Vec[i] = 0;
+		}
+
 		m_Size = new_size;
 	}
 
@@ -158,6 +163,10 @@ namespace fnd
 			if (new_vec == nullptr)
 			{
 				fnd::Exception("Vec", "Failed to allocate memory for vector");
+			}
+			for (size_t i = 0; i < new_size; i++)
+			{
+				new_vec[i] = 0;
 			}
 
 			for (size_t i = 0; i < _MIN(m_Size, new_size); i++)
