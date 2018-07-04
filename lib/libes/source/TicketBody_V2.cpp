@@ -26,6 +26,7 @@ void es::TicketBody_V2::operator=(const TicketBody_V2 & other)
 		mEncType = other.mEncType;
 		mTicketVersion = other.mTicketVersion;
 		mLicenseType = other.mLicenseType;
+		mCommonKeyId = other.mCommonKeyId;
 		mPreInstall = other.mPreInstall;
 		mSharedTitle = other.mSharedTitle;
 		mAllowAllContent = other.mAllowAllContent;
@@ -74,10 +75,12 @@ void es::TicketBody_V2::toBytes()
 
 	body->format_version = (ticket::kFormatVersion);
 
-	strncmp(body->issuer, mIssuer.c_str(), ticket::kIssuerSize);
+	strncpy(body->issuer, mIssuer.c_str(), ticket::kIssuerSize);
 	memcpy(body->enc_title_key, mEncTitleKey, ticket::kEncTitleKeySize);
 	body->title_key_enc_type = (mEncType);
 	body->ticket_version = (mTicketVersion);
+	body->license_type = mLicenseType;
+	body->common_key_id = mCommonKeyId;
 	byte_t property_mask = 0;
 	property_mask |= mPreInstall ? _BIT(ticket::FLAG_PRE_INSTALL) : 0;
 	property_mask |= mSharedTitle ? _BIT(ticket::FLAG_SHARED_TITLE) : 0;
@@ -117,6 +120,7 @@ void es::TicketBody_V2::fromBytes(const byte_t * bytes, size_t len)
 	mEncType = (ticket::TitleKeyEncType)body->title_key_enc_type;
 	mTicketVersion = body->ticket_version.get();
 	mLicenseType = (ticket::LicenseType)body->license_type;
+	mCommonKeyId = body->common_key_id;
 	mPreInstall = _HAS_BIT(body->property_mask, ticket::FLAG_PRE_INSTALL);
 	mSharedTitle = _HAS_BIT(body->property_mask, ticket::FLAG_SHARED_TITLE);
 	mAllowAllContent = _HAS_BIT(body->property_mask, ticket::FLAG_ALLOW_ALL_CONTENT);
@@ -144,6 +148,7 @@ void es::TicketBody_V2::clear()
 	mEncType = ticket::AES128_CBC;
 	mTicketVersion = 0;
 	mLicenseType = ticket::LICENSE_PERMANENT;
+	mCommonKeyId = 0;
 	mPreInstall = false;
 	mSharedTitle = false;
 	mAllowAllContent = false;
