@@ -48,11 +48,11 @@ void nx::AccessControlInfoBinary::toBytes()
 		uint32_t offset, size;
 	} fac, sac, kc;
 
-	fac.offset = align(sizeof(sAciHeader), aci::kSectionAlignSize);
+	fac.offset = (uint32_t)align(sizeof(sAciHeader), aci::kSectionAlignSize);
 	fac.size = (uint32_t)mFileSystemAccessControl.getBytes().size();
-	sac.offset = align(fac.offset + fac.size, aci::kSectionAlignSize);
+	sac.offset = (uint32_t)align(fac.offset + fac.size, aci::kSectionAlignSize);
 	sac.size = (uint32_t)mServiceAccessControl.getBytes().size();
-	kc.offset = align(sac.offset + sac.size, aci::kSectionAlignSize);
+	kc.offset = (uint32_t)align(sac.offset + sac.size, aci::kSectionAlignSize);
 	kc.size = (uint32_t)mKernelCapabilities.getBytes().size();
 
 	// get total size

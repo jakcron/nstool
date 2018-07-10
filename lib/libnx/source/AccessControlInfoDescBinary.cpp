@@ -52,11 +52,11 @@ void nx::AccessControlInfoDescBinary::toBytes()
 		uint32_t offset, size;
 	} fac, sac, kc;
 
-	fac.offset = align(sizeof(sAciDescHeader), aci::kSectionAlignSize);
+	fac.offset = (uint32_t)align(sizeof(sAciDescHeader), aci::kSectionAlignSize);
 	fac.size = (uint32_t)mFileSystemAccessControl.getBytes().size();
-	sac.offset = align(fac.offset + fac.size, aci::kSectionAlignSize);
+	sac.offset = (uint32_t)align(fac.offset + fac.size, aci::kSectionAlignSize);
 	sac.size = (uint32_t)mServiceAccessControl.getBytes().size();
-	kc.offset = align(sac.offset + sac.size, aci::kSectionAlignSize);
+	kc.offset = (uint32_t)align(sac.offset + sac.size, aci::kSectionAlignSize);
 	kc.size = (uint32_t)mKernelCapabilities.getBytes().size();
 
 	// get total size
@@ -72,7 +72,7 @@ void nx::AccessControlInfoDescBinary::toBytes()
 	hdr->st_magic = aci::kAciDescStructMagic;
 
 	// set "acid size"
-	hdr->signed_size = total_size - crypto::rsa::kRsa2048Size;
+	hdr->signed_size = (uint32_t)(total_size - crypto::rsa::kRsa2048Size);
 
 	// set flags
 	uint32_t flags = 0;

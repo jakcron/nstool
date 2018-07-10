@@ -41,9 +41,9 @@ void nx::FileSystemAccessControlBinary::toBytes()
 		uint32_t offset, size;
 	} content, savedata;
 
-	content.offset = align(sizeof(sFacHeader), fac::kSectionAlignSize);
+	content.offset = (uint32_t)align(sizeof(sFacHeader), fac::kSectionAlignSize);
 	content.size = (uint32_t)(sizeof(uint32_t) + mContentOwnerIdList.size() * sizeof(uint64_t));
-	savedata.offset = content.offset + (content.size > 0 ? align(content.size, fac::kSectionAlignSize) : 0);
+	savedata.offset = (uint32_t)(content.offset + (content.size > 0 ? align(content.size, fac::kSectionAlignSize) : 0));
 	savedata.size = (uint32_t)(sizeof(uint32_t) + align(mSaveDataOwnerIdList.size(), fac::kSectionAlignSize) + mSaveDataOwnerIdList.size() * sizeof(uint64_t));
 
 	// get total size
@@ -74,7 +74,7 @@ void nx::FileSystemAccessControlBinary::toBytes()
 	// set ids
 	le_uint32_t* content_owner_id_num = (le_uint32_t*)(mRawBinary.data() + content.offset);
 	le_uint64_t* content_owner_ids = (le_uint64_t*)(mRawBinary.data() + content.offset + sizeof(uint32_t));
-	content_owner_id_num->set(mContentOwnerIdList.size());
+	content_owner_id_num->set((uint32_t)mContentOwnerIdList.size());
 	for (size_t i = 0; i < mContentOwnerIdList.size(); i++)
 	{
 		content_owner_ids[i] = mContentOwnerIdList[i];
@@ -83,7 +83,7 @@ void nx::FileSystemAccessControlBinary::toBytes()
 	le_uint32_t* save_data_owner_id_num = (le_uint32_t*)(mRawBinary.data() + savedata.offset);
 	byte_t* save_data_owner_id_accessibility_array = (mRawBinary.data() + savedata.offset + sizeof(uint32_t));
 	le_uint64_t* save_data_owner_ids = (le_uint64_t*)(mRawBinary.data() + savedata.offset + sizeof(uint32_t) + align(mSaveDataOwnerIdList.size(), sizeof(uint32_t)));
-	save_data_owner_id_num->set(mSaveDataOwnerIdList.size());
+	save_data_owner_id_num->set((uint32_t)mSaveDataOwnerIdList.size());
 	for (size_t i = 0; i < mSaveDataOwnerIdList.size(); i++)
 	{
 		save_data_owner_id_accessibility_array[i] = mSaveDataOwnerIdList[i].access_type;
