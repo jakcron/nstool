@@ -33,6 +33,13 @@ namespace nx
 			FSA_DEBUG = 62,
 			FSA_FULL_PERMISSION = 63,
 		};
+
+		enum SaveDataOwnerIdAccessType
+		{
+			SDO_READ = 1,
+			SDO_WRITE,
+			SDO_READWRITE
+		};
 	}
 
 #pragma pack(push,1)
@@ -42,8 +49,8 @@ namespace nx
 		le_uint64_t fac_flags;
 		struct sFacSection
 		{
-			le_uint32_t start;
-			le_uint32_t end;
+			le_uint32_t offset;
+			le_uint32_t size;
 		} content_owner_ids, save_data_owner_ids; // the data for these follow later in binary. start/end relative to base of FacData instance
 	};
 #pragma pack(pop)

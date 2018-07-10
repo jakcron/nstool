@@ -42,9 +42,9 @@ void nx::FileSystemAccessControlBinary::toBytes()
 	} content, savedata;
 
 	content.offset = align(sizeof(sFacHeader), fac::kSectionAlignSize);
-	content.size = (uint32_t)(mContentOwnerIdList.size() * sizeof(uint32_t));
-	savedata.offset = content.offset + align(content.size, fac::kSectionAlignSize);
-	savedata.size = (uint32_t)(mSaveDataOwnerIdList.size() * sizeof(uint32_t));
+	content.size = (uint32_t)(sizeof(uint32_t) + mContentOwnerIdList.size() * sizeof(uint64_t));
+	savedata.offset = content.offset + (content.size > 0 ? align(content.size, fac::kSectionAlignSize) : 0);
+	savedata.size = (uint32_t)(sizeof(uint32_t) + align(mSaveDataOwnerIdList.size(), fac::kSectionAlignSize) + mSaveDataOwnerIdList.size() * sizeof(uint64_t));
 
 	// get total size
 	size_t total_size = _MAX(_MAX(content.offset + content.size, savedata.offset + savedata.size), align(sizeof(sFacHeader), fac::kSectionAlignSize)); 
@@ -64,24 +64,30 @@ void nx::FileSystemAccessControlBinary::toBytes()
 	hdr->fac_flags = flag;
 
 	// set offset/size
-	hdr->content_owner_ids.start = content.offset;
+	hdr->content_owner_ids.offset = content.offset;
 	if (content.size > 0)
-		hdr->content_owner_ids.end = content.offset + content.size;
-	hdr->save_data_owner_ids.start = savedata.offset;
+		hdr->content_owner_ids.size = content.size;
+	hdr->save_data_owner_ids.offset = savedata.offset;
 	if (savedata.size > 0)
-		hdr->save_data_owner_ids.end = savedata.offset + savedata.size;
+		hdr->save_data_owner_ids.size = savedata.size;
 
 	// set ids
-	le_uint32_t* content_owner_ids = (le_uint32_t*)(mRawBinary.data() + content.offset);
+	le_uint32_t* content_owner_id_num = (le_uint32_t*)(mRawBinary.data() + content.offset);
+	le_uint64_t* content_owner_ids = (le_uint64_t*)(mRawBinary.data() + content.offset + sizeof(uint32_t));
+	content_owner_id_num->set(mContentOwnerIdList.size());
 	for (size_t i = 0; i < mContentOwnerIdList.size(); i++)
 	{
 		content_owner_ids[i] = mContentOwnerIdList[i];
 	}
 
-	le_uint32_t* save_data_owner_ids = (le_uint32_t*)(mRawBinary.data() + savedata.offset);
+	le_uint32_t* save_data_owner_id_num = (le_uint32_t*)(mRawBinary.data() + savedata.offset);
+	byte_t* save_data_owner_id_accessibility_array = (mRawBinary.data() + savedata.offset + sizeof(uint32_t));
+	le_uint64_t* save_data_owner_ids = (le_uint64_t*)(mRawBinary.data() + savedata.offset + sizeof(uint32_t) + align(mSaveDataOwnerIdList.size(), sizeof(uint32_t)));
+	save_data_owner_id_num->set(mSaveDataOwnerIdList.size());
 	for (size_t i = 0; i < mSaveDataOwnerIdList.size(); i++)
 	{
-		save_data_owner_ids[i] = mSaveDataOwnerIdList[i];
+		save_data_owner_id_accessibility_array[i] = mSaveDataOwnerIdList[i].access_type;
+		save_data_owner_ids[i] = mSaveDataOwnerIdList[i].id;
 	}
 }
 
@@ -107,7 +113,7 @@ void nx::FileSystemAccessControlBinary::fromBytes(const byte_t* data, size_t len
 	}
 	
 	// get total size
-	size_t total_size = _MAX(_MAX(hdr.content_owner_ids.end.get(), hdr.save_data_owner_ids.end.get()), align(sizeof(sFacHeader), fac::kSectionAlignSize)); 
+	size_t total_size = _MAX(_MAX(hdr.content_owner_ids.offset.get() + hdr.content_owner_ids.size.get(), hdr.save_data_owner_ids.offset.get() + hdr.save_data_owner_ids.size.get()), align(sizeof(sFacHeader), fac::kSectionAlignSize));
 
 	// validate binary size
 	if (len < total_size)
@@ -130,22 +136,23 @@ void nx::FileSystemAccessControlBinary::fromBytes(const byte_t* data, size_t len
 	}
 
 	// save ids
-	if (hdr.content_owner_ids.end.get() > hdr.content_owner_ids.start.get())
+	if (hdr.content_owner_ids.size.get() > 0)
 	{
-		le_uint32_t* content_owner_ids = (le_uint32_t*)(mRawBinary.data() + hdr.content_owner_ids.start.get());
-		size_t content_owner_id_num = (hdr.content_owner_ids.end.get() - hdr.content_owner_ids.start.get()) / sizeof(uint32_t);
+		size_t content_owner_id_num = ((le_uint32_t*)(mRawBinary.data() + hdr.content_owner_ids.offset.get()))->get();
+		le_uint64_t* content_owner_ids = (le_uint64_t*)(mRawBinary.data() + hdr.content_owner_ids.offset.get() + sizeof(uint32_t));
 		for (size_t i = 0; i < content_owner_id_num; i++)
 		{
 			mContentOwnerIdList.addElement(content_owner_ids[i].get());
 		}
 	}
-	if (hdr.save_data_owner_ids.end.get() > hdr.save_data_owner_ids.start.get())
+	if (hdr.save_data_owner_ids.size.get() > 0)
 	{
-		le_uint32_t* save_data_owner_ids = (le_uint32_t*)(mRawBinary.data() + hdr.save_data_owner_ids.start.get());
-		size_t save_data_owner_id_num = (hdr.save_data_owner_ids.end.get() - hdr.save_data_owner_ids.start.get()) / sizeof(uint32_t);
+		size_t save_data_owner_id_num = ((le_uint32_t*)(mRawBinary.data() + hdr.save_data_owner_ids.offset.get()))->get();
+		byte_t* save_data_owner_id_accessibility_array = (mRawBinary.data() + hdr.save_data_owner_ids.offset.get() + sizeof(uint32_t));
+		le_uint64_t* save_data_owner_ids = (le_uint64_t*)(mRawBinary.data() + hdr.save_data_owner_ids.offset.get() + sizeof(uint32_t) + align(save_data_owner_id_num, fac::kSectionAlignSize));
 		for (size_t i = 0; i < save_data_owner_id_num; i++)
 		{
-			mSaveDataOwnerIdList.addElement(save_data_owner_ids[i].get());
+			mSaveDataOwnerIdList.addElement({ (fac::SaveDataOwnerIdAccessType)save_data_owner_id_accessibility_array[i], save_data_owner_ids[i].get() });
 		}
 	}
 }
@@ -184,22 +191,22 @@ void nx::FileSystemAccessControlBinary::setFsaRightsList(const fnd::List<fac::Fs
 	mFsaRights = list;
 }
 
-const fnd::List<uint32_t>& nx::FileSystemAccessControlBinary::getContentOwnerIdList() const
+const fnd::List<uint64_t>& nx::FileSystemAccessControlBinary::getContentOwnerIdList() const
 {
 	return mContentOwnerIdList;
 }
 
-void nx::FileSystemAccessControlBinary::setContentOwnerIdList(const fnd::List<uint32_t>& list)
+void nx::FileSystemAccessControlBinary::setContentOwnerIdList(const fnd::List<uint64_t>& list)
 {
 	mContentOwnerIdList = list;
 }
 
-const fnd::List<uint32_t>& nx::FileSystemAccessControlBinary::getSaveDataOwnerIdList() const
+const fnd::List<nx::FileSystemAccessControlBinary::sSaveDataOwnerId>& nx::FileSystemAccessControlBinary::getSaveDataOwnerIdList() const
 {
 	return mSaveDataOwnerIdList;
 }
 
-void nx::FileSystemAccessControlBinary::setSaveDataOwnerIdList(const fnd::List<uint32_t>& list)
+void nx::FileSystemAccessControlBinary::setSaveDataOwnerIdList(const fnd::List<sSaveDataOwnerId>& list)
 {
 	mSaveDataOwnerIdList = list;
 }
