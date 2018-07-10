@@ -74,6 +74,31 @@ void RoMetadataProcess::setListSymbols(bool listSymbols)
 	mListSymbols = listSymbols;
 }
 
+const std::vector<SdkApiString>& RoMetadataProcess::getSdkVerApiList() const
+{
+	return mSdkVerApiList;
+}
+
+const std::vector<SdkApiString>& RoMetadataProcess::getPublicApiList() const
+{
+	return mPublicApiList;
+}
+
+const std::vector<SdkApiString>& RoMetadataProcess::getDebugApiList() const
+{
+	return mDebugApiList;
+}
+
+const std::vector<SdkApiString>& RoMetadataProcess::getPrivateApiList() const
+{
+	return mPrivateApiList;
+}
+
+const fnd::List<ElfSymbolParser::sElfSymbol>& RoMetadataProcess::getSymbolList() const
+{
+	return mSymbolList.getSymbolList();
+}
+
 void RoMetadataProcess::importApiList()
 {
 	if (mApiInfo.size > 0)

@@ -27,6 +27,12 @@ public:
 	void setInstructionType(nx::npdm::InstructionType type);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
+
+	const std::vector<SdkApiString>& getSdkVerApiList() const;
+	const std::vector<SdkApiString>& getPublicApiList() const;
+	const std::vector<SdkApiString>& getDebugApiList() const;
+	const std::vector<SdkApiString>& getPrivateApiList() const;
+	const fnd::List<ElfSymbolParser::sElfSymbol>& getSymbolList() const;
 private:
 	const std::string kModuleName = "RoMetadataProcess";
 

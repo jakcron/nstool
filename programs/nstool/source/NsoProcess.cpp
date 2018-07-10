@@ -66,6 +66,11 @@ void NsoProcess::setListSymbols(bool listSymbols)
 	mRoMeta.setListSymbols(listSymbols);
 }
 
+const RoMetadataProcess& NsoProcess::getRoMetadataProcess() const
+{
+	return mRoMeta;
+}
+
 void NsoProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;

@@ -90,76 +90,38 @@ void XciProcess::setListFs(bool list_fs)
 	mListFs = list_fs;
 }
 
-inline const char* getBoolStr(bool isTrue)
-{
-	return isTrue? "TRUE" : "FALSE";
-}
-
-inline const char* getRomSizeStr(byte_t rom_size)
-{
-	const char* str = "unknown";
-	switch (rom_size)
-	{
-		case (nx::xci::ROM_SIZE_1GB) :
-			str = "1GB";
-			break;
-		case (nx::xci::ROM_SIZE_2GB) :
-			str = "2GB";
-			break;
-		case (nx::xci::ROM_SIZE_4GB) :
-			str = "4GB";
-			break;
-		case (nx::xci::ROM_SIZE_8GB) :
-			str = "8GB";
-			break;
-		case (nx::xci::ROM_SIZE_16GB) :
-			str = "16GB";
-			break;
-		case (nx::xci::ROM_SIZE_32GB) :
-			str = "32GB";
-			break;
-	}
-	return str;
-}
-
-inline const char* getCardClockRate(uint32_t acc_ctrl_1)
-{
-	const char* str = "unknown";
-	switch (acc_ctrl_1)
-	{
-		case (nx::xci::CLOCK_RATE_25) :
-			str = "20 MHz";
-			break;
-		case (nx::xci::CLOCK_RATE_50) :
-			str = "50 MHz";
-			break;
-		
-	}
-	return str;
-}
-
 void XciProcess::displayHeader()
 {
 	printf("[XCI Header]\n");
-	printf("  Magic:                  HEAD\n");
-	printf("  KekIndex:               %d\n", mHdr.getKekIndex());
-	printf("  TitleKeyDecIndex:       %d\n", mHdr.getTitleKeyDecIndex());
-	printf("  RomSize:                0x%x (%s)\n", mHdr.getRomSizeType(), getRomSizeStr(mHdr.getRomSizeType()));
 	printf("  CardHeaderVersion:      %d\n", mHdr.getCardHeaderVersion());
-	printf("  Flags:                  0x%x\n", mHdr.getFlags());
-	printf("    AutoBoot:             %s\n", getBoolStr(_HAS_BIT(mHdr.getFlags(), nx::xci::FLAG_AUTOBOOT)));
-	printf("    HistoryErase:         %s\n", getBoolStr(_HAS_BIT(mHdr.getFlags(), nx::xci::FLAG_HISTORY_ERASE)));
-	printf("    RepairTool:           %s\n", getBoolStr(_HAS_BIT(mHdr.getFlags(), nx::xci::FLAG_REPAIR_TOOL)));
-	printf("  PackageId:              0x%" PRIx64 "\n", mHdr.getPackageId());
+	printf("  RomSize:                %s", getRomSizeStr(mHdr.getRomSizeType()));
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		printf(" (0x%x)", mHdr.getRomSizeType());
+	printf("\n");
+	printf("  PackageId:              0x%" PRIx64 "\n", mHdr.getPackageId());
+	printf("  Flags:                  0x%x\n", mHdr.getFlags());
+	if (mHdr.getFlags() != 0)
 	{
-		printf("  InitialDataHash:    \n");
-		fnd::SimpleTextOutput::hexDump(mHdr.getInitialDataHash().bytes, sizeof(mHdr.getInitialDataHash().bytes));
+		for (uint32_t i = 0; i < 8; i++)
+		{
+			if (_HAS_BIT(mHdr.getFlags(), i))
+			{
+				printf("    %s\n", getHeaderFlagStr(i));
+			}
+		}
 	}
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("  Enc Header AES-IV:                  ");
-		fnd::SimpleTextOutput::hexDump(mHdr.getAesCbcIv().iv, sizeof(mHdr.getAesCbcIv().iv));
+		printf("  InitialData:\n");
+		printf("    KekIndex:             %d\n", mHdr.getKekIndex());
+		printf("    TitleKeyDecIndex:     %d\n", mHdr.getTitleKeyDecIndex());
+		printf("    Hash:\n");
+		fnd::SimpleTextOutput::hexDump(mHdr.getInitialDataHash().bytes, sizeof(mHdr.getInitialDataHash().bytes), 0x10, 6);
+	}
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		printf("  Enc Header AES-IV:\n");
+		fnd::SimpleTextOutput::hexDump(mHdr.getAesCbcIv().iv, sizeof(mHdr.getAesCbcIv().iv), 0x10, 4);
 	}
 	printf("  SelSec:                 0x%x\n", mHdr.getSelSec());
 	printf("  SelT1Key:               0x%x\n", mHdr.getSelT1Key());
@@ -187,34 +149,35 @@ void XciProcess::displayHeader()
 		printf("\n");
 
 		printf("  PartitionFs Header:\n");
-		printf("    Offset:             0x%" PRIx64 "\n", mHdr.getPartitionFsAddress());
-		printf("    Size:               0x%" PRIx64 "\n", mHdr.getPartitionFsSize());
+		printf("    Offset:               0x%" PRIx64 "\n", mHdr.getPartitionFsAddress());
+		printf("    Size:                 0x%" PRIx64 "\n", mHdr.getPartitionFsSize());
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		{
-			printf("    Hash:               ");
-			fnd::SimpleTextOutput::hexDump(mHdr.getPartitionFsHash().bytes, sizeof(mHdr.getPartitionFsHash().bytes));
+			printf("    Hash:\n");
+			fnd::SimpleTextOutput::hexDump(mHdr.getPartitionFsHash().bytes, sizeof(mHdr.getPartitionFsHash().bytes), 0x10, 6);
 		}
 	}
 
-	printf("[XCI Extended Header]\n");
-	printf("  FwVersion:              v%d.%d\n", mHdr.getFwVerMajor(), mHdr.getFwVerMinor());
-	printf("  AccCtrl1:               0x%x\n", mHdr.getAccCtrl1());
-	printf("    CardClockRate:        %s\n", getCardClockRate(mHdr.getAccCtrl1()));
-	printf("  Wait1TimeRead:          0x%x\n", mHdr.getWait1TimeRead());
-	printf("  Wait2TimeRead:          0x%x\n", mHdr.getWait2TimeRead());
-	printf("  Wait1TimeWrite:         0x%x\n", mHdr.getWait1TimeWrite());
-	printf("  Wait2TimeWrite:         0x%x\n", mHdr.getWait2TimeWrite());
-	printf("  FwMode:                 0x%x\n", mHdr.getFwMode());
-	printf("  Update Partition Info:\n");
+	
+	if (mHdr.getFwVerMinor() != 0)
+	{
+		printf("[XCI Extended Header]\n");
+		printf("  FwVersion:              v%d.%d\n", mHdr.getFwVerMajor(), mHdr.getFwVerMinor());
+		printf("  AccCtrl1:               0x%x\n", mHdr.getAccCtrl1());
+		printf("    CardClockRate:        %s\n", getCardClockRate(mHdr.getAccCtrl1()));
+		printf("  Wait1TimeRead:          0x%x\n", mHdr.getWait1TimeRead());
+		printf("  Wait2TimeRead:          0x%x\n", mHdr.getWait2TimeRead());
+		printf("  Wait1TimeWrite:         0x%x\n", mHdr.getWait1TimeWrite());
+		printf("  Wait2TimeWrite:         0x%x\n", mHdr.getWait2TimeWrite());
+		printf("  FwMode:                 0x%x\n", mHdr.getFwMode());
+		printf("  Update Partition Info:\n");
 #define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
-	printf("    CUP Version:          v%" PRId32 " (%d.%d.%d.%d)\n", mHdr.getUppVersion(), _SPLIT_VER(mHdr.getUppVersion()));
+		printf("    CUP Version:          v%" PRId32 " (%d.%d.%d.%d)\n", mHdr.getUppVersion(), _SPLIT_VER(mHdr.getUppVersion()));
 #undef _SPLIT_VER
-	printf("    CUP TitleId:          %016" PRIx64 "\n", mHdr.getUppId());
-	printf("    Partition Hash:       ");
-	fnd::SimpleTextOutput::hexDump(mHdr.getUppHash(), 8);
-
-	
-	
+		printf("    CUP TitleId:          %016" PRIx64 "\n", mHdr.getUppId());
+		printf("    Partition Hash:       ");
+		fnd::SimpleTextOutput::hexDump(mHdr.getUppHash(), 8);
+	}	
 }
 
 bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
@@ -273,4 +236,66 @@ void XciProcess::processPartitionPfs()
 	
 		tmp.process();
 	}
+}
+
+const char* XciProcess::getRomSizeStr(byte_t rom_size) const
+{
+	const char* str = "unknown";
+	switch (rom_size)
+	{
+		case (nx::xci::ROM_SIZE_1GB):
+			str = "1GB";
+			break;
+		case (nx::xci::ROM_SIZE_2GB):
+			str = "2GB";
+			break;
+		case (nx::xci::ROM_SIZE_4GB):
+			str = "4GB";
+			break;
+		case (nx::xci::ROM_SIZE_8GB):
+			str = "8GB";
+			break;
+		case (nx::xci::ROM_SIZE_16GB):
+			str = "16GB";
+			break;
+		case (nx::xci::ROM_SIZE_32GB):
+			str = "32GB";
+			break;
+	}
+	return str;
+}
+
+const char* XciProcess::getHeaderFlagStr(byte_t flag) const
+{
+	const char* str = "unknown";
+	switch (flag)
+	{
+		case (nx::xci::FLAG_AUTOBOOT):
+			str = "AutoBoot";
+			break;
+		case (nx::xci::FLAG_HISTORY_ERASE):
+			str = "HistoryErase";
+			break;
+		case (nx::xci::FLAG_REPAIR_TOOL):
+			str = "RepairTool";
+			break;
+	}
+	return str;
+}
+
+
+const char* XciProcess::getCardClockRate(uint32_t acc_ctrl_1) const
+{
+	const char* str = "unknown";
+	switch (acc_ctrl_1)
+	{
+		case (nx::xci::CLOCK_RATE_25):
+			str = "20 MHz";
+			break;
+		case (nx::xci::CLOCK_RATE_50):
+			str = "50 MHz";
+			break;
+
+	}
+	return str;
 }

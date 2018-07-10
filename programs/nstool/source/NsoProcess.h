@@ -24,6 +24,8 @@ public:
 	void setInstructionType(nx::npdm::InstructionType type);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
+
+	const RoMetadataProcess& getRoMetadataProcess() const;
 private:
 	const std::string kModuleName = "NsoProcess";
 

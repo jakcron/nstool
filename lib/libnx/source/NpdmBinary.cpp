@@ -61,9 +61,9 @@ void nx::NpdmBinary::toBytes()
 		uint32_t offset, size;
 	} acid, aci;
 
-	acid.offset = align(sizeof(sNpdmHeader), npdm::kSectionAlignSize);
+	acid.offset = (uint32_t)align(sizeof(sNpdmHeader), npdm::kSectionAlignSize);
 	acid.size = (uint32_t)mAcid.getBytes().size();
-	aci.offset = acid.offset + align(acid.size, npdm::kSectionAlignSize);
+	aci.offset = (uint32_t)(acid.offset + align(acid.size, npdm::kSectionAlignSize));
 	aci.size = (uint32_t)mAci.getBytes().size();
 	
 

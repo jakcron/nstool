@@ -11,6 +11,29 @@ namespace nx
 	class FileSystemAccessControlBinary : public fnd::ISerialisable
 	{
 	public:
+		struct sSaveDataOwnerId
+		{
+			nx::fac::SaveDataOwnerIdAccessType access_type;
+			uint64_t id;
+
+			void operator=(const sSaveDataOwnerId& other)
+			{
+				access_type = other.access_type;
+				id = other.id;
+			}
+
+			bool operator==(const sSaveDataOwnerId& other) const
+			{
+				return (access_type == other.access_type) \
+					&& (id == other.id);
+			}
+
+			bool operator!=(const sSaveDataOwnerId& other) const
+			{
+				return !(*this == other);
+			}
+		}; 
+
 		FileSystemAccessControlBinary();
 		FileSystemAccessControlBinary(const FileSystemAccessControlBinary& other);
 
@@ -32,11 +55,11 @@ namespace nx
 		const fnd::List<fac::FsAccessFlag>& getFsaRightsList() const;
 		void setFsaRightsList(const fnd::List<fac::FsAccessFlag>& list);
 
-		const fnd::List<uint32_t>& getContentOwnerIdList() const;
-		void setContentOwnerIdList(const fnd::List<uint32_t>& list);
+		const fnd::List<uint64_t>& getContentOwnerIdList() const;
+		void setContentOwnerIdList(const fnd::List<uint64_t>& list);
 
-		const fnd::List<uint32_t>& getSaveDataOwnerIdList() const;
-		void setSaveDataOwnerIdList(const fnd::List<uint32_t>& list);
+		const fnd::List<sSaveDataOwnerId>& getSaveDataOwnerIdList() const;
+		void setSaveDataOwnerIdList(const fnd::List<sSaveDataOwnerId>& list);
 	private:
 		const std::string kModuleName = "FILE_SYSTEM_ACCESS_CONTROL_BINARY";
 
@@ -46,7 +69,7 @@ namespace nx
 		// variables
 		uint32_t mVersion;
 		fnd::List<fac::FsAccessFlag> mFsaRights;
-		fnd::List<uint32_t> mContentOwnerIdList;
-		fnd::List<uint32_t> mSaveDataOwnerIdList;
+		fnd::List<uint64_t> mContentOwnerIdList;
+		fnd::List<sSaveDataOwnerId> mSaveDataOwnerIdList;
 	};
 }
