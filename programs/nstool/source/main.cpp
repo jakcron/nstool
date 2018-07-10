@@ -10,6 +10,8 @@
 #include "NsoProcess.h"
 #include "NroProcess.h"
 #include "NacpProcess.h"
+#include "EsCertProcess.h"
+#include "EsTikProcess.h"
 #include "AssetProcess.h"
 
 int main(int argc, char** argv)
@@ -157,6 +159,28 @@ int main(int argc, char** argv)
 			nacp.setVerifyMode(user_set.isVerifyFile());
 
 			nacp.process();
+		}
+		else if (user_set.getFileType() == FILE_ES_CERT)
+		{
+			EsCertProcess cert;
+
+			cert.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			cert.setKeyset(&user_set.getKeyset());
+			cert.setCliOutputMode(user_set.getCliOutputMode());
+			cert.setVerifyMode(user_set.isVerifyFile());
+
+			cert.process();
+		}
+		else if (user_set.getFileType() == FILE_ES_TIK)
+		{
+			EsTikProcess tik;
+
+			tik.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			tik.setKeyset(&user_set.getKeyset());
+			tik.setCliOutputMode(user_set.getCliOutputMode());
+			tik.setVerifyMode(user_set.isVerifyFile());
+
+			tik.process();
 		}
 		else if (user_set.getFileType() == FILE_HB_ASSET)
 		{
