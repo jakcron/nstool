@@ -31,6 +31,8 @@ public:
 	void setAssetIconExtractPath(const std::string& path);
 	void setAssetNacpExtractPath(const std::string& path);
 	void setAssetRomfsExtractPath(const std::string& path);
+
+	const RoMetadataProcess& getRoMetadataProcess() const;
 private:
 	const std::string kModuleName = "NroProcess";
 

@@ -91,6 +91,11 @@ void NroProcess::setAssetRomfsExtractPath(const std::string& path)
 	mAssetProc.setRomfsExtractPath(path);
 }
 
+const RoMetadataProcess& NroProcess::getRoMetadataProcess() const
+{
+	return mRoMeta;
+}
+
 void NroProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
