@@ -190,6 +190,15 @@ const std::string kFsaFlag[64] =
 	"Debug",
 	"FullPermission"
 };
+
+const std::string kSaveDataOwnerAccessMode[4] =
+{
+	"IllegalAccessCondition",
+	"Read",
+	"Write",
+	"ReadWrite"
+};
+
 const std::string kSysCall[0x80] = 
 {
 	"svc00",
@@ -378,7 +387,7 @@ void NpdmProcess::validateAciFromAcid(const nx::AccessControlInfoBinary& aci, co
 		if (rightFound == false)
 		{
 
-			printf("[WARNING] ACI/FAC ContentOwnerId: FAIL (%08x not permitted)\n", aci.getFileSystemAccessControl().getContentOwnerIdList()[i]);
+			printf("[WARNING] ACI/FAC ContentOwnerId: FAIL (%016" PRIx64 " not permitted)\n", aci.getFileSystemAccessControl().getContentOwnerIdList()[i]);
 		}
 	}
 
@@ -394,7 +403,7 @@ void NpdmProcess::validateAciFromAcid(const nx::AccessControlInfoBinary& aci, co
 		if (rightFound == false)
 		{
 
-			printf("[WARNING] ACI/FAC ContentOwnerId: FAIL (%08x not permitted)\n", aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i]);
+			printf("[WARNING] ACI/FAC ContentOwnerId: FAIL (%016" PRIx64 "(%d) not permitted)\n", aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].id, aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].access_type);
 		}
 	}
 
@@ -590,25 +599,22 @@ void NpdmProcess::displayFac(const nx::FileSystemAccessControlBinary& fac)
 			printf("%s", fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack() ? ", " : "\n");			
 		}
 	}
-	else
-	{
-		printf("  FS Rights: NONE\n");
-	}
 	
 	if (fac.getContentOwnerIdList().size())
 	{
 		printf("  Content Owner IDs:\n");
 		for (size_t i = 0; i < fac.getContentOwnerIdList().size(); i++)
 		{
-			printf("    0x%08x\n", fac.getContentOwnerIdList()[i]);
+			printf("    0x%016" PRIx64 "\n", fac.getContentOwnerIdList()[i]);
 		}
 	}
+
 	if (fac.getSaveDataOwnerIdList().size())
 	{
 		printf("  Save Data Owner IDs:\n");
 		for (size_t i = 0; i < fac.getSaveDataOwnerIdList().size(); i++)
 		{
-			printf("    0x%08x\n", fac.getSaveDataOwnerIdList()[i]);
+			printf("    0x%016" PRIx64 " (%s)\n", fac.getSaveDataOwnerIdList()[i].id, kSaveDataOwnerAccessMode[fac.getSaveDataOwnerIdList()[i].access_type].c_str());
 		}
 	}
 	
