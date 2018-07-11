@@ -208,7 +208,7 @@ namespace nx
 		le_uint64_t cache_storage_size;
 		le_uint64_t cache_storage_journal_size;
 		le_uint64_t cache_storage_data_and_journal_size_max;
-		le_uint16_t cache_storage_index;
+		le_uint16_t cache_storage_index_max;
 		byte_t reserved_03[6];
 		le_uint64_t play_log_queryable_application_id[nacp::kPlayLogQueryableApplicationIdCount];
 		byte_t play_log_query_capability;

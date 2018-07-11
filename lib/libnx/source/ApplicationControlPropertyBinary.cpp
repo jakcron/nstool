@@ -46,7 +46,7 @@ void nx::ApplicationControlPropertyBinary::operator=(const ApplicationControlPro
 	mTemporaryStorageSize = other.mTemporaryStorageSize;
 	mCacheStorageSize = other.mCacheStorageSize;
 	mCacheStorageDataAndJournalSizeMax = other.mCacheStorageDataAndJournalSizeMax;
-	mCacheStorageIndex = other.mCacheStorageIndex;
+	mCacheStorageIndexMax = other.mCacheStorageIndexMax;
 	mPlayLogQueryableApplicationId = other.mPlayLogQueryableApplicationId;
 	mPlayLogQueryCapability = other.mPlayLogQueryCapability;
 	mRepairFlag = other.mRepairFlag;
@@ -88,7 +88,7 @@ bool nx::ApplicationControlPropertyBinary::operator==(const ApplicationControlPr
 		&& (mTemporaryStorageSize == other.mTemporaryStorageSize) \
 		&& (mCacheStorageSize == other.mCacheStorageSize) \
 		&& (mCacheStorageDataAndJournalSizeMax == other.mCacheStorageDataAndJournalSizeMax) \
-		&& (mCacheStorageIndex == other.mCacheStorageIndex) \
+		&& (mCacheStorageIndexMax == other.mCacheStorageIndexMax) \
 		&& (mPlayLogQueryableApplicationId == other.mPlayLogQueryableApplicationId) \
 		&& (mPlayLogQueryCapability == other.mPlayLogQueryCapability) \
 		&& (mRepairFlag == other.mRepairFlag) \
@@ -157,7 +157,7 @@ void nx::ApplicationControlPropertyBinary::toBytes()
 	{
 		data->play_log_queryable_application_id[i] = mPlayLogQueryableApplicationId[i];
 	}
-	data->cache_storage_index = mCacheStorageIndex;
+	data->cache_storage_index = mCacheStorageIndexMax;
 	data->program_index = mProgramIndex;
 
 	// sizes
@@ -245,7 +245,7 @@ void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t
 		if (data->play_log_queryable_application_id[i].get() != 0)
 			mPlayLogQueryableApplicationId.addElement(data->play_log_queryable_application_id[i].get());
 	}
-	mCacheStorageIndex = data->cache_storage_index.get();
+	mCacheStorageIndexMax = data->cache_storage_index.get();
 	mProgramIndex = data->program_index;
 
 	// sizes
@@ -305,7 +305,7 @@ void nx::ApplicationControlPropertyBinary::clear()
 	mTemporaryStorageSize = 0;
 	mCacheStorageSize = {0, 0};
 	mCacheStorageDataAndJournalSizeMax = 0;
-	mCacheStorageIndex = 0;
+	mCacheStorageIndexMax = 0;
 	mPlayLogQueryableApplicationId.clear();
 	mPlayLogQueryCapability = nacp::PLQC_None;
 	mRepairFlag = nacp::REPF_None;
@@ -642,14 +642,14 @@ void nx::ApplicationControlPropertyBinary::setCacheStorageDataAndJournalSizeMax(
 	mCacheStorageDataAndJournalSizeMax = var;
 }
 
-uint16_t nx::ApplicationControlPropertyBinary::getCacheStorageIndex() const
+uint16_t nx::ApplicationControlPropertyBinary::getCacheStorageIndexMax() const
 {
-	return mCacheStorageIndex;
+	return mCacheStorageIndexMax;
 }
 
-void nx::ApplicationControlPropertyBinary::setCacheStorageIndex(uint16_t var)
+void nx::ApplicationControlPropertyBinary::setCacheStorageIndexMax(uint16_t var)
 {
-	mCacheStorageIndex = var;
+	mCacheStorageIndexMax = var;
 }
 
 const fnd::List<uint64_t>& nx::ApplicationControlPropertyBinary::getPlayLogQueryableApplicationId() const
