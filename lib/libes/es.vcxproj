@@ -122,12 +122,6 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\CertificateBody.cpp" />
-    <ClCompile Include="source\SectionHeader_V2.cpp" />
-    <ClCompile Include="source\SignatureBlock.cpp" />
-    <ClCompile Include="source\TicketBody_V2.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="include\es\cert.h" />
     <ClInclude Include="include\es\CertificateBody.h" />
     <ClInclude Include="include\es\SectionHeader_V2.h" />
@@ -136,6 +130,12 @@
     <ClInclude Include="include\es\SignedData.h" />
     <ClInclude Include="include\es\ticket.h" />
     <ClInclude Include="include\es\TicketBody_V2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\CertificateBody.cpp" />
+    <ClCompile Include="source\SectionHeader_V2.cpp" />
+    <ClCompile Include="source\SignatureBlock.cpp" />
+    <ClCompile Include="source\TicketBody_V2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
