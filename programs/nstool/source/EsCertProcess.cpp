@@ -116,7 +116,7 @@ void EsCertProcess::validateCert(const es::SignedData<es::CertificateBody>& cert
 			{
 				throw fnd::Exception(kModuleName, "Issued by Root, but does not have a RSA4096 signature");
 			}
-			sig_validate_res = crypto::rsa::pkcs::rsaVerify(mKeyset->pki_root_sign_key, getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
+			sig_validate_res = crypto::rsa::pkcs::rsaVerify(mKeyset->pki.root_sign_key, getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
 		}
 		else
 		{

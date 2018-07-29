@@ -505,8 +505,8 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
 	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, crypto::rsa::kRsa2048Size);
 
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[0]), mKeyset.pki_root_sign_key.priv_exponent, crypto::rsa::kRsa4096Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[1]), mKeyset.pki_root_sign_key.modulus, crypto::rsa::kRsa4096Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[0]), mKeyset.pki.root_sign_key.priv_exponent, crypto::rsa::kRsa4096Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[1]), mKeyset.pki.root_sign_key.modulus, crypto::rsa::kRsa4096Size);
 
 
 	// save keydata from input args

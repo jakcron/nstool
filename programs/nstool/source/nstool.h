@@ -65,7 +65,7 @@ struct sKeyset
 {
 	crypto::rsa::sRsa2048Key acid_sign_key;
 
-	crypto::rsa::sRsa4096Key pki_root_sign_key;
+	
 
 	crypto::aes::sAes128Key package1_key[kMasterKeyNum];
 	crypto::rsa::sRsa2048Key package2_sign_key;
@@ -94,6 +94,11 @@ struct sKeyset
 		crypto::rsa::sRsa2048Key sign_key;
 		crypto::aes::sAes128Key titlekey_kek[kMasterKeyNum];
 	} ticket;
+
+	struct sPkiData
+	{
+		crypto::rsa::sRsa4096Key root_sign_key;
+	} pki;
 };
 
 inline byte_t charToByte(char chr)
