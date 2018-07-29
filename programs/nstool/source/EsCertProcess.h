@@ -42,5 +42,5 @@ private:
 
 	const char* getSignTypeStr(es::sign::SignType type) const;
 	const char* getEndiannessStr(bool isLittleEndian) const;
-	const char* getPublicKeyType(es::cert::PublicKeyType type) const;
+	const char* getPublicKeyTypeStr(es::cert::PublicKeyType type) const;
 };

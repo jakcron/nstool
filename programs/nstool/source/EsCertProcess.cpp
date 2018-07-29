@@ -141,7 +141,7 @@ void EsCertProcess::displayCert(const es::SignedData<es::CertificateBody>& cert)
 
 	std::cout << "  Issuer:        " << cert.getBody().getIssuer() << std::endl;
 	std::cout << "  Subject:       " << cert.getBody().getSubject() << std::endl;
-	std::cout << "  PublicKeyType: " << getPublicKeyType(cert.getBody().getPublicKeyType());
+	std::cout << "  PublicKeyType: " << getPublicKeyTypeStr(cert.getBody().getPublicKeyType());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		std::cout << " (" << std::dec << cert.getBody().getPublicKeyType() << ")";
 	std::cout << std::endl;
@@ -229,7 +229,7 @@ const char* EsCertProcess::getEndiannessStr(bool isLittleEndian) const
 	return isLittleEndian ? "LittleEndian" : "BigEndian";
 }
 
-const char* EsCertProcess::getPublicKeyType(es::cert::PublicKeyType type) const
+const char* EsCertProcess::getPublicKeyTypeStr(es::cert::PublicKeyType type) const
 {
 	const char* str;
 	switch (type)
