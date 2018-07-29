@@ -65,6 +65,8 @@ struct sKeyset
 {
 	crypto::rsa::sRsa2048Key acid_sign_key;
 
+	crypto::rsa::sRsa4096Key pki_root_sign_key;
+
 	crypto::aes::sAes128Key package1_key[kMasterKeyNum];
 	crypto::rsa::sRsa2048Key package2_sign_key;
 	crypto::aes::sAes128Key package2_key[kMasterKeyNum];
@@ -86,7 +88,7 @@ struct sKeyset
 		crypto::rsa::sRsa2048Key header_sign_key;
 		crypto::aes::sAes128Key header_key;
 	} xci;
-	
+
 	struct sTicketData
 	{
 		crypto::rsa::sRsa2048Key sign_key;

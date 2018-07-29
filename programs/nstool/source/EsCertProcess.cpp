@@ -93,12 +93,6 @@ void EsCertProcess::validateCert(const es::SignedData<es::CertificateBody>& cert
 
 	try 
 	{
-		// special case if signed by Root
-		if (cert.getBody().getIssuer() == es::sign::kRootIssuerStr)
-		{
-			throw fnd::Exception(kModuleName, "Signed by Root");
-		}
-
 		// get cert hash
 		switch (cert_hash_algo)
 		{
@@ -112,28 +106,40 @@ void EsCertProcess::validateCert(const es::SignedData<es::CertificateBody>& cert
 			throw fnd::Exception(kModuleName, "Unrecognised hash type");
 		}
 
-		// try to find issuer cert		
-		const es::CertificateBody& issuer = getIssuerCert(cert.getBody().getIssuer()).getBody();
-		es::cert::PublicKeyType issuer_pubk_type = issuer.getPublicKeyType();
-
 		// validate signature
 		int sig_validate_res = -1;
 
-		if (issuer_pubk_type == es::cert::RSA4096 && cert_sign_algo == es::sign::SIGN_ALGO_RSA4096)
+		// special case if signed by Root
+		if (cert.getBody().getIssuer() == es::sign::kRootIssuerStr)
 		{
-			sig_validate_res = crypto::rsa::pkcs::rsaVerify(issuer.getRsa4098PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
-		}
-		else if (issuer_pubk_type == es::cert::RSA2048 && cert_sign_algo == es::sign::SIGN_ALGO_RSA2048)
-		{
-			sig_validate_res = crypto::rsa::pkcs::rsaVerify(issuer.getRsa2048PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
-		}
-		else if (issuer_pubk_type == es::cert::ECDSA240 && cert_sign_algo == es::sign::SIGN_ALGO_ECDSA240)
-		{
-			throw fnd::Exception(kModuleName, "ECDSA signatures are not supported");
+			if (cert_sign_algo != es::sign::SIGN_ALGO_RSA4096)
+			{
+				throw fnd::Exception(kModuleName, "Issued by Root, but does not have a RSA4096 signature");
+			}
+			sig_validate_res = crypto::rsa::pkcs::rsaVerify(mKeyset->pki_root_sign_key, getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
 		}
 		else
 		{
-			throw fnd::Exception(kModuleName, "Mismatch between issuer public key and signature type");
+			// try to find issuer cert		
+			const es::CertificateBody& issuer = getIssuerCert(cert.getBody().getIssuer()).getBody();
+			es::cert::PublicKeyType issuer_pubk_type = issuer.getPublicKeyType();
+
+			if (issuer_pubk_type == es::cert::RSA4096 && cert_sign_algo == es::sign::SIGN_ALGO_RSA4096)
+			{
+				sig_validate_res = crypto::rsa::pkcs::rsaVerify(issuer.getRsa4098PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
+			}
+			else if (issuer_pubk_type == es::cert::RSA2048 && cert_sign_algo == es::sign::SIGN_ALGO_RSA2048)
+			{
+				sig_validate_res = crypto::rsa::pkcs::rsaVerify(issuer.getRsa2048PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
+			}
+			else if (issuer_pubk_type == es::cert::ECDSA240 && cert_sign_algo == es::sign::SIGN_ALGO_ECDSA240)
+			{
+				throw fnd::Exception(kModuleName, "ECDSA signatures are not supported");
+			}
+			else
+			{
+				throw fnd::Exception(kModuleName, "Mismatch between issuer public key and signature type");
+			}
 		}
 
 		if (sig_validate_res != 0)

@@ -423,6 +423,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	const std::string kKekGenSource = "aes_kek_generation";
 	const std::string kKeyGenSource = "aes_key_generation";
 	const std::string kAcidBase = "acid";
+	const std::string kPkiRootBase = "pki_root";
 	const std::string kTicketCommonKeyBase[2] = { "titlekek", "ticket_commonkey" };
 	const std::string kNcaBodyBase[2] = {"key_area_key", "nca_body_keak"};
 	const std::string kNcaBodyKeakIndexName[3] = {"application", "ocean", "system"};
@@ -492,17 +493,21 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kKeyStr), mKeyset.xci.header_key.key, 0x10);
 
 	// store rsa keys
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[0]), mKeyset.nca.header_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[1]), mKeyset.nca.header_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[0]), mKeyset.nca.header_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[1]), mKeyset.nca.header_sign_key.modulus, crypto::rsa::kRsa2048Size);
 	
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[0]), mKeyset.xci.header_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[1]), mKeyset.xci.header_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[0]), mKeyset.xci.header_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[1]), mKeyset.xci.header_sign_key.modulus, crypto::rsa::kRsa2048Size);
 
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[0]), mKeyset.acid_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[1]), mKeyset.acid_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[0]), mKeyset.acid_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[1]), mKeyset.acid_sign_key.modulus, crypto::rsa::kRsa2048Size);
 
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, crypto::rsa::kRsa2048Size);
+
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[0]), mKeyset.pki_root_sign_key.priv_exponent, crypto::rsa::kRsa4096Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[1]), mKeyset.pki_root_sign_key.modulus, crypto::rsa::kRsa4096Size);
+
 
 	// save keydata from input args
 	if (args.nca_bodykey.isSet)
