@@ -129,10 +129,10 @@ void es::CertificateBody::fromBytes(const byte_t* src, size_t size)
 	hdr = (const sCertificateHeader*)mRawBinary.data();
 
 	if (hdr->issuer[0] != 0)
-		mIssuer = std::string(hdr->issuer, cert::kIssuerSize);
+		mIssuer = std::string(hdr->issuer, _MIN(strlen(hdr->issuer), cert::kIssuerSize));
 	mPublicKeyType = (cert::PublicKeyType)hdr->key_type.get();
 	if (hdr->subject[0] != 0)
-		mSubject = std::string(hdr->subject, cert::kSubjectSize);
+		mSubject = std::string(hdr->subject, _MIN(strlen(hdr->subject), cert::kSubjectSize));
 	mCertId = hdr->cert_id.get();
 
 	// save public key

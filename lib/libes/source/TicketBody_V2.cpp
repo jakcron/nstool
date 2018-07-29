@@ -112,7 +112,7 @@ void es::TicketBody_V2::fromBytes(const byte_t * bytes, size_t len)
 		throw fnd::Exception(kModuleName, "Unsupported format version");
 	}
 
-	mIssuer.append(body->issuer, ticket::kIssuerSize);
+	mIssuer = std::string(body->issuer, _MIN(strlen(body->issuer), ticket::kIssuerSize));
 	memcpy(mEncTitleKey, body->enc_title_key, ticket::kEncTitleKeySize);
 	mEncType = (ticket::TitleKeyEncType)body->title_key_enc_type;
 	mTicketVersion = body->ticket_version.get();
