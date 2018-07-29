@@ -64,9 +64,6 @@ struct sOptional
 struct sKeyset
 {
 	crypto::rsa::sRsa2048Key acid_sign_key;
-
-	
-
 	crypto::aes::sAes128Key package1_key[kMasterKeyNum];
 	crypto::rsa::sRsa2048Key package2_sign_key;
 	crypto::aes::sAes128Key package2_key[kMasterKeyNum];
