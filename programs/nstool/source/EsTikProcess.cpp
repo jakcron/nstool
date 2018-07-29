@@ -132,23 +132,23 @@ const char* EsTikProcess::getSignTypeStr(uint32_t type) const
 	const char* str = nullptr;
 	switch(type)
 	{
-	case (es::sign::SIGN_RSA4096_SHA1):
-		str = "RSA4096_SHA1";
+	case (es::sign::SIGN_ID_RSA4096_SHA1):
+		str = "RSA4096-SHA1";
 		break;
-	case (es::sign::SIGN_RSA2048_SHA1):
-		str = "RSA2048_SHA1";
+	case (es::sign::SIGN_ID_RSA2048_SHA1):
+		str = "RSA2048-SHA1";
 		break;
-	case (es::sign::SIGN_ECDSA240_SHA1):
-		str = "ECDSA240_SHA1";
+	case (es::sign::SIGN_ID_ECDSA240_SHA1):
+		str = "ECDSA240-SHA1";
 		break;
-	case (es::sign::SIGN_RSA4096_SHA256):
-		str = "RSA4096_SHA256";
+	case (es::sign::SIGN_ID_RSA4096_SHA256):
+		str = "RSA4096-SHA256";
 		break;
-	case (es::sign::SIGN_RSA2048_SHA256):
-		str = "RSA2048_SHA256";
+	case (es::sign::SIGN_ID_RSA2048_SHA256):
+		str = "RSA2048-SHA256";
 		break;
-	case (es::sign::SIGN_ECDSA240_SHA256):
-		str = "ECDSA240_SHA256";
+	case (es::sign::SIGN_ID_ECDSA240_SHA256):
+		str = "ECDSA240-SHA256";
 		break;
 	default:
 		str = "Unknown";

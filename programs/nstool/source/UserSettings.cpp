@@ -882,7 +882,7 @@ bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample
 	if (sign.isLittleEndian() == true)
 		return false;
 
-	if (sign.getSignType() != es::sign::SIGN_RSA4096_SHA256 && sign.getSignType() != es::sign::SIGN_RSA2048_SHA256 && sign.getSignType() != es::sign::SIGN_ECDSA240_SHA256)
+	if (sign.getSignType() != es::sign::SIGN_ID_RSA4096_SHA256 && sign.getSignType() != es::sign::SIGN_ID_RSA2048_SHA256 && sign.getSignType() != es::sign::SIGN_ID_ECDSA240_SHA256)
 		return false;
 
 	return true;
@@ -904,7 +904,7 @@ bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample)
 	if (sign.isLittleEndian() == false)
 		return false;
 
-	if (sign.getSignType() != es::sign::SIGN_RSA2048_SHA256)
+	if (sign.getSignType() != es::sign::SIGN_ID_RSA2048_SHA256)
 		return false;
 
 	return true;

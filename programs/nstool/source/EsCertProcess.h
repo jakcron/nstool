@@ -40,7 +40,9 @@ private:
 
 	const es::SignedData<es::CertificateBody>& getIssuerCert(const std::string& issuer_name) const;
 
-	const char* getSignTypeStr(es::sign::SignType type) const;
+	crypto::sha::HashType getCryptoHashAlgoFromEsSignHashAlgo(es::sign::HashAlgo hash_algo) const;
+
+	const char* getSignTypeStr(es::sign::SignatureId type) const;
 	const char* getEndiannessStr(bool isLittleEndian) const;
 	const char* getPublicKeyTypeStr(es::cert::PublicKeyType type) const;
 };

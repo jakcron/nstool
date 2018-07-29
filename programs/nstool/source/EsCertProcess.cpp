@@ -2,6 +2,7 @@
 #include <iomanip>
 
 #include <fnd/SimpleTextOutput.h>
+#include <es/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
 #include "EsCertProcess.h"
 
@@ -83,25 +84,50 @@ void EsCertProcess::validateCerts()
 void EsCertProcess::validateCert(const es::SignedData<es::CertificateBody>& cert)
 {
 	std::string cert_ident = cert.getBody().getIssuer() + es::sign::kIdentDelimiter + cert.getBody().getSubject();
+	
+	es::sign::SignatureAlgo cert_sign_algo = es::sign::getSignatureAlgo(cert.getSignature().getSignType());
+	es::sign::HashAlgo cert_hash_algo = es::sign::getHashAlgo(cert.getSignature().getSignType());
+	byte_t cert_hash[crypto::sha::kSha256HashLen];
+	memset(cert_hash, 0, crypto::sha::kSha256HashLen);
+
 
 	try 
 	{
+		// special case if signed by Root
 		if (cert.getBody().getIssuer() == es::sign::kRootIssuerStr)
 		{
 			throw fnd::Exception(kModuleName, "Signed by Root");
 		}
 
-		const es::CertificateBody& issuer = getIssuerCert(cert.getBody().getIssuer()).getBody();
+		// get cert hash
+		switch (cert_hash_algo)
+		{
+		case (es::sign::HASH_ALGO_SHA1):
+			crypto::sha::Sha1(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash);
+			break;
+		case (es::sign::HASH_ALGO_SHA256):
+			crypto::sha::Sha256(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash);
+			break;
+		default:
+			throw fnd::Exception(kModuleName, "Unrecognised hash type");
+		}
 
-		if (issuer.getPublicKeyType() == es::cert::RSA4096 && (cert.getSignature().getSignType() == es::sign::SIGN_RSA4096_SHA1 || cert.getSignature().getSignType() == es::sign::SIGN_RSA4096_SHA256))
+		// try to find issuer cert		
+		const es::CertificateBody& issuer = getIssuerCert(cert.getBody().getIssuer()).getBody();
+		es::cert::PublicKeyType issuer_pubk_type = issuer.getPublicKeyType();
+
+		// validate signature
+		int sig_validate_res = -1;
+
+		if (issuer_pubk_type == es::cert::RSA4096 && cert_sign_algo == es::sign::SIGN_ALGO_RSA4096)
 		{
-			throw fnd::Exception(kModuleName, "RSA4096 signatures are not supported");
+			sig_validate_res = crypto::rsa::pkcs::rsaVerify(issuer.getRsa4098PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
 		}
-		else if (issuer.getPublicKeyType() == es::cert::RSA2048 && (cert.getSignature().getSignType() == es::sign::SIGN_RSA2048_SHA1 || cert.getSignature().getSignType() == es::sign::SIGN_RSA2048_SHA256))
+		else if (issuer_pubk_type == es::cert::RSA2048 && cert_sign_algo == es::sign::SIGN_ALGO_RSA2048)
 		{
-			throw fnd::Exception(kModuleName, "RSA2048 signatures are not supported");
+			sig_validate_res = crypto::rsa::pkcs::rsaVerify(issuer.getRsa2048PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(cert_hash_algo), cert_hash, cert.getSignature().getSignature().data()); 
 		}
-		else if (issuer.getPublicKeyType() == es::cert::ECDSA240 && (cert.getSignature().getSignType() == es::sign::SIGN_ECDSA240_SHA1 || cert.getSignature().getSignType() == es::sign::SIGN_ECDSA240_SHA256))
+		else if (issuer_pubk_type == es::cert::ECDSA240 && cert_sign_algo == es::sign::SIGN_ALGO_ECDSA240)
 		{
 			throw fnd::Exception(kModuleName, "ECDSA signatures are not supported");
 		}
@@ -109,10 +135,15 @@ void EsCertProcess::validateCert(const es::SignedData<es::CertificateBody>& cert
 		{
 			throw fnd::Exception(kModuleName, "Mismatch between issuer public key and signature type");
 		}
+
+		if (sig_validate_res != 0)
+		{
+			throw fnd::Exception(kModuleName, "Incorrect signature");
+		}
 	}
 	catch (const fnd::Exception& e) 
 	{
-		printf("[WARNING] Failed to validate %s (%s)\n", cert_ident.c_str(), e.error());
+		std::cout << "[WARNING] Failed to validate " << cert_ident << " (" << e.error() << ")" << std::endl;
 		return;
 	}
 	
@@ -194,27 +225,45 @@ const es::SignedData<es::CertificateBody>& EsCertProcess::getIssuerCert(const st
 	throw fnd::Exception(kModuleName, "Issuer certificate does not exist");
 }
 
-const char* EsCertProcess::getSignTypeStr(es::sign::SignType type) const
+crypto::sha::HashType EsCertProcess::getCryptoHashAlgoFromEsSignHashAlgo(es::sign::HashAlgo es_hash_algo) const
+{
+	crypto::sha::HashType hash_type = crypto::sha::HASH_SHA1;
+
+	switch (es_hash_algo)
+	{
+	case (es::sign::HASH_ALGO_SHA1):
+		hash_type = crypto::sha::HASH_SHA1;
+		break;
+	case (es::sign::HASH_ALGO_SHA256):
+		hash_type = crypto::sha::HASH_SHA256;
+		break;
+	};
+
+	return hash_type;
+}
+
+
+const char* EsCertProcess::getSignTypeStr(es::sign::SignatureId type) const
 {
 	const char* str;
 	switch (type)
 	{
-	case (es::sign::SIGN_RSA4096_SHA1):
+	case (es::sign::SIGN_ID_RSA4096_SHA1):
 		str = "RSA4096-SHA1";
 		break;
-	case (es::sign::SIGN_RSA2048_SHA1):
+	case (es::sign::SIGN_ID_RSA2048_SHA1):
 		str = "RSA2048-SHA1";
 		break;
-	case (es::sign::SIGN_ECDSA240_SHA1):
+	case (es::sign::SIGN_ID_ECDSA240_SHA1):
 		str = "ECDSA240-SHA1";
 		break;
-	case (es::sign::SIGN_RSA4096_SHA256):
+	case (es::sign::SIGN_ID_RSA4096_SHA256):
 		str = "RSA4096-SHA256";
 		break;
-	case (es::sign::SIGN_RSA2048_SHA256):
+	case (es::sign::SIGN_ID_RSA2048_SHA256):
 		str = "RSA2048-SHA256";
 		break;
-	case (es::sign::SIGN_ECDSA240_SHA256):
+	case (es::sign::SIGN_ID_ECDSA240_SHA256):
 		str = "ECDSA240-SHA256";
 		break;
 	default:

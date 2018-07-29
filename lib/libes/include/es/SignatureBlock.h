@@ -24,8 +24,8 @@ namespace es
 		// variables
 		void clear();
 
-		es::sign::SignType getSignType() const;
-		void setSignType(es::sign::SignType type);
+		es::sign::SignatureId getSignType() const;
+		void setSignType(es::sign::SignatureId type);
 
 		bool isLittleEndian() const;
 		void setLittleEndian(bool isLE);
@@ -41,7 +41,7 @@ namespace es
 		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
-		es::sign::SignType mSignType;
+		es::sign::SignatureId mSignType;
 		bool mIsLittleEndian;
 		fnd::Vec<byte_t> mSignature;
 	};
