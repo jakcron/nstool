@@ -1,6 +1,11 @@
+#include <iostream>
+#include <iomanip>
+
 #include <fnd/SimpleTextOutput.h>
 #include "OffsetAdjustedIFile.h"
 #include "EsTikProcess.h"
+
+
 
 EsTikProcess::EsTikProcess() :
 	mFile(nullptr),
@@ -65,56 +70,91 @@ void EsTikProcess::displayTicket()
 
 	const es::TicketBody_V2& body = mTik.getBody();	
 
-	printf("[ES Ticket]\n");
-	printf("  SignType:       0x%" PRIx32 " (%s)\n", mTik.getSignature().getSignType(), mTik.getSignature().isLittleEndian()? "LittleEndian" : "BigEndian");
-	printf("  Issuer:         %s\n", body.getIssuer().c_str());
-	printf("  Title Key:\n");
-	printf("    EncMode:      %s\n", getTitleKeyPersonalisationStr(body.getTitleKeyEncType()));
-	printf("    CommonKeyId:  %02X\n", body.getCommonKeyId());
-	printf("    EncData:\n");
+	std::cout << "[ES Ticket]" << std::endl;
+
+	std::cout << "  SignType:         " << getSignTypeStr(mTik.getSignature().getSignType());
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		std::cout << " (0x" << std::hex << mTik.getSignature().getSignType() << ")";
+	std::cout << std::endl;
+
+	std::cout << "  Issuer:           " << body.getIssuer() << std::endl;
+	std::cout << "  Title Key:" << std::endl;
+	std::cout << "    EncMode:        " << getTitleKeyPersonalisationStr(body.getTitleKeyEncType()) << std::endl;
+	std::cout << "    KeyGeneration:  " << std::dec << (uint32_t)body.getCommonKeyId() << std::endl;
+	std::cout << "    Data:" << std::endl;
 	size_t size = body.getTitleKeyEncType() == es::ticket::RSA2048 ? crypto::rsa::kRsa2048Size : crypto::aes::kAes128KeySize;
 	fnd::SimpleTextOutput::hexDump(body.getEncTitleKey(), size, 0x10, 6);
 
-	/*
-	if (body.getTitleKeyEncType() == es::ticket::AES128_CBC && body.getCommonKeyId() == 0)
-	{
-		byte_t iv[crypto::aes::kAesBlockSize];
-		byte_t key[crypto::aes::kAes128KeySize];
-		memcpy(iv, body.getRightsId(), crypto::aes::kAesBlockSize);
-		crypto::aes::AesCbcDecrypt(body.getEncTitleKey(), crypto::aes::kAes128KeySize, eticket_common_key, iv, key);
-		size = crypto::aes::kAes128KeySize;
-		printf("    TitleKey:\n");
-		fnd::SimpleTextOutput::hexDump(key, size, 0x10, 6);
-	}
-	*/
-	printf("  Version:        v%d.%d.%d (%d)\n", _SPLIT_VER(body.getTicketVersion()), body.getTicketVersion());
-	printf("  License Type:   %s\n", getLicenseTypeStr(body.getLicenseType()));
+	printf("  Version:          v%d.%d.%d", _SPLIT_VER(body.getTicketVersion()));
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		printf(" (%d)", body.getTicketVersion());
+	printf("\n");
+	
+	std::cout << "  License Type:     " << getLicenseTypeStr(body.getLicenseType()) << std::endl; 
 	
 	if (body.getPropertyFlags().size() > 0)
 	{
-		printf("  Flags:\n");
+		std::cout << "  Flags:" << std::endl;
 		for (size_t i = 0; i < body.getPropertyFlags().size(); i++)
 		{
-			printf("    %s\n", getPropertyFlagStr(body.getPropertyFlags()[i]));
+			std::cout << "    " << getPropertyFlagStr(body.getPropertyFlags()[i]) << std::endl;
 		}
 	}
 	
-	printf("  Reserved Region:\n");
-	fnd::SimpleTextOutput::hexDump(body.getReservedRegion(), 8, 0x10, 4);
-	printf("  TicketId:       0x%016" PRIx64 "\n", body.getTicketId());
-	printf("  DeviceId:       0x%016" PRIx64 "\n", body.getDeviceId());
-	printf("  RightsId:       ");
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		std::cout << "  Reserved Region:" << std::endl;
+		fnd::SimpleTextOutput::hexDump(body.getReservedRegion(), 8, 0x10, 4);
+	}
+	
+	if (body.getTicketId() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		std::cout << "  TicketId:         0x" << std::hex << std::setw(16) << std::setfill('0') << body.getTicketId() << std::endl;
+	
+	if (body.getDeviceId() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		std::cout << "  DeviceId:         0x" << std::hex << std::setw(16) << std::setfill('0') << body.getDeviceId() << std::endl;
+	
+	std::cout << "  RightsId:         " <<  std::endl << "    ";
 	fnd::SimpleTextOutput::hexDump(body.getRightsId(), 16);
 
-	printf("  SectionTotalSize:     0x%x\n", body.getSectionTotalSize());
-	printf("  SectionHeaderOffset:  0x%x\n", body.getSectionHeaderOffset());
-	printf("  SectionNum:           0x%x\n", body.getSectionNum());
-	printf("  SectionEntrySize:     0x%x\n", body.getSectionEntrySize());
+	std::cout << "  SectionTotalSize:       0x" << std::hex << body.getSectionTotalSize() << std::endl;
+	std::cout << "  SectionHeaderOffset:    0x" << std::hex << body.getSectionHeaderOffset() << std::endl;
+	std::cout << "  SectionNum:             0x" << std::hex << body.getSectionNum() << std::endl;
+	std::cout << "  SectionEntrySize:       0x" << std::hex << body.getSectionEntrySize() << std::endl;
 
 	
 #undef _HEXDUMP_L
 #undef _HEXDUMP_U
 #undef _SPLIT_VER
+}
+
+const char* EsTikProcess::getSignTypeStr(uint32_t type) const
+{
+	const char* str = nullptr;
+	switch(type)
+	{
+	case (es::sign::SIGN_RSA4096_SHA1):
+		str = "RSA4096_SHA1";
+		break;
+	case (es::sign::SIGN_RSA2048_SHA1):
+		str = "RSA2048_SHA1";
+		break;
+	case (es::sign::SIGN_ECDSA240_SHA1):
+		str = "ECDSA240_SHA1";
+		break;
+	case (es::sign::SIGN_RSA4096_SHA256):
+		str = "RSA4096_SHA256";
+		break;
+	case (es::sign::SIGN_RSA2048_SHA256):
+		str = "RSA2048_SHA256";
+		break;
+	case (es::sign::SIGN_ECDSA240_SHA256):
+		str = "ECDSA240_SHA256";
+		break;
+	default:
+		str = "Unknown";
+		break;
+	}
+	return str;
 }
 
 const char* EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) const

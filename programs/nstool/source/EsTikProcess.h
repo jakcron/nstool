@@ -32,6 +32,7 @@ private:
 	es::SignedData<es::TicketBody_V2> mTik;
 
 	void displayTicket();
+	const char* getSignTypeStr(uint32_t type) const;
 	const char* getTitleKeyPersonalisationStr(byte_t flag) const;
 	const char* getLicenseTypeStr(byte_t flag) const;
 	const char* getPropertyFlagStr(byte_t flag) const;
