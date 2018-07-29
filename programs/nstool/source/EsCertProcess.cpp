@@ -1,3 +1,6 @@
+#include <iostream>
+#include <iomanip>
+
 #include <fnd/SimpleTextOutput.h>
 #include "OffsetAdjustedIFile.h"
 #include "EsCertProcess.h"
@@ -79,10 +82,7 @@ void EsCertProcess::validateCerts()
 
 void EsCertProcess::validateCert(const es::SignedData<es::CertificateBody>& cert)
 {
-	std::string cert_ident = "";
-	cert_ident += cert.getBody().getSubject();
-	cert_ident += cert.getBody().getSubject();
-	cert_ident += cert.getBody().getSubject();
+	std::string cert_ident = cert.getBody().getIssuer() + es::sign::kIdentDelimiter + cert.getBody().getSubject();
 
 	try 
 	{
@@ -132,41 +132,43 @@ void EsCertProcess::displayCert(const es::SignedData<es::CertificateBody>& cert)
 #define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
 
-	printf("[ES Certificate]\n");
-	printf("  SignType:       %s", getSignTypeStr(cert.getSignature().getSignType()));
+	std::cout << "[ES Certificate]" << std::endl;
+
+	std::cout << "  SignType       " << getSignTypeStr(cert.getSignature().getSignType());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-		printf(" (0x%" PRIx32 ") (%s)", cert.getSignature().getSignType(), getEndiannessStr(cert.getSignature().isLittleEndian()));
-	printf("\n");
-	printf("  Issuer:         %s\n", cert.getBody().getIssuer().c_str());
-	printf("  Subject:        %s\n", cert.getBody().getSubject().c_str());
-	printf("  PublicKeyType:  %s", getPublicKeyType(cert.getBody().getPublicKeyType()));
+		std::cout << " (0x" << std::hex << cert.getSignature().getSignType() << ") (" << getEndiannessStr(cert.getSignature().isLittleEndian());
+	std::cout << std::endl;
+
+	std::cout << "  Issuer:        " << cert.getBody().getIssuer() << std::endl;
+	std::cout << "  Subject:       " << cert.getBody().getSubject() << std::endl;
+	std::cout << "  PublicKeyType: " << getPublicKeyType(cert.getBody().getPublicKeyType());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-		printf(" (%d)", cert.getBody().getPublicKeyType());
-	printf("\n");
-	printf("  CertID:         0x%" PRIx32 " \n", cert.getBody().getCertId());
+		std::cout << " (" << std::dec << cert.getBody().getPublicKeyType() << ")";
+	std::cout << std::endl;
+	std::cout << "  CertID:        0x" << std::hex << cert.getBody().getCertId() << std::endl;
 	
 	if (cert.getBody().getPublicKeyType() == es::cert::RSA4096)
 	{
-		printf("  PublicKey:\n");
-		printf("    Modulus:\n");
+		std::cout << "  PublicKey:" << std::endl;
+		std::cout << "    Modulus:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().modulus, _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? crypto::rsa::kRsa4096Size : 0x10, 0x10, 6);
-		printf("    Public Exponent:\n");
+		std::cout << "    Public Exponent:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().public_exponent, crypto::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
 	else if (cert.getBody().getPublicKeyType() == es::cert::RSA2048)
 	{
-		printf("  PublicKey:\n");
-		printf("    Public Exponent:\n");
+		std::cout << "  PublicKey:" << std::endl;
+		std::cout << "    Public Exponent:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? crypto::rsa::kRsa2048Size : 0x10, 0x10, 6);
-		printf("    Modulus:\n");
+		std::cout << "    Modulus:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().public_exponent, crypto::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
 	else if (cert.getBody().getPublicKeyType() == es::cert::ECDSA240)
 	{
-		printf("  PublicKey:\n");
-		printf("    R:\n");
+		std::cout << "  PublicKey:" << std::endl;
+		std::cout << "    R:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().r, _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? crypto::ecdsa::kEcdsa240Size : 0x10, 0x10, 6);
-		printf("    S:\n");
+		std::cout << "    S:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().s, _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? crypto::ecdsa::kEcdsa240Size : 0x10, 0x10, 6);
 	}
 	
