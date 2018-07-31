@@ -569,7 +569,7 @@ void NacpProcess::displayNacp()
 		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getCacheStorageSize().size).c_str());
 		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getCacheStorageSize().journal_size).c_str());
 		printf("      MaxDataAndJournalSize:      %s\n", getSaveDataSizeStr(mNacp.getCacheStorageDataAndJournalSizeMax()).c_str());
-		printf("      StorageIndex:               0x%" PRIx16 "\n", mNacp.getCacheStorageIndex());
+		printf("      StorageIndexMax:            0x%" PRIx16 "\n", mNacp.getCacheStorageIndexMax());
 	}
 	printf("  Other Flags:\n");
 	printf("    StartupUserAccount:           %s\n", getStartupUserAccountStr(mNacp.getStartupUserAccount()));

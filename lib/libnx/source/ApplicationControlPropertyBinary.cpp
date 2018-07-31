@@ -19,6 +19,7 @@ void nx::ApplicationControlPropertyBinary::operator=(const ApplicationControlPro
 	mTouchScreenUsageMode = other.mTouchScreenUsageMode;
 	mAocRegistrationType = other.mAocRegistrationType;
 	mAttributeFlag = other.mAttributeFlag;
+	mSupportedLanguages = other.mSupportedLanguages;
 	mParentalControlFlag = other.mParentalControlFlag;
 	mScreenshotMode = other.mScreenshotMode;
 	mVideoCaptureMode = other.mVideoCaptureMode;
@@ -46,7 +47,7 @@ void nx::ApplicationControlPropertyBinary::operator=(const ApplicationControlPro
 	mTemporaryStorageSize = other.mTemporaryStorageSize;
 	mCacheStorageSize = other.mCacheStorageSize;
 	mCacheStorageDataAndJournalSizeMax = other.mCacheStorageDataAndJournalSizeMax;
-	mCacheStorageIndex = other.mCacheStorageIndex;
+	mCacheStorageIndexMax = other.mCacheStorageIndexMax;
 	mPlayLogQueryableApplicationId = other.mPlayLogQueryableApplicationId;
 	mPlayLogQueryCapability = other.mPlayLogQueryCapability;
 	mRepairFlag = other.mRepairFlag;
@@ -61,6 +62,7 @@ bool nx::ApplicationControlPropertyBinary::operator==(const ApplicationControlPr
 		&& (mTouchScreenUsageMode == other.mTouchScreenUsageMode) \
 		&& (mAocRegistrationType == other.mAocRegistrationType) \
 		&& (mAttributeFlag == other.mAttributeFlag) \
+		&& (mSupportedLanguages == other.mSupportedLanguages) \
 		&& (mParentalControlFlag == other.mParentalControlFlag) \
 		&& (mScreenshotMode == other.mScreenshotMode) \
 		&& (mVideoCaptureMode == other.mVideoCaptureMode) \
@@ -88,7 +90,7 @@ bool nx::ApplicationControlPropertyBinary::operator==(const ApplicationControlPr
 		&& (mTemporaryStorageSize == other.mTemporaryStorageSize) \
 		&& (mCacheStorageSize == other.mCacheStorageSize) \
 		&& (mCacheStorageDataAndJournalSizeMax == other.mCacheStorageDataAndJournalSizeMax) \
-		&& (mCacheStorageIndex == other.mCacheStorageIndex) \
+		&& (mCacheStorageIndexMax == other.mCacheStorageIndexMax) \
 		&& (mPlayLogQueryableApplicationId == other.mPlayLogQueryableApplicationId) \
 		&& (mPlayLogQueryCapability == other.mPlayLogQueryCapability) \
 		&& (mRepairFlag == other.mRepairFlag) \
@@ -107,12 +109,16 @@ void nx::ApplicationControlPropertyBinary::toBytes()
 	sApplicationControlProperty* data = (sApplicationControlProperty*)mRawBinary.data();
 
 	// strings
-	uint32_t supported_langs = 0;
 	for (size_t i = 0; i < mTitle.size(); i++)
 	{
-		supported_langs = _BIT(mTitle[i].language);
 		strncpy(data->title[mTitle[i].language].name, mTitle[i].name.c_str(), nacp::kNameLength);
 		strncpy(data->title[mTitle[i].language].publisher, mTitle[i].publisher.c_str(), nacp::kPublisherLength);
+	}
+
+	uint32_t supported_langs = 0;
+	for (size_t i = 0; i < mSupportedLanguages.size(); i++)
+	{
+		supported_langs |= _BIT(mSupportedLanguages[i]);
 	}
 	data->supported_language_flag = supported_langs;
 
@@ -157,7 +163,7 @@ void nx::ApplicationControlPropertyBinary::toBytes()
 	{
 		data->play_log_queryable_application_id[i] = mPlayLogQueryableApplicationId[i];
 	}
-	data->cache_storage_index = mCacheStorageIndex;
+	data->cache_storage_index_max = mCacheStorageIndexMax;
 	data->program_index = mProgramIndex;
 
 	// sizes
@@ -195,17 +201,22 @@ void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t
 	{
 		if (_HAS_BIT(data->supported_language_flag.get(), i))
 		{
-			mTitle.addElement({(nacp::Language)i, std::string(data->title[i].name, nacp::kNameLength), std::string(data->title[i].publisher, nacp::kPublisherLength)});
+			mSupportedLanguages.addElement((nacp::Language)i);
+		}
+		if (data->title[i].name[0] != '\0' && data->title[i].publisher[0] != '\0')
+		{
+			mTitle.addElement({ (nacp::Language)i, std::string(data->title[i].name, _MIN(strlen(data->title[i].name), nacp::kNameLength)), std::string(data->title[i].publisher, _MIN(strlen(data->title[i].publisher), nacp::kPublisherLength)) });
 		}
 	}
+
 	if (data->isbn[0] != 0)
-		mIsbn = std::string(data->isbn, nacp::kIsbnLength);
+		mIsbn = std::string(data->isbn, _MIN(strlen(data->isbn), nacp::kIsbnLength));
 	if (data->display_version[0] != 0)
-		mDisplayVersion = std::string(data->display_version, nacp::kDisplayVersionLength);
+		mDisplayVersion = std::string(data->display_version, _MIN(strlen(data->display_version), nacp::kDisplayVersionLength));
 	if (data->application_error_code_category[0] != 0)
-		mApplicationErrorCodeCategory = std::string(data->application_error_code_category, nacp::kApplicationErrorCodeCategoryLength);
+		mApplicationErrorCodeCategory = std::string(data->application_error_code_category, _MIN(strlen(data->application_error_code_category), nacp::kApplicationErrorCodeCategoryLength));
 	if (data->bcat_passphrase[0] != 0)
-		mBcatPassphase = std::string(data->bcat_passphrase, nacp::kBcatPassphraseLength);
+		mBcatPassphase = std::string(data->bcat_passphrase, _MIN(strlen(data->bcat_passphrase), nacp::kBcatPassphraseLength));
 
 	// enum type casts
 	mStartupUserAccount = (nacp::StartupUserAccount)data->startup_user_account;
@@ -245,7 +256,7 @@ void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t
 		if (data->play_log_queryable_application_id[i].get() != 0)
 			mPlayLogQueryableApplicationId.addElement(data->play_log_queryable_application_id[i].get());
 	}
-	mCacheStorageIndex = data->cache_storage_index.get();
+	mCacheStorageIndexMax = data->cache_storage_index_max.get();
 	mProgramIndex = data->program_index;
 
 	// sizes
@@ -278,6 +289,7 @@ void nx::ApplicationControlPropertyBinary::clear()
 	mTouchScreenUsageMode = nacp::TOUCH_None;
 	mAocRegistrationType = nacp::AOC_AllOnLaunch;
 	mAttributeFlag = nacp::ATTR_None;
+	mSupportedLanguages.clear();
 	mParentalControlFlag = nacp::PC_None;
 	mScreenshotMode = nacp::SCRN_Allow;
 	mVideoCaptureMode = nacp::VCAP_Disable;
@@ -305,7 +317,7 @@ void nx::ApplicationControlPropertyBinary::clear()
 	mTemporaryStorageSize = 0;
 	mCacheStorageSize = {0, 0};
 	mCacheStorageDataAndJournalSizeMax = 0;
-	mCacheStorageIndex = 0;
+	mCacheStorageIndexMax = 0;
 	mPlayLogQueryableApplicationId.clear();
 	mPlayLogQueryCapability = nacp::PLQC_None;
 	mRepairFlag = nacp::REPF_None;
@@ -370,6 +382,16 @@ nx::nacp::AttributeFlag nx::ApplicationControlPropertyBinary::getAttributeFlag()
 void nx::ApplicationControlPropertyBinary::setAttributeFlag(nacp::AttributeFlag var)
 {
 	mAttributeFlag = var;
+}
+
+const fnd::List<nx::nacp::Language>& nx::ApplicationControlPropertyBinary::getSupportedLanguages() const
+{
+	return mSupportedLanguages;
+}
+
+void nx::ApplicationControlPropertyBinary::setSupportedLanguages(const fnd::List<nacp::Language>& var)
+{
+	mSupportedLanguages = var;
 }
 
 nx::nacp::ParentalControlFlag nx::ApplicationControlPropertyBinary::getParentalControlFlag() const
@@ -642,14 +664,14 @@ void nx::ApplicationControlPropertyBinary::setCacheStorageDataAndJournalSizeMax(
 	mCacheStorageDataAndJournalSizeMax = var;
 }
 
-uint16_t nx::ApplicationControlPropertyBinary::getCacheStorageIndex() const
+uint16_t nx::ApplicationControlPropertyBinary::getCacheStorageIndexMax() const
 {
-	return mCacheStorageIndex;
+	return mCacheStorageIndexMax;
 }
 
-void nx::ApplicationControlPropertyBinary::setCacheStorageIndex(uint16_t var)
+void nx::ApplicationControlPropertyBinary::setCacheStorageIndexMax(uint16_t var)
 {
-	mCacheStorageIndex = var;
+	mCacheStorageIndexMax = var;
 }
 
 const fnd::List<uint64_t>& nx::ApplicationControlPropertyBinary::getPlayLogQueryableApplicationId() const
