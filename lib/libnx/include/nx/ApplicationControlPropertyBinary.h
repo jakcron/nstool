@@ -116,6 +116,9 @@ namespace nx
 		nacp::AttributeFlag getAttributeFlag() const;
 		void setAttributeFlag(nacp::AttributeFlag var);
 
+		const fnd::List<nacp::Language>& getSupportedLanguages() const;
+		void setSupportedLanguages(const fnd::List<nacp::Language>& var);
+
 		nacp::ParentalControlFlag getParentalControlFlag() const;
 		void setParentalControlFlag(nacp::ParentalControlFlag var);
 
@@ -226,6 +229,7 @@ namespace nx
 		nacp::TouchScreenUsageMode mTouchScreenUsageMode;
 		nacp::AocRegistrationType mAocRegistrationType;
 		nacp::AttributeFlag mAttributeFlag;
+		fnd::List<nx::nacp::Language> mSupportedLanguages;
 		nacp::ParentalControlFlag mParentalControlFlag;
 		nacp::ScreenshotMode mScreenshotMode;
 		nacp::VideoCaptureMode mVideoCaptureMode;

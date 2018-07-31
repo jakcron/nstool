@@ -19,6 +19,7 @@ void nx::ApplicationControlPropertyBinary::operator=(const ApplicationControlPro
 	mTouchScreenUsageMode = other.mTouchScreenUsageMode;
 	mAocRegistrationType = other.mAocRegistrationType;
 	mAttributeFlag = other.mAttributeFlag;
+	mSupportedLanguages = other.mSupportedLanguages;
 	mParentalControlFlag = other.mParentalControlFlag;
 	mScreenshotMode = other.mScreenshotMode;
 	mVideoCaptureMode = other.mVideoCaptureMode;
@@ -61,6 +62,7 @@ bool nx::ApplicationControlPropertyBinary::operator==(const ApplicationControlPr
 		&& (mTouchScreenUsageMode == other.mTouchScreenUsageMode) \
 		&& (mAocRegistrationType == other.mAocRegistrationType) \
 		&& (mAttributeFlag == other.mAttributeFlag) \
+		&& (mSupportedLanguages == other.mSupportedLanguages) \
 		&& (mParentalControlFlag == other.mParentalControlFlag) \
 		&& (mScreenshotMode == other.mScreenshotMode) \
 		&& (mVideoCaptureMode == other.mVideoCaptureMode) \
@@ -107,12 +109,16 @@ void nx::ApplicationControlPropertyBinary::toBytes()
 	sApplicationControlProperty* data = (sApplicationControlProperty*)mRawBinary.data();
 
 	// strings
-	uint32_t supported_langs = 0;
 	for (size_t i = 0; i < mTitle.size(); i++)
 	{
-		supported_langs = _BIT(mTitle[i].language);
 		strncpy(data->title[mTitle[i].language].name, mTitle[i].name.c_str(), nacp::kNameLength);
 		strncpy(data->title[mTitle[i].language].publisher, mTitle[i].publisher.c_str(), nacp::kPublisherLength);
+	}
+
+	uint32_t supported_langs = 0;
+	for (size_t i = 0; i < mSupportedLanguages.size(); i++)
+	{
+		supported_langs |= _BIT(mSupportedLanguages[i]);
 	}
 	data->supported_language_flag = supported_langs;
 
@@ -195,9 +201,14 @@ void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t
 	{
 		if (_HAS_BIT(data->supported_language_flag.get(), i))
 		{
+			mSupportedLanguages.addElement((nacp::Language)i);
+		}
+		if (data->title[i].name[0] != '\0' && data->title[i].publisher[0] != '\0')
+		{
 			mTitle.addElement({ (nacp::Language)i, std::string(data->title[i].name, _MIN(strlen(data->title[i].name), nacp::kNameLength)), std::string(data->title[i].publisher, _MIN(strlen(data->title[i].publisher), nacp::kPublisherLength)) });
 		}
 	}
+
 	if (data->isbn[0] != 0)
 		mIsbn = std::string(data->isbn, _MIN(strlen(data->isbn), nacp::kIsbnLength));
 	if (data->display_version[0] != 0)
@@ -278,6 +289,7 @@ void nx::ApplicationControlPropertyBinary::clear()
 	mTouchScreenUsageMode = nacp::TOUCH_None;
 	mAocRegistrationType = nacp::AOC_AllOnLaunch;
 	mAttributeFlag = nacp::ATTR_None;
+	mSupportedLanguages.clear();
 	mParentalControlFlag = nacp::PC_None;
 	mScreenshotMode = nacp::SCRN_Allow;
 	mVideoCaptureMode = nacp::VCAP_Disable;
@@ -370,6 +382,16 @@ nx::nacp::AttributeFlag nx::ApplicationControlPropertyBinary::getAttributeFlag()
 void nx::ApplicationControlPropertyBinary::setAttributeFlag(nacp::AttributeFlag var)
 {
 	mAttributeFlag = var;
+}
+
+const fnd::List<nx::nacp::Language>& nx::ApplicationControlPropertyBinary::getSupportedLanguages() const
+{
+	return mSupportedLanguages;
+}
+
+void nx::ApplicationControlPropertyBinary::setSupportedLanguages(const fnd::List<nacp::Language>& var)
+{
+	mSupportedLanguages = var;
 }
 
 nx::nacp::ParentalControlFlag nx::ApplicationControlPropertyBinary::getParentalControlFlag() const
