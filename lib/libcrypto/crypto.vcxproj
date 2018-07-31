@@ -121,6 +121,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\crypto\aes.h" />
+    <ClInclude Include="include\crypto\base64.h" />
     <ClInclude Include="include\crypto\ecdsa.h" />
     <ClInclude Include="include\crypto\rsa.h" />
     <ClInclude Include="include\crypto\sha.h" />
@@ -137,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\aes_wrapper.cpp" />
+    <ClCompile Include="source\base64_wrapper.cpp" />
     <ClCompile Include="source\libpolarssl\source\aes.c" />
     <ClCompile Include="source\libpolarssl\source\base64.c" />
     <ClCompile Include="source\libpolarssl\source\bignum.c" />
