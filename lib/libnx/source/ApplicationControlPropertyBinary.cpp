@@ -157,7 +157,7 @@ void nx::ApplicationControlPropertyBinary::toBytes()
 	{
 		data->play_log_queryable_application_id[i] = mPlayLogQueryableApplicationId[i];
 	}
-	data->cache_storage_index = mCacheStorageIndexMax;
+	data->cache_storage_index_max = mCacheStorageIndexMax;
 	data->program_index = mProgramIndex;
 
 	// sizes
@@ -245,7 +245,7 @@ void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t
 		if (data->play_log_queryable_application_id[i].get() != 0)
 			mPlayLogQueryableApplicationId.addElement(data->play_log_queryable_application_id[i].get());
 	}
-	mCacheStorageIndexMax = data->cache_storage_index.get();
+	mCacheStorageIndexMax = data->cache_storage_index_max.get();
 	mProgramIndex = data->program_index;
 
 	// sizes
