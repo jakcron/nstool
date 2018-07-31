@@ -26,10 +26,10 @@
 UserSettings::UserSettings()
 {}
 
-void UserSettings::parseCmdArgs(int argc, char** argv)
+void UserSettings::parseCmdArgs(const std::vector<std::string>& arg_list)
 {
 	sCmdArgs args;
-	populateCmdArgs(argc, argv, args);
+	populateCmdArgs(arg_list, args);
 	populateKeyset(args);
 	populateUserSettings(args);
 }
@@ -182,184 +182,177 @@ const sOptional<std::string>& UserSettings::getAssetNacpPath() const
 	return mAssetNacpPath;
 }
 
-void UserSettings::populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args)
+void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCmdArgs& cmd_args)
 {
-	// create vector of args
-	std::vector<std::string> args;
-	for (size_t i = 0; i < (size_t)argc; i++)
-	{
-		args.push_back(argv[i]);
-	}
-
 	// show help text
-	if (args.size() < 2)
+	if (arg_list.size() < 2)
 	{
 		showHelp();
 		throw fnd::Exception(kModuleName, "Not enough arguments.");
 	}
 
-	cmd_args.input_path = args.back();
+	cmd_args.input_path = arg_list.back();
 
-	for (size_t i = 1; i < args.size(); i++)
+	for (size_t i = 1; i < arg_list.size(); i++)
 	{
-		if (args[i] == "-h" || args[i] == "--help")
+		if (arg_list[i] == "-h" || arg_list[i] == "--help")
 		{
 			showHelp();
 			throw fnd::Exception(kModuleName, "Nothing to do.");
 		}
 	}
 
-	for (size_t i = 1; i+1 < args.size(); i++)
+	for (size_t i = 1; i+1 < arg_list.size(); i++)
 	{
-		bool hasParamter = args[i+1][0] != '-' && i+2 < args.size();
+		bool hasParamter = arg_list[i+1][0] != '-' && i+2 < arg_list.size();
 
-		if (args[i] == "-d" || args[i] == "--dev")
+		if (arg_list[i] == "-d" || arg_list[i] == "--dev")
 		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			if (hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " does not take a parameter.");
 			cmd_args.devkit_keys = true;
 		}
 
-		else if (args[i] == "-y" || args[i] == "--verify")
+		else if (arg_list[i] == "-y" || arg_list[i] == "--verify")
 		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			if (hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " does not take a parameter.");
 			cmd_args.verify_file = true;
 		}
 
-		else if (args[i] == "--showkeys")
+		else if (arg_list[i] == "--showkeys")
 		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			if (hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " does not take a parameter.");
 			cmd_args.show_keys = true;
 		}
 
-		else if (args[i] == "--showlayout")
+		else if (arg_list[i] == "--showlayout")
 		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			if (hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " does not take a parameter.");
 			cmd_args.show_layout = true;
 		}
 
-		else if (args[i] == "-v" || args[i] == "--verbose")
+		else if (arg_list[i] == "-v" || arg_list[i] == "--verbose")
 		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			if (hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " does not take a parameter.");
 			cmd_args.verbose_output = true;
 		}
 
-		else if (args[i] == "-k" || args[i] == "--keyset")
+		else if (arg_list[i] == "-k" || arg_list[i] == "--keyset")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.keyset_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.keyset_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "-t" || args[i] == "--type")
+		else if (arg_list[i] == "-t" || arg_list[i] == "--type")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.file_type = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.file_type = arg_list[i+1];
 		}
 
-		else if (args[i] == "--listfs")
+		else if (arg_list[i] == "--listfs")
 		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			if (hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " does not take a parameter.");
 			cmd_args.list_fs = true;
 		}
 
-		else if (args[i] == "--update")
+		else if (arg_list[i] == "--update")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.update_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.update_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--normal")
+		else if (arg_list[i] == "--normal")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.normal_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.normal_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--secure")
+		else if (arg_list[i] == "--secure")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.secure_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.secure_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--logo")
+		else if (arg_list[i] == "--logo")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.logo_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.logo_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--fsdir")
+		else if (arg_list[i] == "--fsdir")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.fs_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.fs_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--titlekey")
+		else if (arg_list[i] == "--titlekey")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.nca_titlekey = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.nca_titlekey = arg_list[i+1];
 		}
 
-		else if (args[i] == "--bodykey")
+		else if (arg_list[i] == "--bodykey")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.nca_bodykey = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.nca_bodykey = arg_list[i+1];
 		}
 
-		else if (args[i] == "--part0")
+		else if (arg_list[i] == "--part0")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.part0_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.part0_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--part1")
+		else if (arg_list[i] == "--part1")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.part1_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.part1_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--part2")
+		else if (arg_list[i] == "--part2")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.part2_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.part2_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--part3")
+		else if (arg_list[i] == "--part3")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.part3_path = args[i+1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.part3_path = arg_list[i+1];
 		}
 
-		else if (args[i] == "--listapi")
+		else if (arg_list[i] == "--listapi")
 		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			if (hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " does not take a parameter.");
 			cmd_args.list_api = true;
 		}
 
-		else if (args[i] == "--listsym")
+		else if (arg_list[i] == "--listsym")
 		{
-			if (hasParamter) throw fnd::Exception(kModuleName, args[i] + " does not take a parameter.");
+			if (hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " does not take a parameter.");
 			cmd_args.list_sym = true;
 		}
 
-		else if (args[i] == "--insttype")
+		else if (arg_list[i] == "--insttype")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.inst_type = args[i + 1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.inst_type = arg_list[i + 1];
 		}
 
-		else if (args[i] == "--icon")
+		else if (arg_list[i] == "--icon")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.asset_icon_path = args[i + 1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.asset_icon_path = arg_list[i + 1];
 		}
 
-		else if (args[i] == "--nacp")
+		else if (arg_list[i] == "--nacp")
 		{
-			if (!hasParamter) throw fnd::Exception(kModuleName, args[i] + " requries a parameter.");
-			cmd_args.asset_nacp_path = args[i + 1];
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.asset_nacp_path = arg_list[i + 1];
 		}
 
 		else
 		{
-			throw fnd::Exception(kModuleName, args[i] + " is not recognised.");
+			throw fnd::Exception(kModuleName, arg_list[i] + " is not recognised.");
 		}
 
 		i += hasParamter;
