@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <fnd/SimpleFile.h>
+#include <fnd/StringConv.h>
 #include "UserSettings.h"
 #include "XciProcess.h"
 #include "PfsProcess.h"
@@ -12,11 +13,25 @@
 #include "NacpProcess.h"
 #include "AssetProcess.h"
 
+#ifdef _WIN32
+int wmain(int argc, wchar_t** argv)
+#else
 int main(int argc, char** argv)
+#endif
 {
+	std::vector<std::string> args;
+	for (size_t i = 0; i < (size_t)argc; i++)
+	{
+#ifdef _WIN32
+		args.push_back(fnd::StringConv::ConvertChar16ToChar8(std::u16string((char16_t*)argv[i])));
+#else
+		args.push_back(argv[i]);
+#endif
+	}
+
 	UserSettings user_set;
 	try {
-		user_set.parseCmdArgs(argc, argv);
+		user_set.parseCmdArgs(args);
 
 		if (user_set.getFileType() == FILE_XCI)
 		{	
