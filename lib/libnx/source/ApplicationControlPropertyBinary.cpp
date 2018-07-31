@@ -195,17 +195,17 @@ void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t
 	{
 		if (_HAS_BIT(data->supported_language_flag.get(), i))
 		{
-			mTitle.addElement({(nacp::Language)i, std::string(data->title[i].name, nacp::kNameLength), std::string(data->title[i].publisher, nacp::kPublisherLength)});
+			mTitle.addElement({ (nacp::Language)i, std::string(data->title[i].name, _MIN(strlen(data->title[i].name), nacp::kNameLength)), std::string(data->title[i].publisher, _MIN(strlen(data->title[i].publisher), nacp::kPublisherLength)) });
 		}
 	}
 	if (data->isbn[0] != 0)
-		mIsbn = std::string(data->isbn, nacp::kIsbnLength);
+		mIsbn = std::string(data->isbn, _MIN(strlen(data->isbn), nacp::kIsbnLength));
 	if (data->display_version[0] != 0)
-		mDisplayVersion = std::string(data->display_version, nacp::kDisplayVersionLength);
+		mDisplayVersion = std::string(data->display_version, _MIN(strlen(data->display_version), nacp::kDisplayVersionLength));
 	if (data->application_error_code_category[0] != 0)
-		mApplicationErrorCodeCategory = std::string(data->application_error_code_category, nacp::kApplicationErrorCodeCategoryLength);
+		mApplicationErrorCodeCategory = std::string(data->application_error_code_category, _MIN(strlen(data->application_error_code_category), nacp::kApplicationErrorCodeCategoryLength));
 	if (data->bcat_passphrase[0] != 0)
-		mBcatPassphase = std::string(data->bcat_passphrase, nacp::kBcatPassphraseLength);
+		mBcatPassphase = std::string(data->bcat_passphrase, _MIN(strlen(data->bcat_passphrase), nacp::kBcatPassphraseLength));
 
 	// enum type casts
 	mStartupUserAccount = (nacp::StartupUserAccount)data->startup_user_account;
