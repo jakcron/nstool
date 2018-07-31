@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include <string>
 #include <fnd/types.h>
 #include <fnd/Vec.h>
@@ -10,7 +11,7 @@ class UserSettings
 public:
 	UserSettings();
 
-	void parseCmdArgs(int argc, char** argv);
+	void parseCmdArgs(const std::vector<std::string>& arg_list);
 	void showHelp();
 
 	// generic options
@@ -97,7 +98,7 @@ private:
 	bool mListSymbols;
 	nx::npdm::InstructionType mInstructionType;
 
-	void populateCmdArgs(int argc, char** argv, sCmdArgs& cmd_args);
+	void populateCmdArgs(const std::vector<std::string>& arg_list, sCmdArgs& cmd_args);
 	void populateKeyset(sCmdArgs& args);
 	void populateUserSettings(sCmdArgs& args);
 	void decodeHexStringToBytes(const std::string& name, const std::string& str, byte_t* out, size_t out_len);
