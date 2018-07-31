@@ -116,6 +116,9 @@ namespace nx
 		nacp::AttributeFlag getAttributeFlag() const;
 		void setAttributeFlag(nacp::AttributeFlag var);
 
+		const fnd::List<nacp::Language>& getSupportedLanguages() const;
+		void setSupportedLanguages(const fnd::List<nacp::Language>& var);
+
 		nacp::ParentalControlFlag getParentalControlFlag() const;
 		void setParentalControlFlag(nacp::ParentalControlFlag var);
 
@@ -197,8 +200,8 @@ namespace nx
 		int64_t getCacheStorageDataAndJournalSizeMax() const;
 		void setCacheStorageDataAndJournalSizeMax(int64_t var);
 
-		uint16_t getCacheStorageIndex() const;
-		void setCacheStorageIndex(uint16_t var);
+		uint16_t getCacheStorageIndexMax() const;
+		void setCacheStorageIndexMax(uint16_t var);
 
 		const fnd::List<uint64_t>& getPlayLogQueryableApplicationId() const;
 		void setPlayLogQueryableApplicationId(const fnd::List<uint64_t>& var);
@@ -226,6 +229,7 @@ namespace nx
 		nacp::TouchScreenUsageMode mTouchScreenUsageMode;
 		nacp::AocRegistrationType mAocRegistrationType;
 		nacp::AttributeFlag mAttributeFlag;
+		fnd::List<nx::nacp::Language> mSupportedLanguages;
 		nacp::ParentalControlFlag mParentalControlFlag;
 		nacp::ScreenshotMode mScreenshotMode;
 		nacp::VideoCaptureMode mVideoCaptureMode;
@@ -253,7 +257,7 @@ namespace nx
 		int64_t mTemporaryStorageSize;
 		sStorageSize mCacheStorageSize;
 		int64_t mCacheStorageDataAndJournalSizeMax;
-		uint16_t mCacheStorageIndex;
+		uint16_t mCacheStorageIndexMax;
 		fnd::List<uint64_t> mPlayLogQueryableApplicationId;
 		nacp::PlayLogQueryCapability mPlayLogQueryCapability;
 		nacp::RepairFlag mRepairFlag;
