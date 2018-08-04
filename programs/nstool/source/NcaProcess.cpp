@@ -286,27 +286,6 @@ void NcaProcess::process()
 
 	// process partition
 	processPartitions();
-
-	/*
-	NCA is a file container
-	A hashed and signed file container
-
-	To verify a NCA: (R=regular step)
-	1 - decrypt header (R)
-	2 - verify signature[0]
-	3 - validate hashes of fs_headers
-	4 - determine how to read/decrypt the partitions (R)
-	5 - validate the partitions depending on their hash method
-	6 - if this NCA is a Program or Patch, open main.npdm from partition0
-	7 - validate ACID
-	8 - use public key in ACID to verify NCA signature[1]
-
-	Things to consider
-	* because of the manditory steps between verifcation steps
-	  the NCA should be ready to be pulled to pieces before any printing is done
-	  so the verification text can be presented without interuption
-
-	*/
 }
 
 void NcaProcess::setInputFile(fnd::IFile* file, bool ownIFile)
@@ -695,9 +674,10 @@ void NcaProcess::displayHeader()
 		printf("  Partitions:\n");
 		for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
 		{
-			sPartitionInfo& info = mPartitions[i];
+			size_t index = mHdr.getPartitions()[i].index;
+			sPartitionInfo& info = mPartitions[index];
 
-			printf("    %d:\n", (int)i);
+			printf("    %d:\n", (int)index);
 			printf("      Offset:      0x%" PRIx64 "\n", (uint64_t)info.offset);
 			printf("      Size:        0x%" PRIx64 "\n", (uint64_t)info.size);
 			printf("      Format Type: %s\n", getFormatTypeStr(info.format_type));
@@ -790,7 +770,7 @@ void NcaProcess::processPartitions()
 			pfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
 			{
-				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + std::string(getProgramPartitionNameStr(i)));
+				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + std::string(getProgramPartitionNameStr(index)));
 			}
 			else
 			{
@@ -811,7 +791,7 @@ void NcaProcess::processPartitions()
 			romfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
 			{
-				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + std::string(getProgramPartitionNameStr(i)));
+				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + std::string(getProgramPartitionNameStr(index)));
 			}
 			else
 			{
