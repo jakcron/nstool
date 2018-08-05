@@ -29,44 +29,49 @@ void PkiValidator::setRootKey(const crypto::rsa::sRsa4096Key& root_key)
 
 void PkiValidator::addCertificates(const fnd::List<es::SignedData<es::CertificateBody>>& certs)
 {
+	for (size_t i = 0; i < certs.size(); i++)
+	{
+		addCertificate(certs[i]);
+	}
+}
+
+void PkiValidator::addCertificate(const es::SignedData<es::CertificateBody>& cert)
+{
 	std::string cert_ident;
 	es::sign::SignatureAlgo cert_sign_algo;
 	es::sign::HashAlgo cert_hash_algo;
 	fnd::Vec<byte_t> cert_hash;
 
 	try 
-	{
-		for (size_t i = 0; i < certs.size(); i++)
+	{	
+		makeCertIdent(cert, cert_ident);
+
+		if (doesCertExist(cert_ident) == true)
 		{
-			makeCertIdent(certs[i], cert_ident);
-
-			if (doesCertExist(cert_ident) == true)
-			{
-				throw fnd::Exception(kModuleName, "Certificate already exists");
-			}
-
-			cert_sign_algo = es::sign::getSignatureAlgo(certs[i].getSignature().getSignType());
-			cert_hash_algo = es::sign::getHashAlgo(certs[i].getSignature().getSignType());
-
-			// get cert hash
-			switch (cert_hash_algo)
-			{
-			case (es::sign::HASH_ALGO_SHA1):
-				cert_hash.alloc(crypto::sha::kSha1HashLen);
-				crypto::sha::Sha1(certs[i].getBody().getBytes().data(), certs[i].getBody().getBytes().size(), cert_hash.data());
-				break;
-			case (es::sign::HASH_ALGO_SHA256):
-				cert_hash.alloc(crypto::sha::kSha256HashLen);
-				crypto::sha::Sha256(certs[i].getBody().getBytes().data(), certs[i].getBody().getBytes().size(), cert_hash.data());
-				break;
-			default:
-				throw fnd::Exception(kModuleName, "Unrecognised hash type");
-			}
-
-			validateSignature(certs[i].getBody().getIssuer(), certs[i].getSignature().getSignType(), certs[i].getSignature().getSignature(), cert_hash);
-
-			mCertificateBank.addElement(certs[i]);
+			throw fnd::Exception(kModuleName, "Certificate already exists");
 		}
+
+		cert_sign_algo = es::sign::getSignatureAlgo(cert.getSignature().getSignType());
+		cert_hash_algo = es::sign::getHashAlgo(cert.getSignature().getSignType());
+
+		// get cert hash
+		switch (cert_hash_algo)
+		{
+		case (es::sign::HASH_ALGO_SHA1):
+			cert_hash.alloc(crypto::sha::kSha1HashLen);
+			crypto::sha::Sha1(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
+			break;
+		case (es::sign::HASH_ALGO_SHA256):
+			cert_hash.alloc(crypto::sha::kSha256HashLen);
+			crypto::sha::Sha256(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
+			break;
+		default:
+			throw fnd::Exception(kModuleName, "Unrecognised hash type");
+		}
+
+		validateSignature(cert.getBody().getIssuer(), cert.getSignature().getSignType(), cert.getSignature().getSignature(), cert_hash);
+
+		mCertificateBank.addElement(cert);
 	}
 	catch (const fnd::Exception& e) 
 	{

@@ -14,6 +14,7 @@ public:
 
 	void setRootKey(const crypto::rsa::sRsa4096Key& root_key);
 	void addCertificates(const fnd::List<es::SignedData<es::CertificateBody>>& certs);
+	void addCertificate(const es::SignedData<es::CertificateBody>& cert);
 	void clearCertificates();
 
 	void validateSignature(const std::string& issuer, es::sign::SignatureId signature_id, const fnd::Vec<byte_t>& signature, const fnd::Vec<byte_t>& hash) const;
