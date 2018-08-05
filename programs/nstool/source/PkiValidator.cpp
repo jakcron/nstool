@@ -32,7 +32,7 @@ void PkiValidator::addCertificates(const fnd::List<es::SignedData<es::Certificat
 	std::string cert_ident;
 	es::sign::SignatureAlgo cert_sign_algo;
 	es::sign::HashAlgo cert_hash_algo;
-	fnd::Vec<byte_t> cert_sign, cert_hash;
+	fnd::Vec<byte_t> cert_hash;
 
 	try 
 	{
