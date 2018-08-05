@@ -34,13 +34,9 @@ private:
 
 	void importCerts();
 	void validateCerts();
-	void validateCert(const es::SignedData<es::CertificateBody>& cert);
 	void displayCerts();
 	void displayCert(const es::SignedData<es::CertificateBody>& cert);
 
-	const es::SignedData<es::CertificateBody>& getIssuerCert(const std::string& issuer_name) const;
-
-	crypto::sha::HashType getCryptoHashAlgoFromEsSignHashAlgo(es::sign::HashAlgo hash_algo) const;
 
 	const char* getSignTypeStr(es::sign::SignatureId type) const;
 	const char* getEndiannessStr(bool isLittleEndian) const;
