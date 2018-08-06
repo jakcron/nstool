@@ -71,6 +71,7 @@ void UserSettings::showHelp()
 	printf("      --titlekey      Specify title key extracted from ticket.\n");
 	printf("      --bodykey       Specify body encryption key.\n");
 	printf("      --tik           Specify ticket to source title key.\n");
+	printf("      --cert          Specify certificate chain to verify ticket.\n");
 	printf("      --part0         Extract \"partition 0\" to directory.\n");
 	printf("      --part1         Extract \"partition 1\" to directory.\n");
 	printf("      --part2         Extract \"partition 2\" to directory.\n");
