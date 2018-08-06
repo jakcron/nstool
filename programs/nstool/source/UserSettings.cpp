@@ -22,7 +22,8 @@
 #include <nx/nso.h>
 #include <nx/nro.h>
 #include <nx/aset.h>
-#include <pki/SignatureBlock.h>
+#include <pki/SignedData.h>
+#include <es/TicketBody_V2.h>
 
 UserSettings::UserSettings()
 {}
@@ -66,6 +67,7 @@ void UserSettings::showHelp()
 	printf("      --listfs        Print file system in embedded partitions.\n");
 	printf("      --titlekey      Specify title key extracted from ticket.\n");
 	printf("      --bodykey       Specify body encryption key.\n");
+	printf("      --tik           Specify ticket to source title key.\n");
 	printf("      --part0         Extract \"partition 0\" to directory.\n");
 	printf("      --part1         Extract \"partition 1\" to directory.\n");
 	printf("      --part2         Extract \"partition 2\" to directory.\n");
@@ -297,6 +299,12 @@ void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCm
 			cmd_args.nca_bodykey = arg_list[i+1];
 		}
 
+		else if (arg_list[i] == "--tik")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.ticket_path = arg_list[i+1];
+		}
+
 		else if (arg_list[i] == "--part0")
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
@@ -524,6 +532,28 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		else
 		{
 			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesxts.key[0], sizeof(crypto::aes::sAesXts128Key));
+		}
+	}
+
+	// get titlekey from ticket
+	if (args.ticket_path.isSet)
+	{
+		fnd::SimpleFile tik_file;
+		fnd::Vec<byte_t> tik_raw;
+		pki::SignedData<es::TicketBody_V2> tik;
+
+		tik_file.open(args.ticket_path.var, fnd::SimpleFile::Read);
+		tik_raw.alloc(tik_file.size());
+		tik_file.read(tik_raw.data(), tik_raw.size());
+		tik.fromBytes(tik_raw.data(), tik_raw.size());
+
+		if (tik.getBody().getTitleKeyEncType() == es::ticket::AES128_CBC)
+		{
+			memcpy(mKeyset.nca.manual_title_key_aesctr.key, tik.getBody().getEncTitleKey(), crypto::aes::kAes128KeySize);
+		}
+		else
+		{
+			std::cout << "[WARNING] Titlekey not imported from ticket because it is personalised" << std::endl;
 		}
 	}
 

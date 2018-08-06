@@ -62,6 +62,7 @@ private:
 		sOptional<std::string> fs_path;
 		sOptional<std::string> nca_titlekey;
 		sOptional<std::string> nca_bodykey;
+		sOptional<std::string> ticket_path;
 		sOptional<std::string> part0_path;
 		sOptional<std::string> part1_path;
 		sOptional<std::string> part2_path;
