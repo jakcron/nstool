@@ -30,9 +30,6 @@
     <ClInclude Include="source\ElfSymbolParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\EsCertProcess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\EsTikProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -64,6 +61,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\PfsProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\PkiCertProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\PkiValidator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\RoMetadataProcess.h">
@@ -98,9 +101,6 @@
     <ClCompile Include="source\ElfSymbolParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\EsCertProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\EsTikProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -132,6 +132,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\PfsProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PkiCertProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PkiValidator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\RoMetadataProcess.cpp">
