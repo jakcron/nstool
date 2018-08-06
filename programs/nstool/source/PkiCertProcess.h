@@ -8,11 +8,11 @@
 #include <pki/CertificateBody.h>
 #include "nstool.h"
 
-class EsCertProcess
+class PkiCertProcess
 {
 public:
-	EsCertProcess();
-	~EsCertProcess();
+	PkiCertProcess();
+	~PkiCertProcess();
 
 	void process();
 
@@ -22,7 +22,8 @@ public:
 	void setVerifyMode(bool verify);
 
 private:
-	const std::string kModuleName = "EsCertProcess";
+	const std::string kModuleName = "PkiCertProcess";
+	static const size_t kSmallHexDumpLen = 0x10;
 
 	fnd::IFile* mFile;
 	bool mOwnIFile;
@@ -37,7 +38,7 @@ private:
 	void displayCerts();
 	void displayCert(const pki::SignedData<pki::CertificateBody>& cert);
 
-
+	size_t getHexDumpLen(size_t max_size) const;
 	const char* getSignTypeStr(pki::sign::SignatureId type) const;
 	const char* getEndiannessStr(bool isLittleEndian) const;
 	const char* getPublicKeyTypeStr(pki::cert::PublicKeyType type) const;

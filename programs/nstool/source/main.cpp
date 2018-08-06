@@ -11,7 +11,7 @@
 #include "NsoProcess.h"
 #include "NroProcess.h"
 #include "NacpProcess.h"
-#include "EsCertProcess.h"
+#include "PkiCertProcess.h"
 #include "EsTikProcess.h"
 #include "AssetProcess.h"
 
@@ -175,9 +175,9 @@ int main(int argc, char** argv)
 
 			nacp.process();
 		}
-		else if (user_set.getFileType() == FILE_ES_CERT)
+		else if (user_set.getFileType() == FILE_PKI_CERT)
 		{
-			EsCertProcess cert;
+			PkiCertProcess cert;
 
 			cert.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
 			cert.setKeyset(&user_set.getKeyset());

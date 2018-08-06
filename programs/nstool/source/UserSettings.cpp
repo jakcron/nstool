@@ -695,7 +695,7 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 	else if (str == "nacp")
 		type = FILE_NACP;
 	else if (str == "cert")
-		type = FILE_ES_CERT;
+		type = FILE_PKI_CERT;
 	else if (str == "tik")
 		type = FILE_ES_TIK;
 	else if (str == "aset" || str == "asset")
@@ -758,7 +758,7 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 		file_type = FILE_NRO;
 	// test pki certificate
 	else if (determineValidEsCertFromSample(scratch))
-		file_type = FILE_ES_CERT;
+		file_type = FILE_PKI_CERT;
 	// test ticket
 	else if (determineValidEsTikFromSample(scratch))
 		file_type = FILE_ES_TIK;

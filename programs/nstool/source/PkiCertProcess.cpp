@@ -4,10 +4,10 @@
 #include <fnd/SimpleTextOutput.h>
 #include <pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
-#include "EsCertProcess.h"
+#include "PkiCertProcess.h"
 #include "PkiValidator.h"
 
-EsCertProcess::EsCertProcess() :
+PkiCertProcess::PkiCertProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
@@ -15,7 +15,7 @@ EsCertProcess::EsCertProcess() :
 {
 }
 
-EsCertProcess::~EsCertProcess()
+PkiCertProcess::~PkiCertProcess()
 {
 	if (mOwnIFile)
 	{
@@ -23,7 +23,7 @@ EsCertProcess::~EsCertProcess()
 	}
 }
 
-void EsCertProcess::process()
+void PkiCertProcess::process()
 {
 	if (mFile == nullptr)
 	{
@@ -38,28 +38,28 @@ void EsCertProcess::process()
 		displayCerts();
 }
 
-void EsCertProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void PkiCertProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 {
 	mFile = file;
 	mOwnIFile = ownIFile;
 }
 
-void EsCertProcess::setKeyset(const sKeyset* keyset)
+void PkiCertProcess::setKeyset(const sKeyset* keyset)
 {
 	mKeyset = keyset;
 }
 
-void EsCertProcess::setCliOutputMode(CliOutputMode mode)
+void PkiCertProcess::setCliOutputMode(CliOutputMode mode)
 {
 	mCliOutputMode = mode;
 }
 
-void EsCertProcess::setVerifyMode(bool verify)
+void PkiCertProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void EsCertProcess::importCerts()
+void PkiCertProcess::importCerts()
 {
 	fnd::Vec<byte_t> scratch;
 
@@ -74,7 +74,7 @@ void EsCertProcess::importCerts()
 	}
 }
 
-void EsCertProcess::validateCerts()
+void PkiCertProcess::validateCerts()
 {
 	PkiValidator pki;
 	
@@ -90,7 +90,7 @@ void EsCertProcess::validateCerts()
 	}
 }
 
-void EsCertProcess::displayCerts()
+void PkiCertProcess::displayCerts()
 {
 	for (size_t i = 0; i < mCert.size(); i++)
 	{
@@ -98,13 +98,13 @@ void EsCertProcess::displayCerts()
 	}
 }
 
-void EsCertProcess::displayCert(const pki::SignedData<pki::CertificateBody>& cert)
+void PkiCertProcess::displayCert(const pki::SignedData<pki::CertificateBody>& cert)
 {
 #define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
 #define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
 
-	std::cout << "[ES Certificate]" << std::endl;
+	std::cout << "[NNPKI Certificate]" << std::endl;
 
 	std::cout << "  SignType       " << getSignTypeStr(cert.getSignature().getSignType());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
@@ -123,7 +123,7 @@ void EsCertProcess::displayCert(const pki::SignedData<pki::CertificateBody>& cer
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    Modulus:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().modulus, _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? crypto::rsa::kRsa4096Size : 0x10, 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().modulus, getHexDumpLen(crypto::rsa::kRsa4096Size), 0x10, 6);
 		std::cout << "    Public Exponent:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().public_exponent, crypto::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
@@ -131,7 +131,7 @@ void EsCertProcess::displayCert(const pki::SignedData<pki::CertificateBody>& cer
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    Public Exponent:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? crypto::rsa::kRsa2048Size : 0x10, 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, getHexDumpLen(crypto::rsa::kRsa2048Size), 0x10, 6);
 		std::cout << "    Modulus:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().public_exponent, crypto::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
@@ -139,9 +139,9 @@ void EsCertProcess::displayCert(const pki::SignedData<pki::CertificateBody>& cer
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    R:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().r, _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? crypto::ecdsa::kEcdsa240Size : 0x10, 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().r, getHexDumpLen(crypto::ecdsa::kEcdsa240Size), 0x10, 6);
 		std::cout << "    S:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().s, _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? crypto::ecdsa::kEcdsa240Size : 0x10, 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().s, getHexDumpLen(crypto::ecdsa::kEcdsa240Size), 0x10, 6);
 	}
 	
 
@@ -151,7 +151,12 @@ void EsCertProcess::displayCert(const pki::SignedData<pki::CertificateBody>& cer
 #undef _SPLIT_VER
 }
 
-const char* EsCertProcess::getSignTypeStr(pki::sign::SignatureId type) const
+size_t PkiCertProcess::getHexDumpLen(size_t max_size) const
+{
+	return _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? max_size : kSmallHexDumpLen;
+}
+
+const char* PkiCertProcess::getSignTypeStr(pki::sign::SignatureId type) const
 {
 	const char* str;
 	switch (type)
@@ -181,12 +186,12 @@ const char* EsCertProcess::getSignTypeStr(pki::sign::SignatureId type) const
 	return str;
 }
 
-const char* EsCertProcess::getEndiannessStr(bool isLittleEndian) const
+const char* PkiCertProcess::getEndiannessStr(bool isLittleEndian) const
 {
 	return isLittleEndian ? "LittleEndian" : "BigEndian";
 }
 
-const char* EsCertProcess::getPublicKeyTypeStr(pki::cert::PublicKeyType type) const
+const char* PkiCertProcess::getPublicKeyTypeStr(pki::cert::PublicKeyType type) const
 {
 	const char* str;
 	switch (type)
