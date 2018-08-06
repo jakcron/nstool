@@ -27,7 +27,14 @@
 		"memory": "cpp",
 		"tuple": "cpp",
 		"__locale": "cpp",
-		"cinttypes": "cpp"
+		"cinttypes": "cpp",
 		"__bit_reference": "cpp",
+		"algorithm": "cpp",
+		"__functional_base_03": "cpp",
+		"__tuple": "cpp",
+		"chrono": "cpp",
+		"functional": "cpp",
+		"limits": "cpp",
+		"ratio": "cpp"
 	}
 }

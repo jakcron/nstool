@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/ISerialisable.h>
+#include <fnd/List.h>
 #include <es/ticket.h>
 
 namespace es
@@ -42,14 +43,8 @@ namespace es
 		byte_t getCommonKeyId() const;
 		void setCommonKeyId(byte_t id);
 
-		bool isPreInstall() const;
-		void setIsPreInstall(bool isPreInstall);
-
-		bool isSharedTitle() const;
-		void setIsSharedTitle(bool isSharedTitle);
-
-		bool allowAllContent() const;
-		void setAllowAllContent(bool allowAllContent);
+		const fnd::List<es::ticket::PropertyMaskFlags>& getPropertyFlags() const;
+		void setPropertyFlags(const fnd::List<es::ticket::PropertyMaskFlags>& flags);
 
 		const byte_t* getReservedRegion() const;
 		void setReservedRegion(const byte_t* data, size_t len);
@@ -91,9 +86,7 @@ namespace es
 		uint16_t mTicketVersion;
 		ticket::LicenseType mLicenseType;
 		byte_t mCommonKeyId;
-		bool mPreInstall;
-		bool mSharedTitle;
-		bool mAllowAllContent;
+		fnd::List<es::ticket::PropertyMaskFlags> mPropertyFlags;
 		byte_t mReservedRegion[ticket::kReservedRegionSize]; // explicitly reserved
 		uint64_t mTicketId;
 		uint64_t mDeviceId;

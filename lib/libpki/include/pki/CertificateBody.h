@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <fnd/ISerialisable.h>
-#include <es/cert.h>
+#include <pki/cert.h>
 
-namespace es
+namespace pki
 {
 	class CertificateBody
 		: public fnd::ISerialisable
@@ -27,7 +27,7 @@ namespace es
 		const std::string& getIssuer() const;
 		void setIssuer(const std::string& issuer);
 
-		es::cert::PublicKeyType getPublicKeyType() const;
+		pki::cert::PublicKeyType getPublicKeyType() const;
 		void setPublicKeyType(cert::PublicKeyType type);
 
 		const std::string& getSubject() const;

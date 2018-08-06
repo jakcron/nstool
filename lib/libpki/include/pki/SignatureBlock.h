@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <fnd/ISerialisable.h>
-#include <es/sign.h>
+#include <pki/sign.h>
 
-namespace es
+namespace pki
 {
 	class SignatureBlock
 		: public fnd::ISerialisable
@@ -24,8 +24,8 @@ namespace es
 		// variables
 		void clear();
 
-		es::sign::SignType getSignType() const;
-		void setSignType(es::sign::SignType type);
+		pki::sign::SignatureId getSignType() const;
+		void setSignType(pki::sign::SignatureId type);
 
 		bool isLittleEndian() const;
 		void setLittleEndian(bool isLE);
@@ -41,7 +41,7 @@ namespace es
 		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
-		es::sign::SignType mSignType;
+		pki::sign::SignatureId mSignType;
 		bool mIsLittleEndian;
 		fnd::Vec<byte_t> mSignature;
 	};

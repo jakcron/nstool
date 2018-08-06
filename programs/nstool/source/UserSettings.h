@@ -3,6 +3,9 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/Vec.h>
+#include <fnd/List.h>
+#include <pki/SignedData.h>
+#include <pki/CertificateBody.h>
 #include <nx/npdm.h>
 #include "nstool.h"
 
@@ -39,6 +42,7 @@ public:
 	const sOptional<std::string>& getNcaPart3Path() const;
 	const sOptional<std::string>& getAssetIconPath() const;
 	const sOptional<std::string>& getAssetNacpPath() const;
+	const fnd::List<pki::SignedData<pki::CertificateBody>>& getCertificateChain() const;
 
 private:
 	const std::string kModuleName = "UserSettings";
@@ -62,6 +66,8 @@ private:
 		sOptional<std::string> fs_path;
 		sOptional<std::string> nca_titlekey;
 		sOptional<std::string> nca_bodykey;
+		sOptional<std::string> ticket_path;
+		sOptional<std::string> cert_path;
 		sOptional<std::string> part0_path;
 		sOptional<std::string> part1_path;
 		sOptional<std::string> part2_path;
@@ -94,6 +100,8 @@ private:
 	sOptional<std::string> mAssetIconPath;
 	sOptional<std::string> mAssetNacpPath;
 
+	fnd::List<pki::SignedData<pki::CertificateBody>> mCertChain;
+
 	bool mListApi;
 	bool mListSymbols;
 	nx::npdm::InstructionType mInstructionType;
@@ -107,5 +115,7 @@ private:
 	bool determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidCnmtFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) const;
+	bool determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const;
+	bool determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const;
 	nx::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
 };

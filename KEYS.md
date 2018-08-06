@@ -25,6 +25,10 @@ package2_sign_key_private        : RSA2048 Private Exponent (0x100 bytes)
 ; Ticket Keys
 ticket_commonkey_##              : AES128 Key (0x10 bytes)
 
+; PKI Root Signing Key
+pki_root_sign_key_modulus        : RSA4096 Modulus (0x200 bytes)
+pki_root_sign_key_private        : RSA4096 Private Exponent (0x200 bytes)
+
 ; NCA Keys
 nca_header_key                   : AES128-XTS Key (0x20 bytes)
 nca_header_sign_key_modulus      : RSA2048 Modulus (0x100 bytes)

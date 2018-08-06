@@ -10,8 +10,10 @@
                 "/usr/include",
                 "${workspaceRoot}",
                 "${workspaceRoot}/lib/libcrypto/include",
+                "${workspaceRoot}/lib/libcrypto/source/polarssl/libinclude",
                 "${workspaceRoot}/lib/libcompress/include",
                 "${workspaceRoot}/lib/libes/include",
+                "${workspaceRoot}/lib/libpki/include",
                 "${workspaceRoot}/lib/libfnd/include",
                 "${workspaceRoot}/lib/libnx/include",
                 "${workspaceRoot}/lib/libnx-hb/include"

@@ -26,9 +26,8 @@ void es::TicketBody_V2::operator=(const TicketBody_V2 & other)
 		mEncType = other.mEncType;
 		mTicketVersion = other.mTicketVersion;
 		mLicenseType = other.mLicenseType;
-		mPreInstall = other.mPreInstall;
-		mSharedTitle = other.mSharedTitle;
-		mAllowAllContent = other.mAllowAllContent;
+		mCommonKeyId = other.mCommonKeyId;
+		mPropertyFlags = other.mPropertyFlags;
 		memcpy(mReservedRegion, other.mReservedRegion, ticket::kReservedRegionSize);
 		mTicketId = other.mTicketId;
 		mDeviceId = other.mDeviceId;
@@ -48,9 +47,7 @@ bool es::TicketBody_V2::operator==(const TicketBody_V2 & other) const
 		&& (mEncType == other.mEncType) \
 		&& (mTicketVersion == other.mTicketVersion) \
 		&& (mLicenseType == other.mLicenseType) \
-		&& (mPreInstall == other.mPreInstall) \
-		&& (mSharedTitle == other.mSharedTitle) \
-		&& (mAllowAllContent == other.mAllowAllContent) \
+		&& (mPropertyFlags == other.mPropertyFlags) \
 		&& (memcmp(mReservedRegion, other.mReservedRegion, ticket::kReservedRegionSize) == 0) \
 		&& (mTicketId == other.mTicketId) \
 		&& (mDeviceId == other.mDeviceId) \
@@ -74,19 +71,22 @@ void es::TicketBody_V2::toBytes()
 
 	body->format_version = (ticket::kFormatVersion);
 
-	strncmp(body->issuer, mIssuer.c_str(), ticket::kIssuerSize);
+	strncpy(body->issuer, mIssuer.c_str(), ticket::kIssuerSize);
 	memcpy(body->enc_title_key, mEncTitleKey, ticket::kEncTitleKeySize);
 	body->title_key_enc_type = (mEncType);
 	body->ticket_version = (mTicketVersion);
+	body->license_type = mLicenseType;
+	body->common_key_id = mCommonKeyId;
 	byte_t property_mask = 0;
-	property_mask |= mPreInstall ? _BIT(ticket::FLAG_PRE_INSTALL) : 0;
-	property_mask |= mSharedTitle ? _BIT(ticket::FLAG_SHARED_TITLE) : 0;
-	property_mask |= mAllowAllContent ? _BIT(ticket::FLAG_ALLOW_ALL_CONTENT) : 0;
+	for (size_t i = 0; i < mPropertyFlags.size(); i++)
+	{
+		property_mask |= _BIT(mPropertyFlags[i]);
+	}
 	body->property_mask = (property_mask);
 	memcpy(body->reserved_region, mReservedRegion, ticket::kReservedRegionSize);
 	body->ticket_id = (mTicketId);
 	body->device_id = (mDeviceId);
-	memcmp(body->rights_id, mRightsId, ticket::kRightsIdSize);
+	memcpy(body->rights_id, mRightsId, ticket::kRightsIdSize);
 	body->account_id = (mAccountId);
 	body->sect_total_size = (mSectTotalSize);
 	body->sect_header_offset = (mSectHeaderOffset);
@@ -112,14 +112,17 @@ void es::TicketBody_V2::fromBytes(const byte_t * bytes, size_t len)
 		throw fnd::Exception(kModuleName, "Unsupported format version");
 	}
 
-	mIssuer.append(body->issuer, ticket::kIssuerSize);
+	mIssuer = std::string(body->issuer, _MIN(strlen(body->issuer), ticket::kIssuerSize));
 	memcpy(mEncTitleKey, body->enc_title_key, ticket::kEncTitleKeySize);
 	mEncType = (ticket::TitleKeyEncType)body->title_key_enc_type;
 	mTicketVersion = body->ticket_version.get();
 	mLicenseType = (ticket::LicenseType)body->license_type;
-	mPreInstall = _HAS_BIT(body->property_mask, ticket::FLAG_PRE_INSTALL);
-	mSharedTitle = _HAS_BIT(body->property_mask, ticket::FLAG_SHARED_TITLE);
-	mAllowAllContent = _HAS_BIT(body->property_mask, ticket::FLAG_ALLOW_ALL_CONTENT);
+	mCommonKeyId = body->common_key_id;
+	for (size_t i = 0; i < mPropertyFlags.size(); i++)
+	{
+		if (_HAS_BIT(body->property_mask, i))
+			mPropertyFlags.addElement((ticket::PropertyMaskFlags)i);
+	}
 	memcpy(mReservedRegion, body->reserved_region, ticket::kReservedRegionSize);
 	mTicketId = body->ticket_id.get();
 	mDeviceId = body->device_id.get();
@@ -144,9 +147,8 @@ void es::TicketBody_V2::clear()
 	mEncType = ticket::AES128_CBC;
 	mTicketVersion = 0;
 	mLicenseType = ticket::LICENSE_PERMANENT;
-	mPreInstall = false;
-	mSharedTitle = false;
-	mAllowAllContent = false;
+	mCommonKeyId = 0;
+	mPropertyFlags.clear();
 	memset(mReservedRegion, 0, ticket::kReservedRegionSize);
 	mTicketId = 0;
 	mDeviceId = 0;
@@ -224,34 +226,14 @@ void es::TicketBody_V2::setCommonKeyId(byte_t id)
 	mCommonKeyId = id;
 }
 
-bool es::TicketBody_V2::isPreInstall() const
+const fnd::List<es::ticket::PropertyMaskFlags>& es::TicketBody_V2::getPropertyFlags() const
 {
-	return mPreInstall;
+	return mPropertyFlags;
 }
 
-void es::TicketBody_V2::setIsPreInstall(bool isPreInstall)
+void es::TicketBody_V2::setPropertyFlags(const fnd::List<es::ticket::PropertyMaskFlags>& flags)
 {
-	mPreInstall = isPreInstall;
-}
-
-bool es::TicketBody_V2::isSharedTitle() const
-{
-	return mSharedTitle;
-}
-
-void es::TicketBody_V2::setIsSharedTitle(bool isSharedTitle)
-{
-	mSharedTitle = isSharedTitle;
-}
-
-bool es::TicketBody_V2::allowAllContent() const
-{
-	return mAllowAllContent;
-}
-
-void es::TicketBody_V2::setAllowAllContent(bool allowAllContent)
-{
-	mAllowAllContent = allowAllContent;
+	mPropertyFlags = flags;
 }
 
 const byte_t * es::TicketBody_V2::getReservedRegion() const

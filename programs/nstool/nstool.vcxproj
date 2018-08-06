@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;..\..\lib\libnx-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;..\..\lib\libnx-hb\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;..\..\lib\libnx-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;..\..\lib\libnx-hb\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;..\..\lib\libnx-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;..\..\lib\libnx-hb\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,7 +141,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;..\..\lib\libnx-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libnx\include;..\..\lib\libnx-hb\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,6 +157,9 @@
     <ProjectReference Include="..\..\lib\libcrypto\crypto.vcxproj">
       <Project>{6adbb60d-dba0-411d-bd2d-a355ef8e0fe1}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\lib\libes\es.vcxproj">
+      <Project>{7be99936-0d40-410d-944b-4513c2eff8dc}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\lib\libfnd\fnd.vcxproj">
       <Project>{4d27edb9-5110-44fe-8ce2-d46c5ad3c55b}</Project>
     </ProjectReference>
@@ -166,12 +169,19 @@
     <ProjectReference Include="..\..\lib\libnx\nx.vcxproj">
       <Project>{91ba9e79-8242-4f7d-b997-0dfec95ea22b}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\lib\libpki\libpki.vcxproj">
+      <Project>{b9113734-6e84-44ff-8cf7-58199aa815c5}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\AesCtrWrappedIFile.h" />
     <ClInclude Include="source\AssetProcess.h" />
     <ClInclude Include="source\CnmtProcess.h" />
     <ClInclude Include="source\ElfSymbolParser.h" />
+    <ClInclude Include="source\EsTikProcess.h" />
     <ClInclude Include="source\HashTreeMeta.h" />
     <ClInclude Include="source\HashTreeWrappedIFile.h" />
     <ClInclude Include="source\NacpProcess.h" />
@@ -182,6 +192,8 @@
     <ClInclude Include="source\nstool.h" />
     <ClInclude Include="source\OffsetAdjustedIFile.h" />
     <ClInclude Include="source\PfsProcess.h" />
+    <ClInclude Include="source\PkiCertProcess.h" />
+    <ClInclude Include="source\PkiValidator.h" />
     <ClInclude Include="source\RoMetadataProcess.h" />
     <ClInclude Include="source\RomfsProcess.h" />
     <ClInclude Include="source\SdkApiString.h" />
@@ -194,6 +206,7 @@
     <ClCompile Include="source\AssetProcess.cpp" />
     <ClCompile Include="source\CnmtProcess.cpp" />
     <ClCompile Include="source\ElfSymbolParser.cpp" />
+    <ClCompile Include="source\EsTikProcess.cpp" />
     <ClCompile Include="source\HashTreeMeta.cpp" />
     <ClCompile Include="source\HashTreeWrappedIFile.cpp" />
     <ClCompile Include="source\main.cpp" />
@@ -204,14 +217,13 @@
     <ClCompile Include="source\NsoProcess.cpp" />
     <ClCompile Include="source\OffsetAdjustedIFile.cpp" />
     <ClCompile Include="source\PfsProcess.cpp" />
+    <ClCompile Include="source\PkiCertProcess.cpp" />
+    <ClCompile Include="source\PkiValidator.cpp" />
     <ClCompile Include="source\RoMetadataProcess.cpp" />
     <ClCompile Include="source\RomfsProcess.cpp" />
     <ClCompile Include="source\SdkApiString.cpp" />
     <ClCompile Include="source\UserSettings.cpp" />
     <ClCompile Include="source\XciProcess.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="makefile" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

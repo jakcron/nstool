@@ -66,6 +66,9 @@
     <ClInclude Include="include\crypto\ecdsa.h">
       <Filter>Header Files\crypto</Filter>
     </ClInclude>
+    <ClInclude Include="include\crypto\base64.h">
+      <Filter>Header Files\crypto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\aes_wrapper.cpp">
@@ -100,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="source\libpolarssl\source\sha2.c">
       <Filter>Source Files\polarssl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\base64_wrapper.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

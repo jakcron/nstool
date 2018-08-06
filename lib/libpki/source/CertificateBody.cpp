@@ -1,16 +1,16 @@
-#include <es/CertificateBody.h>
+#include <pki/CertificateBody.h>
 
-es::CertificateBody::CertificateBody()
+pki::CertificateBody::CertificateBody()
 {
 	clear();
 }
 
-es::CertificateBody::CertificateBody(const CertificateBody& other)
+pki::CertificateBody::CertificateBody(const CertificateBody& other)
 {
 	*this = other;
 }
 
-void es::CertificateBody::operator=(const CertificateBody& other)
+void pki::CertificateBody::operator=(const CertificateBody& other)
 {
 	mRawBinary = other.mRawBinary;
 	mIssuer = other.mIssuer;
@@ -22,7 +22,7 @@ void es::CertificateBody::operator=(const CertificateBody& other)
 	mEcdsa240PublicKey = other.mEcdsa240PublicKey;
 }
 
-bool es::CertificateBody::operator==(const CertificateBody& other) const
+bool pki::CertificateBody::operator==(const CertificateBody& other) const
 {
 	return (mIssuer == other.mIssuer) \
 		&& (mSubject == other.mSubject) \
@@ -33,12 +33,12 @@ bool es::CertificateBody::operator==(const CertificateBody& other) const
 		&& (mEcdsa240PublicKey == other.mEcdsa240PublicKey);
 }
 
-bool es::CertificateBody::operator!=(const CertificateBody& other) const
+bool pki::CertificateBody::operator!=(const CertificateBody& other) const
 {
 	return !(*this == other);
 }
 
-void es::CertificateBody::toBytes()
+void pki::CertificateBody::toBytes()
 {
 	// get public key size
 	size_t pubkeySize = 0;
@@ -86,7 +86,7 @@ void es::CertificateBody::toBytes()
 	}
 }
 
-void es::CertificateBody::fromBytes(const byte_t* src, size_t size)
+void pki::CertificateBody::fromBytes(const byte_t* src, size_t size)
 {
 	clear();
 
@@ -129,10 +129,10 @@ void es::CertificateBody::fromBytes(const byte_t* src, size_t size)
 	hdr = (const sCertificateHeader*)mRawBinary.data();
 
 	if (hdr->issuer[0] != 0)
-		mIssuer = std::string(hdr->issuer, cert::kIssuerSize);
+		mIssuer = std::string(hdr->issuer, _MIN(strlen(hdr->issuer), cert::kIssuerSize));
 	mPublicKeyType = (cert::PublicKeyType)hdr->key_type.get();
 	if (hdr->subject[0] != 0)
-		mSubject = std::string(hdr->subject, cert::kSubjectSize);
+		mSubject = std::string(hdr->subject, _MIN(strlen(hdr->subject), cert::kSubjectSize));
 	mCertId = hdr->cert_id.get();
 
 	// save public key
@@ -155,13 +155,13 @@ void es::CertificateBody::fromBytes(const byte_t* src, size_t size)
 	}
 }
 
-const fnd::Vec<byte_t>& es::CertificateBody::getBytes() const
+const fnd::Vec<byte_t>& pki::CertificateBody::getBytes() const
 {
 	return mRawBinary;
 }
 
 
-void es::CertificateBody::clear()
+void pki::CertificateBody::clear()
 {
 	mIssuer.clear();
 	mSubject.clear();
@@ -173,12 +173,12 @@ void es::CertificateBody::clear()
 	memset(&mEcdsa240PublicKey, 0, sizeof(crypto::ecdsa::sEcdsa240Point));
 }
 
-const std::string& es::CertificateBody::getIssuer() const
+const std::string& pki::CertificateBody::getIssuer() const
 {
 	return mIssuer;
 }
 
-void es::CertificateBody::setIssuer(const std::string& issuer)
+void pki::CertificateBody::setIssuer(const std::string& issuer)
 {
 	if (issuer.size() > cert::kIssuerSize)
 	{
@@ -188,22 +188,22 @@ void es::CertificateBody::setIssuer(const std::string& issuer)
 	mIssuer = issuer;
 }
 
-es::cert::PublicKeyType es::CertificateBody::getPublicKeyType() const
+pki::cert::PublicKeyType pki::CertificateBody::getPublicKeyType() const
 {
 	return mPublicKeyType;
 }
 
-void es::CertificateBody::setPublicKeyType(cert::PublicKeyType type)
+void pki::CertificateBody::setPublicKeyType(cert::PublicKeyType type)
 {
 	mPublicKeyType = type;
 }
 
-const std::string& es::CertificateBody::getSubject() const
+const std::string& pki::CertificateBody::getSubject() const
 {
 	return mSubject;
 }
 
-void es::CertificateBody::setSubject(const std::string& subject)
+void pki::CertificateBody::setSubject(const std::string& subject)
 {
 	if (subject.size() > cert::kSubjectSize)
 	{
@@ -213,42 +213,42 @@ void es::CertificateBody::setSubject(const std::string& subject)
 	mSubject = subject;
 }
 
-uint32_t es::CertificateBody::getCertId() const
+uint32_t pki::CertificateBody::getCertId() const
 {
 	return mCertId;
 }
 
-void es::CertificateBody::setCertId(uint32_t id)
+void pki::CertificateBody::setCertId(uint32_t id)
 {
 	mCertId = id;
 }
 
-const crypto::rsa::sRsa4096Key& es::CertificateBody::getRsa4098PublicKey() const
+const crypto::rsa::sRsa4096Key& pki::CertificateBody::getRsa4098PublicKey() const
 {
 	return mRsa4096PublicKey;
 }
 
-void es::CertificateBody::setRsa4098PublicKey(const crypto::rsa::sRsa4096Key& key)
+void pki::CertificateBody::setRsa4098PublicKey(const crypto::rsa::sRsa4096Key& key)
 {
 	mRsa4096PublicKey = key;
 }
 
-const crypto::rsa::sRsa2048Key& es::CertificateBody::getRsa2048PublicKey() const
+const crypto::rsa::sRsa2048Key& pki::CertificateBody::getRsa2048PublicKey() const
 {
 	return mRsa2048PublicKey;
 }
 
-void es::CertificateBody::setRsa2048PublicKey(const crypto::rsa::sRsa2048Key& key)
+void pki::CertificateBody::setRsa2048PublicKey(const crypto::rsa::sRsa2048Key& key)
 {
 	mRsa2048PublicKey = key;
 }
 
-const crypto::ecdsa::sEcdsa240Point& es::CertificateBody::getEcdsa240PublicKey() const
+const crypto::ecdsa::sEcdsa240Point& pki::CertificateBody::getEcdsa240PublicKey() const
 {
 	return mEcdsa240PublicKey;
 }
 
-void es::CertificateBody::setEcdsa240PublicKey(const crypto::ecdsa::sEcdsa240Point& key)
+void pki::CertificateBody::setEcdsa240PublicKey(const crypto::ecdsa::sEcdsa240Point& key)
 {
 	mEcdsa240PublicKey = key;
 }

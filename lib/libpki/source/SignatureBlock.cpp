@@ -1,16 +1,16 @@
-#include <es/SignatureBlock.h>
+#include <pki/SignatureBlock.h>
 
-es::SignatureBlock::SignatureBlock()
+pki::SignatureBlock::SignatureBlock()
 {
 	clear();
 }
 
-es::SignatureBlock::SignatureBlock(const SignatureBlock& other)
+pki::SignatureBlock::SignatureBlock(const SignatureBlock& other)
 {
 	*this = other;
 }
 
-void es::SignatureBlock::operator=(const SignatureBlock& other)
+void pki::SignatureBlock::operator=(const SignatureBlock& other)
 {
 	mRawBinary = other.mRawBinary;
 	mSignType = other.mSignType;
@@ -18,37 +18,37 @@ void es::SignatureBlock::operator=(const SignatureBlock& other)
 	mSignature = other.mSignature;
 }
 
-bool es::SignatureBlock::operator==(const SignatureBlock& other) const
+bool pki::SignatureBlock::operator==(const SignatureBlock& other) const
 {
 	return (mSignType == other.mSignType) \
 		&& (mIsLittleEndian == other.mIsLittleEndian) \
 		&& (mSignature == other.mSignature);
 }
 
-bool es::SignatureBlock::operator!=(const SignatureBlock& other) const
+bool pki::SignatureBlock::operator!=(const SignatureBlock& other) const
 {
 	return !(*this == other);
 }
 
-void es::SignatureBlock::toBytes()
+void pki::SignatureBlock::toBytes()
 {
 	size_t totalSize = 0;
 	size_t sigSize = 0;
 
 	switch (mSignType)
 	{
-		case (sign::SIGN_RSA4096_SHA1):
-		case (sign::SIGN_RSA4096_SHA256):
+		case (sign::SIGN_ID_RSA4096_SHA1):
+		case (sign::SIGN_ID_RSA4096_SHA256):
 			totalSize = sizeof(sRsa4096SignBlock);
 			sigSize = crypto::rsa::kRsa4096Size;
 			break;
-		case (sign::SIGN_RSA2048_SHA1):
-		case (sign::SIGN_RSA2048_SHA256):
+		case (sign::SIGN_ID_RSA2048_SHA1):
+		case (sign::SIGN_ID_RSA2048_SHA256):
 			totalSize = sizeof(sRsa2048SignBlock);
 			sigSize = crypto::rsa::kRsa2048Size;
 			break;
-		case (sign::SIGN_ECDSA240_SHA1):
-		case (sign::SIGN_ECDSA240_SHA256):
+		case (sign::SIGN_ID_ECDSA240_SHA1):
+		case (sign::SIGN_ID_ECDSA240_SHA256):
 			totalSize = sizeof(sEcdsa240SignBlock);
 			sigSize = sign::kEcdsaSigSize;
 			break;
@@ -68,7 +68,7 @@ void es::SignatureBlock::toBytes()
 	memcpy(mRawBinary.data() + 4, mSignature.data(), sigSize);
 }
 
-void es::SignatureBlock::fromBytes(const byte_t* src, size_t size)
+void pki::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 {
 	clear();
 
@@ -80,18 +80,18 @@ void es::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 	signType = ((be_uint32_t*)src)->get();
 	switch (signType)
 	{
-	case (sign::SIGN_RSA4096_SHA1): 
-	case (sign::SIGN_RSA4096_SHA256):
+	case (sign::SIGN_ID_RSA4096_SHA1): 
+	case (sign::SIGN_ID_RSA4096_SHA256):
 		totalSize = sizeof(sRsa4096SignBlock);
 		sigSize = crypto::rsa::kRsa4096Size;
 		break;
-	case (sign::SIGN_RSA2048_SHA1): 
-	case (sign::SIGN_RSA2048_SHA256):
+	case (sign::SIGN_ID_RSA2048_SHA1): 
+	case (sign::SIGN_ID_RSA2048_SHA256):
 		totalSize = sizeof(sRsa2048SignBlock);
 		sigSize = crypto::rsa::kRsa2048Size;
 		break;
-	case (sign::SIGN_ECDSA240_SHA1): 
-	case (sign::SIGN_ECDSA240_SHA256):
+	case (sign::SIGN_ID_ECDSA240_SHA1): 
+	case (sign::SIGN_ID_ECDSA240_SHA256):
 		totalSize = sizeof(sEcdsa240SignBlock);
 		sigSize = sign::kEcdsaSigSize;
 		break;
@@ -103,18 +103,18 @@ void es::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 		signType = ((le_uint32_t*)src)->get();
 		switch (signType)
 		{
-		case (sign::SIGN_RSA4096_SHA1): 
-		case (sign::SIGN_RSA4096_SHA256):
+		case (sign::SIGN_ID_RSA4096_SHA1): 
+		case (sign::SIGN_ID_RSA4096_SHA256):
 			totalSize = sizeof(sRsa4096SignBlock);
 			sigSize = crypto::rsa::kRsa4096Size;
 			break;
-		case (sign::SIGN_RSA2048_SHA1): 
-		case (sign::SIGN_RSA2048_SHA256):
+		case (sign::SIGN_ID_RSA2048_SHA1): 
+		case (sign::SIGN_ID_RSA2048_SHA256):
 			totalSize = sizeof(sRsa2048SignBlock);
 			sigSize = crypto::rsa::kRsa2048Size;
 			break;
-		case (sign::SIGN_ECDSA240_SHA1): 
-		case (sign::SIGN_ECDSA240_SHA256):
+		case (sign::SIGN_ID_ECDSA240_SHA1): 
+		case (sign::SIGN_ID_ECDSA240_SHA256):
 			totalSize = sizeof(sEcdsa240SignBlock);
 			sigSize = sign::kEcdsaSigSize;
 			break;
@@ -133,50 +133,50 @@ void es::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 	mRawBinary.alloc(totalSize);
 	memcpy(mRawBinary.data(), src, totalSize);
 
-	mSignType = (sign::SignType)signType;
+	mSignType = (sign::SignatureId)signType;
 	mSignature.alloc(sigSize);
 	memcpy(mSignature.data(), mRawBinary.data() + 4, sigSize);
 }
 
-const fnd::Vec<byte_t>& es::SignatureBlock::getBytes() const
+const fnd::Vec<byte_t>& pki::SignatureBlock::getBytes() const
 {
 	return mRawBinary;
 }
 
-void es::SignatureBlock::clear()
+void pki::SignatureBlock::clear()
 {
 	mRawBinary.clear();
-	mSignType = sign::SIGN_RSA4096_SHA1;
+	mSignType = sign::SIGN_ID_RSA4096_SHA1;
 	mIsLittleEndian = false;
 	mSignature.clear();
 }
 
-es::sign::SignType es::SignatureBlock::getSignType() const
+pki::sign::SignatureId pki::SignatureBlock::getSignType() const
 {
 	return mSignType;
 }
 
-void es::SignatureBlock::setSignType(es::sign::SignType type)
+void pki::SignatureBlock::setSignType(pki::sign::SignatureId type)
 {
 	mSignType = type;
 }
 
-bool es::SignatureBlock::isLittleEndian() const
+bool pki::SignatureBlock::isLittleEndian() const
 {
 	return mIsLittleEndian;
 }
 
-void es::SignatureBlock::setLittleEndian(bool isLE)
+void pki::SignatureBlock::setLittleEndian(bool isLE)
 {
 	mIsLittleEndian = isLE;
 }
 
-const fnd::Vec<byte_t>& es::SignatureBlock::getSignature() const
+const fnd::Vec<byte_t>& pki::SignatureBlock::getSignature() const
 {
 	return mSignature;
 }
 
-void es::SignatureBlock::setSignature(const fnd::Vec<byte_t>& signature)
+void pki::SignatureBlock::setSignature(const fnd::Vec<byte_t>& signature)
 {
 	mSignature = signature;
 }

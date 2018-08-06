@@ -1,5 +1,6 @@
 #include "UserSettings.h"
 #include "version.h"
+#include "PkiValidator.h"
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -22,6 +23,10 @@
 #include <nx/nso.h>
 #include <nx/nro.h>
 #include <nx/aset.h>
+#include <pki/SignedData.h>
+#include <pki/CertificateBody.h>
+#include <pki/SignUtils.h>
+#include <es/TicketBody_V2.h>
 
 UserSettings::UserSettings()
 {}
@@ -41,34 +46,36 @@ void UserSettings::showHelp()
 	
 	printf("Usage: nstool [options... ] <file>\n");
 	printf("\n  General Options:\n");
-	printf("      -d, --dev       Use devkit keyset\n");
-	printf("      -k, --keyset    Specify keyset file\n");
-	printf("      -t, --type      Specify input file type [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset]\n");
-	printf("      -y, --verify    Verify file\n");
+	printf("      -d, --dev       Use devkit keyset.\n");
+	printf("      -k, --keyset    Specify keyset file.\n");
+	printf("      -t, --type      Specify input file type. [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset, cert, tik]\n");
+	printf("      -y, --verify    Verify file.\n");
 	printf("\n  Output Options:\n");
-	printf("      --showkeys      Show keys generated\n");
-	printf("      --showlayout    Show layout metadata\n");
-	printf("      -v, --verbose   Verbose output\n");
+	printf("      --showkeys      Show keys generated.\n");
+	printf("      --showlayout    Show layout metadata.\n");
+	printf("      -v, --verbose   Verbose output.\n");
 	printf("\n  XCI (GameCard Image)\n");
 	printf("    nstool [--listfs] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>\n");
-	printf("      --listfs        Print file system in embedded partitions\n");
-	printf("      --update        Extract \"update\" partition to directory\n");
-	printf("      --logo          Extract \"logo\" partition to directory\n");
-	printf("      --normal        Extract \"normal\" partition to directory\n");
-	printf("      --secure        Extract \"secure\" partition to directory\n");
+	printf("      --listfs        Print file system in embedded partitions.\n");
+	printf("      --update        Extract \"update\" partition to directory.\n");
+	printf("      --logo          Extract \"logo\" partition to directory.\n");
+	printf("      --normal        Extract \"normal\" partition to directory.\n");
+	printf("      --secure        Extract \"secure\" partition to directory.\n");
 	printf("\n  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)\n");
 	printf("    nstool [--listfs] [--fsdir <dir>] <file>\n");
-	printf("      --listfs        Print file system\n");
-	printf("      --fsdir         Extract file system to directory\n");
+	printf("      --listfs        Print file system.\n");
+	printf("      --fsdir         Extract file system to directory.\n");
 	printf("\n  NCA (Nintendo Content Archive)\n");
 	printf("    nstool [--listfs] [--bodykey <key> --titlekey <key>] [--part0 <dir> ...] <.nca file>\n");
-	printf("      --listfs        Print file system in embedded partitions\n");
-	printf("      --titlekey      Specify title key extracted from ticket\n");
-	printf("      --bodykey       Specify body encryption key\n");
-	printf("      --part0         Extract \"partition 0\" to directory \n");
-	printf("      --part1         Extract \"partition 1\" to directory \n");
-	printf("      --part2         Extract \"partition 2\" to directory \n");
-	printf("      --part3         Extract \"partition 3\" to directory \n");
+	printf("      --listfs        Print file system in embedded partitions.\n");
+	printf("      --titlekey      Specify title key extracted from ticket.\n");
+	printf("      --bodykey       Specify body encryption key.\n");
+	printf("      --tik           Specify ticket to source title key.\n");
+	printf("      --cert          Specify certificate chain to verify ticket.\n");
+	printf("      --part0         Extract \"partition 0\" to directory.\n");
+	printf("      --part1         Extract \"partition 1\" to directory.\n");
+	printf("      --part2         Extract \"partition 2\" to directory.\n");
+	printf("      --part3         Extract \"partition 3\" to directory.\n");
 	printf("\n  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)\n");
 	printf("    nstool [--listapi --listsym] [--insttype <inst. type>] <file>\n");
 	printf("      --listapi       Print SDK API List.\n");
@@ -180,6 +187,11 @@ const sOptional<std::string>& UserSettings::getAssetIconPath() const
 const sOptional<std::string>& UserSettings::getAssetNacpPath() const
 {
 	return mAssetNacpPath;
+}
+
+const fnd::List<pki::SignedData<pki::CertificateBody>>& UserSettings::getCertificateChain() const
+{
+	return mCertChain;
 }
 
 void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCmdArgs& cmd_args)
@@ -294,6 +306,18 @@ void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCm
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
 			cmd_args.nca_bodykey = arg_list[i+1];
+		}
+
+		else if (arg_list[i] == "--tik")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.ticket_path = arg_list[i+1];
+		}
+
+		else if (arg_list[i] == "--cert")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.cert_path = arg_list[i+1];
 		}
 
 		else if (arg_list[i] == "--part0")
@@ -415,6 +439,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	const std::string kKekGenSource = "aes_kek_generation";
 	const std::string kKeyGenSource = "aes_key_generation";
 	const std::string kAcidBase = "acid";
+	const std::string kPkiRootBase = "pki_root";
 	const std::string kTicketCommonKeyBase[2] = { "titlekek", "ticket_commonkey" };
 	const std::string kNcaBodyBase[2] = {"key_area_key", "nca_body_keak"};
 	const std::string kNcaBodyKeakIndexName[3] = {"application", "ocean", "system"};
@@ -484,17 +509,21 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kKeyStr), mKeyset.xci.header_key.key, 0x10);
 
 	// store rsa keys
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[0]), mKeyset.nca.header_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[1]), mKeyset.nca.header_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[0]), mKeyset.nca.header_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[1]), mKeyset.nca.header_sign_key.modulus, crypto::rsa::kRsa2048Size);
 	
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[0]), mKeyset.xci.header_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[1]), mKeyset.xci.header_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[0]), mKeyset.xci.header_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[1]), mKeyset.xci.header_sign_key.modulus, crypto::rsa::kRsa2048Size);
 
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[0]), mKeyset.acid_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[1]), mKeyset.acid_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[0]), mKeyset.acid_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[1]), mKeyset.acid_sign_key.modulus, crypto::rsa::kRsa2048Size);
 
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, 0x100);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, 0x100);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, crypto::rsa::kRsa2048Size);
+
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[0]), mKeyset.pki.root_sign_key.priv_exponent, crypto::rsa::kRsa4096Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[1]), mKeyset.pki.root_sign_key.modulus, crypto::rsa::kRsa4096Size);
+
 
 	// save keydata from input args
 	if (args.nca_bodykey.isSet)
@@ -518,6 +547,79 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		else
 		{
 			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesxts.key[0], sizeof(crypto::aes::sAesXts128Key));
+		}
+	}
+
+	// import certificate chain
+	if (args.cert_path.isSet)
+	{
+		fnd::SimpleFile cert_file;
+		fnd::Vec<byte_t> cert_raw;
+		pki::SignedData<pki::CertificateBody> cert;
+
+		cert_file.open(args.cert_path.var, fnd::SimpleFile::Read);
+		cert_raw.alloc(cert_file.size());
+		cert_file.read(cert_raw.data(), cert_raw.size());
+
+		for (size_t i = 0; i < cert_raw.size(); i+= cert.getBytes().size())
+		{
+			cert.fromBytes(cert_raw.data() + i, cert_raw.size() - i);
+			mCertChain.addElement(cert);
+		}
+	}
+
+	// get titlekey from ticket
+	if (args.ticket_path.isSet)
+	{
+		fnd::SimpleFile tik_file;
+		fnd::Vec<byte_t> tik_raw;
+		pki::SignedData<es::TicketBody_V2> tik;
+
+		// open and import ticket
+		tik_file.open(args.ticket_path.var, fnd::SimpleFile::Read);
+		tik_raw.alloc(tik_file.size());
+		tik_file.read(tik_raw.data(), tik_raw.size());
+		tik.fromBytes(tik_raw.data(), tik_raw.size());
+
+		// validate ticket signature
+		if (mCertChain.size() > 0)
+		{
+			PkiValidator pki_validator;
+			fnd::Vec<byte_t> tik_hash;
+
+			switch (pki::sign::getHashAlgo(tik.getSignature().getSignType()))
+			{
+			case (pki::sign::HASH_ALGO_SHA1):
+				tik_hash.alloc(crypto::sha::kSha1HashLen);
+				crypto::sha::Sha1(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
+				break;
+			case (pki::sign::HASH_ALGO_SHA256):
+				tik_hash.alloc(crypto::sha::kSha256HashLen);
+				crypto::sha::Sha256(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
+				break;
+			}
+
+			try 
+			{
+				pki_validator.setRootKey(mKeyset.pki.root_sign_key);
+				pki_validator.addCertificates(mCertChain);
+				pki_validator.validateSignature(tik.getBody().getIssuer(), tik.getSignature().getSignType(), tik.getSignature().getSignature(), tik_hash);
+			}
+			catch (const fnd::Exception& e)
+			{
+				std::cout << "[WARNING] Ticket signature could not be validated (" << e.error() << ")" << std::endl;
+			}
+			
+		}
+
+		// extract title key
+		if (tik.getBody().getTitleKeyEncType() == es::ticket::AES128_CBC)
+		{
+			memcpy(mKeyset.nca.manual_title_key_aesctr.key, tik.getBody().getEncTitleKey(), crypto::aes::kAes128KeySize);
+		}
+		else
+		{
+			std::cout << "[WARNING] Titlekey not imported from ticket because it is personalised" << std::endl;
 		}
 	}
 
@@ -688,6 +790,10 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_NRO;
 	else if (str == "nacp")
 		type = FILE_NACP;
+	else if (str == "cert")
+		type = FILE_PKI_CERT;
+	else if (str == "tik")
+		type = FILE_ES_TIK;
 	else if (str == "aset" || str == "asset")
 		type = FILE_HB_ASSET;
 	else
@@ -746,6 +852,12 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test nso
 	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _TYPE_PTR(nx::sNroHeader)->st_magic.get() == nx::nro::kNroStructMagic)
 		file_type = FILE_NRO;
+	// test pki certificate
+	else if (determineValidEsCertFromSample(scratch))
+		file_type = FILE_PKI_CERT;
+	// test ticket
+	else if (determineValidEsTikFromSample(scratch))
+		file_type = FILE_ES_TIK;
 	// test hb asset
 	else if (_ASSERT_SIZE(sizeof(nx::sAssetHeader)) && _TYPE_PTR(nx::sAssetHeader)->st_magic.get() == nx::aset::kAssetStructMagic)
 		file_type = FILE_HB_ASSET;
@@ -843,6 +955,50 @@ bool UserSettings::determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) 
 		return false;
 
 	if (data->supported_language_flag.get() == 0)
+		return false;
+
+	return true;
+}
+
+bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const
+{
+	pki::SignatureBlock sign;
+
+	try 
+	{
+		sign.fromBytes(sample.data(), sample.size());
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	if (sign.isLittleEndian() == true)
+		return false;
+
+	if (sign.getSignType() != pki::sign::SIGN_ID_RSA4096_SHA256 && sign.getSignType() != pki::sign::SIGN_ID_RSA2048_SHA256 && sign.getSignType() != pki::sign::SIGN_ID_ECDSA240_SHA256)
+		return false;
+
+	return true;
+}
+
+bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const
+{
+	pki::SignatureBlock sign;
+
+	try 
+	{
+		sign.fromBytes(sample.data(), sample.size());
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	if (sign.isLittleEndian() == false)
+		return false;
+
+	if (sign.getSignType() != pki::sign::SIGN_ID_RSA2048_SHA256)
 		return false;
 
 	return true;
