@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/Vec.h>
-#include <es/SignedData.h>
+#include <pki/SignedData.h>
 #include <es/TicketBody_V2.h>
 #include "nstool.h"
 
@@ -29,7 +29,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	es::SignedData<es::TicketBody_V2> mTik;
+	pki::SignedData<es::TicketBody_V2> mTik;
 
 	void displayTicket();
 	const char* getSignTypeStr(uint32_t type) const;

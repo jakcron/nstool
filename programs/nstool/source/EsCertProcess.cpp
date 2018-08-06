@@ -2,7 +2,7 @@
 #include <iomanip>
 
 #include <fnd/SimpleTextOutput.h>
-#include <es/SignUtils.h>
+#include <pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
 #include "EsCertProcess.h"
 #include "PkiValidator.h"
@@ -66,7 +66,7 @@ void EsCertProcess::importCerts()
 	scratch.alloc(mFile->size());
 	mFile->read(scratch.data(), 0, scratch.size());
 
-	es::SignedData<es::CertificateBody> cert;
+	pki::SignedData<pki::CertificateBody> cert;
 	for (size_t f_pos = 0; f_pos < scratch.size(); f_pos += cert.getBytes().size())
 	{
 		cert.fromBytes(scratch.data() + f_pos, scratch.size() - f_pos);
@@ -98,7 +98,7 @@ void EsCertProcess::displayCerts()
 	}
 }
 
-void EsCertProcess::displayCert(const es::SignedData<es::CertificateBody>& cert)
+void EsCertProcess::displayCert(const pki::SignedData<pki::CertificateBody>& cert)
 {
 #define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
 #define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
@@ -119,7 +119,7 @@ void EsCertProcess::displayCert(const es::SignedData<es::CertificateBody>& cert)
 	std::cout << std::endl;
 	std::cout << "  CertID:        0x" << std::hex << cert.getBody().getCertId() << std::endl;
 	
-	if (cert.getBody().getPublicKeyType() == es::cert::RSA4096)
+	if (cert.getBody().getPublicKeyType() == pki::cert::RSA4096)
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    Modulus:" << std::endl;
@@ -127,7 +127,7 @@ void EsCertProcess::displayCert(const es::SignedData<es::CertificateBody>& cert)
 		std::cout << "    Public Exponent:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().public_exponent, crypto::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
-	else if (cert.getBody().getPublicKeyType() == es::cert::RSA2048)
+	else if (cert.getBody().getPublicKeyType() == pki::cert::RSA2048)
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    Public Exponent:" << std::endl;
@@ -135,7 +135,7 @@ void EsCertProcess::displayCert(const es::SignedData<es::CertificateBody>& cert)
 		std::cout << "    Modulus:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().public_exponent, crypto::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
-	else if (cert.getBody().getPublicKeyType() == es::cert::ECDSA240)
+	else if (cert.getBody().getPublicKeyType() == pki::cert::ECDSA240)
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    R:" << std::endl;
@@ -151,27 +151,27 @@ void EsCertProcess::displayCert(const es::SignedData<es::CertificateBody>& cert)
 #undef _SPLIT_VER
 }
 
-const char* EsCertProcess::getSignTypeStr(es::sign::SignatureId type) const
+const char* EsCertProcess::getSignTypeStr(pki::sign::SignatureId type) const
 {
 	const char* str;
 	switch (type)
 	{
-	case (es::sign::SIGN_ID_RSA4096_SHA1):
+	case (pki::sign::SIGN_ID_RSA4096_SHA1):
 		str = "RSA4096-SHA1";
 		break;
-	case (es::sign::SIGN_ID_RSA2048_SHA1):
+	case (pki::sign::SIGN_ID_RSA2048_SHA1):
 		str = "RSA2048-SHA1";
 		break;
-	case (es::sign::SIGN_ID_ECDSA240_SHA1):
+	case (pki::sign::SIGN_ID_ECDSA240_SHA1):
 		str = "ECDSA240-SHA1";
 		break;
-	case (es::sign::SIGN_ID_RSA4096_SHA256):
+	case (pki::sign::SIGN_ID_RSA4096_SHA256):
 		str = "RSA4096-SHA256";
 		break;
-	case (es::sign::SIGN_ID_RSA2048_SHA256):
+	case (pki::sign::SIGN_ID_RSA2048_SHA256):
 		str = "RSA2048-SHA256";
 		break;
-	case (es::sign::SIGN_ID_ECDSA240_SHA256):
+	case (pki::sign::SIGN_ID_ECDSA240_SHA256):
 		str = "ECDSA240-SHA256";
 		break;
 	default:
@@ -186,18 +186,18 @@ const char* EsCertProcess::getEndiannessStr(bool isLittleEndian) const
 	return isLittleEndian ? "LittleEndian" : "BigEndian";
 }
 
-const char* EsCertProcess::getPublicKeyTypeStr(es::cert::PublicKeyType type) const
+const char* EsCertProcess::getPublicKeyTypeStr(pki::cert::PublicKeyType type) const
 {
 	const char* str;
 	switch (type)
 	{
-	case (es::cert::RSA4096):
+	case (pki::cert::RSA4096):
 		str = "RSA4096";
 		break;
-	case (es::cert::RSA2048):
+	case (pki::cert::RSA2048):
 		str = "RSA2048";
 		break;
-	case (es::cert::ECDSA240):
+	case (pki::cert::ECDSA240):
 		str = "ECDSA240";
 		break;
 	default:

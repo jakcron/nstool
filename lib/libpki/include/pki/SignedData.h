@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <fnd/ISerialisable.h>
-#include <es/SignatureBlock.h>
+#include <pki/SignatureBlock.h>
 
-namespace es
+namespace pki
 {
 	template <class T>
 	class SignedData
@@ -25,7 +25,7 @@ namespace es
 		// variables
 		void clear();
 
-		const es::SignatureBlock& getSignature() const;
+		const pki::SignatureBlock& getSignature() const;
 		void setSignature(const SignatureBlock& signature);
 
 		const T& getBody() const;
@@ -111,7 +111,7 @@ namespace es
 	}
 
 	template <class T>
-	inline const es::SignatureBlock& SignedData<T>::getSignature() const
+	inline const pki::SignatureBlock& SignedData<T>::getSignature() const
 	{
 		return mSignature;
 	}

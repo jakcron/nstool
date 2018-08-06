@@ -22,7 +22,7 @@
 #include <nx/nso.h>
 #include <nx/nro.h>
 #include <nx/aset.h>
-#include <es/SignatureBlock.h>
+#include <pki/SignatureBlock.h>
 
 UserSettings::UserSettings()
 {}
@@ -756,10 +756,10 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test nso
 	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _TYPE_PTR(nx::sNroHeader)->st_magic.get() == nx::nro::kNroStructMagic)
 		file_type = FILE_NRO;
-	// test es certificate
+	// test pki certificate
 	else if (determineValidEsCertFromSample(scratch))
 		file_type = FILE_ES_CERT;
-	// test es ticket
+	// test ticket
 	else if (determineValidEsTikFromSample(scratch))
 		file_type = FILE_ES_TIK;
 	// test hb asset
@@ -866,7 +866,7 @@ bool UserSettings::determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) 
 
 bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const
 {
-	es::SignatureBlock sign;
+	pki::SignatureBlock sign;
 
 	try 
 	{
@@ -880,7 +880,7 @@ bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample
 	if (sign.isLittleEndian() == true)
 		return false;
 
-	if (sign.getSignType() != es::sign::SIGN_ID_RSA4096_SHA256 && sign.getSignType() != es::sign::SIGN_ID_RSA2048_SHA256 && sign.getSignType() != es::sign::SIGN_ID_ECDSA240_SHA256)
+	if (sign.getSignType() != pki::sign::SIGN_ID_RSA4096_SHA256 && sign.getSignType() != pki::sign::SIGN_ID_RSA2048_SHA256 && sign.getSignType() != pki::sign::SIGN_ID_ECDSA240_SHA256)
 		return false;
 
 	return true;
@@ -888,7 +888,7 @@ bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample
 
 bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const
 {
-	es::SignatureBlock sign;
+	pki::SignatureBlock sign;
 
 	try 
 	{
@@ -902,7 +902,7 @@ bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample)
 	if (sign.isLittleEndian() == false)
 		return false;
 
-	if (sign.getSignType() != es::sign::SIGN_ID_RSA2048_SHA256)
+	if (sign.getSignType() != pki::sign::SIGN_ID_RSA2048_SHA256)
 		return false;
 
 	return true;

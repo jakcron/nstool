@@ -5,7 +5,7 @@
 #include <crypto/rsa.h>
 #include <crypto/ecdsa.h>
 
-namespace es
+namespace pki
 {
 	namespace sign
 	{
