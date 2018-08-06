@@ -2,8 +2,10 @@
 #include <iomanip>
 
 #include <fnd/SimpleTextOutput.h>
+#include <pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
 #include "EsTikProcess.h"
+#include "PkiValidator.h"
 
 
 
@@ -25,17 +27,10 @@ EsTikProcess::~EsTikProcess()
 
 void EsTikProcess::process()
 {
-	fnd::Vec<byte_t> scratch;
+	importTicket();
 
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
-
-	mTik.fromBytes(scratch.data(), scratch.size());
+	if (mVerify)
+		verifyTicket();
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayTicket();
@@ -52,6 +47,11 @@ void EsTikProcess::setKeyset(const sKeyset* keyset)
 	mKeyset = keyset;
 }
 
+void EsTikProcess::setCertificateChain(const fnd::List<pki::SignedData<pki::CertificateBody>>& certs)
+{
+	mCerts = certs;
+}
+
 void EsTikProcess::setCliOutputMode(CliOutputMode mode)
 {
 	mCliOutputMode = mode;
@@ -60,6 +60,48 @@ void EsTikProcess::setCliOutputMode(CliOutputMode mode)
 void EsTikProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
+}
+
+void EsTikProcess::importTicket()
+{
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
+	fnd::Vec<byte_t> scratch;
+	scratch.alloc(mFile->size());
+	mFile->read(scratch.data(), 0, scratch.size());
+	mTik.fromBytes(scratch.data(), scratch.size());
+}
+
+void EsTikProcess::verifyTicket()
+{
+	PkiValidator pki_validator;
+	fnd::Vec<byte_t> tik_hash;
+
+	switch (pki::sign::getHashAlgo(mTik.getSignature().getSignType()))
+	{
+	case (pki::sign::HASH_ALGO_SHA1):
+		tik_hash.alloc(crypto::sha::kSha1HashLen);
+		crypto::sha::Sha1(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
+		break;
+	case (pki::sign::HASH_ALGO_SHA256):
+		tik_hash.alloc(crypto::sha::kSha256HashLen);
+		crypto::sha::Sha256(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
+		break;
+	}
+
+	try 
+	{
+		pki_validator.setRootKey(mKeyset->pki.root_sign_key);
+		pki_validator.addCertificates(mCerts);
+		pki_validator.validateSignature(mTik.getBody().getIssuer(), mTik.getSignature().getSignType(), mTik.getSignature().getSignature(), tik_hash);
+	}
+	catch (const fnd::Exception& e)
+	{
+		std::cout << "[WARNING] Ticket signature could not be validated (" << e.error() << ")" << std::endl;
+	}
 }
 
 void EsTikProcess::displayTicket()

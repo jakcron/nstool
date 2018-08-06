@@ -192,6 +192,7 @@ int main(int argc, char** argv)
 
 			tik.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
 			tik.setKeyset(&user_set.getKeyset());
+			tik.setCertificateChain(user_set.getCertificateChain());
 			tik.setCliOutputMode(user_set.getCliOutputMode());
 			tik.setVerifyMode(user_set.isVerifyFile());
 

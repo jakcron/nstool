@@ -1,5 +1,6 @@
 #include "UserSettings.h"
 #include "version.h"
+#include "PkiValidator.h"
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -23,6 +24,8 @@
 #include <nx/nro.h>
 #include <nx/aset.h>
 #include <pki/SignedData.h>
+#include <pki/CertificateBody.h>
+#include <pki/SignUtils.h>
 #include <es/TicketBody_V2.h>
 
 UserSettings::UserSettings()
@@ -185,6 +188,11 @@ const sOptional<std::string>& UserSettings::getAssetNacpPath() const
 	return mAssetNacpPath;
 }
 
+const fnd::List<pki::SignedData<pki::CertificateBody>>& UserSettings::getCertificateChain() const
+{
+	return mCertChain;
+}
+
 void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCmdArgs& cmd_args)
 {
 	// show help text
@@ -303,6 +311,12 @@ void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCm
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
 			cmd_args.ticket_path = arg_list[i+1];
+		}
+
+		else if (arg_list[i] == "--cert")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.cert_path = arg_list[i+1];
 		}
 
 		else if (arg_list[i] == "--part0")
@@ -535,6 +549,24 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		}
 	}
 
+	// import certificate chain
+	if (args.cert_path.isSet)
+	{
+		fnd::SimpleFile cert_file;
+		fnd::Vec<byte_t> cert_raw;
+		pki::SignedData<pki::CertificateBody> cert;
+
+		cert_file.open(args.cert_path.var, fnd::SimpleFile::Read);
+		cert_raw.alloc(cert_file.size());
+		cert_file.read(cert_raw.data(), cert_raw.size());
+
+		for (size_t i = 0; i < cert_raw.size(); i+= cert.getBytes().size())
+		{
+			cert.fromBytes(cert_raw.data() + i, cert_raw.size() - i);
+			mCertChain.addElement(cert);
+		}
+	}
+
 	// get titlekey from ticket
 	if (args.ticket_path.isSet)
 	{
@@ -542,11 +574,44 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		fnd::Vec<byte_t> tik_raw;
 		pki::SignedData<es::TicketBody_V2> tik;
 
+		// open and import ticket
 		tik_file.open(args.ticket_path.var, fnd::SimpleFile::Read);
 		tik_raw.alloc(tik_file.size());
 		tik_file.read(tik_raw.data(), tik_raw.size());
 		tik.fromBytes(tik_raw.data(), tik_raw.size());
 
+		// validate ticket signature
+		if (mCertChain.size() > 0)
+		{
+			PkiValidator pki_validator;
+			fnd::Vec<byte_t> tik_hash;
+
+			switch (pki::sign::getHashAlgo(tik.getSignature().getSignType()))
+			{
+			case (pki::sign::HASH_ALGO_SHA1):
+				tik_hash.alloc(crypto::sha::kSha1HashLen);
+				crypto::sha::Sha1(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
+				break;
+			case (pki::sign::HASH_ALGO_SHA256):
+				tik_hash.alloc(crypto::sha::kSha256HashLen);
+				crypto::sha::Sha256(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
+				break;
+			}
+
+			try 
+			{
+				pki_validator.setRootKey(mKeyset.pki.root_sign_key);
+				pki_validator.addCertificates(mCertChain);
+				pki_validator.validateSignature(tik.getBody().getIssuer(), tik.getSignature().getSignType(), tik.getSignature().getSignature(), tik_hash);
+			}
+			catch (const fnd::Exception& e)
+			{
+				std::cout << "[WARNING] Ticket signature could not be validated (" << e.error() << ")" << std::endl;
+			}
+			
+		}
+
+		// extract title key
 		if (tik.getBody().getTitleKeyEncType() == es::ticket::AES128_CBC)
 		{
 			memcpy(mKeyset.nca.manual_title_key_aesctr.key, tik.getBody().getEncTitleKey(), crypto::aes::kAes128KeySize);
