@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libpolarssl\include;..\liblz4\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -83,7 +83,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libpolarssl\include;..\liblz4\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -94,7 +94,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libpolarssl\include;..\liblz4\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -109,7 +109,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libpolarssl\include;..\liblz4\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -121,7 +121,10 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\fnd\aes.h" />
+    <ClInclude Include="include\fnd\base64.h" />
     <ClInclude Include="include\fnd\BitMath.h" />
+    <ClInclude Include="include\fnd\ecdsa.h" />
     <ClInclude Include="include\fnd\elf.h" />
     <ClInclude Include="include\fnd\Endian.h" />
     <ClInclude Include="include\fnd\Exception.h" />
@@ -129,7 +132,10 @@
     <ClInclude Include="include\fnd\io.h" />
     <ClInclude Include="include\fnd\ISerialisable.h" />
     <ClInclude Include="include\fnd\List.h" />
+    <ClInclude Include="include\fnd\lz4.h" />
     <ClInclude Include="include\fnd\ResourceFileReader.h" />
+    <ClInclude Include="include\fnd\rsa.h" />
+    <ClInclude Include="include\fnd\sha.h" />
     <ClInclude Include="include\fnd\SimpleFile.h" />
     <ClInclude Include="include\fnd\SimpleTextOutput.h" />
     <ClInclude Include="include\fnd\StringConv.h" />
@@ -137,9 +143,14 @@
     <ClInclude Include="include\fnd\Vec.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\aes_wrapper.cpp" />
+    <ClCompile Include="source\base64_wrapper.cpp" />
     <ClCompile Include="source\Exception.cpp" />
     <ClCompile Include="source\io.cpp" />
+    <ClCompile Include="source\lz4_wrapper.cpp" />
     <ClCompile Include="source\ResourceFileReader.cpp" />
+    <ClCompile Include="source\rsa_wrapper.cpp" />
+    <ClCompile Include="source\sha_wrapper.cpp" />
     <ClCompile Include="source\SimpleFile.cpp" />
     <ClCompile Include="source\SimpleTextOutput.cpp" />
     <ClCompile Include="source\StringConv.cpp" />
