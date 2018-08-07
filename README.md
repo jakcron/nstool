@@ -18,6 +18,8 @@ Tools & Libraries for Nintendo devices.
 * __libpolarssl__ - Cryptographic functions (AES,SHA,RSA). Clone of [polarssl](https://github.com/ARMmbed/mbedtls) (now mbedTLS).
 * __liblz4__ - Compression algorithms (LZ4). Clone of [lz4](https://github.com/lz4/lz4).
 
+(Copies of these are included locally and are statically linked libraries)
+
 # Building
 On MacOS/Linux/WSL run `make`.
 
