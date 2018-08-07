@@ -7,7 +7,6 @@ DEPENDS =
 LIB_DIR = ..
 INCS = -I"include" $(foreach dep,$(DEPENDS), -I"$(LIB_DIR)/lib$(dep)/include")
 
-
 # Compiler Settings
 CXXFLAGS = -std=c++11 $(INCS) -D__STDC_FORMAT_MACROS -Wall -Wno-unused-value
 CFLAGS = -std=c11 $(INCS) -Wall -Wno-unused-value

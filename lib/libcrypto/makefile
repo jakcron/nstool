@@ -1,15 +1,15 @@
 # Sources
 SRC_DIR = source
-OBJS = $(foreach dir,$(SRC_DIR),$(subst .cpp,.o,$(wildcard $(dir)/*.cpp)))
+OBJS = $(foreach dir,$(SRC_DIR),$(subst .cpp,.o,$(wildcard $(dir)/*.cpp))) $(foreach dir,$(SRC_DIR),$(subst .c,.o,$(wildcard $(dir)/*.c)))
 
 # External dependencies
 DEPENDS = fnd polarssl
 LIB_DIR = ..
 INCS = -I"include" $(foreach dep,$(DEPENDS), -I"$(LIB_DIR)/lib$(dep)/include")
 
-
 # Compiler Settings
 CXXFLAGS = -std=c++11 $(INCS) -D__STDC_FORMAT_MACROS -Wall -Wno-unused-value
+CFLAGS = -std=c11 $(INCS) -Wall -Wno-unused-value
 ARFLAGS = cr -o
 ifeq ($(OS),Windows_NT)
 	# Windows Only Flags/Libs
