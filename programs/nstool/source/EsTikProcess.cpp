@@ -83,12 +83,12 @@ void EsTikProcess::verifyTicket()
 	switch (nn::pki::sign::getHashAlgo(mTik.getSignature().getSignType()))
 	{
 	case (nn::pki::sign::HASH_ALGO_SHA1):
-		tik_hash.alloc(crypto::sha::kSha1HashLen);
-		crypto::sha::Sha1(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
+		tik_hash.alloc(fnd::sha::kSha1HashLen);
+		fnd::sha::Sha1(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
 		break;
 	case (nn::pki::sign::HASH_ALGO_SHA256):
-		tik_hash.alloc(crypto::sha::kSha256HashLen);
-		crypto::sha::Sha256(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
+		tik_hash.alloc(fnd::sha::kSha256HashLen);
+		fnd::sha::Sha256(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
 		break;
 	}
 
@@ -124,7 +124,7 @@ void EsTikProcess::displayTicket()
 	std::cout << "    EncMode:        " << getTitleKeyPersonalisationStr(body.getTitleKeyEncType()) << std::endl;
 	std::cout << "    KeyGeneration:  " << std::dec << (uint32_t)body.getCommonKeyId() << std::endl;
 	std::cout << "    Data:" << std::endl;
-	size_t size = body.getTitleKeyEncType() == nn::es::ticket::RSA2048 ? crypto::rsa::kRsa2048Size : crypto::aes::kAes128KeySize;
+	size_t size = body.getTitleKeyEncType() == nn::es::ticket::RSA2048 ? fnd::rsa::kRsa2048Size : fnd::aes::kAes128KeySize;
 	fnd::SimpleTextOutput::hexDump(body.getEncTitleKey(), size, 0x10, 6);
 
 	printf("  Version:          v%d.%d.%d", _SPLIT_VER(body.getTicketVersion()));

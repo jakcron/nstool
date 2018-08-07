@@ -50,14 +50,14 @@ namespace hac
 		void fromBytes(const byte_t* data, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;
 
-		void generateSignature(const crypto::rsa::sRsa2048Key& key);
-		void validateSignature(const crypto::rsa::sRsa2048Key& key) const;
+		void generateSignature(const fnd::rsa::sRsa2048Key& key);
+		void validateSignature(const fnd::rsa::sRsa2048Key& key) const;
 
 		// variables
 		void clear();
 
-		const crypto::rsa::sRsa2048Key& getNcaHeaderSignature2Key() const;
-		void setNcaHeaderSignature2Key(const crypto::rsa::sRsa2048Key& key);
+		const fnd::rsa::sRsa2048Key& getNcaHeaderSignature2Key() const;
+		void setNcaHeaderSignature2Key(const fnd::rsa::sRsa2048Key& key);
 
 		const fnd::List<aci::Flag>& getFlagList() const;
 		void setFlagList(const fnd::List<aci::Flag>& flags);
@@ -80,7 +80,7 @@ namespace hac
 		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
-		crypto::rsa::sRsa2048Key mNcaHeaderSignature2Key;
+		fnd::rsa::sRsa2048Key mNcaHeaderSignature2Key;
 		fnd::List<aci::Flag> mFlags;
 		sProgramIdRestrict mProgramIdRestrict;
 		nn::hac::FileSystemAccessControlBinary mFileSystemAccessControl;

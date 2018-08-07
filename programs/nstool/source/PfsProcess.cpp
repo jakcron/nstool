@@ -142,13 +142,13 @@ bool PfsProcess::validateHeaderMagic(const nn::hac::sPfsHeader* hdr)
 
 void PfsProcess::validateHfs()
 {
-	crypto::sha::sSha256Hash hash;
+	fnd::sha::sSha256Hash hash;
 	const fnd::List<nn::hac::PfsHeader::sFile>& file = mPfs.getFileList();
 	for (size_t i = 0; i < file.size(); i++)
 	{
 		mCache.alloc(file[i].hash_protected_size);
 		mFile->read(mCache.data(), file[i].offset, file[i].hash_protected_size);
-		crypto::sha::Sha256(mCache.data(), file[i].hash_protected_size, hash.bytes);
+		fnd::sha::Sha256(mCache.data(), file[i].hash_protected_size, hash.bytes);
 		if (hash != file[i].hash)
 		{
 			printf("[WARNING] HFS0 %s%s%s: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", file[i].name.c_str());

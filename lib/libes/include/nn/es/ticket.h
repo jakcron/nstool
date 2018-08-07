@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <crypto/rsa.h>
+#include <fnd/rsa.h>
 
 namespace nn
 {
@@ -44,7 +44,7 @@ namespace es
 
 		static const size_t kIssuerSize = 0x40;
 		static const byte_t kFormatVersion = 2;
-		static const size_t kEncTitleKeySize = crypto::rsa::kRsa2048Size;
+		static const size_t kEncTitleKeySize = fnd::rsa::kRsa2048Size;
 		static const size_t kReservedRegionSize = 8;
 		static const size_t kRightsIdSize = 16;
 	}

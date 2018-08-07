@@ -1,9 +1,9 @@
 #pragma once
 #include <cstdint>
 #include <cstring>
-#include <crypto/sha.h>
+#include <fnd/sha.h>
 
-namespace crypto
+namespace fnd
 {
 	namespace rsa
 	{

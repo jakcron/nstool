@@ -1,6 +1,6 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/Vec.h>
-#include <compress/lz4.h>
+#include <fnd/lz4.h>
 #include <nn/hac/nro-hb.h>
 #include "OffsetAdjustedIFile.h"
 #include "NroProcess.h"

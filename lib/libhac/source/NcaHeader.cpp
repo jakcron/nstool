@@ -306,12 +306,12 @@ void nn::hac::NcaHeader::setPartitions(const fnd::List<nn::hac::NcaHeader::sPart
 	}
 }
 
-const fnd::List<crypto::aes::sAes128Key>& nn::hac::NcaHeader::getEncAesKeys() const
+const fnd::List<fnd::aes::sAes128Key>& nn::hac::NcaHeader::getEncAesKeys() const
 {
 	return mEncAesKeys;
 }
 
-void nn::hac::NcaHeader::setEncAesKeys(const fnd::List<crypto::aes::sAes128Key>& keys)
+void nn::hac::NcaHeader::setEncAesKeys(const fnd::List<fnd::aes::sAes128Key>& keys)
 {
 	mEncAesKeys = keys;
 }

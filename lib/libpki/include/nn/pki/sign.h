@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <crypto/aes.h>
-#include <crypto/rsa.h>
-#include <crypto/ecdsa.h>
+#include <fnd/aes.h>
+#include <fnd/rsa.h>
+#include <fnd/ecdsa.h>
 
 namespace nn
 {
@@ -43,14 +43,14 @@ namespace pki
 	struct sRsa4096SignBlock
 	{
 		be_uint32_t sign_type;
-		byte_t signature[crypto::rsa::kRsa4096Size];
+		byte_t signature[fnd::rsa::kRsa4096Size];
 		byte_t padding[0x3C];
 	};
 
 	struct sRsa2048SignBlock
 	{
 		be_uint32_t sign_type;
-		byte_t signature[crypto::rsa::kRsa2048Size];
+		byte_t signature[fnd::rsa::kRsa2048Size];
 		byte_t padding[0x3C];
 	};
 

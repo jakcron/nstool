@@ -96,16 +96,16 @@ void HashTreeWrappedIFile::write(const byte_t* out, size_t offset, size_t len)
 
 void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 {
-	crypto::sha::sSha256Hash hash;
+	fnd::sha::sSha256Hash hash;
 	fnd::Vec<byte_t> cur, prev;
 
 	mAlignHashCalcToBlock = hdr.getAlignHashToBlock();
 
 	// copy master hash into prev
-	prev.alloc(sizeof(crypto::sha::sSha256Hash) * hdr.getMasterHashList().size());
+	prev.alloc(sizeof(fnd::sha::sSha256Hash) * hdr.getMasterHashList().size());
 	for (size_t i = 0; i < hdr.getMasterHashList().size(); i++)
 	{
-		((crypto::sha::sSha256Hash*)prev.data())[i] = hdr.getMasterHashList()[i];
+		((fnd::sha::sSha256Hash*)prev.data())[i] = hdr.getMasterHashList()[i];
 	}
 	
 	// check each hash layer
@@ -125,8 +125,8 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 		for (size_t j = 0; j < cur.size() / layer.block_size; j++)
 		{
 			validate_size = mAlignHashCalcToBlock? layer.block_size : _MIN(layer.size - (j * layer.block_size), layer.block_size);
-			crypto::sha::Sha256(cur.data() + (j * layer.block_size), validate_size, hash.bytes);
-			if (hash.compare(prev.data() + j * sizeof(crypto::sha::sSha256Hash)) == false)
+			fnd::sha::Sha256(cur.data() + (j * layer.block_size), validate_size, hash.bytes);
+			if (hash.compare(prev.data() + j * sizeof(fnd::sha::sSha256Hash)) == false)
 			{
 				mErrorSs << "Hash tree layer verification failed (layer: " << i << ", block: " << j << ")";
 				throw fnd::Exception(kModuleName, mErrorSs.str());
@@ -138,8 +138,8 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 	}
 
 	// save last layer as hash table for data layer
-	crypto::sha::sSha256Hash* hash_list = (crypto::sha::sSha256Hash*)prev.data();
-	for (size_t i = 0; i < prev.size() / sizeof(crypto::sha::sSha256Hash); i++)
+	fnd::sha::sSha256Hash* hash_list = (fnd::sha::sSha256Hash*)prev.data();
+	for (size_t i = 0; i < prev.size() / sizeof(fnd::sha::sSha256Hash); i++)
 	{
 		mDataHashLayer.addElement(hash_list[i]);
 	}
@@ -161,7 +161,7 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 {
 	mData->seek(block_offset * mDataBlockSize);
-	crypto::sha::sSha256Hash hash;
+	fnd::sha::sSha256Hash hash;
 
 	// determine read size
 	size_t read_len = 0;
@@ -194,7 +194,7 @@ void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 	for (size_t i = 0; i < block_num; i++)
 	{
 		validate_size = mAlignHashCalcToBlock? mDataBlockSize : _MIN(read_len - (i * mDataBlockSize), mDataBlockSize);
-		crypto::sha::Sha256(mCache.data() + (i * mDataBlockSize), validate_size, hash.bytes);
+		fnd::sha::Sha256(mCache.data() + (i * mDataBlockSize), validate_size, hash.bytes);
 		if (hash != mDataHashLayer[block_offset + i])
 		{
 			mErrorSs << "Hash tree layer verification failed (layer: data, block: " << (block_offset + i) << " ( " << i << "/" << block_num-1 << " ), offset: 0x" << std::hex << ((block_offset + i) * mDataBlockSize) << ", size: 0x" << std::hex <<  validate_size <<")";

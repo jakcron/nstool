@@ -1,6 +1,6 @@
 #pragma once
 #include <fnd/types.h>
-#include <crypto/rsa.h>
+#include <fnd/rsa.h>
 #include <nn/hac/macro.h>
 
 namespace nn
@@ -39,8 +39,8 @@ namespace hac
 
 	struct sAciDescHeader
 	{
-		byte_t signature[crypto::rsa::kRsa2048Size];
-		byte_t nca_rsa_signature2_modulus[crypto::rsa::kRsa2048Size];
+		byte_t signature[fnd::rsa::kRsa2048Size];
+		byte_t nca_rsa_signature2_modulus[fnd::rsa::kRsa2048Size];
 		le_uint32_t st_magic;
 		le_uint32_t signed_size;
 		byte_t reserved_00[0x4];

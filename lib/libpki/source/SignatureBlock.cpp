@@ -40,12 +40,12 @@ void nn::pki::SignatureBlock::toBytes()
 		case (sign::SIGN_ID_RSA4096_SHA1):
 		case (sign::SIGN_ID_RSA4096_SHA256):
 			totalSize = sizeof(sRsa4096SignBlock);
-			sigSize = crypto::rsa::kRsa4096Size;
+			sigSize = fnd::rsa::kRsa4096Size;
 			break;
 		case (sign::SIGN_ID_RSA2048_SHA1):
 		case (sign::SIGN_ID_RSA2048_SHA256):
 			totalSize = sizeof(sRsa2048SignBlock);
-			sigSize = crypto::rsa::kRsa2048Size;
+			sigSize = fnd::rsa::kRsa2048Size;
 			break;
 		case (sign::SIGN_ID_ECDSA240_SHA1):
 		case (sign::SIGN_ID_ECDSA240_SHA256):
@@ -83,12 +83,12 @@ void nn::pki::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 	case (sign::SIGN_ID_RSA4096_SHA1): 
 	case (sign::SIGN_ID_RSA4096_SHA256):
 		totalSize = sizeof(sRsa4096SignBlock);
-		sigSize = crypto::rsa::kRsa4096Size;
+		sigSize = fnd::rsa::kRsa4096Size;
 		break;
 	case (sign::SIGN_ID_RSA2048_SHA1): 
 	case (sign::SIGN_ID_RSA2048_SHA256):
 		totalSize = sizeof(sRsa2048SignBlock);
-		sigSize = crypto::rsa::kRsa2048Size;
+		sigSize = fnd::rsa::kRsa2048Size;
 		break;
 	case (sign::SIGN_ID_ECDSA240_SHA1): 
 	case (sign::SIGN_ID_ECDSA240_SHA256):
@@ -106,12 +106,12 @@ void nn::pki::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 		case (sign::SIGN_ID_RSA4096_SHA1): 
 		case (sign::SIGN_ID_RSA4096_SHA256):
 			totalSize = sizeof(sRsa4096SignBlock);
-			sigSize = crypto::rsa::kRsa4096Size;
+			sigSize = fnd::rsa::kRsa4096Size;
 			break;
 		case (sign::SIGN_ID_RSA2048_SHA1): 
 		case (sign::SIGN_ID_RSA2048_SHA256):
 			totalSize = sizeof(sRsa2048SignBlock);
-			sigSize = crypto::rsa::kRsa2048Size;
+			sigSize = fnd::rsa::kRsa2048Size;
 			break;
 		case (sign::SIGN_ID_ECDSA240_SHA1): 
 		case (sign::SIGN_ID_ECDSA240_SHA256):

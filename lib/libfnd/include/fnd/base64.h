@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace crypto
+namespace fnd
 {
 namespace base64
 {

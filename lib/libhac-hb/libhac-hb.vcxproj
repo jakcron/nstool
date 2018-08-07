@@ -77,7 +77,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libhac\include;..\libhac-hb\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libhac\include;..\libhac-hb\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libhac\include;..\libhac-hb\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libhac\include;..\libhac-hb\include;</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -99,7 +99,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libhac\include;..\libhac-hb\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libhac\include;..\libhac-hb\include;</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -110,7 +110,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libhac\include;..\libhac-hb\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libhac\include;..\libhac-hb\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

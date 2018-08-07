@@ -50,7 +50,7 @@ private:
 
 	// data
 	nn::hac::sNcaHeaderBlock mHdrBlock;
-	crypto::sha::sSha256Hash mHdrHash;
+	fnd::sha::sSha256Hash mHdrHash;
 	nn::hac::NcaHeader mHdr;
 
 	// crypto
@@ -60,8 +60,8 @@ private:
 		{
 			byte_t index;
 			bool decrypted;
-			crypto::aes::sAes128Key enc;
-			crypto::aes::sAes128Key dec;
+			fnd::aes::sAes128Key enc;
+			fnd::aes::sAes128Key dec;
 
 			void operator=(const sKeyAreaKey& other)
 			{
@@ -86,8 +86,8 @@ private:
 		};
 		fnd::List<sKeyAreaKey> keak_list;
 
-		sOptional<crypto::aes::sAes128Key> aes_ctr;
-		sOptional<crypto::aes::sAesXts128Key> aes_xts;
+		sOptional<fnd::aes::sAes128Key> aes_ctr;
+		sOptional<fnd::aes::sAesXts128Key> aes_xts;
 	} mBodyKeys;
 	
 	struct sPartitionInfo
@@ -102,7 +102,7 @@ private:
 		nn::hac::nca::HashType hash_type;
 		nn::hac::nca::EncryptionType enc_type;
 		HashTreeMeta hash_tree_meta;
-		crypto::aes::sAesIvCtr aes_ctr;
+		fnd::aes::sAesIvCtr aes_ctr;
 	} mPartitions[nn::hac::nca::kPartitionNum];
 
 	void generateNcaBodyEncryptionKeys();

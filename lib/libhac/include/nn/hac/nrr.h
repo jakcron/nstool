@@ -1,6 +1,6 @@
 #pragma once
 #include <fnd/types.h>
-#include <crypto/rsa.h>
+#include <fnd/rsa.h>
 #include <nn/hac/macro.h>
 
 namespace nn
@@ -17,8 +17,8 @@ namespace hac
 	{
 		le_uint64_t application_id_mask;
 		le_uint64_t application_id_pattern;
-		byte_t nrr_body_modulus[crypto::rsa::kRsa2048Size];
-		byte_t nrr_cert_signature[crypto::rsa::kRsa2048Size];
+		byte_t nrr_body_modulus[fnd::rsa::kRsa2048Size];
+		byte_t nrr_cert_signature[fnd::rsa::kRsa2048Size];
 	};
 
 	struct sNrrHeader
@@ -26,7 +26,7 @@ namespace hac
 		le_uint32_t st_magic;
 		byte_t reserved_0[28];
 		sNrrCertificate certificate;
-		byte_t nrr_body_signature[crypto::rsa::kRsa2048Size];
+		byte_t nrr_body_signature[fnd::rsa::kRsa2048Size];
 		le_uint64_t application_id;
 		le_uint32_t size;
 		byte_t reserved_1[4];

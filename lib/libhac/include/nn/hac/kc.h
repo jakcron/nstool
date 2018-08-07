@@ -1,6 +1,6 @@
 #pragma once
 #include <fnd/types.h>
-#include <crypto/rsa.h>
+#include <fnd/rsa.h>
 #include <nn/hac/macro.h>
 
 namespace nn

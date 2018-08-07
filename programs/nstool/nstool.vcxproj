@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libhac\include;..\..\lib\libhac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libhac\include;..\..\lib\libhac-hb\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libhac\include;..\..\lib\libhac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libhac\include;..\..\lib\libhac-hb\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libhac\include;..\..\lib\libhac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libhac\include;..\..\lib\libhac-hb\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,7 +141,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libcompress\include;..\..\lib\libcrypto\include;..\..\lib\libhac\include;..\..\lib\libhac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\lib\libpki\include;..\..\lib\libes\include;..\..\lib\libfnd\include;..\..\lib\libhac\include;..\..\lib\libhac-hb\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,12 +156,6 @@
     </ProjectReference>
     <ProjectReference Include="..\..\lib\liblz4\liblz4.vcxproj">
       <Project>{AB0C3362-63AB-480A-ADBC-2EF7D859778B}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\lib\libcompress\libcompress.vcxproj">
-      <Project>{cf01b5b7-730a-447f-9bb2-5eda9b082177}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\lib\libcrypto\libcrypto.vcxproj">
-      <Project>{6adbb60d-dba0-411d-bd2d-a355ef8e0fe1}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\lib\libes\libes.vcxproj">
       <Project>{7be99936-0d40-410d-944b-4513c2eff8dc}</Project>

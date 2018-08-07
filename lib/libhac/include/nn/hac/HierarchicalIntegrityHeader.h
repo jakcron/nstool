@@ -2,7 +2,7 @@
 #include <nn/hac/hierarchicalintegrity.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <crypto/sha.h>
+#include <fnd/sha.h>
 
 namespace nn
 {
@@ -54,8 +54,8 @@ namespace hac
 		const fnd::List<sLayer>& getLayerInfo() const;
 		void setLayerInfo(const fnd::List<sLayer>& layer_info);
 
-		const fnd::List<crypto::sha::sSha256Hash>& getMasterHashList() const;
-		void setMasterHashList(const fnd::List<crypto::sha::sSha256Hash>& master_hash_list);
+		const fnd::List<fnd::sha::sSha256Hash>& getMasterHashList() const;
+		void setMasterHashList(const fnd::List<fnd::sha::sSha256Hash>& master_hash_list);
 	private:
 		const std::string kModuleName = "HIERARCHICAL_INTEGRITY_HEADER";
 
@@ -64,7 +64,7 @@ namespace hac
 
 		// data
 		fnd::List<sLayer> mLayerInfo;
-		fnd::List<crypto::sha::sSha256Hash> mMasterHashList;
+		fnd::List<fnd::sha::sSha256Hash> mMasterHashList;
 	};
 }
 }

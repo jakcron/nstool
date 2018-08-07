@@ -25,7 +25,7 @@ namespace hac
 			size_t offset;
 			size_t size;
 			size_t hash_protected_size;
-			crypto::sha::sSha256Hash hash;
+			fnd::sha::sSha256Hash hash;
 
 			sFile& operator=(const sFile& other)
 			{
@@ -84,7 +84,7 @@ namespace hac
 		void setFsType(FsType type);
 		const fnd::List<sFile>& getFileList() const;
 		void addFile(const std::string& name, size_t size);
-		void addFile(const std::string& name, size_t size, size_t hash_protected_size, const crypto::sha::sSha256Hash& hash);
+		void addFile(const std::string& name, size_t size, size_t hash_protected_size, const fnd::sha::sSha256Hash& hash);
 
 	private:
 		const std::string kModuleName = "PFS_HEADER";

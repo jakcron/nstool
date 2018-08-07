@@ -9,7 +9,7 @@ PkiValidator::PkiValidator()
 	clearCertificates();
 }
 
-void PkiValidator::setRootKey(const crypto::rsa::sRsa4096Key& root_key)
+void PkiValidator::setRootKey(const fnd::rsa::sRsa4096Key& root_key)
 {
 	// save a copy of the certificate bank
 	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> old_certs = mCertificateBank;
@@ -58,12 +58,12 @@ void PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::Certificate
 		switch (cert_hash_algo)
 		{
 		case (nn::pki::sign::HASH_ALGO_SHA1):
-			cert_hash.alloc(crypto::sha::kSha1HashLen);
-			crypto::sha::Sha1(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
+			cert_hash.alloc(fnd::sha::kSha1HashLen);
+			fnd::sha::Sha1(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
 			break;
 		case (nn::pki::sign::HASH_ALGO_SHA256):
-			cert_hash.alloc(crypto::sha::kSha256HashLen);
-			crypto::sha::Sha256(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
+			cert_hash.alloc(fnd::sha::kSha256HashLen);
+			fnd::sha::Sha256(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
 			break;
 		default:
 			throw fnd::Exception(kModuleName, "Unrecognised hash type");
@@ -102,7 +102,7 @@ void PkiValidator::validateSignature(const std::string& issuer, nn::pki::sign::S
 		{
 			throw fnd::Exception(kModuleName, "Issued by Root, but does not have a RSA4096 signature");
 		}
-		sig_validate_res = crypto::rsa::pkcs::rsaVerify(mRootKey, getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+		sig_validate_res = fnd::rsa::pkcs::rsaVerify(mRootKey, getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
 	}
 	else
 	{
@@ -112,11 +112,11 @@ void PkiValidator::validateSignature(const std::string& issuer, nn::pki::sign::S
 
 		if (issuer_pubk_type == nn::pki::cert::RSA4096 && sign_algo == nn::pki::sign::SIGN_ALGO_RSA4096)
 		{
-			sig_validate_res = crypto::rsa::pkcs::rsaVerify(issuer_cert.getRsa4098PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+			sig_validate_res = fnd::rsa::pkcs::rsaVerify(issuer_cert.getRsa4098PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
 		}
 		else if (issuer_pubk_type == nn::pki::cert::RSA2048 && sign_algo == nn::pki::sign::SIGN_ALGO_RSA2048)
 		{
-			sig_validate_res = crypto::rsa::pkcs::rsaVerify(issuer_cert.getRsa2048PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+			sig_validate_res = fnd::rsa::pkcs::rsaVerify(issuer_cert.getRsa2048PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
 		}
 		else if (issuer_pubk_type == nn::pki::cert::ECDSA240 && sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
 		{
@@ -179,17 +179,17 @@ const nn::pki::SignedData<nn::pki::CertificateBody>& PkiValidator::getCert(const
 	throw fnd::Exception(kModuleName, "Issuer certificate does not exist");
 }
 
-crypto::sha::HashType PkiValidator::getCryptoHashAlgoFromEsSignHashAlgo(nn::pki::sign::HashAlgo hash_algo) const
+fnd::sha::HashType PkiValidator::getCryptoHashAlgoFromEsSignHashAlgo(nn::pki::sign::HashAlgo hash_algo) const
 {
-	crypto::sha::HashType hash_type = crypto::sha::HASH_SHA1;
+	fnd::sha::HashType hash_type = fnd::sha::HASH_SHA1;
 
 	switch (hash_algo)
 	{
 	case (nn::pki::sign::HASH_ALGO_SHA1):
-		hash_type = crypto::sha::HASH_SHA1;
+		hash_type = fnd::sha::HASH_SHA1;
 		break;
 	case (nn::pki::sign::HASH_ALGO_SHA256):
-		hash_type = crypto::sha::HASH_SHA256;
+		hash_type = fnd::sha::HASH_SHA256;
 		break;
 	};
 

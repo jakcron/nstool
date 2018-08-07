@@ -60,7 +60,7 @@ namespace hac
 			sLayout memory_layout;
 			bool is_compressed;
 			bool is_hashed;
-			crypto::sha::sSha256Hash hash;
+			fnd::sha::sSha256Hash hash;
 
 			void operator=(const sCodeSegment& other)
 			{

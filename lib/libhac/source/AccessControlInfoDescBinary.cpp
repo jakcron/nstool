@@ -66,13 +66,13 @@ void nn::hac::AccessControlInfoDescBinary::toBytes()
 	sAciDescHeader* hdr = (sAciDescHeader*)mRawBinary.data();
 
 	// set rsa modulus
-	memcpy(hdr->nca_rsa_signature2_modulus, mNcaHeaderSignature2Key.modulus, crypto::rsa::kRsa2048Size);
+	memcpy(hdr->nca_rsa_signature2_modulus, mNcaHeaderSignature2Key.modulus, fnd::rsa::kRsa2048Size);
 
 	// set type
 	hdr->st_magic = aci::kAciDescStructMagic;
 
 	// set "acid size"
-	hdr->signed_size = (uint32_t)(total_size - crypto::rsa::kRsa2048Size);
+	hdr->signed_size = (uint32_t)(total_size - fnd::rsa::kRsa2048Size);
 
 	// set flags
 	uint32_t flags = 0;
@@ -128,7 +128,7 @@ void nn::hac::AccessControlInfoDescBinary::fromBytes(const byte_t* data, size_t 
 	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// save variables
-	memcpy(mNcaHeaderSignature2Key.modulus, hdr.nca_rsa_signature2_modulus, crypto::rsa::kRsa2048Size);
+	memcpy(mNcaHeaderSignature2Key.modulus, hdr.nca_rsa_signature2_modulus, fnd::rsa::kRsa2048Size);
 
 	for (size_t i = 0; i < 32; i++)
 	{
@@ -149,29 +149,29 @@ const fnd::Vec<byte_t>& nn::hac::AccessControlInfoDescBinary::getBytes() const
 	return mRawBinary;
 }
 
-void nn::hac::AccessControlInfoDescBinary::generateSignature(const crypto::rsa::sRsa2048Key& key)
+void nn::hac::AccessControlInfoDescBinary::generateSignature(const fnd::rsa::sRsa2048Key& key)
 {
 	if (mRawBinary.size() == 0)
 		toBytes();
 
-	byte_t hash[crypto::sha::kSha256HashLen];
-	crypto::sha::Sha256(mRawBinary.data() + crypto::rsa::kRsa2048Size, mRawBinary.size() - crypto::rsa::kRsa2048Size, hash);
+	byte_t hash[fnd::sha::kSha256HashLen];
+	fnd::sha::Sha256(mRawBinary.data() + fnd::rsa::kRsa2048Size, mRawBinary.size() - fnd::rsa::kRsa2048Size, hash);
 
-	if (crypto::rsa::pkcs::rsaSign(key, crypto::sha::HASH_SHA256, hash, mRawBinary.data()) != 0)
+	if (fnd::rsa::pkcs::rsaSign(key, fnd::sha::HASH_SHA256, hash, mRawBinary.data()) != 0)
 	{
 		throw fnd::Exception(kModuleName, "Failed to sign Access Control Info Desc");
 	}
 }
 
-void nn::hac::AccessControlInfoDescBinary::validateSignature(const crypto::rsa::sRsa2048Key& key) const
+void nn::hac::AccessControlInfoDescBinary::validateSignature(const fnd::rsa::sRsa2048Key& key) const
 {
 	if (mRawBinary.size() == 0)
 		throw fnd::Exception(kModuleName, "No Access Control Info Desc binary exists to verify");
 
-	byte_t hash[crypto::sha::kSha256HashLen];
-	crypto::sha::Sha256(mRawBinary.data() + crypto::rsa::kRsa2048Size, mRawBinary.size() - crypto::rsa::kRsa2048Size, hash);
+	byte_t hash[fnd::sha::kSha256HashLen];
+	fnd::sha::Sha256(mRawBinary.data() + fnd::rsa::kRsa2048Size, mRawBinary.size() - fnd::rsa::kRsa2048Size, hash);
 
-	if (crypto::rsa::pss::rsaVerify(key, crypto::sha::HASH_SHA256, hash, mRawBinary.data()) != 0)
+	if (fnd::rsa::pss::rsaVerify(key, fnd::sha::HASH_SHA256, hash, mRawBinary.data()) != 0)
 	{
 		throw fnd::Exception(kModuleName, "Failed to verify Access Control Info Desc");
 	}
@@ -189,12 +189,12 @@ void nn::hac::AccessControlInfoDescBinary::clear()
 	mKernelCapabilities.clear();
 }
 
-const crypto::rsa::sRsa2048Key& nn::hac::AccessControlInfoDescBinary::getNcaHeaderSignature2Key() const
+const fnd::rsa::sRsa2048Key& nn::hac::AccessControlInfoDescBinary::getNcaHeaderSignature2Key() const
 {
 	return mNcaHeaderSignature2Key;
 }
 
-void nn::hac::AccessControlInfoDescBinary::setNcaHeaderSignature2Key(const crypto::rsa::sRsa2048Key& key)
+void nn::hac::AccessControlInfoDescBinary::setNcaHeaderSignature2Key(const fnd::rsa::sRsa2048Key& key)
 {
 	mNcaHeaderSignature2Key = key;
 }

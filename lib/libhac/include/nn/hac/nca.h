@@ -1,8 +1,8 @@
 #pragma once
 #include <fnd/types.h>
-#include <crypto/aes.h>
-#include <crypto/sha.h>
-#include <crypto/rsa.h>
+#include <fnd/aes.h>
+#include <fnd/sha.h>
+#include <fnd/rsa.h>
 #include <nn/hac/macro.h>
 
 namespace nn
@@ -108,8 +108,8 @@ namespace hac
 			byte_t enabled;
 			byte_t reserved[7];
 		} partition[nca::kPartitionNum];
-		crypto::sha::sSha256Hash partition_hash[nca::kPartitionNum];
-		crypto::aes::sAes128Key enc_aes_key[nca::kAesKeyNum];
+		fnd::sha::sSha256Hash partition_hash[nca::kPartitionNum];
+		fnd::aes::sAes128Key enc_aes_key[nca::kAesKeyNum];
 	};
 
 	struct sNcaFsHeader
@@ -126,8 +126,8 @@ namespace hac
 
 	struct sNcaHeaderBlock
 	{
-		byte_t signature_main[crypto::rsa::kRsa2048Size];
-		byte_t signature_acid[crypto::rsa::kRsa2048Size];
+		byte_t signature_main[fnd::rsa::kRsa2048Size];
+		byte_t signature_acid[fnd::rsa::kRsa2048Size];
 		sNcaHeader header;
 		sNcaFsHeader fs_header[nn::hac::nca::kPartitionNum];
 	};

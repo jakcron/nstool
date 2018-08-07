@@ -183,18 +183,18 @@ void XciProcess::displayHeader()
 bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
 {
 	fnd::Vec<byte_t> scratch;
-	crypto::sha::sSha256Hash calc_hash;
+	fnd::sha::sSha256Hash calc_hash;
 	scratch.alloc(len);
 	mFile->read(scratch.data(), offset, scratch.size());
-	crypto::sha::Sha256(scratch.data(), scratch.size(), calc_hash.bytes);
+	fnd::sha::Sha256(scratch.data(), scratch.size(), calc_hash.bytes);
 	return calc_hash.compare(test_hash);
 }
 
 void XciProcess::validateXciSignature()
 {
-	crypto::sha::sSha256Hash calc_hash;
-	crypto::sha::Sha256((byte_t*)&mHdrPage.header, sizeof(nn::hac::sXciHeader), calc_hash.bytes);
-	if (crypto::rsa::pkcs::rsaVerify(mKeyset->xci.header_sign_key, crypto::sha::HASH_SHA256, calc_hash.bytes, mHdrPage.signature) != 0)
+	fnd::sha::sSha256Hash calc_hash;
+	fnd::sha::Sha256((byte_t*)&mHdrPage.header, sizeof(nn::hac::sXciHeader), calc_hash.bytes);
+	if (fnd::rsa::pkcs::rsaVerify(mKeyset->xci.header_sign_key, fnd::sha::HASH_SHA256, calc_hash.bytes, mHdrPage.signature) != 0)
 	{
 		printf("[WARNING] XCI Header Signature: FAIL \n");
 	}

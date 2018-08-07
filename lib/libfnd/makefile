@@ -3,7 +3,7 @@ SRC_DIR = source
 OBJS = $(foreach dir,$(SRC_DIR),$(subst .cpp,.o,$(wildcard $(dir)/*.cpp))) $(foreach dir,$(SRC_DIR),$(subst .c,.o,$(wildcard $(dir)/*.c)))
 
 # External dependencies
-DEPENDS = 
+DEPENDS = polarssl lz4
 LIB_DIR = ..
 INCS = -I"include" $(foreach dep,$(DEPENDS), -I"$(LIB_DIR)/lib$(dep)/include")
 

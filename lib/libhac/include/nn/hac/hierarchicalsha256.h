@@ -1,6 +1,6 @@
 #pragma once
 #include <fnd/types.h>
-#include <crypto/sha.h>
+#include <fnd/sha.h>
 
 namespace nn
 {
@@ -15,7 +15,7 @@ namespace hac
 #pragma pack(push,1)
 	struct sHierarchicalSha256Header
 	{
-		crypto::sha::sSha256Hash master_hash;
+		fnd::sha::sSha256Hash master_hash;
 		le_uint32_t hash_block_size;
 		le_uint32_t layer_num;
 		struct sLayer

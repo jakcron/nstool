@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace compress
+namespace fnd
 {
 	namespace lz4
 	{

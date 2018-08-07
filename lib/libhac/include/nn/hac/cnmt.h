@@ -1,6 +1,6 @@
 #pragma once
 #include <fnd/types.h>
-#include <crypto/sha.h>
+#include <fnd/sha.h>
 
 namespace nn
 {
@@ -83,7 +83,7 @@ namespace hac
 
 	struct sContentInfo
 	{
-		crypto::sha::sSha256Hash content_hash;
+		fnd::sha::sSha256Hash content_hash;
 		byte_t content_id[cnmt::kContentIdLen];
 		le_uint32_t size_lower;
 		le_uint16_t size_higher;

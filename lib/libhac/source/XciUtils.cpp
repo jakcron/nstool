@@ -10,7 +10,7 @@ void nn::hac::XciUtils::getXciHeaderAesIv(const nn::hac::sXciHeader* hdr, byte_t
 
 void nn::hac::XciUtils::decryptXciHeader(const byte_t* src, byte_t* dst, const byte_t* key)
 {
-	byte_t iv[crypto::aes::kAesBlockSize];
+	byte_t iv[fnd::aes::kAesBlockSize];
 
 	getXciHeaderAesIv((const nn::hac::sXciHeader*)src, iv);
 
@@ -18,5 +18,5 @@ void nn::hac::XciUtils::decryptXciHeader(const byte_t* src, byte_t* dst, const b
 	memcpy(dst, src, nn::hac::xci::kHeaderEncOffset);
 
 	// decrypt encrypted data
-	crypto::aes::AesCbcDecrypt(src + nn::hac::xci::kHeaderEncOffset, nn::hac::xci::kHeaderEncSize, key, iv, dst + nn::hac::xci::kHeaderEncOffset);
+	fnd::aes::AesCbcDecrypt(src + nn::hac::xci::kHeaderEncOffset, nn::hac::xci::kHeaderEncSize, key, iv, dst + nn::hac::xci::kHeaderEncOffset);
 }

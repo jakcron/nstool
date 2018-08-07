@@ -1,6 +1,6 @@
 #pragma once
 #include <nn/pki/sign.h>
-#include <crypto/sha.h>
+#include <fnd/sha.h>
 
 namespace nn
 {

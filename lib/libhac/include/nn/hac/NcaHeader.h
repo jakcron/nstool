@@ -22,7 +22,7 @@ namespace hac
 			byte_t index;
 			uint64_t offset;
 			uint64_t size;
-			crypto::sha::sSha256Hash hash;
+			fnd::sha::sSha256Hash hash;
 
 			const sPartition& operator=(const sPartition& other)
 			{
@@ -88,8 +88,8 @@ namespace hac
 		void setRightsId(const byte_t* rights_id);
 		const fnd::List<sPartition>& getPartitions() const;
 		void setPartitions(const fnd::List<sPartition>& partitions);
-		const fnd::List<crypto::aes::sAes128Key>& getEncAesKeys() const;
-		void setEncAesKeys(const fnd::List<crypto::aes::sAes128Key>& keys);
+		const fnd::List<fnd::aes::sAes128Key>& getEncAesKeys() const;
+		void setEncAesKeys(const fnd::List<fnd::aes::sAes128Key>& keys);
 
 	private:
 		const std::string kModuleName = "NCA_HEADER";
@@ -109,7 +109,7 @@ namespace hac
 		uint32_t mSdkAddonVersion;
 		byte_t mRightsId[nca::kRightsIdLen];
 		fnd::List<sPartition> mPartitions;
-		fnd::List<crypto::aes::sAes128Key> mEncAesKeys;
+		fnd::List<fnd::aes::sAes128Key> mEncAesKeys;
 
 		uint64_t blockNumToSize(uint32_t block_num) const;
 		uint32_t sizeToBlockNum(uint64_t real_size) const;

@@ -1,6 +1,6 @@
 #pragma once
 #include <fnd/types.h>
-#include <crypto/sha.h>
+#include <fnd/sha.h>
 #include <nn/hac/macro.h>
 
 namespace nn
@@ -58,9 +58,9 @@ namespace hac
 		sNsoSection embedded;
 		sNsoSection dyn_str;
 		sNsoSection dyn_sym;
-		crypto::sha::sSha256Hash text_hash;
-		crypto::sha::sSha256Hash ro_hash;
-		crypto::sha::sSha256Hash data_hash;
+		fnd::sha::sSha256Hash text_hash;
+		fnd::sha::sSha256Hash ro_hash;
+		fnd::sha::sSha256Hash data_hash;
 	};
 
 #pragma pack(pop)

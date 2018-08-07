@@ -48,8 +48,8 @@ namespace hac
 		// variables
 		void clear();
 
-		const crypto::sha::sSha256Hash& getMasterHash() const;
-		void setMasterHash(const crypto::sha::sSha256Hash& master_hash);
+		const fnd::sha::sSha256Hash& getMasterHash() const;
+		void setMasterHash(const fnd::sha::sSha256Hash& master_hash);
 
 		size_t getHashBlockSize() const;
 		void setHashBlockSize(size_t hash_block_size);
@@ -63,7 +63,7 @@ namespace hac
 		fnd::Vec<byte_t> mRawBinary;
 
 		// data
-		crypto::sha::sSha256Hash mMasterHash;
+		fnd::sha::sSha256Hash mMasterHash;
 		size_t mHashBlockSize;
 		fnd::List<sLayer> mLayerInfo;
 	};

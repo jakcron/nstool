@@ -123,25 +123,25 @@ void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateB
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    Modulus:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().modulus, getHexDumpLen(crypto::rsa::kRsa4096Size), 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().modulus, getHexDumpLen(fnd::rsa::kRsa4096Size), 0x10, 6);
 		std::cout << "    Public Exponent:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().public_exponent, crypto::rsa::kRsaPublicExponentSize, 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa4098PublicKey().public_exponent, fnd::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
 	else if (cert.getBody().getPublicKeyType() == nn::pki::cert::RSA2048)
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    Public Exponent:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, getHexDumpLen(crypto::rsa::kRsa2048Size), 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, getHexDumpLen(fnd::rsa::kRsa2048Size), 0x10, 6);
 		std::cout << "    Modulus:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().public_exponent, crypto::rsa::kRsaPublicExponentSize, 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().public_exponent, fnd::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
 	else if (cert.getBody().getPublicKeyType() == nn::pki::cert::ECDSA240)
 	{
 		std::cout << "  PublicKey:" << std::endl;
 		std::cout << "    R:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().r, getHexDumpLen(crypto::ecdsa::kEcdsa240Size), 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().r, getHexDumpLen(fnd::ecdsa::kEcdsa240Size), 0x10, 6);
 		std::cout << "    S:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().s, getHexDumpLen(crypto::ecdsa::kEcdsa240Size), 0x10, 6);
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().s, getHexDumpLen(fnd::ecdsa::kEcdsa240Size), 0x10, 6);
 	}
 	
 

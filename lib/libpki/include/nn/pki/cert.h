@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <crypto/aes.h>
-#include <crypto/rsa.h>
-#include <crypto/ecdsa.h>
+#include <fnd/aes.h>
+#include <fnd/rsa.h>
+#include <fnd/ecdsa.h>
 
 namespace nn
 {
@@ -32,21 +32,21 @@ namespace pki
 
 	struct sRsa4096PublicKeyBlock
 	{
-		byte_t modulus[crypto::rsa::kRsa4096Size];
-		byte_t public_exponent[crypto::rsa::kRsaPublicExponentSize];
+		byte_t modulus[fnd::rsa::kRsa4096Size];
+		byte_t public_exponent[fnd::rsa::kRsaPublicExponentSize];
 		byte_t padding[0x34];
 	};
 
 	struct sRsa2048PublicKeyBlock
 	{
-		byte_t modulus[crypto::rsa::kRsa2048Size];
-		byte_t public_exponent[crypto::rsa::kRsaPublicExponentSize];
+		byte_t modulus[fnd::rsa::kRsa2048Size];
+		byte_t public_exponent[fnd::rsa::kRsaPublicExponentSize];
 		byte_t padding[0x34];
 	};
 
 	struct sEcdsa240PublicKeyBlock
 	{
-		crypto::ecdsa::sEcdsa240Point public_key;
+		fnd::ecdsa::sEcdsa240Point public_key;
 		byte_t padding[0x3C];
 	};
 #pragma pack(pop)

@@ -98,8 +98,8 @@ void nn::hac::HierarchicalIntegrityHeader::fromBytes(const byte_t* data, size_t 
 	}
 
 	// save hash list
-	const crypto::sha::sSha256Hash* hash_list = (const crypto::sha::sSha256Hash*)(mRawBinary.data() + master_hash_offset);
-	for (size_t i = 0; i < hdr->master_hash_size.get()/sizeof(crypto::sha::sSha256Hash); i++)
+	const fnd::sha::sSha256Hash* hash_list = (const fnd::sha::sSha256Hash*)(mRawBinary.data() + master_hash_offset);
+	for (size_t i = 0; i < hdr->master_hash_size.get()/sizeof(fnd::sha::sSha256Hash); i++)
 	{
 		mMasterHashList.addElement(hash_list[i]);
 	}
@@ -126,12 +126,12 @@ void nn::hac::HierarchicalIntegrityHeader::setLayerInfo(const fnd::List<sLayer>&
 	mLayerInfo = layer_info;
 }
 
-const fnd::List<crypto::sha::sSha256Hash>& nn::hac::HierarchicalIntegrityHeader::getMasterHashList() const
+const fnd::List<fnd::sha::sSha256Hash>& nn::hac::HierarchicalIntegrityHeader::getMasterHashList() const
 {
 	return mMasterHashList;
 }
 
-void nn::hac::HierarchicalIntegrityHeader::setMasterHashList(const fnd::List<crypto::sha::sSha256Hash>& master_hash_list)
+void nn::hac::HierarchicalIntegrityHeader::setMasterHashList(const fnd::List<fnd::sha::sSha256Hash>& master_hash_list)
 {
 	mMasterHashList = master_hash_list;
 }

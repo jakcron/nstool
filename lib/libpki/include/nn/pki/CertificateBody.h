@@ -38,14 +38,14 @@ namespace pki
 		uint32_t getCertId() const;
 		void setCertId(uint32_t id);
 
-		const crypto::rsa::sRsa4096Key& getRsa4098PublicKey() const;
-		void setRsa4098PublicKey(const crypto::rsa::sRsa4096Key& key);
+		const fnd::rsa::sRsa4096Key& getRsa4098PublicKey() const;
+		void setRsa4098PublicKey(const fnd::rsa::sRsa4096Key& key);
 
-		const crypto::rsa::sRsa2048Key& getRsa2048PublicKey() const;
-		void setRsa2048PublicKey(const crypto::rsa::sRsa2048Key& key);
+		const fnd::rsa::sRsa2048Key& getRsa2048PublicKey() const;
+		void setRsa2048PublicKey(const fnd::rsa::sRsa2048Key& key);
 
-		const crypto::ecdsa::sEcdsa240Point& getEcdsa240PublicKey() const;
-		void setEcdsa240PublicKey(const crypto::ecdsa::sEcdsa240Point& key);
+		const fnd::ecdsa::sEcdsa240Point& getEcdsa240PublicKey() const;
+		void setEcdsa240PublicKey(const fnd::ecdsa::sEcdsa240Point& key);
 		
 	private:
 		const std::string kModuleName = "CERTIFICATE_BODY";
@@ -59,9 +59,9 @@ namespace pki
 		uint32_t mCertId;
 		cert::PublicKeyType mPublicKeyType;
 
-		crypto::rsa::sRsa4096Key mRsa4096PublicKey;
-		crypto::rsa::sRsa2048Key mRsa2048PublicKey;
-		crypto::ecdsa::sEcdsa240Point mEcdsa240PublicKey;
+		fnd::rsa::sRsa4096Key mRsa4096PublicKey;
+		fnd::rsa::sRsa2048Key mRsa2048PublicKey;
+		fnd::ecdsa::sEcdsa240Point mEcdsa240PublicKey;
 	};
 }
 }

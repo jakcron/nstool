@@ -119,7 +119,7 @@ void nn::hac::XciHeader::fromBytes(const byte_t* data, size_t len)
 	mFlags = hdr->flags;
 	mPackageId = hdr->package_id.get();
 	mValidDataEndPage = hdr->valid_data_end_page.get();
-	for (size_t i = 0; i < crypto::aes::kAesBlockSize; i++)
+	for (size_t i = 0; i < fnd::aes::kAesBlockSize; i++)
 		mAesCbcIv.iv[i] = hdr->aescbc_iv.iv[15-i];
 	mPartitionFsHeaderAddress = hdr->partition_fs_header_address.get();
 	mPartitionFsHeaderSize = hdr->partition_fs_header_size.get();
@@ -277,12 +277,12 @@ void nn::hac::XciHeader::setValidDataEndPage(uint32_t page)
 	mValidDataEndPage = page;
 }
 
-const crypto::aes::sAesIvCtr& nn::hac::XciHeader::getAesCbcIv() const
+const fnd::aes::sAesIvCtr& nn::hac::XciHeader::getAesCbcIv() const
 {
 	return mAesCbcIv;
 }
 
-void nn::hac::XciHeader::setAesCbcIv(const crypto::aes::sAesIvCtr& iv)
+void nn::hac::XciHeader::setAesCbcIv(const fnd::aes::sAesIvCtr& iv)
 {
 	mAesCbcIv = iv;
 }
@@ -307,22 +307,22 @@ void nn::hac::XciHeader::setPartitionFsSize(uint64_t size)
 	mPartitionFsHeaderSize = size;
 }
 
-const crypto::sha::sSha256Hash& nn::hac::XciHeader::getPartitionFsHash() const
+const fnd::sha::sSha256Hash& nn::hac::XciHeader::getPartitionFsHash() const
 {
 	return mPartitionFsHeaderHash;
 }
 
-void nn::hac::XciHeader::setPartitionFsHash(const crypto::sha::sSha256Hash& hash)
+void nn::hac::XciHeader::setPartitionFsHash(const fnd::sha::sSha256Hash& hash)
 {
 	mPartitionFsHeaderHash = hash;
 }
 
-const crypto::sha::sSha256Hash& nn::hac::XciHeader::getInitialDataHash() const
+const fnd::sha::sSha256Hash& nn::hac::XciHeader::getInitialDataHash() const
 {
 	return mInitialDataHash;
 }
 
-void nn::hac::XciHeader::setInitialDataHash(const crypto::sha::sSha256Hash& hash)
+void nn::hac::XciHeader::setInitialDataHash(const fnd::sha::sSha256Hash& hash)
 {
 	mInitialDataHash = hash;
 }

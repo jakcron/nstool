@@ -222,7 +222,7 @@ void nn::hac::PfsHeader::addFile(const std::string & name, size_t size)
 	mFileList.addElement({ name, 0, size, 0 });
 }
 
-void nn::hac::PfsHeader::addFile(const std::string & name, size_t size, size_t hash_protected_size, const crypto::sha::sSha256Hash& hash)
+void nn::hac::PfsHeader::addFile(const std::string & name, size_t size, size_t hash_protected_size, const fnd::sha::sSha256Hash& hash)
 {
 	mFileList.addElement({ name, 0, size, hash_protected_size, hash });
 }

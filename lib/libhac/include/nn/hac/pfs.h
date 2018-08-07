@@ -1,5 +1,5 @@
 #include <fnd/types.h>
-#include <crypto/sha.h>
+#include <fnd/sha.h>
 #include <nn/hac/macro.h>
 
 namespace nn
@@ -37,7 +37,7 @@ namespace hac
 		le_uint32_t name_offset;
 		le_uint32_t hash_protected_size;
 		byte_t padding[8];
-		crypto::sha::sSha256Hash hash;
+		fnd::sha::sSha256Hash hash;
 	}; // sizeof(0x40)
 #pragma pack(pop)
 }

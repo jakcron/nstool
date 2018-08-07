@@ -1,9 +1,9 @@
-#include <crypto/rsa.h>
+#include <fnd/rsa.h>
 #include <polarssl/rsa.h>
 #include <polarssl/md.h>
 
-using namespace crypto::rsa;
-using namespace crypto::sha;
+using namespace fnd::rsa;
+using namespace fnd::sha;
 
 int getWrappedHashType(HashType type)
 {
@@ -57,7 +57,7 @@ uint32_t getWrappedHashSize(HashType type)
 	return size;
 }
 
-int crypto::rsa::pkcs::rsaSign(const sRsa1024Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa1024Size])
+int fnd::rsa::pkcs::rsaSign(const sRsa1024Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa1024Size])
 {
 	int ret;
 	rsa_context ctx;
@@ -74,7 +74,7 @@ int crypto::rsa::pkcs::rsaSign(const sRsa1024Key & key, HashType hash_type, cons
 	return ret;
 }
 
-int crypto::rsa::pkcs::rsaVerify(const sRsa1024Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa1024Size])
+int fnd::rsa::pkcs::rsaVerify(const sRsa1024Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa1024Size])
 {
 	static const uint8_t public_exponent[3] = { 0x01, 0x00, 0x01 };
 
@@ -93,7 +93,7 @@ int crypto::rsa::pkcs::rsaVerify(const sRsa1024Key & key, HashType hash_type, co
 	return ret;
 }
 
-int crypto::rsa::pkcs::rsaSign(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa2048Size])
+int fnd::rsa::pkcs::rsaSign(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa2048Size])
 {
 	int ret;
 	rsa_context ctx;
@@ -110,7 +110,7 @@ int crypto::rsa::pkcs::rsaSign(const sRsa2048Key & key, HashType hash_type, cons
 	return ret;
 }
 
-int crypto::rsa::pkcs::rsaVerify(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa2048Size])
+int fnd::rsa::pkcs::rsaVerify(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa2048Size])
 {
 	static const uint8_t public_exponent[3] = { 0x01, 0x00, 0x01 };
 
@@ -129,7 +129,7 @@ int crypto::rsa::pkcs::rsaVerify(const sRsa2048Key & key, HashType hash_type, co
 	return ret;
 }
 
-int crypto::rsa::pkcs::rsaSign(const sRsa4096Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa4096Size])
+int fnd::rsa::pkcs::rsaSign(const sRsa4096Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa4096Size])
 {
 	int ret;
 	rsa_context ctx;
@@ -146,7 +146,7 @@ int crypto::rsa::pkcs::rsaSign(const sRsa4096Key & key, HashType hash_type, cons
 	return ret;
 }
 
-int crypto::rsa::pkcs::rsaVerify(const sRsa4096Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa4096Size])
+int fnd::rsa::pkcs::rsaVerify(const sRsa4096Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa4096Size])
 {
 	static const uint8_t public_exponent[3] = { 0x01, 0x00, 0x01 };
 
@@ -165,7 +165,7 @@ int crypto::rsa::pkcs::rsaVerify(const sRsa4096Key & key, HashType hash_type, co
 	return ret;
 }
 
-int crypto::rsa::pss::rsaVerify(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa2048Size])
+int fnd::rsa::pss::rsaVerify(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa2048Size])
 {
 	static const uint8_t public_exponent[3] = { 0x01, 0x00, 0x01 };
 

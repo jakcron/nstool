@@ -76,17 +76,17 @@ const fnd::Vec<byte_t>& nn::hac::HierarchicalSha256Header::getBytes() const
 
 void nn::hac::HierarchicalSha256Header::clear()
 {
-	memset(mMasterHash.bytes, 0, sizeof(crypto::sha::sSha256Hash));
+	memset(mMasterHash.bytes, 0, sizeof(fnd::sha::sSha256Hash));
 	mHashBlockSize = 0;
 	mLayerInfo.clear();
 }
 
-const crypto::sha::sSha256Hash & nn::hac::HierarchicalSha256Header::getMasterHash() const
+const fnd::sha::sSha256Hash & nn::hac::HierarchicalSha256Header::getMasterHash() const
 {
 	return mMasterHash;
 }
 
-void nn::hac::HierarchicalSha256Header::setMasterHash(const crypto::sha::sSha256Hash & master_hash)
+void nn::hac::HierarchicalSha256Header::setMasterHash(const fnd::sha::sSha256Hash & master_hash)
 {
 	mMasterHash = master_hash;
 }

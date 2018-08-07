@@ -72,12 +72,12 @@ void  HashTreeMeta::setDataLayer(const sLayer& data_info)
 	mDataLayer = data_info;
 }
 
-const fnd::List<crypto::sha::sSha256Hash>&  HashTreeMeta::getMasterHashList() const
+const fnd::List<fnd::sha::sSha256Hash>&  HashTreeMeta::getMasterHashList() const
 {
 	return mMasterHashList;
 }
 
-void  HashTreeMeta::setMasterHashList(const fnd::List<crypto::sha::sSha256Hash>& master_hash_list)
+void  HashTreeMeta::setMasterHashList(const fnd::List<fnd::sha::sSha256Hash>& master_hash_list)
 {
 	mMasterHashList = master_hash_list;
 }

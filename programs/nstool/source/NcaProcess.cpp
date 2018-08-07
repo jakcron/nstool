@@ -265,7 +265,7 @@ void NcaProcess::process()
 	nn::hac::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
 
 	// generate header hash
-	crypto::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader), mHdrHash.bytes);
+	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader), mHdrHash.bytes);
 
 	// proccess main header
 	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader));
@@ -341,9 +341,9 @@ void NcaProcess::setListFs(bool list_fs)
 void NcaProcess::generateNcaBodyEncryptionKeys()
 {
 	// create zeros key
-	crypto::aes::sAes128Key zero_aesctr_key;
+	fnd::aes::sAes128Key zero_aesctr_key;
 	memset(zero_aesctr_key.key, 0, sizeof(zero_aesctr_key));
-	crypto::aes::sAesXts128Key zero_aesxts_key;
+	fnd::aes::sAesXts128Key zero_aesxts_key;
 	memset(zero_aesxts_key.key, 0, sizeof(zero_aesxts_key));
 	
 	// get key data from header
@@ -398,8 +398,8 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	// otherwise decrypt key area
 	else
 	{
-		crypto::aes::sAes128Key keak_aesctr_key = zero_aesctr_key;
-		crypto::aes::sAesXts128Key keak_aesxts_key = zero_aesxts_key;
+		fnd::aes::sAes128Key keak_aesctr_key = zero_aesctr_key;
+		fnd::aes::sAesXts128Key keak_aesxts_key = zero_aesxts_key;
 		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
 		{
 			if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESCTR && mBodyKeys.keak_list[i].decrypted)
@@ -408,11 +408,11 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 			}
 			else if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESXTS_0 && mBodyKeys.keak_list[i].decrypted)
 			{
-				memcpy(keak_aesxts_key.key[0], mBodyKeys.keak_list[i].dec.key, sizeof(crypto::aes::sAes128Key));
+				memcpy(keak_aesxts_key.key[0], mBodyKeys.keak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
 			}
 			else if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESXTS_1 && mBodyKeys.keak_list[i].decrypted)
 			{
-				memcpy(keak_aesxts_key.key[1], mBodyKeys.keak_list[i].dec.key, sizeof(crypto::aes::sAes128Key));
+				memcpy(keak_aesxts_key.key[1], mBodyKeys.keak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
 			}
 		}
 
@@ -472,8 +472,8 @@ void NcaProcess::generatePartitionConfiguration()
 		sPartitionInfo& info = mPartitions[partition.index];
 
 		// validate header hash
-		crypto::sha::sSha256Hash calc_hash;
-		crypto::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.index], sizeof(nn::hac::sNcaFsHeader), calc_hash.bytes);
+		fnd::sha::sSha256Hash calc_hash;
+		fnd::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.index], sizeof(nn::hac::sNcaFsHeader), calc_hash.bytes);
 		if (calc_hash.compare(partition.hash) == false)
 		{
 			error.clear();
@@ -570,7 +570,7 @@ void NcaProcess::generatePartitionConfiguration()
 void NcaProcess::validateNcaSignatures()
 {
 	// validate signature[0]
-	if (crypto::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
+	if (fnd::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
 	{
 		printf("[WARNING] NCA Header Main Signature: FAIL \n");
 	}
@@ -597,7 +597,7 @@ void NcaProcess::validateNcaSignatures()
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
-					if (crypto::rsa::pss::rsaVerify(npdm.getNpdmBinary().getAcid().getNcaHeaderSignature2Key(), crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					if (fnd::rsa::pss::rsaVerify(npdm.getNpdmBinary().getAcid().getNcaHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
 						printf("[WARNING] NCA Header ACID Signature: FAIL \n");
 					}
@@ -686,9 +686,9 @@ void NcaProcess::displayHeader()
 			if (info.enc_type == nn::hac::nca::CRYPT_AESCTR)
 			{
 				printf("        AES-CTR:     ");
-				crypto::aes::sAesIvCtr ctr;
-				crypto::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
-				fnd::SimpleTextOutput::hexDump(ctr.iv, sizeof(crypto::aes::sAesIvCtr));
+				fnd::aes::sAesIvCtr ctr;
+				fnd::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
+				fnd::SimpleTextOutput::hexDump(ctr.iv, sizeof(fnd::aes::sAesIvCtr));
 			}
 			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{
@@ -712,7 +712,7 @@ void NcaProcess::displayHeader()
 				for (size_t j = 0; j < hash_hdr.getMasterHashList().size(); j++)
 				{
 					printf("        Master Hash %d:     ", (int)j);
-					fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(crypto::sha::sSha256Hash));
+					fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(fnd::sha::sSha256Hash));
 				}
 			}
 			else if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256)
@@ -720,7 +720,7 @@ void NcaProcess::displayHeader()
 				HashTreeMeta& hash_hdr = info.hash_tree_meta;
 				printf("      HierarchicalSha256 Header:\n");
 				printf("        Master Hash:       ");
-				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(crypto::sha::sSha256Hash));
+				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(fnd::sha::sSha256Hash));
 				printf("        HashBlockSize:     0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
 				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().size());
 				printf("        Hash Layer:\n");

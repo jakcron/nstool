@@ -1,9 +1,9 @@
 #pragma once
 #include <fnd/types.h>
 #include <fnd/List.h>
-#include <crypto/aes.h>
-#include <crypto/sha.h>
-#include <crypto/rsa.h>
+#include <fnd/aes.h>
+#include <fnd/sha.h>
+#include <fnd/rsa.h>
 #include <nn/hac/macro.h>
 
 namespace nn
@@ -80,11 +80,11 @@ namespace hac
 		le_uint64_t package_id;
 		le_uint32_t valid_data_end_page;
 		byte_t reserved_00[4];
-		crypto::aes::sAesIvCtr aescbc_iv;
+		fnd::aes::sAesIvCtr aescbc_iv;
 		le_uint64_t partition_fs_header_address;
 		le_uint64_t partition_fs_header_size;
-		crypto::sha::sSha256Hash partition_fs_header_hash;
-		crypto::sha::sSha256Hash initial_data_hash;
+		fnd::sha::sSha256Hash partition_fs_header_hash;
+		fnd::sha::sSha256Hash initial_data_hash;
 		le_uint32_t sel_sec;
 		le_uint32_t sel_t1_key;
 		le_uint32_t sel_key;
@@ -107,7 +107,7 @@ namespace hac
 
 	struct sXciHeaderPage
 	{
-		byte_t signature[crypto::rsa::kRsa2048Size];
+		byte_t signature[fnd::rsa::kRsa2048Size];
 		sXciHeader header;
 	}; // sizeof() = 512 (1 page)
 
@@ -124,8 +124,8 @@ namespace hac
 	{
 		sInitialData initial_data; // AES128-CCM encrypted {titlekey[16]}
 		byte_t encrypted_00[xci::kPageSize * 6]; // AES128-CTR encrypted {titlekey[16]}
-		byte_t encrypted_00_aesctr_data[crypto::rsa::kRsa2048Size]; // RSA2048-OAEP-SHA256 encrypted AES-CTR data used for encrypted_00 {key[16],iv[16]}
-		byte_t reserved[xci::kPageSize - crypto::rsa::kRsa2048Size];
+		byte_t encrypted_00_aesctr_data[fnd::rsa::kRsa2048Size]; // RSA2048-OAEP-SHA256 encrypted AES-CTR data used for encrypted_00 {key[16],iv[16]}
+		byte_t reserved[xci::kPageSize - fnd::rsa::kRsa2048Size];
 	}; // sizeof() = 512*8 (8 pages)
 
 #pragma pack(pop)

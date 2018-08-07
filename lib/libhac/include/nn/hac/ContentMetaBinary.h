@@ -14,7 +14,7 @@ namespace hac
 	public:
 		struct ContentInfo
 		{
-			crypto::sha::sSha256Hash hash;
+			fnd::sha::sSha256Hash hash;
 			byte_t nca_id[cnmt::kContentIdLen];
 			size_t size;
 			cnmt::ContentType type;

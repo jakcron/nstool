@@ -1,21 +1,21 @@
 #include <nn/hac/NcaUtils.h>
 
-void nn::hac::NcaUtils::decryptNcaHeader(const byte_t* src, byte_t* dst, const crypto::aes::sAesXts128Key& key)
+void nn::hac::NcaUtils::decryptNcaHeader(const byte_t* src, byte_t* dst, const fnd::aes::sAesXts128Key& key)
 {
-	byte_t tweak[crypto::aes::kAesBlockSize];
+	byte_t tweak[fnd::aes::kAesBlockSize];
 
 	// decrypt main header
 	byte_t raw_hdr[nn::hac::nca::kSectorSize];
-	crypto::aes::AesXtsMakeTweak(tweak, 1);
-	crypto::aes::AesXtsDecryptSector(src + sectorToOffset(1), nn::hac::nca::kSectorSize, key.key[0], key.key[1], tweak, raw_hdr);
+	fnd::aes::AesXtsMakeTweak(tweak, 1);
+	fnd::aes::AesXtsDecryptSector(src + sectorToOffset(1), nn::hac::nca::kSectorSize, key.key[0], key.key[1], tweak, raw_hdr);
 
 	bool useNca2SectorIndex = ((nn::hac::sNcaHeader*)(raw_hdr))->st_magic.get() == nn::hac::nca::kNca2StructMagic;
 
 	// decrypt whole header
 	for (size_t i = 0; i < nn::hac::nca::kHeaderSectorNum; i++)
 	{
-		crypto::aes::AesXtsMakeTweak(tweak, (i > 1 && useNca2SectorIndex)? 0 : i);
-		crypto::aes::AesXtsDecryptSector(src + sectorToOffset(i), nn::hac::nca::kSectorSize, key.key[0], key.key[1], tweak, dst + sectorToOffset(i));
+		fnd::aes::AesXtsMakeTweak(tweak, (i > 1 && useNca2SectorIndex)? 0 : i);
+		fnd::aes::AesXtsDecryptSector(src + sectorToOffset(i), nn::hac::nca::kSectorSize, key.key[0], key.key[1], tweak, dst + sectorToOffset(i));
 	}
 }
 

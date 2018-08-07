@@ -1,7 +1,7 @@
-#include <crypto/aes.h>
+#include <fnd/aes.h>
 #include <polarssl/aes.h>
 
-using namespace crypto::aes;
+using namespace fnd::aes;
 
 inline void XorBlock(const uint8_t a[kAesBlockSize], const uint8_t b[kAesBlockSize], uint8_t out[kAesBlockSize])
 {
@@ -16,7 +16,7 @@ inline void putbe32(uint8_t* data, uint32_t val) { data[0] = val >> 24; data[1] 
 
 
 
-void crypto::aes::AesEcbDecrypt(const uint8_t * in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t * out)
+void fnd::aes::AesEcbDecrypt(const uint8_t * in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t * out)
 {
 	aes_context ctx;
 	aes_setkey_dec(&ctx, key, 128);
@@ -28,7 +28,7 @@ void crypto::aes::AesEcbDecrypt(const uint8_t * in, uint64_t size, const uint8_t
 	
 }
 
-void crypto::aes::AesEcbEncrypt(const uint8_t * in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t * out)
+void fnd::aes::AesEcbEncrypt(const uint8_t * in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t * out)
 {
 	aes_context ctx;
 	aes_setkey_enc(&ctx, key, 128);
@@ -38,7 +38,7 @@ void crypto::aes::AesEcbEncrypt(const uint8_t * in, uint64_t size, const uint8_t
 	}
 }
 
-void crypto::aes::AesCtr(const uint8_t* in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t ctr[kAesBlockSize], uint8_t* out)
+void fnd::aes::AesCtr(const uint8_t* in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t ctr[kAesBlockSize], uint8_t* out)
 {
 	aes_context ctx;
 	uint8_t block[kAesBlockSize] = { 0 };
@@ -48,7 +48,7 @@ void crypto::aes::AesCtr(const uint8_t* in, uint64_t size, const uint8_t key[kAe
 	aes_crypt_ctr(&ctx, size, &counterOffset, ctr, block, in, out);
 }
 
-void crypto::aes::AesIncrementCounter(const uint8_t in[kAesBlockSize], size_t block_num, uint8_t out[kAesBlockSize])
+void fnd::aes::AesIncrementCounter(const uint8_t in[kAesBlockSize], size_t block_num, uint8_t out[kAesBlockSize])
 {
 	memcpy(out, in, kAesBlockSize);
 
@@ -78,21 +78,21 @@ void crypto::aes::AesIncrementCounter(const uint8_t in[kAesBlockSize], size_t bl
 	putbe32(&out[12], ctr[0]);
 }
 
-void crypto::aes::AesCbcDecrypt(const uint8_t* in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t iv[kAesBlockSize], uint8_t* out)
+void fnd::aes::AesCbcDecrypt(const uint8_t* in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t iv[kAesBlockSize], uint8_t* out)
 {
 	aes_context ctx;
 	aes_setkey_dec(&ctx, key, 128);
 	aes_crypt_cbc(&ctx, AES_DECRYPT, size, iv, in, out);
 }
 
-void crypto::aes::AesCbcEncrypt(const uint8_t* in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t iv[kAesBlockSize], uint8_t* out)
+void fnd::aes::AesCbcEncrypt(const uint8_t* in, uint64_t size, const uint8_t key[kAes128KeySize], uint8_t iv[kAesBlockSize], uint8_t* out)
 {
 	aes_context ctx;
 	aes_setkey_enc(&ctx, key, 128);
 	aes_crypt_cbc(&ctx, AES_ENCRYPT, size, iv, in, out);
 }
 
-void crypto::aes::AesXtsDecryptSector(const uint8_t * in, uint64_t sector_size, const uint8_t key1[kAes128KeySize], const uint8_t key2[kAes128KeySize], uint8_t tweak[kAesBlockSize], uint8_t * out)
+void fnd::aes::AesXtsDecryptSector(const uint8_t * in, uint64_t sector_size, const uint8_t key1[kAes128KeySize], const uint8_t key2[kAes128KeySize], uint8_t tweak[kAesBlockSize], uint8_t * out)
 {
 	aes_context data_ctx;
 	aes_setkey_dec(&data_ctx, key1, 128);
@@ -116,7 +116,7 @@ void crypto::aes::AesXtsDecryptSector(const uint8_t * in, uint64_t sector_size, 
 	}
 }
 
-void crypto::aes::AesXtsEncryptSector(const uint8_t * in, uint64_t sector_size, const uint8_t key1[kAes128KeySize], const uint8_t key2[kAes128KeySize], uint8_t tweak[kAesBlockSize], uint8_t * out)
+void fnd::aes::AesXtsEncryptSector(const uint8_t * in, uint64_t sector_size, const uint8_t key1[kAes128KeySize], const uint8_t key2[kAes128KeySize], uint8_t tweak[kAesBlockSize], uint8_t * out)
 {
 	aes_context data_ctx;
 	aes_setkey_enc(&data_ctx, key1, 128);
@@ -140,13 +140,13 @@ void crypto::aes::AesXtsEncryptSector(const uint8_t * in, uint64_t sector_size, 
 	}
 }
 
-void crypto::aes::AesXtsMakeTweak(uint8_t tweak[kAesBlockSize], size_t block_index)
+void fnd::aes::AesXtsMakeTweak(uint8_t tweak[kAesBlockSize], size_t block_index)
 {
 	memset(tweak, 0, kAesBlockSize);
 	AesIncrementCounter(tweak, block_index, tweak);
 }
 
-void crypto::aes::GaloisFunc(uint8_t x[kAesBlockSize])
+void fnd::aes::GaloisFunc(uint8_t x[kAesBlockSize])
 {
 	uint8_t t = x[15];
 

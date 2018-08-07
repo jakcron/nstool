@@ -385,10 +385,10 @@ void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCm
 
 void UserSettings::populateKeyset(sCmdArgs& args)
 {
-	crypto::aes::sAes128Key zeros_aes_key;
-	crypto::aes::sAesXts128Key zeros_aes_xts_key;
-	memset((void*)&zeros_aes_key, 0, sizeof(crypto::aes::sAes128Key));
-	memset((void*)&zeros_aes_xts_key, 0, sizeof(crypto::aes::sAesXts128Key));
+	fnd::aes::sAes128Key zeros_aes_key;
+	fnd::aes::sAesXts128Key zeros_aes_xts_key;
+	memset((void*)&zeros_aes_key, 0, sizeof(fnd::aes::sAes128Key));
+	memset((void*)&zeros_aes_xts_key, 0, sizeof(fnd::aes::sAesXts128Key));
 	memset((void*)&mKeyset, 0, sizeof(sKeyset));
 
 	fnd::ResourceFileReader res;
@@ -446,14 +446,14 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 
 	// sources
-	crypto::aes::sAes128Key master_key[kMasterKeyNum] = { zeros_aes_key };
-	crypto::aes::sAes128Key package2_key_source = zeros_aes_key;
-	crypto::aes::sAes128Key ticket_titlekek_source = zeros_aes_key;
-	crypto::aes::sAes128Key key_area_key_source[3] = { zeros_aes_key, zeros_aes_key, zeros_aes_key };
-	crypto::aes::sAes128Key aes_kek_generation_source = zeros_aes_key;
-	crypto::aes::sAes128Key aes_key_generation_source = zeros_aes_key;
-	crypto::aes::sAes128Key nca_header_kek_source = zeros_aes_key;
-	crypto::aes::sAesXts128Key nca_header_key_source = zeros_aes_xts_key;
+	fnd::aes::sAes128Key master_key[kMasterKeyNum] = { zeros_aes_key };
+	fnd::aes::sAes128Key package2_key_source = zeros_aes_key;
+	fnd::aes::sAes128Key ticket_titlekek_source = zeros_aes_key;
+	fnd::aes::sAes128Key key_area_key_source[3] = { zeros_aes_key, zeros_aes_key, zeros_aes_key };
+	fnd::aes::sAes128Key aes_kek_generation_source = zeros_aes_key;
+	fnd::aes::sAes128Key aes_key_generation_source = zeros_aes_key;
+	fnd::aes::sAes128Key nca_header_kek_source = zeros_aes_key;
+	fnd::aes::sAesXts128Key nca_header_key_source = zeros_aes_xts_key;
 
 
 #define _CONCAT_2_STRINGS(str1, str2) ((str1) + "_" + (str2))
@@ -509,44 +509,44 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kKeyStr), mKeyset.xci.header_key.key, 0x10);
 
 	// store rsa keys
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[0]), mKeyset.nca.header_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[1]), mKeyset.nca.header_sign_key.modulus, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[0]), mKeyset.nca.header_sign_key.priv_exponent, fnd::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[1]), mKeyset.nca.header_sign_key.modulus, fnd::rsa::kRsa2048Size);
 	
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[0]), mKeyset.xci.header_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[1]), mKeyset.xci.header_sign_key.modulus, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[0]), mKeyset.xci.header_sign_key.priv_exponent, fnd::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[1]), mKeyset.xci.header_sign_key.modulus, fnd::rsa::kRsa2048Size);
 
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[0]), mKeyset.acid_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[1]), mKeyset.acid_sign_key.modulus, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[0]), mKeyset.acid_sign_key.priv_exponent, fnd::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[1]), mKeyset.acid_sign_key.modulus, fnd::rsa::kRsa2048Size);
 
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, crypto::rsa::kRsa2048Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, crypto::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, fnd::rsa::kRsa2048Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, fnd::rsa::kRsa2048Size);
 
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[0]), mKeyset.pki.root_sign_key.priv_exponent, crypto::rsa::kRsa4096Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[1]), mKeyset.pki.root_sign_key.modulus, crypto::rsa::kRsa4096Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[0]), mKeyset.pki.root_sign_key.priv_exponent, fnd::rsa::kRsa4096Size);
+	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[1]), mKeyset.pki.root_sign_key.modulus, fnd::rsa::kRsa4096Size);
 
 
 	// save keydata from input args
 	if (args.nca_bodykey.isSet)
 	{
-		if (args.nca_bodykey.var.length() == (sizeof(crypto::aes::sAes128Key)*2))
+		if (args.nca_bodykey.var.length() == (sizeof(fnd::aes::sAes128Key)*2))
 		{
-			decodeHexStringToBytes("--bodykey", args.nca_bodykey.var, mKeyset.nca.manual_body_key_aesctr.key, sizeof(crypto::aes::sAes128Key));
+			decodeHexStringToBytes("--bodykey", args.nca_bodykey.var, mKeyset.nca.manual_body_key_aesctr.key, sizeof(fnd::aes::sAes128Key));
 		}
 		else
 		{
-			decodeHexStringToBytes("--bodykey", args.nca_bodykey.var, mKeyset.nca.manual_body_key_aesxts.key[0], sizeof(crypto::aes::sAesXts128Key));
+			decodeHexStringToBytes("--bodykey", args.nca_bodykey.var, mKeyset.nca.manual_body_key_aesxts.key[0], sizeof(fnd::aes::sAesXts128Key));
 		}
 	}
 
 	if (args.nca_titlekey.isSet)
 	{
-		if (args.nca_titlekey.var.length() == (sizeof(crypto::aes::sAes128Key)*2))
+		if (args.nca_titlekey.var.length() == (sizeof(fnd::aes::sAes128Key)*2))
 		{
-			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesctr.key, sizeof(crypto::aes::sAes128Key));
+			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesctr.key, sizeof(fnd::aes::sAes128Key));
 		}
 		else
 		{
-			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesxts.key[0], sizeof(crypto::aes::sAesXts128Key));
+			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesxts.key[0], sizeof(fnd::aes::sAesXts128Key));
 		}
 	}
 
@@ -590,12 +590,12 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 			switch (nn::pki::sign::getHashAlgo(tik.getSignature().getSignType()))
 			{
 			case (nn::pki::sign::HASH_ALGO_SHA1):
-				tik_hash.alloc(crypto::sha::kSha1HashLen);
-				crypto::sha::Sha1(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
+				tik_hash.alloc(fnd::sha::kSha1HashLen);
+				fnd::sha::Sha1(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
 				break;
 			case (nn::pki::sign::HASH_ALGO_SHA256):
-				tik_hash.alloc(crypto::sha::kSha256HashLen);
-				crypto::sha::Sha256(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
+				tik_hash.alloc(fnd::sha::kSha256HashLen);
+				fnd::sha::Sha256(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
 				break;
 			}
 
@@ -615,7 +615,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		// extract title key
 		if (tik.getBody().getTitleKeyEncType() == nn::es::ticket::AES128_CBC)
 		{
-			memcpy(mKeyset.nca.manual_title_key_aesctr.key, tik.getBody().getEncTitleKey(), crypto::aes::kAes128KeySize);
+			memcpy(mKeyset.nca.manual_title_key_aesctr.key, tik.getBody().getEncTitleKey(), fnd::aes::kAes128KeySize);
 		}
 		else
 		{
@@ -638,7 +638,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 				{
 					if (mKeyset.nca.header_key == zeros_aes_xts_key)
 					{
-						crypto::aes::sAes128Key nca_header_kek;
+						fnd::aes::sAes128Key nca_header_kek;
 						nn::hac::AesKeygen::generateKey(nca_header_kek.key, aes_kek_generation_source.key, nca_header_kek_source.key, aes_key_generation_source.key, master_key[i].key);
 						nn::hac::AesKeygen::generateKey(mKeyset.nca.header_key.key[0], nca_header_key_source.key[0], nca_header_kek.key);
 						nn::hac::AesKeygen::generateKey(mKeyset.nca.header_key.key[1], nca_header_key_source.key[1], nca_header_kek.key);

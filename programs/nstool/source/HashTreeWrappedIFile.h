@@ -2,7 +2,7 @@
 #include <sstream>
 #include <fnd/IFile.h>
 #include <fnd/Vec.h>
-#include <crypto/sha.h>
+#include <fnd/sha.h>
 #include "HashTreeMeta.h"
 
 
@@ -30,7 +30,7 @@ private:
 	fnd::IFile* mData;
 	size_t mDataOffset;
 	size_t mDataBlockSize;
-	fnd::List<crypto::sha::sSha256Hash> mDataHashLayer;
+	fnd::List<fnd::sha::sSha256Hash> mDataHashLayer;
 	bool mAlignHashCalcToBlock;
 
 	fnd::Vec<byte_t> mCache;
