@@ -12,8 +12,6 @@
                 "${workspaceRoot}/lib/libfnd/include",
                 "${workspaceRoot}/lib/libpolarssl/include",
                 "${workspaceRoot}/lib/liblz4/include",
-                "${workspaceRoot}/lib/libcrypto/include",
-                "${workspaceRoot}/lib/libcompress/include",
                 "${workspaceRoot}/lib/libes/include",
                 "${workspaceRoot}/lib/libpki/include",
                 "${workspaceRoot}/lib/libhac/include",
