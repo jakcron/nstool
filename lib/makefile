@@ -1,4 +1,4 @@
-LIBS = libfnd libcrypto libcompress libes libpki libnx libnx-hb
+LIBS = libfnd libpolarssl liblz4 libcrypto libcompress libes libpki libhac libhac-hb
 main: build
 
 rebuild: clean build
