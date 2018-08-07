@@ -1,3 +1,4 @@
+#include <cstring>
 #include <nn/hac/ServiceAccessControlEntry.h>
 
 nn::hac::ServiceAccessControlEntry::ServiceAccessControlEntry()

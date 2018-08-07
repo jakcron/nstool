@@ -1,3 +1,4 @@
+#include <cstring>
 #include <nn/hac/AssetHeader.h>
 
 nn::hac::AssetHeader::AssetHeader()

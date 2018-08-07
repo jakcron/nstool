@@ -55,9 +55,6 @@ namespace hac
 		bool operator==(const NcaHeader& other) const;
 		bool operator!=(const NcaHeader& other) const;
 
-		// to be used after export
-		size_t getSize() const;
-
 		// export/import binary
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);

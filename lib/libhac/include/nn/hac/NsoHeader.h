@@ -1,4 +1,5 @@
 #pragma once
+#include <cstring>
 #include <nn/hac/nso.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>

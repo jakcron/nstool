@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cstring>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
 #include <nn/hac/cnmt.h>

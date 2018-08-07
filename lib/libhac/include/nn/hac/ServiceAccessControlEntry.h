@@ -46,9 +46,6 @@ namespace hac
 		// variables
 		bool mIsServer;
 		std::string mName;
-
-		bool isEqual(const ServiceAccessControlEntry& other) const;
-		void copyFrom(const ServiceAccessControlEntry& other);
 	};
 }
 }

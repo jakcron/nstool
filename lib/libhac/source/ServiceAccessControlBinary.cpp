@@ -1,3 +1,4 @@
+#include <cstring>
 #include <nn/hac/ServiceAccessControlBinary.h>
 
 nn::hac::ServiceAccessControlBinary::ServiceAccessControlBinary()

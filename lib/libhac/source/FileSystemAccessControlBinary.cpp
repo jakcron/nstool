@@ -1,6 +1,5 @@
+#include <cstring>
 #include <nn/hac/FileSystemAccessControlBinary.h>
-
-#include <fnd/SimpleTextOutput.h>
 
 nn::hac::FileSystemAccessControlBinary::FileSystemAccessControlBinary()
 {

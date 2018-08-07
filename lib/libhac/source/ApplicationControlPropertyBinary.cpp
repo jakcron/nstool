@@ -1,3 +1,4 @@
+#include <cstring>
 #include <nn/hac/ApplicationControlPropertyBinary.h>
 
 nn::hac::ApplicationControlPropertyBinary::ApplicationControlPropertyBinary()
