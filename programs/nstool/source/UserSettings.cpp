@@ -41,7 +41,7 @@ void UserSettings::parseCmdArgs(const std::vector<std::string>& arg_list)
 
 void UserSettings::showHelp()
 {
-	printf("NSTool v%d.%d (C) %s\n", VER_MAJOR, VER_MINOR, AUTHORS);
+	printf("NSTool v%d.%d.%d (C) %s\n", VER_MAJOR, VER_MINOR, VER_PATCH, AUTHORS);
 	printf("Built: %s %s\n\n", __TIME__, __DATE__);
 	
 	printf("Usage: nstool [options... ] <file>\n");
