@@ -42,7 +42,7 @@ public:
 	const sOptional<std::string>& getNcaPart3Path() const;
 	const sOptional<std::string>& getAssetIconPath() const;
 	const sOptional<std::string>& getAssetNacpPath() const;
-	const fnd::List<pki::SignedData<pki::CertificateBody>>& getCertificateChain() const;
+	const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& getCertificateChain() const;
 
 private:
 	const std::string kModuleName = "UserSettings";
@@ -100,7 +100,7 @@ private:
 	sOptional<std::string> mAssetIconPath;
 	sOptional<std::string> mAssetNacpPath;
 
-	fnd::List<pki::SignedData<pki::CertificateBody>> mCertChain;
+	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> mCertChain;
 
 	bool mListApi;
 	bool mListSymbols;

@@ -47,7 +47,7 @@ void EsTikProcess::setKeyset(const sKeyset* keyset)
 	mKeyset = keyset;
 }
 
-void EsTikProcess::setCertificateChain(const fnd::List<pki::SignedData<pki::CertificateBody>>& certs)
+void EsTikProcess::setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs)
 {
 	mCerts = certs;
 }
@@ -80,13 +80,13 @@ void EsTikProcess::verifyTicket()
 	PkiValidator pki_validator;
 	fnd::Vec<byte_t> tik_hash;
 
-	switch (pki::sign::getHashAlgo(mTik.getSignature().getSignType()))
+	switch (nn::pki::sign::getHashAlgo(mTik.getSignature().getSignType()))
 	{
-	case (pki::sign::HASH_ALGO_SHA1):
+	case (nn::pki::sign::HASH_ALGO_SHA1):
 		tik_hash.alloc(crypto::sha::kSha1HashLen);
 		crypto::sha::Sha1(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
 		break;
-	case (pki::sign::HASH_ALGO_SHA256):
+	case (nn::pki::sign::HASH_ALGO_SHA256):
 		tik_hash.alloc(crypto::sha::kSha256HashLen);
 		crypto::sha::Sha256(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
 		break;
@@ -110,7 +110,7 @@ void EsTikProcess::displayTicket()
 #define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
 
-	const es::TicketBody_V2& body = mTik.getBody();	
+	const nn::es::TicketBody_V2& body = mTik.getBody();	
 
 	std::cout << "[ES Ticket]" << std::endl;
 
@@ -124,7 +124,7 @@ void EsTikProcess::displayTicket()
 	std::cout << "    EncMode:        " << getTitleKeyPersonalisationStr(body.getTitleKeyEncType()) << std::endl;
 	std::cout << "    KeyGeneration:  " << std::dec << (uint32_t)body.getCommonKeyId() << std::endl;
 	std::cout << "    Data:" << std::endl;
-	size_t size = body.getTitleKeyEncType() == es::ticket::RSA2048 ? crypto::rsa::kRsa2048Size : crypto::aes::kAes128KeySize;
+	size_t size = body.getTitleKeyEncType() == nn::es::ticket::RSA2048 ? crypto::rsa::kRsa2048Size : crypto::aes::kAes128KeySize;
 	fnd::SimpleTextOutput::hexDump(body.getEncTitleKey(), size, 0x10, 6);
 
 	printf("  Version:          v%d.%d.%d", _SPLIT_VER(body.getTicketVersion()));
@@ -174,22 +174,22 @@ const char* EsTikProcess::getSignTypeStr(uint32_t type) const
 	const char* str = nullptr;
 	switch(type)
 	{
-	case (pki::sign::SIGN_ID_RSA4096_SHA1):
+	case (nn::pki::sign::SIGN_ID_RSA4096_SHA1):
 		str = "RSA4096-SHA1";
 		break;
-	case (pki::sign::SIGN_ID_RSA2048_SHA1):
+	case (nn::pki::sign::SIGN_ID_RSA2048_SHA1):
 		str = "RSA2048-SHA1";
 		break;
-	case (pki::sign::SIGN_ID_ECDSA240_SHA1):
+	case (nn::pki::sign::SIGN_ID_ECDSA240_SHA1):
 		str = "ECDSA240-SHA1";
 		break;
-	case (pki::sign::SIGN_ID_RSA4096_SHA256):
+	case (nn::pki::sign::SIGN_ID_RSA4096_SHA256):
 		str = "RSA4096-SHA256";
 		break;
-	case (pki::sign::SIGN_ID_RSA2048_SHA256):
+	case (nn::pki::sign::SIGN_ID_RSA2048_SHA256):
 		str = "RSA2048-SHA256";
 		break;
-	case (pki::sign::SIGN_ID_ECDSA240_SHA256):
+	case (nn::pki::sign::SIGN_ID_ECDSA240_SHA256):
 		str = "ECDSA240-SHA256";
 		break;
 	default:
@@ -204,10 +204,10 @@ const char* EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) const
 	const char* str = nullptr;
 	switch(flag)
 	{
-	case (es::ticket::AES128_CBC):
+	case (nn::es::ticket::AES128_CBC):
 		str = "Generic (AESCBC)";
 		break;
-	case (es::ticket::RSA2048):
+	case (nn::es::ticket::RSA2048):
 		str = "Personalised (RSA2048)";
 		break;
 	default:
@@ -222,22 +222,22 @@ const char* EsTikProcess::getLicenseTypeStr(byte_t flag) const
 	const char* str = nullptr;
 	switch(flag)
 	{
-	case (es::ticket::LICENSE_PERMANENT):
+	case (nn::es::ticket::LICENSE_PERMANENT):
 		str = "Permanent";
 		break;
-	case (es::ticket::LICENSE_DEMO):
+	case (nn::es::ticket::LICENSE_DEMO):
 		str = "Demo";
 		break;
-	case (es::ticket::LICENSE_TRIAL):
+	case (nn::es::ticket::LICENSE_TRIAL):
 		str = "Trial";
 		break;
-	case (es::ticket::LICENSE_RENTAL):
+	case (nn::es::ticket::LICENSE_RENTAL):
 		str = "Rental";
 		break;
-	case (es::ticket::LICENSE_SUBSCRIPTION):
+	case (nn::es::ticket::LICENSE_SUBSCRIPTION):
 		str = "Subscription";
 		break;
-	case (es::ticket::LICENSE_SERVICE):
+	case (nn::es::ticket::LICENSE_SERVICE):
 		str = "Service";
 		break;
 	default:
@@ -252,13 +252,13 @@ const char* EsTikProcess::getPropertyFlagStr(byte_t flag) const
 	const char* str = nullptr;
 	switch(flag)
 	{
-	case (es::ticket::FLAG_PRE_INSTALL):
+	case (nn::es::ticket::FLAG_PRE_INSTALL):
 		str = "PreInstall";
 		break;
-	case (es::ticket::FLAG_SHARED_TITLE):
+	case (nn::es::ticket::FLAG_SHARED_TITLE):
 		str = "SharedTitle";
 		break;
-	case (es::ticket::FLAG_ALLOW_ALL_CONTENT):
+	case (nn::es::ticket::FLAG_ALLOW_ALL_CONTENT):
 		str = "AllContent";
 		break;
 	default:

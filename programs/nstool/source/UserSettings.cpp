@@ -189,7 +189,7 @@ const sOptional<std::string>& UserSettings::getAssetNacpPath() const
 	return mAssetNacpPath;
 }
 
-const fnd::List<pki::SignedData<pki::CertificateBody>>& UserSettings::getCertificateChain() const
+const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& UserSettings::getCertificateChain() const
 {
 	return mCertChain;
 }
@@ -555,7 +555,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	{
 		fnd::SimpleFile cert_file;
 		fnd::Vec<byte_t> cert_raw;
-		pki::SignedData<pki::CertificateBody> cert;
+		nn::pki::SignedData<nn::pki::CertificateBody> cert;
 
 		cert_file.open(args.cert_path.var, fnd::SimpleFile::Read);
 		cert_raw.alloc(cert_file.size());
@@ -573,7 +573,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	{
 		fnd::SimpleFile tik_file;
 		fnd::Vec<byte_t> tik_raw;
-		pki::SignedData<es::TicketBody_V2> tik;
+		nn::pki::SignedData<nn::es::TicketBody_V2> tik;
 
 		// open and import ticket
 		tik_file.open(args.ticket_path.var, fnd::SimpleFile::Read);
@@ -587,13 +587,13 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 			PkiValidator pki_validator;
 			fnd::Vec<byte_t> tik_hash;
 
-			switch (pki::sign::getHashAlgo(tik.getSignature().getSignType()))
+			switch (nn::pki::sign::getHashAlgo(tik.getSignature().getSignType()))
 			{
-			case (pki::sign::HASH_ALGO_SHA1):
+			case (nn::pki::sign::HASH_ALGO_SHA1):
 				tik_hash.alloc(crypto::sha::kSha1HashLen);
 				crypto::sha::Sha1(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
 				break;
-			case (pki::sign::HASH_ALGO_SHA256):
+			case (nn::pki::sign::HASH_ALGO_SHA256):
 				tik_hash.alloc(crypto::sha::kSha256HashLen);
 				crypto::sha::Sha256(tik.getBody().getBytes().data(), tik.getBody().getBytes().size(), tik_hash.data());
 				break;
@@ -613,7 +613,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		}
 
 		// extract title key
-		if (tik.getBody().getTitleKeyEncType() == es::ticket::AES128_CBC)
+		if (tik.getBody().getTitleKeyEncType() == nn::es::ticket::AES128_CBC)
 		{
 			memcpy(mKeyset.nca.manual_title_key_aesctr.key, tik.getBody().getEncTitleKey(), crypto::aes::kAes128KeySize);
 		}
@@ -962,7 +962,7 @@ bool UserSettings::determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) 
 
 bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const
 {
-	pki::SignatureBlock sign;
+	nn::pki::SignatureBlock sign;
 
 	try 
 	{
@@ -976,7 +976,7 @@ bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample
 	if (sign.isLittleEndian() == true)
 		return false;
 
-	if (sign.getSignType() != pki::sign::SIGN_ID_RSA4096_SHA256 && sign.getSignType() != pki::sign::SIGN_ID_RSA2048_SHA256 && sign.getSignType() != pki::sign::SIGN_ID_ECDSA240_SHA256)
+	if (sign.getSignType() != nn::pki::sign::SIGN_ID_RSA4096_SHA256 && sign.getSignType() != nn::pki::sign::SIGN_ID_RSA2048_SHA256 && sign.getSignType() != nn::pki::sign::SIGN_ID_ECDSA240_SHA256)
 		return false;
 
 	return true;
@@ -984,7 +984,7 @@ bool UserSettings::determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample
 
 bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const
 {
-	pki::SignatureBlock sign;
+	nn::pki::SignatureBlock sign;
 
 	try 
 	{
@@ -998,7 +998,7 @@ bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample)
 	if (sign.isLittleEndian() == false)
 		return false;
 
-	if (sign.getSignType() != pki::sign::SIGN_ID_RSA2048_SHA256)
+	if (sign.getSignType() != nn::pki::sign::SIGN_ID_RSA2048_SHA256)
 		return false;
 
 	return true;

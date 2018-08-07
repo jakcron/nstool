@@ -120,9 +120,9 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\es\SectionHeader_V2.h" />
-    <ClInclude Include="include\es\ticket.h" />
-    <ClInclude Include="include\es\TicketBody_V2.h" />
+    <ClInclude Include="include\nn\es\SectionHeader_V2.h" />
+    <ClInclude Include="include\nn\es\ticket.h" />
+    <ClInclude Include="include\nn\es\TicketBody_V2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\SectionHeader_V2.cpp" />

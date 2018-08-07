@@ -48,6 +48,7 @@ Usage: nstool [options... ] <file>
       --titlekey      Specify title key extracted from ticket.
       --bodykey       Specify body encryption key.
       --tik           Specify ticket to source title key.
+      --cert          Specify certificate chain to verify ticket.
       --part0         Extract "partition 0" to directory.
       --part1         Extract "partition 1" to directory.
       --part2         Extract "partition 2" to directory.

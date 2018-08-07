@@ -31,15 +31,15 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	fnd::List<pki::SignedData<pki::CertificateBody>> mCert;
+	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> mCert;
 
 	void importCerts();
 	void validateCerts();
 	void displayCerts();
-	void displayCert(const pki::SignedData<pki::CertificateBody>& cert);
+	void displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert);
 
 	size_t getHexDumpLen(size_t max_size) const;
-	const char* getSignTypeStr(pki::sign::SignatureId type) const;
+	const char* getSignTypeStr(nn::pki::sign::SignatureId type) const;
 	const char* getEndiannessStr(bool isLittleEndian) const;
-	const char* getPublicKeyTypeStr(pki::cert::PublicKeyType type) const;
+	const char* getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const;
 };
