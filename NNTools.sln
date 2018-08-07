@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		SWITCH_KEYS.md = SWITCH_KEYS.md
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nstool", "programs\nstool\nstool.vcxproj", "{AF09FA96-4463-417D-8FE6-526063F41349}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libfnd", "lib\libfnd\libfnd.vcxproj", "{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpolarssl", "lib\libpolarssl\libpolarssl.vcxproj", "{394EFC16-BD3A-4538-B33D-7BA1EDB8DAC1}"
@@ -30,8 +32,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libhac", "lib\libhac\libhac
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libhac-hb", "lib\libhac-hb\libhac-hb.vcxproj", "{738CB4FC-CD9E-4B81-A04B-DEADBFA71C63}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nstool", "programs\nstool\nstool.vcxproj", "{AF09FA96-4463-417D-8FE6-526063F41349}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -40,6 +40,14 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AF09FA96-4463-417D-8FE6-526063F41349}.Debug|x64.ActiveCfg = Debug|x64
+		{AF09FA96-4463-417D-8FE6-526063F41349}.Debug|x64.Build.0 = Debug|x64
+		{AF09FA96-4463-417D-8FE6-526063F41349}.Debug|x86.ActiveCfg = Debug|Win32
+		{AF09FA96-4463-417D-8FE6-526063F41349}.Debug|x86.Build.0 = Debug|Win32
+		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x64.ActiveCfg = Release|x64
+		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x64.Build.0 = Release|x64
+		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x86.ActiveCfg = Release|Win32
+		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x86.Build.0 = Release|Win32
 		{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B}.Debug|x64.ActiveCfg = Debug|x64
 		{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B}.Debug|x64.Build.0 = Debug|x64
 		{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B}.Debug|x86.ActiveCfg = Debug|Win32
@@ -96,19 +104,12 @@ Global
 		{738CB4FC-CD9E-4B81-A04B-DEADBFA71C63}.Release|x64.Build.0 = Release|x64
 		{738CB4FC-CD9E-4B81-A04B-DEADBFA71C63}.Release|x86.ActiveCfg = Release|Win32
 		{738CB4FC-CD9E-4B81-A04B-DEADBFA71C63}.Release|x86.Build.0 = Release|Win32
-		{AF09FA96-4463-417D-8FE6-526063F41349}.Debug|x64.ActiveCfg = Debug|x64
-		{AF09FA96-4463-417D-8FE6-526063F41349}.Debug|x64.Build.0 = Debug|x64
-		{AF09FA96-4463-417D-8FE6-526063F41349}.Debug|x86.ActiveCfg = Debug|Win32
-		{AF09FA96-4463-417D-8FE6-526063F41349}.Debug|x86.Build.0 = Debug|Win32
-		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x64.ActiveCfg = Release|x64
-		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x64.Build.0 = Release|x64
-		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x86.ActiveCfg = Release|Win32
-		{AF09FA96-4463-417D-8FE6-526063F41349}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{AF09FA96-4463-417D-8FE6-526063F41349} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
 		{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 		{394EFC16-BD3A-4538-B33D-7BA1EDB8DAC1} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 		{AB0C3362-63AB-480A-ADBC-2EF7D859778B} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
@@ -116,7 +117,6 @@ Global
 		{7BE99936-0D40-410D-944B-4513C2EFF8DC} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 		{91BA9E79-8242-4F7D-B997-0DFEC95EA22B} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
 		{738CB4FC-CD9E-4B81-A04B-DEADBFA71C63} = {170B4A09-1B67-4A62-93AB-116EBCFF4A8C}
-		{AF09FA96-4463-417D-8FE6-526063F41349} = {E0863FCC-8E72-490D-BE1B-458F12CA8298}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07DCCACC-D10D-47C9-85AE-FB9C54DB7D62}
