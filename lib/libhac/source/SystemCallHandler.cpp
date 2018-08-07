@@ -1,29 +1,29 @@
-#include <nx/SystemCallHandler.h>
-#include <nx/SystemCallEntry.h>
+#include <nn/hac/SystemCallHandler.h>
+#include <nn/hac/SystemCallEntry.h>
 
-nx::SystemCallHandler::SystemCallHandler() :
+nn::hac::SystemCallHandler::SystemCallHandler() :
 	mIsSet(false),
 	mSystemCalls()
 {}
 
-void nx::SystemCallHandler::operator=(const SystemCallHandler & other)
+void nn::hac::SystemCallHandler::operator=(const SystemCallHandler & other)
 {
 	mIsSet = other.mIsSet;
 	mSystemCalls = other.mSystemCalls;
 }
 
-bool nx::SystemCallHandler::operator==(const SystemCallHandler & other) const
+bool nn::hac::SystemCallHandler::operator==(const SystemCallHandler & other) const
 {
 	return (mIsSet == other.mIsSet) \
 		&& (mSystemCalls == other.mSystemCalls);
 }
 
-bool nx::SystemCallHandler::operator!=(const SystemCallHandler & other) const
+bool nn::hac::SystemCallHandler::operator!=(const SystemCallHandler & other) const
 {
 	return !(*this == other);
 }
 
-void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
+void nn::hac::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() == 0)
 		return;
@@ -49,7 +49,7 @@ void nx::SystemCallHandler::importKernelCapabilityList(const fnd::List<KernelCap
 	mIsSet = true;
 }
 
-void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
+void nn::hac::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -80,23 +80,23 @@ void nx::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapabilit
 	}
 }
 
-void nx::SystemCallHandler::clear()
+void nn::hac::SystemCallHandler::clear()
 {
 	mIsSet = false;
 	mSystemCalls.clear();
 }
 
-bool nx::SystemCallHandler::isSet() const
+bool nn::hac::SystemCallHandler::isSet() const
 {
 	return mIsSet;
 }
 
-const fnd::List<uint8_t>& nx::SystemCallHandler::getSystemCalls() const
+const fnd::List<uint8_t>& nn::hac::SystemCallHandler::getSystemCalls() const
 {
 	return mSystemCalls;
 }
 
-void nx::SystemCallHandler::setSystemCallList(const fnd::List<uint8_t>& calls)
+void nn::hac::SystemCallHandler::setSystemCallList(const fnd::List<uint8_t>& calls)
 {
 	mSystemCalls.clear();
 	for (size_t i = 0; i < calls.size(); i++)

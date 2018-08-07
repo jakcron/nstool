@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <nx/KernelCapabilityEntry.h>
+#include <nn/hac/KernelCapabilityEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class MemoryPageEntry
 	{
@@ -56,5 +58,5 @@ namespace nx
 			mUseFlag = mCap.getType() == kc::KC_MEMORY_MAP;
 		}
 	};
-
+}
 }

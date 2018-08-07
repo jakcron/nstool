@@ -23,7 +23,7 @@ bool ElfSymbolParser::operator!=(const ElfSymbolParser& other) const
 void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, const byte_t *dyn_str, size_t dyn_str_size, bool is64Bit)
 {
 	//printf("ElfSymbolParser::parseData()");
-	size_t dynSymSize = is64Bit ? sizeof(nx::sElfSymbol64Bit) : sizeof(nx::sElfSymbol32Bit);
+	size_t dynSymSize = is64Bit ? sizeof(nn::hac::sElfSymbol64Bit) : sizeof(nn::hac::sElfSymbol32Bit);
 
 	sElfSymbol symbol;
 	for (size_t i = 0; i < dyn_sym_size; i += dynSymSize)
@@ -34,17 +34,17 @@ void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, cons
 
 		if (is64Bit)
 		{
-			name_pos = ((nx::sElfSymbol64Bit*)(dyn_sym + i))->name.get();
-			symbol.shn_index = (nx::elf::SpecialSectionIndex)((nx::sElfSymbol64Bit*)(dyn_sym + i))->special_section_index.get();
-			symbol.symbol_type = (nx::elf::SymbolType)((((nx::sElfSymbol64Bit*)(dyn_sym + i))->info) & nx::elf::STT_HIPROC);
-			symbol.symbol_binding = (nx::elf::SymbolBinding)(((((nx::sElfSymbol64Bit*)(dyn_sym + i))->info) >> 4) & nx::elf::STB_HIPROC);
+			name_pos = ((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->name.get();
+			symbol.shn_index = (nn::hac::elf::SpecialSectionIndex)((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->special_section_index.get();
+			symbol.symbol_type = (nn::hac::elf::SymbolType)((((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->info) & nn::hac::elf::STT_HIPROC);
+			symbol.symbol_binding = (nn::hac::elf::SymbolBinding)(((((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->info) >> 4) & nn::hac::elf::STB_HIPROC);
 		}
 		else
 		{
-			name_pos = ((nx::sElfSymbol64Bit*)(dyn_sym + i))->name.get();
-			symbol.shn_index = (nx::elf::SpecialSectionIndex)((nx::sElfSymbol32Bit*)(dyn_sym + i))->special_section_index.get();
-			symbol.symbol_type = (nx::elf::SymbolType)((((nx::sElfSymbol32Bit*)(dyn_sym + i))->info.get()) & nx::elf::STT_HIPROC);
-			symbol.symbol_binding = (nx::elf::SymbolBinding)(((((nx::sElfSymbol32Bit*)(dyn_sym + i))->info.get()) >> 4) & nx::elf::STB_HIPROC);
+			name_pos = ((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->name.get();
+			symbol.shn_index = (nn::hac::elf::SpecialSectionIndex)((nn::hac::sElfSymbol32Bit*)(dyn_sym + i))->special_section_index.get();
+			symbol.symbol_type = (nn::hac::elf::SymbolType)((((nn::hac::sElfSymbol32Bit*)(dyn_sym + i))->info.get()) & nn::hac::elf::STT_HIPROC);
+			symbol.symbol_binding = (nn::hac::elf::SymbolBinding)(((((nn::hac::sElfSymbol32Bit*)(dyn_sym + i))->info.get()) >> 4) & nn::hac::elf::STB_HIPROC);
 		}
 
 		for (; dyn_str[name_pos] == 0x00 && name_pos < dyn_str_size; name_pos++);

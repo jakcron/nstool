@@ -1,7 +1,9 @@
 #pragma once
-#include <nx/nacp.h>
+#include <nn/hac/nacp.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class ApplicationControlPropertyUtils
 	{
@@ -9,4 +11,5 @@ namespace nx
 		static bool validateSaveDataSizeMax(int64_t size, int64_t alignment);
 		static bool validateSaveDataSize(int64_t size);
 	};
+}
 }

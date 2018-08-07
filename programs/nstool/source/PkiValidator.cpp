@@ -2,7 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <pki/SignUtils.h>
+#include <nn/pki/SignUtils.h>
 
 PkiValidator::PkiValidator()
 {

@@ -3,9 +3,9 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/Vec.h>
-#include <pki/SignedData.h>
-#include <pki/CertificateBody.h>
-#include <es/TicketBody_V2.h>
+#include <nn/pki/SignedData.h>
+#include <nn/pki/CertificateBody.h>
+#include <nn/es/TicketBody_V2.h>
 #include "nstool.h"
 
 class EsTikProcess

@@ -1,9 +1,11 @@
 #pragma once
-#include <nx/nca.h>
+#include <nn/hac/nca.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class NcaHeader : 
 		public fnd::ISerialisable
@@ -112,5 +114,5 @@ namespace nx
 		uint64_t blockNumToSize(uint32_t block_num) const;
 		uint32_t sizeToBlockNum(uint64_t real_size) const;
 	};
-
+}
 }

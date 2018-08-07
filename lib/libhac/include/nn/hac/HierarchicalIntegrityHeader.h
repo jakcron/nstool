@@ -1,10 +1,12 @@
 #pragma once
-#include <nx/hierarchicalintegrity.h>
+#include <nn/hac/hierarchicalintegrity.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
 #include <crypto/sha.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class HierarchicalIntegrityHeader :
 		public fnd::ISerialisable
@@ -64,5 +66,5 @@ namespace nx
 		fnd::List<sLayer> mLayerInfo;
 		fnd::List<crypto::sha::sSha256Hash> mMasterHashList;
 	};
-
+}
 }

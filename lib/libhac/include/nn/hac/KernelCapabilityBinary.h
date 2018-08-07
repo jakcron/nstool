@@ -3,16 +3,18 @@
 #include <vector>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <nx/ThreadInfoHandler.h>
-#include <nx/SystemCallHandler.h>
-#include <nx/MemoryMappingHandler.h>
-#include <nx/InteruptHandler.h>
-#include <nx/MiscParamsHandler.h>
-#include <nx/KernelVersionHandler.h>
-#include <nx/HandleTableSizeHandler.h>
-#include <nx/MiscFlagsHandler.h>
+#include <nn/hac/ThreadInfoHandler.h>
+#include <nn/hac/SystemCallHandler.h>
+#include <nn/hac/MemoryMappingHandler.h>
+#include <nn/hac/InteruptHandler.h>
+#include <nn/hac/MiscParamsHandler.h>
+#include <nn/hac/KernelVersionHandler.h>
+#include <nn/hac/HandleTableSizeHandler.h>
+#include <nn/hac/MiscFlagsHandler.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class KernelCapabilityBinary :
 		public fnd::ISerialisable
@@ -73,4 +75,4 @@ namespace nx
 		MiscFlagsHandler mMiscFlags;
 	};
 }
-
+}

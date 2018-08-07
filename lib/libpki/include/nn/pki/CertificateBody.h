@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <fnd/ISerialisable.h>
-#include <pki/cert.h>
+#include <nn/pki/cert.h>
 
+namespace nn
+{
 namespace pki
 {
 	class CertificateBody
@@ -61,4 +63,5 @@ namespace pki
 		crypto::rsa::sRsa2048Key mRsa2048PublicKey;
 		crypto::ecdsa::sEcdsa240Point mEcdsa240PublicKey;
 	};
+}
 }

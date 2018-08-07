@@ -1,9 +1,11 @@
 #pragma once
 #include <fnd/types.h>
 #include <crypto/rsa.h>
-#include <nx/macro.h>
+#include <nn/hac/macro.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace aci
 	{
@@ -50,4 +52,5 @@ namespace nx
 		sAciSection kc;
 	};
 #pragma pack(pop)
+}
 }

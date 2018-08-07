@@ -1,16 +1,16 @@
 #pragma once
 #include <string>
 #include <fnd/List.h>
-#include <nx/elf.h>
+#include <nn/hac/elf.h>
 
 class ElfSymbolParser
 {
 public:
 	struct sElfSymbol
 	{
-		nx::elf::SpecialSectionIndex shn_index;
-		nx::elf::SymbolType symbol_type;
-		nx::elf::SymbolBinding symbol_binding;
+		nn::hac::elf::SpecialSectionIndex shn_index;
+		nn::hac::elf::SymbolType symbol_type;
+		nn::hac::elf::SymbolBinding symbol_binding;
 		std::string name;
 
 		void operator=(const sElfSymbol& other)

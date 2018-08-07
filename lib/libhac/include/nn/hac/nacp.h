@@ -1,7 +1,9 @@
 #pragma once
 #include <fnd/types.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace nacp
 	{
@@ -217,4 +219,5 @@ namespace nx
 		byte_t reserved_04[0xDED];
 	};
 #pragma pack(pop)
+}
 }

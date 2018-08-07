@@ -1,9 +1,11 @@
 #pragma once
 #include <fnd/types.h>
 #include <fnd/List.h>
-#include <nx/KernelCapabilityEntry.h>
+#include <nn/hac/KernelCapabilityEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class IKernelCapabilityHandler
 	{
@@ -14,4 +16,4 @@ namespace nx
 		virtual bool isSet() const = 0;
 	};
 }
-
+}

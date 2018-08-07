@@ -4,9 +4,9 @@
 #include <fnd/types.h>
 #include <fnd/Vec.h>
 #include <fnd/List.h>
-#include <pki/SignedData.h>
-#include <pki/CertificateBody.h>
-#include <nx/npdm.h>
+#include <nn/pki/SignedData.h>
+#include <nn/pki/CertificateBody.h>
+#include <nn/hac/npdm.h>
 #include "nstool.h"
 
 class UserSettings
@@ -28,7 +28,7 @@ public:
 	bool isListFs() const;
 	bool isListApi() const;
 	bool isListSymbols() const;
-	nx::npdm::InstructionType getInstType() const;
+	nn::hac::npdm::InstructionType getInstType() const;
 
 	// specialised paths
 	const sOptional<std::string>& getXciUpdatePath() const;
@@ -104,7 +104,7 @@ private:
 
 	bool mListApi;
 	bool mListSymbols;
-	nx::npdm::InstructionType mInstructionType;
+	nn::hac::npdm::InstructionType mInstructionType;
 
 	void populateCmdArgs(const std::vector<std::string>& arg_list, sCmdArgs& cmd_args);
 	void populateKeyset(sCmdArgs& args);
@@ -117,5 +117,5 @@ private:
 	bool determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const;
-	nx::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
+	nn::hac::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
 };

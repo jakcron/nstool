@@ -1,16 +1,16 @@
-#include <nx/PfsHeader.h>
+#include <nn/hac/PfsHeader.h>
 
-nx::PfsHeader::PfsHeader()
+nn::hac::PfsHeader::PfsHeader()
 {
 	clear();
 }
 
-nx::PfsHeader::PfsHeader(const PfsHeader & other)
+nn::hac::PfsHeader::PfsHeader(const PfsHeader & other)
 {
 	*this = other;
 }
 
-void nx::PfsHeader::operator=(const PfsHeader & other)
+void nn::hac::PfsHeader::operator=(const PfsHeader & other)
 {
 	if (other.getBytes().size())
 	{
@@ -24,24 +24,24 @@ void nx::PfsHeader::operator=(const PfsHeader & other)
 	}
 }
 
-bool nx::PfsHeader::operator==(const PfsHeader & other) const
+bool nn::hac::PfsHeader::operator==(const PfsHeader & other) const
 {
 	return (mFsType == other.mFsType) \
 		&& (mFileList == other.mFileList);
 }
 
-bool nx::PfsHeader::operator!=(const PfsHeader & other) const
+bool nn::hac::PfsHeader::operator!=(const PfsHeader & other) const
 {
 	return !(*this == other);
 }
 
-const fnd::Vec<byte_t>& nx::PfsHeader::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::PfsHeader::getBytes() const
 {
 	return mRawBinary;
 }
 
 
-void nx::PfsHeader::toBytes()
+void nn::hac::PfsHeader::toBytes()
 {
 	// calculate name table size
 	size_t name_table_size = 0;
@@ -113,7 +113,7 @@ void nx::PfsHeader::toBytes()
 	
 }
 
-void nx::PfsHeader::fromBytes(const byte_t* data, size_t len)
+void nn::hac::PfsHeader::fromBytes(const byte_t* data, size_t len)
 {
 	// check input length meets minimum size
 	if (len < sizeof(sPfsHeader))
@@ -195,39 +195,39 @@ void nx::PfsHeader::fromBytes(const byte_t* data, size_t len)
 	
 }
 
-void nx::PfsHeader::clear()
+void nn::hac::PfsHeader::clear()
 {
 	mRawBinary.clear();
 	mFsType = TYPE_PFS0;
 	mFileList.clear();
 }
 
-nx::PfsHeader::FsType nx::PfsHeader::getFsType() const
+nn::hac::PfsHeader::FsType nn::hac::PfsHeader::getFsType() const
 {
 	return mFsType;
 }
 
-void nx::PfsHeader::setFsType(FsType type)
+void nn::hac::PfsHeader::setFsType(FsType type)
 {
 	mFsType = type;
 }
 
-const fnd::List<nx::PfsHeader::sFile>& nx::PfsHeader::getFileList() const
+const fnd::List<nn::hac::PfsHeader::sFile>& nn::hac::PfsHeader::getFileList() const
 {
 	return mFileList;
 }
 
-void nx::PfsHeader::addFile(const std::string & name, size_t size)
+void nn::hac::PfsHeader::addFile(const std::string & name, size_t size)
 {
 	mFileList.addElement({ name, 0, size, 0 });
 }
 
-void nx::PfsHeader::addFile(const std::string & name, size_t size, size_t hash_protected_size, const crypto::sha::sSha256Hash& hash)
+void nn::hac::PfsHeader::addFile(const std::string & name, size_t size, size_t hash_protected_size, const crypto::sha::sSha256Hash& hash)
 {
 	mFileList.addElement({ name, 0, size, hash_protected_size, hash });
 }
 
-size_t nx::PfsHeader::getFileEntrySize(FsType fs_type)
+size_t nn::hac::PfsHeader::getFileEntrySize(FsType fs_type)
 {
 	size_t size = 0;
 	switch(fs_type)
@@ -244,7 +244,7 @@ size_t nx::PfsHeader::getFileEntrySize(FsType fs_type)
 	return size;
 }
 
-void nx::PfsHeader::calculateOffsets(size_t data_offset)
+void nn::hac::PfsHeader::calculateOffsets(size_t data_offset)
 {
 	for (size_t i = 0; i < mFileList.size(); i++)
 	{

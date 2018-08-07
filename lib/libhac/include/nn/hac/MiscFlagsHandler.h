@@ -1,8 +1,10 @@
 #pragma once
-#include <nx/IKernelCapabilityHandler.h>
-#include <nx/MiscFlagsEntry.h>
+#include <nn/hac/IKernelCapabilityHandler.h>
+#include <nn/hac/MiscFlagsEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class MiscFlagsHandler :
 		public IKernelCapabilityHandler
@@ -51,5 +53,5 @@ namespace nx
 		bool mIsSet;
 		fnd::List<Flags> mFlags;
 	};
-
+}
 }

@@ -1,8 +1,10 @@
 #pragma once
-
 #include <fnd/types.h>
-#include <nx/macro.h>
-namespace nx
+#include <nn/hac/macro.h>
+
+namespace nn
+{
+namespace hac
 {
 	namespace aset
 	{
@@ -27,4 +29,5 @@ namespace nx
 		sAssetSection romfs;
 	};
 #pragma pack(pop)
+}
 }

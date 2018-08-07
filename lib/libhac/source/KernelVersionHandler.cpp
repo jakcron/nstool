@@ -1,28 +1,28 @@
-#include <nx/KernelVersionHandler.h>
+#include <nn/hac/KernelVersionHandler.h>
 
-nx::KernelVersionHandler::KernelVersionHandler() :
+nn::hac::KernelVersionHandler::KernelVersionHandler() :
 	mIsSet(false),
 	mEntry(0,0)
 {}
 
-void nx::KernelVersionHandler::operator=(const KernelVersionHandler & other)
+void nn::hac::KernelVersionHandler::operator=(const KernelVersionHandler & other)
 {
 	mIsSet = other.mIsSet;
 	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
 }
 
-bool nx::KernelVersionHandler::operator==(const KernelVersionHandler & other) const
+bool nn::hac::KernelVersionHandler::operator==(const KernelVersionHandler & other) const
 {
 	return (mIsSet == other.mIsSet) \
 		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }
 
-bool nx::KernelVersionHandler::operator!=(const KernelVersionHandler & other) const
+bool nn::hac::KernelVersionHandler::operator!=(const KernelVersionHandler & other) const
 {
 	return !(*this == other);
 }
 
-void nx::KernelVersionHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
+void nn::hac::KernelVersionHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{ 
@@ -37,7 +37,7 @@ void nx::KernelVersionHandler::importKernelCapabilityList(const fnd::List<Kernel
 	mIsSet = true;
 }
 
-void nx::KernelVersionHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
+void nn::hac::KernelVersionHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -45,35 +45,35 @@ void nx::KernelVersionHandler::exportKernelCapabilityList(fnd::List<KernelCapabi
 	caps.addElement(mEntry.getKernelCapability());
 }
 
-void nx::KernelVersionHandler::clear()
+void nn::hac::KernelVersionHandler::clear()
 {
 	mIsSet = false;
 	mEntry.setVerMajor(0);
 	mEntry.setVerMinor(0);
 }
 
-bool nx::KernelVersionHandler::isSet() const
+bool nn::hac::KernelVersionHandler::isSet() const
 {
 	return mIsSet;
 }
 
-uint16_t nx::KernelVersionHandler::getVerMajor() const
+uint16_t nn::hac::KernelVersionHandler::getVerMajor() const
 {
 	return mEntry.getVerMajor();
 }
 
-void nx::KernelVersionHandler::setVerMajor(uint16_t major)
+void nn::hac::KernelVersionHandler::setVerMajor(uint16_t major)
 {
 	mEntry.setVerMajor(major);
 	mIsSet = true;
 }
 
-uint8_t nx::KernelVersionHandler::getVerMinor() const
+uint8_t nn::hac::KernelVersionHandler::getVerMinor() const
 {
 	return mEntry.getVerMinor();
 }
 
-void nx::KernelVersionHandler::setVerMinor(uint8_t minor)
+void nn::hac::KernelVersionHandler::setVerMinor(uint8_t minor)
 {
 	mEntry.setVerMinor(minor);
 	mIsSet = true;

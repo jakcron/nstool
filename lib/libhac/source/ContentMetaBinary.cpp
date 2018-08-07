@@ -1,16 +1,16 @@
-#include <nx/ContentMetaBinary.h>
+#include <nn/hac/ContentMetaBinary.h>
 
-nx::ContentMetaBinary::ContentMetaBinary()
+nn::hac::ContentMetaBinary::ContentMetaBinary()
 {
 	clear();
 }
 
-nx::ContentMetaBinary::ContentMetaBinary(const ContentMetaBinary & other)
+nn::hac::ContentMetaBinary::ContentMetaBinary(const ContentMetaBinary & other)
 {
 	*this = other;
 }
 
-void nx::ContentMetaBinary::operator=(const ContentMetaBinary& other)
+void nn::hac::ContentMetaBinary::operator=(const ContentMetaBinary& other)
 {
 	if (other.getBytes().size() > 0)
 	{
@@ -36,7 +36,7 @@ void nx::ContentMetaBinary::operator=(const ContentMetaBinary& other)
 	}
 }
 
-bool nx::ContentMetaBinary::operator==(const ContentMetaBinary& other) const
+bool nn::hac::ContentMetaBinary::operator==(const ContentMetaBinary& other) const
 {
 	return (mTitleId == other.mTitleId) \
 		&& (mTitleVersion == other.mTitleVersion) \
@@ -54,17 +54,17 @@ bool nx::ContentMetaBinary::operator==(const ContentMetaBinary& other) const
 		&& (memcmp(mDigest.data, other.mDigest.data, cnmt::kDigestLen) == 0);
 }
 
-bool nx::ContentMetaBinary::operator!=(const ContentMetaBinary& other) const
+bool nn::hac::ContentMetaBinary::operator!=(const ContentMetaBinary& other) const
 {
 	return !(*this == other);
 }
 
-void nx::ContentMetaBinary::toBytes()
+void nn::hac::ContentMetaBinary::toBytes()
 {
 	throw fnd::Exception(kModuleName, "exportBinary() not implemented");
 }
 
-void nx::ContentMetaBinary::fromBytes(const byte_t* data, size_t len)
+void nn::hac::ContentMetaBinary::fromBytes(const byte_t* data, size_t len)
 {
 	// clear member variables
 	clear();
@@ -153,12 +153,12 @@ void nx::ContentMetaBinary::fromBytes(const byte_t* data, size_t len)
 	memcpy(mDigest.data, data + getDigestOffset(hdr->exhdr_size.get(), hdr->content_count.get(), hdr->content_meta_count.get(), exdata_size), cnmt::kDigestLen);
 }
 
-const fnd::Vec<byte_t>& nx::ContentMetaBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::ContentMetaBinary::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::ContentMetaBinary::clear()
+void nn::hac::ContentMetaBinary::clear()
 {
 	mRawBinary.clear();
 	mTitleId = 0;
@@ -177,138 +177,138 @@ void nx::ContentMetaBinary::clear()
 	memset(mDigest.data, 0, cnmt::kDigestLen);
 }
 
-uint64_t nx::ContentMetaBinary::getTitleId() const
+uint64_t nn::hac::ContentMetaBinary::getTitleId() const
 {
 	return mTitleId;
 }
 
-void nx::ContentMetaBinary::setTitleId(uint64_t title_id)
+void nn::hac::ContentMetaBinary::setTitleId(uint64_t title_id)
 {
 	mTitleId = title_id;
 }
 
-uint32_t nx::ContentMetaBinary::getTitleVersion() const
+uint32_t nn::hac::ContentMetaBinary::getTitleVersion() const
 {
 	return mTitleVersion;
 }
 
-void nx::ContentMetaBinary::setTitleVersion(uint32_t version)
+void nn::hac::ContentMetaBinary::setTitleVersion(uint32_t version)
 {
 	mTitleVersion = version;
 }
 
-nx::cnmt::ContentMetaType nx::ContentMetaBinary::getType() const
+nn::hac::cnmt::ContentMetaType nn::hac::ContentMetaBinary::getType() const
 {
 	return mType;
 }
 
-void nx::ContentMetaBinary::setType(cnmt::ContentMetaType type)
+void nn::hac::ContentMetaBinary::setType(cnmt::ContentMetaType type)
 {
 	mType = type;
 }
 
-byte_t nx::ContentMetaBinary::getAttributes() const
+byte_t nn::hac::ContentMetaBinary::getAttributes() const
 {
 	return mAttributes;
 }
 
-void nx::ContentMetaBinary::setAttributes(byte_t attributes)
+void nn::hac::ContentMetaBinary::setAttributes(byte_t attributes)
 {
 	mAttributes = attributes;
 }
 
-uint32_t nx::ContentMetaBinary::getRequiredDownloadSystemVersion() const
+uint32_t nn::hac::ContentMetaBinary::getRequiredDownloadSystemVersion() const
 {
 	return mRequiredDownloadSystemVersion;
 }
 
-void nx::ContentMetaBinary::setRequiredDownloadSystemVersion(uint32_t version)
+void nn::hac::ContentMetaBinary::setRequiredDownloadSystemVersion(uint32_t version)
 {
 	mRequiredDownloadSystemVersion = version;
 }
 
-const nx::ContentMetaBinary::ApplicationMetaExtendedHeader& nx::ContentMetaBinary::getApplicationMetaExtendedHeader() const
+const nn::hac::ContentMetaBinary::ApplicationMetaExtendedHeader& nn::hac::ContentMetaBinary::getApplicationMetaExtendedHeader() const
 {
 	return mApplicationMetaExtendedHeader;
 }
 
-void nx::ContentMetaBinary::setApplicationMetaExtendedHeader(const ApplicationMetaExtendedHeader& exhdr)
+void nn::hac::ContentMetaBinary::setApplicationMetaExtendedHeader(const ApplicationMetaExtendedHeader& exhdr)
 {
 	mApplicationMetaExtendedHeader = exhdr;
 }
 
-const nx::ContentMetaBinary::PatchMetaExtendedHeader& nx::ContentMetaBinary::getPatchMetaExtendedHeader() const
+const nn::hac::ContentMetaBinary::PatchMetaExtendedHeader& nn::hac::ContentMetaBinary::getPatchMetaExtendedHeader() const
 {
 	return mPatchMetaExtendedHeader;
 }
 
-void nx::ContentMetaBinary::setPatchMetaExtendedHeader(const PatchMetaExtendedHeader& exhdr)
+void nn::hac::ContentMetaBinary::setPatchMetaExtendedHeader(const PatchMetaExtendedHeader& exhdr)
 {
 	mPatchMetaExtendedHeader = exhdr;
 }
 
-const nx::ContentMetaBinary::AddOnContentMetaExtendedHeader& nx::ContentMetaBinary::getAddOnContentMetaExtendedHeader() const
+const nn::hac::ContentMetaBinary::AddOnContentMetaExtendedHeader& nn::hac::ContentMetaBinary::getAddOnContentMetaExtendedHeader() const
 {
 	return mAddOnContentMetaExtendedHeader;
 }
 
-void nx::ContentMetaBinary::setAddOnContentMetaExtendedHeader(const AddOnContentMetaExtendedHeader& exhdr)
+void nn::hac::ContentMetaBinary::setAddOnContentMetaExtendedHeader(const AddOnContentMetaExtendedHeader& exhdr)
 {
 	mAddOnContentMetaExtendedHeader = exhdr;
 }
 
-const nx::ContentMetaBinary::DeltaMetaExtendedHeader& nx::ContentMetaBinary::getDeltaMetaExtendedHeader() const
+const nn::hac::ContentMetaBinary::DeltaMetaExtendedHeader& nn::hac::ContentMetaBinary::getDeltaMetaExtendedHeader() const
 {
 	return mDeltaMetaExtendedHeader;
 }
 
-void nx::ContentMetaBinary::setDeltaMetaExtendedHeader(const DeltaMetaExtendedHeader& exhdr)
+void nn::hac::ContentMetaBinary::setDeltaMetaExtendedHeader(const DeltaMetaExtendedHeader& exhdr)
 {
 	mDeltaMetaExtendedHeader = exhdr;
 }
 
-const fnd::List<nx::ContentMetaBinary::ContentInfo>& nx::ContentMetaBinary::getContentInfo() const
+const fnd::List<nn::hac::ContentMetaBinary::ContentInfo>& nn::hac::ContentMetaBinary::getContentInfo() const
 {
 	return mContentInfo;
 }
 
-void nx::ContentMetaBinary::setContentInfo(const fnd::List<nx::ContentMetaBinary::ContentInfo>& info)
+void nn::hac::ContentMetaBinary::setContentInfo(const fnd::List<nn::hac::ContentMetaBinary::ContentInfo>& info)
 {
 	mContentInfo = info;
 }
 
-const fnd::List<nx::ContentMetaBinary::ContentMetaInfo>& nx::ContentMetaBinary::getContentMetaInfo() const
+const fnd::List<nn::hac::ContentMetaBinary::ContentMetaInfo>& nn::hac::ContentMetaBinary::getContentMetaInfo() const
 {
 	return mContentMetaInfo;
 }
 
-void nx::ContentMetaBinary::setContentMetaInfo(const fnd::List<nx::ContentMetaBinary::ContentMetaInfo>& info)
+void nn::hac::ContentMetaBinary::setContentMetaInfo(const fnd::List<nn::hac::ContentMetaBinary::ContentMetaInfo>& info)
 {
 	mContentMetaInfo = info;
 }
 
-const fnd::Vec<byte_t> & nx::ContentMetaBinary::getExtendedData() const
+const fnd::Vec<byte_t> & nn::hac::ContentMetaBinary::getExtendedData() const
 {
 	return mExtendedData;
 }
 
-void nx::ContentMetaBinary::setExtendedData(const fnd::Vec<byte_t> & data)
+void nn::hac::ContentMetaBinary::setExtendedData(const fnd::Vec<byte_t> & data)
 {
 	mExtendedData = data;
 }
 
-const nx::sDigest & nx::ContentMetaBinary::getDigest() const
+const nn::hac::sDigest & nn::hac::ContentMetaBinary::getDigest() const
 {
 	return mDigest;
 }
 
-void nx::ContentMetaBinary::setDigest(const nx::sDigest & digest)
+void nn::hac::ContentMetaBinary::setDigest(const nn::hac::sDigest & digest)
 {
 
 	memcpy(mDigest.data, digest.data, cnmt::kDigestLen);
 }
 
-bool nx::ContentMetaBinary::validateExtendedHeaderSize(cnmt::ContentMetaType type, size_t exhdrSize) const
+bool nn::hac::ContentMetaBinary::validateExtendedHeaderSize(cnmt::ContentMetaType type, size_t exhdrSize) const
 {
 	bool validSize = false;
 
@@ -333,7 +333,7 @@ bool nx::ContentMetaBinary::validateExtendedHeaderSize(cnmt::ContentMetaType typ
 	return validSize;
 }
 
-size_t nx::ContentMetaBinary::getExtendedDataSize(cnmt::ContentMetaType type, const byte_t * data) const
+size_t nn::hac::ContentMetaBinary::getExtendedDataSize(cnmt::ContentMetaType type, const byte_t * data) const
 {
 	size_t exdata_len = 0;
 	if (type == cnmt::METATYPE_PATCH)
@@ -349,7 +349,7 @@ size_t nx::ContentMetaBinary::getExtendedDataSize(cnmt::ContentMetaType type, co
 	return exdata_len;
 }
 
-void nx::ContentMetaBinary::validateBinary(const byte_t * data, size_t len) const
+void nn::hac::ContentMetaBinary::validateBinary(const byte_t * data, size_t len) const
 {
 	// check if it is large enough to read the header
 	if (len < sizeof(sContentMetaHeader))

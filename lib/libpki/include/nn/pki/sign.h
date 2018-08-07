@@ -5,6 +5,8 @@
 #include <crypto/rsa.h>
 #include <crypto/ecdsa.h>
 
+namespace nn
+{
 namespace pki
 {
 	namespace sign
@@ -59,4 +61,5 @@ namespace pki
 		byte_t padding[0x40];
 	};
 #pragma pack(pop)
+}
 }

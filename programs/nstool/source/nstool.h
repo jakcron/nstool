@@ -4,10 +4,10 @@
 #include <fnd/types.h>
 #include <crypto/aes.h>
 #include <crypto/rsa.h>
-#include <nx/nca.h>
+#include <nn/hac/nca.h>
 
 static const size_t kMasterKeyNum = 0x20;
-static const size_t kNcaKeakNum = nx::nca::kKeyAreaEncryptionKeyNum;
+static const size_t kNcaKeakNum = nn::hac::nca::kKeyAreaEncryptionKeyNum;
 
 enum IFileOwnershipMode
 {

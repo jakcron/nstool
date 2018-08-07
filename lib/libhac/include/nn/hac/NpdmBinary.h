@@ -2,12 +2,13 @@
 #include <string>
 #include <fnd/List.h>
 #include <fnd/ISerialisable.h>
-#include <nx/npdm.h>
-#include <nx/AccessControlInfoBinary.h>
-#include <nx/AccessControlInfoDescBinary.h>
+#include <nn/hac/npdm.h>
+#include <nn/hac/AccessControlInfoBinary.h>
+#include <nn/hac/AccessControlInfoDescBinary.h>
 
-
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class NpdmBinary :
 		public fnd::ISerialisable
@@ -75,5 +76,5 @@ namespace nx
 		AccessControlInfoBinary mAci;
 		AccessControlInfoDescBinary mAcid;
 	};
-
+}
 }

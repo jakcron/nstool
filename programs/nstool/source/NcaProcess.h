@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/SimpleFile.h>
-#include <nx/NcaHeader.h>
+#include <nn/hac/NcaHeader.h>
 #include "HashTreeMeta.h"
 
 
@@ -44,14 +44,14 @@ private:
 	{
 		std::string path;
 		bool doExtract;
-	} mPartitionPath[nx::nca::kPartitionNum];
+	} mPartitionPath[nn::hac::nca::kPartitionNum];
 
 	bool mListFs;
 
 	// data
-	nx::sNcaHeaderBlock mHdrBlock;
+	nn::hac::sNcaHeaderBlock mHdrBlock;
 	crypto::sha::sSha256Hash mHdrHash;
-	nx::NcaHeader mHdr;
+	nn::hac::NcaHeader mHdr;
 
 	// crypto
 	struct sKeys
@@ -98,12 +98,12 @@ private:
 		size_t size;
 
 		// meta data
-		nx::nca::FormatType format_type;
-		nx::nca::HashType hash_type;
-		nx::nca::EncryptionType enc_type;
+		nn::hac::nca::FormatType format_type;
+		nn::hac::nca::HashType hash_type;
+		nn::hac::nca::EncryptionType enc_type;
 		HashTreeMeta hash_tree_meta;
 		crypto::aes::sAesIvCtr aes_ctr;
-	} mPartitions[nx::nca::kPartitionNum];
+	} mPartitions[nn::hac::nca::kPartitionNum];
 
 	void generateNcaBodyEncryptionKeys();
 	void generatePartitionConfiguration();

@@ -1,25 +1,25 @@
-#include <nx/NcaUtils.h>
+#include <nn/hac/NcaUtils.h>
 
-void nx::NcaUtils::decryptNcaHeader(const byte_t* src, byte_t* dst, const crypto::aes::sAesXts128Key& key)
+void nn::hac::NcaUtils::decryptNcaHeader(const byte_t* src, byte_t* dst, const crypto::aes::sAesXts128Key& key)
 {
 	byte_t tweak[crypto::aes::kAesBlockSize];
 
 	// decrypt main header
-	byte_t raw_hdr[nx::nca::kSectorSize];
+	byte_t raw_hdr[nn::hac::nca::kSectorSize];
 	crypto::aes::AesXtsMakeTweak(tweak, 1);
-	crypto::aes::AesXtsDecryptSector(src + sectorToOffset(1), nx::nca::kSectorSize, key.key[0], key.key[1], tweak, raw_hdr);
+	crypto::aes::AesXtsDecryptSector(src + sectorToOffset(1), nn::hac::nca::kSectorSize, key.key[0], key.key[1], tweak, raw_hdr);
 
-	bool useNca2SectorIndex = ((nx::sNcaHeader*)(raw_hdr))->st_magic.get() == nx::nca::kNca2StructMagic;
+	bool useNca2SectorIndex = ((nn::hac::sNcaHeader*)(raw_hdr))->st_magic.get() == nn::hac::nca::kNca2StructMagic;
 
 	// decrypt whole header
-	for (size_t i = 0; i < nx::nca::kHeaderSectorNum; i++)
+	for (size_t i = 0; i < nn::hac::nca::kHeaderSectorNum; i++)
 	{
 		crypto::aes::AesXtsMakeTweak(tweak, (i > 1 && useNca2SectorIndex)? 0 : i);
-		crypto::aes::AesXtsDecryptSector(src + sectorToOffset(i), nx::nca::kSectorSize, key.key[0], key.key[1], tweak, dst + sectorToOffset(i));
+		crypto::aes::AesXtsDecryptSector(src + sectorToOffset(i), nn::hac::nca::kSectorSize, key.key[0], key.key[1], tweak, dst + sectorToOffset(i));
 	}
 }
 
-byte_t nx::NcaUtils::getMasterKeyRevisionFromKeyGeneration(byte_t key_generation)
+byte_t nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(byte_t key_generation)
 {
 	byte_t masterkey_rev;
 
@@ -48,7 +48,7 @@ byte_t nx::NcaUtils::getMasterKeyRevisionFromKeyGeneration(byte_t key_generation
 	return masterkey_rev;
 }
 
-void nx::NcaUtils::getNcaPartitionAesCtr(const nx::sNcaFsHeader* hdr, byte_t* ctr)
+void nn::hac::NcaUtils::getNcaPartitionAesCtr(const nn::hac::sNcaFsHeader* hdr, byte_t* ctr)
 {
 	for (size_t i = 0; i < 8; i++)
 	{

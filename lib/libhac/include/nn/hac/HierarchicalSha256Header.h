@@ -1,9 +1,11 @@
 #pragma once
-#include <nx/hierarchicalsha256.h>
+#include <nn/hac/hierarchicalsha256.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class HierarchicalSha256Header :
 		public fnd::ISerialisable
@@ -65,5 +67,5 @@ namespace nx
 		size_t mHashBlockSize;
 		fnd::List<sLayer> mLayerInfo;
 	};
-
+}
 }

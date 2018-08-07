@@ -1,16 +1,16 @@
-#include <pki/SignatureBlock.h>
+#include <nn/pki/SignatureBlock.h>
 
-pki::SignatureBlock::SignatureBlock()
+nn::pki::SignatureBlock::SignatureBlock()
 {
 	clear();
 }
 
-pki::SignatureBlock::SignatureBlock(const SignatureBlock& other)
+nn::pki::SignatureBlock::SignatureBlock(const SignatureBlock& other)
 {
 	*this = other;
 }
 
-void pki::SignatureBlock::operator=(const SignatureBlock& other)
+void nn::pki::SignatureBlock::operator=(const SignatureBlock& other)
 {
 	mRawBinary = other.mRawBinary;
 	mSignType = other.mSignType;
@@ -18,19 +18,19 @@ void pki::SignatureBlock::operator=(const SignatureBlock& other)
 	mSignature = other.mSignature;
 }
 
-bool pki::SignatureBlock::operator==(const SignatureBlock& other) const
+bool nn::pki::SignatureBlock::operator==(const SignatureBlock& other) const
 {
 	return (mSignType == other.mSignType) \
 		&& (mIsLittleEndian == other.mIsLittleEndian) \
 		&& (mSignature == other.mSignature);
 }
 
-bool pki::SignatureBlock::operator!=(const SignatureBlock& other) const
+bool nn::pki::SignatureBlock::operator!=(const SignatureBlock& other) const
 {
 	return !(*this == other);
 }
 
-void pki::SignatureBlock::toBytes()
+void nn::pki::SignatureBlock::toBytes()
 {
 	size_t totalSize = 0;
 	size_t sigSize = 0;
@@ -68,7 +68,7 @@ void pki::SignatureBlock::toBytes()
 	memcpy(mRawBinary.data() + 4, mSignature.data(), sigSize);
 }
 
-void pki::SignatureBlock::fromBytes(const byte_t* src, size_t size)
+void nn::pki::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 {
 	clear();
 
@@ -138,12 +138,12 @@ void pki::SignatureBlock::fromBytes(const byte_t* src, size_t size)
 	memcpy(mSignature.data(), mRawBinary.data() + 4, sigSize);
 }
 
-const fnd::Vec<byte_t>& pki::SignatureBlock::getBytes() const
+const fnd::Vec<byte_t>& nn::pki::SignatureBlock::getBytes() const
 {
 	return mRawBinary;
 }
 
-void pki::SignatureBlock::clear()
+void nn::pki::SignatureBlock::clear()
 {
 	mRawBinary.clear();
 	mSignType = sign::SIGN_ID_RSA4096_SHA1;
@@ -151,32 +151,32 @@ void pki::SignatureBlock::clear()
 	mSignature.clear();
 }
 
-pki::sign::SignatureId pki::SignatureBlock::getSignType() const
+nn::pki::sign::SignatureId nn::pki::SignatureBlock::getSignType() const
 {
 	return mSignType;
 }
 
-void pki::SignatureBlock::setSignType(pki::sign::SignatureId type)
+void nn::pki::SignatureBlock::setSignType(nn::pki::sign::SignatureId type)
 {
 	mSignType = type;
 }
 
-bool pki::SignatureBlock::isLittleEndian() const
+bool nn::pki::SignatureBlock::isLittleEndian() const
 {
 	return mIsLittleEndian;
 }
 
-void pki::SignatureBlock::setLittleEndian(bool isLE)
+void nn::pki::SignatureBlock::setLittleEndian(bool isLE)
 {
 	mIsLittleEndian = isLE;
 }
 
-const fnd::Vec<byte_t>& pki::SignatureBlock::getSignature() const
+const fnd::Vec<byte_t>& nn::pki::SignatureBlock::getSignature() const
 {
 	return mSignature;
 }
 
-void pki::SignatureBlock::setSignature(const fnd::Vec<byte_t>& signature)
+void nn::pki::SignatureBlock::setSignature(const fnd::Vec<byte_t>& signature)
 {
 	mSignature = signature;
 }

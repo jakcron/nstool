@@ -2,8 +2,10 @@
 #include <string>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <es/ticket.h>
+#include <nn/es/ticket.h>
 
+namespace nn
+{
 namespace es
 {
 	class TicketBody_V2 :
@@ -98,5 +100,4 @@ namespace es
 		uint16_t mSectEntrySize;
 	};
 }
-
-
+}

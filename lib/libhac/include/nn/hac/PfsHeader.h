@@ -3,10 +3,11 @@
 #include <fnd/types.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <nx/pfs.h>
+#include <nn/hac/pfs.h>
 
-
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class PfsHeader :
 		public fnd::ISerialisable
@@ -99,4 +100,4 @@ namespace nx
 		void calculateOffsets(size_t data_offset);
 	};
 }
-
+}

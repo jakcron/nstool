@@ -1,7 +1,9 @@
 #pragma once
-#include <nx/IKernelCapabilityHandler.h>
+#include <nn/hac/IKernelCapabilityHandler.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class SystemCallHandler :
 		public IKernelCapabilityHandler
@@ -32,5 +34,5 @@ namespace nx
 		bool mIsSet;
 		fnd::List<uint8_t> mSystemCalls;
 	};
-
+}
 }

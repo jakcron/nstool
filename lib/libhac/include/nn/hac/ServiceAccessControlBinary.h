@@ -3,9 +3,11 @@
 #include <vector>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <nx/ServiceAccessControlEntry.h>
+#include <nn/hac/ServiceAccessControlEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class ServiceAccessControlBinary :
 		public fnd::ISerialisable
@@ -36,5 +38,5 @@ namespace nx
 		// variables
 		fnd::List<ServiceAccessControlEntry> mServices;
 	};
-
+}
 }

@@ -1,8 +1,10 @@
 #pragma once
 #include <fnd/types.h>
-#include <nx/macro.h>
+#include <nn/hac/macro.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace npdm
 	{
@@ -51,4 +53,5 @@ namespace nx
 	};
 
 #pragma pack(pop)
+}
 }

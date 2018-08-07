@@ -1,8 +1,10 @@
 #pragma once
-#include <nx/IKernelCapabilityHandler.h>
-#include <nx/ThreadInfoEntry.h>
+#include <nn/hac/IKernelCapabilityHandler.h>
+#include <nn/hac/ThreadInfoEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class ThreadInfoHandler :
 		public IKernelCapabilityHandler
@@ -38,4 +40,4 @@ namespace nx
 		ThreadInfoEntry mEntry;
 	};
 }
-
+}

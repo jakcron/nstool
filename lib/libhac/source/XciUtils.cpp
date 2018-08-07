@@ -1,6 +1,6 @@
-#include <nx/XciUtils.h>
+#include <nn/hac/XciUtils.h>
 
-void nx::XciUtils::getXciHeaderAesIv(const nx::sXciHeader* hdr, byte_t* iv)
+void nn::hac::XciUtils::getXciHeaderAesIv(const nn::hac::sXciHeader* hdr, byte_t* iv)
 {
 	for (size_t i = 0; i < 16; i++)
 	{
@@ -8,15 +8,15 @@ void nx::XciUtils::getXciHeaderAesIv(const nx::sXciHeader* hdr, byte_t* iv)
 	}
 }
 
-void nx::XciUtils::decryptXciHeader(const byte_t* src, byte_t* dst, const byte_t* key)
+void nn::hac::XciUtils::decryptXciHeader(const byte_t* src, byte_t* dst, const byte_t* key)
 {
 	byte_t iv[crypto::aes::kAesBlockSize];
 
-	getXciHeaderAesIv((const nx::sXciHeader*)src, iv);
+	getXciHeaderAesIv((const nn::hac::sXciHeader*)src, iv);
 
 	// copy plain
-	memcpy(dst, src, nx::xci::kHeaderEncOffset);
+	memcpy(dst, src, nn::hac::xci::kHeaderEncOffset);
 
 	// decrypt encrypted data
-	crypto::aes::AesCbcDecrypt(src + nx::xci::kHeaderEncOffset, nx::xci::kHeaderEncSize, key, iv, dst + nx::xci::kHeaderEncOffset);
+	crypto::aes::AesCbcDecrypt(src + nn::hac::xci::kHeaderEncOffset, nn::hac::xci::kHeaderEncSize, key, iv, dst + nn::hac::xci::kHeaderEncOffset);
 }

@@ -1,6 +1,6 @@
 #pragma once
-#include <nx/HierarchicalIntegrityHeader.h>
-#include <nx/HierarchicalSha256Header.h>
+#include <nn/hac/HierarchicalIntegrityHeader.h>
+#include <nn/hac/HierarchicalSha256Header.h>
 
 class HashTreeMeta
 {
@@ -63,6 +63,6 @@ private:
 	fnd::List<crypto::sha::sSha256Hash> mMasterHashList;
 	bool mDoAlignHashToBlock;
 
-	void importHierarchicalIntergityHeader(const nx::HierarchicalIntegrityHeader& hdr);
-	void importHierarchicalSha256Header(const nx::HierarchicalSha256Header& hdr);
+	void importHierarchicalIntergityHeader(const nn::hac::HierarchicalIntegrityHeader& hdr);
+	void importHierarchicalSha256Header(const nn::hac::HierarchicalSha256Header& hdr);
 };

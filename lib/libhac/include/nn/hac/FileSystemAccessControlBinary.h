@@ -3,17 +3,18 @@
 #include <fnd/types.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <nx/fac.h>
+#include <nn/hac/fac.h>
 
-
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class FileSystemAccessControlBinary : public fnd::ISerialisable
 	{
 	public:
 		struct sSaveDataOwnerId
 		{
-			nx::fac::SaveDataOwnerIdAccessType access_type;
+			nn::hac::fac::SaveDataOwnerIdAccessType access_type;
 			uint64_t id;
 
 			void operator=(const sSaveDataOwnerId& other)
@@ -72,4 +73,5 @@ namespace nx
 		fnd::List<uint64_t> mContentOwnerIdList;
 		fnd::List<sSaveDataOwnerId> mSaveDataOwnerIdList;
 	};
+}
 }

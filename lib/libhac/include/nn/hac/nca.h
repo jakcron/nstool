@@ -3,9 +3,11 @@
 #include <crypto/aes.h>
 #include <crypto/sha.h>
 #include <crypto/rsa.h>
-#include <nx/macro.h>
+#include <nn/hac/macro.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace nca
 	{
@@ -127,8 +129,9 @@ namespace nx
 		byte_t signature_main[crypto::rsa::kRsa2048Size];
 		byte_t signature_acid[crypto::rsa::kRsa2048Size];
 		sNcaHeader header;
-		sNcaFsHeader fs_header[nx::nca::kPartitionNum];
+		sNcaFsHeader fs_header[nn::hac::nca::kPartitionNum];
 	};
 
 #pragma pack(pop)
+}
 }

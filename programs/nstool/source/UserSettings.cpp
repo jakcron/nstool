@@ -11,22 +11,22 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/Vec.h>
 #include <fnd/ResourceFileReader.h>
-#include <nx/NcaUtils.h>
-#include <nx/AesKeygen.h>
-#include <nx/xci.h>
-#include <nx/pfs.h>
-#include <nx/nca.h>
-#include <nx/npdm.h>
-#include <nx/romfs.h>
-#include <nx/cnmt.h>
-#include <nx/nacp.h>
-#include <nx/nso.h>
-#include <nx/nro.h>
-#include <nx/aset.h>
-#include <pki/SignedData.h>
-#include <pki/CertificateBody.h>
-#include <pki/SignUtils.h>
-#include <es/TicketBody_V2.h>
+#include <nn/hac/NcaUtils.h>
+#include <nn/hac/AesKeygen.h>
+#include <nn/hac/xci.h>
+#include <nn/hac/pfs.h>
+#include <nn/hac/nca.h>
+#include <nn/hac/npdm.h>
+#include <nn/hac/romfs.h>
+#include <nn/hac/cnmt.h>
+#include <nn/hac/nacp.h>
+#include <nn/hac/nso.h>
+#include <nn/hac/nro.h>
+#include <nn/hac/aset.h>
+#include <nn/pki/SignedData.h>
+#include <nn/pki/CertificateBody.h>
+#include <nn/pki/SignUtils.h>
+#include <nn/es/TicketBody_V2.h>
 
 UserSettings::UserSettings()
 {}
@@ -129,7 +129,7 @@ bool UserSettings::isListSymbols() const
 	return mListSymbols;
 }
 
-nx::npdm::InstructionType UserSettings::getInstType() const
+nn::hac::npdm::InstructionType UserSettings::getInstType() const
 {
 	return mInstructionType;
 }
@@ -639,9 +639,9 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 					if (mKeyset.nca.header_key == zeros_aes_xts_key)
 					{
 						crypto::aes::sAes128Key nca_header_kek;
-						nx::AesKeygen::generateKey(nca_header_kek.key, aes_kek_generation_source.key, nca_header_kek_source.key, aes_key_generation_source.key, master_key[i].key);
-						nx::AesKeygen::generateKey(mKeyset.nca.header_key.key[0], nca_header_key_source.key[0], nca_header_kek.key);
-						nx::AesKeygen::generateKey(mKeyset.nca.header_key.key[1], nca_header_key_source.key[1], nca_header_kek.key);
+						nn::hac::AesKeygen::generateKey(nca_header_kek.key, aes_kek_generation_source.key, nca_header_kek_source.key, aes_key_generation_source.key, master_key[i].key);
+						nn::hac::AesKeygen::generateKey(mKeyset.nca.header_key.key[0], nca_header_key_source.key[0], nca_header_kek.key);
+						nn::hac::AesKeygen::generateKey(mKeyset.nca.header_key.key[1], nca_header_key_source.key[1], nca_header_kek.key);
 						//printf("nca header key[0] ");
 						//fnd::SimpleTextOutput::hexDump(mKeyset.nca.header_key.key[0], 0x10);
 						//printf("nca header key[1] ");
@@ -649,11 +649,11 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 					}
 				}
 
-				for (size_t j = 0; j < nx::nca::kKeyAreaEncryptionKeyNum; j++)
+				for (size_t j = 0; j < nn::hac::nca::kKeyAreaEncryptionKeyNum; j++)
 				{
 					if (key_area_key_source[j] != zeros_aes_key && mKeyset.nca.key_area_key[j][i] == zeros_aes_key)
 					{
-						nx::AesKeygen::generateKey(mKeyset.nca.key_area_key[j][i].key, aes_kek_generation_source.key, key_area_key_source[j].key, aes_key_generation_source.key, master_key[i].key);
+						nn::hac::AesKeygen::generateKey(mKeyset.nca.key_area_key[j][i].key, aes_kek_generation_source.key, key_area_key_source[j].key, aes_key_generation_source.key, master_key[i].key);
 						//printf("nca keak %d/%02d ", j, i);
 						//fnd::SimpleTextOutput::hexDump(mKeyset.nca.key_area_key[j][i].key, 0x10);
 					}
@@ -662,19 +662,19 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 			if (ticket_titlekek_source != zeros_aes_key && mKeyset.ticket.titlekey_kek[i] == zeros_aes_key)
 			{
-				nx::AesKeygen::generateKey(mKeyset.ticket.titlekey_kek[i].key, ticket_titlekek_source.key, master_key[i].key);
+				nn::hac::AesKeygen::generateKey(mKeyset.ticket.titlekey_kek[i].key, ticket_titlekek_source.key, master_key[i].key);
 				//printf("ticket titlekek %02d ", i);
 				//fnd::SimpleTextOutput::hexDump(mKeyset.ticket.titlekey_kek[i].key, 0x10);
 			}
 			if (package2_key_source != zeros_aes_key && mKeyset.package2_key[i] == zeros_aes_key)
 			{
-				nx::AesKeygen::generateKey(mKeyset.package2_key[i].key, package2_key_source.key, master_key[i].key);
+				nn::hac::AesKeygen::generateKey(mKeyset.package2_key[i].key, package2_key_source.key, master_key[i].key);
 				//printf("package2 key %02d ", i);
 				//fnd::SimpleTextOutput::hexDump(mKeyset.package2_key[i].key, 0x10);
 			}
 		}
 		/*
-		for (size_t j = 0; j < nx::nca::kKeyAreaEncryptionKeyNum; j++)
+		for (size_t j = 0; j < nn::hac::nca::kKeyAreaEncryptionKeyNum; j++)
 		{
 			if (mKeyset.nca.key_area_key[j][i] != zeros_aes_key)
 			{
@@ -711,7 +711,7 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	if (args.inst_type.isSet)
 		mInstructionType = getInstructionTypeFromString(*args.inst_type);
 	else
-		mInstructionType = nx::npdm::INSTR_64BIT; // default 64bit
+		mInstructionType = nn::hac::npdm::INSTR_64BIT; // default 64bit
 	
 	mListApi = args.list_api.isSet;
 	mListSymbols = args.list_sym.isSet;
@@ -823,19 +823,19 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #define _ASSERT_SIZE(sz) (scratch.size() >= (sz))
 
 	// test npdm
-	if (_ASSERT_SIZE(sizeof(nx::sXciHeaderPage)) && _TYPE_PTR(nx::sXciHeaderPage)->header.st_magic.get() == nx::xci::kXciStructMagic)
+	if (_ASSERT_SIZE(sizeof(nn::hac::sXciHeaderPage)) && _TYPE_PTR(nn::hac::sXciHeaderPage)->header.st_magic.get() == nn::hac::xci::kXciStructMagic)
 		file_type = FILE_XCI;
 	// test pfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _TYPE_PTR(nx::sPfsHeader)->st_magic.get() == nx::pfs::kPfsStructMagic)
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sPfsHeader)) && _TYPE_PTR(nn::hac::sPfsHeader)->st_magic.get() == nn::hac::pfs::kPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
 	// test hfs0
-	else if (_ASSERT_SIZE(sizeof(nx::sPfsHeader)) && _TYPE_PTR(nx::sPfsHeader)->st_magic.get() == nx::pfs::kHashedPfsStructMagic)
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sPfsHeader)) && _TYPE_PTR(nn::hac::sPfsHeader)->st_magic.get() == nn::hac::pfs::kHashedPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
 	// test romfs
-	else if (_ASSERT_SIZE(sizeof(nx::sRomfsHeader)) && _TYPE_PTR(nx::sRomfsHeader)->header_size.get() == sizeof(nx::sRomfsHeader) && _TYPE_PTR(nx::sRomfsHeader)->sections[1].offset.get() == (_TYPE_PTR(nx::sRomfsHeader)->sections[0].offset.get() + _TYPE_PTR(nx::sRomfsHeader)->sections[0].size.get()))
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sRomfsHeader)) && _TYPE_PTR(nn::hac::sRomfsHeader)->header_size.get() == sizeof(nn::hac::sRomfsHeader) && _TYPE_PTR(nn::hac::sRomfsHeader)->sections[1].offset.get() == (_TYPE_PTR(nn::hac::sRomfsHeader)->sections[0].offset.get() + _TYPE_PTR(nn::hac::sRomfsHeader)->sections[0].size.get()))
 		file_type = FILE_ROMFS;
 	// test npdm
-	else if (_ASSERT_SIZE(sizeof(nx::sNpdmHeader)) && _TYPE_PTR(nx::sNpdmHeader)->st_magic.get() == nx::npdm::kNpdmStructMagic)
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sNpdmHeader)) && _TYPE_PTR(nn::hac::sNpdmHeader)->st_magic.get() == nn::hac::npdm::kNpdmStructMagic)
 		file_type = FILE_NPDM;
 	// test nca
 	else if (determineValidNcaFromSample(scratch))
@@ -847,10 +847,10 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	else if (determineValidNacpFromSample(scratch))
 		file_type = FILE_NACP;
 	// test nso
-	else if (_ASSERT_SIZE(sizeof(nx::sNsoHeader)) && _TYPE_PTR(nx::sNsoHeader)->st_magic.get() == nx::nso::kNsoStructMagic)
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sNsoHeader)) && _TYPE_PTR(nn::hac::sNsoHeader)->st_magic.get() == nn::hac::nso::kNsoStructMagic)
 		file_type = FILE_NSO;
 	// test nso
-	else if (_ASSERT_SIZE(sizeof(nx::sNroHeader)) && _TYPE_PTR(nx::sNroHeader)->st_magic.get() == nx::nro::kNroStructMagic)
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sNroHeader)) && _TYPE_PTR(nn::hac::sNroHeader)->st_magic.get() == nn::hac::nro::kNroStructMagic)
 		file_type = FILE_NRO;
 	// test pki certificate
 	else if (determineValidEsCertFromSample(scratch))
@@ -859,7 +859,7 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	else if (determineValidEsTikFromSample(scratch))
 		file_type = FILE_ES_TIK;
 	// test hb asset
-	else if (_ASSERT_SIZE(sizeof(nx::sAssetHeader)) && _TYPE_PTR(nx::sAssetHeader)->st_magic.get() == nx::aset::kAssetStructMagic)
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sAssetHeader)) && _TYPE_PTR(nn::hac::sAssetHeader)->st_magic.get() == nn::hac::aset::kAssetStructMagic)
 		file_type = FILE_HB_ASSET;
 	// else unrecognised
 	else
@@ -874,15 +874,15 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) const
 {
 	// prepare decrypted NCA data
-	byte_t nca_raw[nx::nca::kHeaderSize];
-	nx::sNcaHeader* nca_header = (nx::sNcaHeader*)(nca_raw + nx::NcaUtils::sectorToOffset(1));
+	byte_t nca_raw[nn::hac::nca::kHeaderSize];
+	nn::hac::sNcaHeader* nca_header = (nn::hac::sNcaHeader*)(nca_raw + nn::hac::NcaUtils::sectorToOffset(1));
 	
-	if (sample.size() < nx::nca::kHeaderSize)
+	if (sample.size() < nn::hac::nca::kHeaderSize)
 		return false;
 
-	nx::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, mKeyset.nca.header_key);
+	nn::hac::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, mKeyset.nca.header_key);
 
-	if (nca_header->st_magic.get() != nx::nca::kNca2StructMagic && nca_header->st_magic.get() != nx::nca::kNca3StructMagic)
+	if (nca_header->st_magic.get() != nn::hac::nca::kNca2StructMagic && nca_header->st_magic.get() != nn::hac::nca::kNca3StructMagic)
 		return false;
 
 	return true;
@@ -890,39 +890,39 @@ bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) c
 
 bool UserSettings::determineValidCnmtFromSample(const fnd::Vec<byte_t>& sample) const
 {
-	if (sample.size() < sizeof(nx::sContentMetaHeader))
+	if (sample.size() < sizeof(nn::hac::sContentMetaHeader))
 		return false;
 
-	const nx::sContentMetaHeader* data = (const nx::sContentMetaHeader*)sample.data();
+	const nn::hac::sContentMetaHeader* data = (const nn::hac::sContentMetaHeader*)sample.data();
 
-	size_t minimum_size = sizeof(nx::sContentMetaHeader) + data->exhdr_size.get() + data->content_count.get() * sizeof(nx::sContentInfo) + data->content_meta_count.get() * sizeof(nx::sContentMetaInfo) + nx::cnmt::kDigestLen;
+	size_t minimum_size = sizeof(nn::hac::sContentMetaHeader) + data->exhdr_size.get() + data->content_count.get() * sizeof(nn::hac::sContentInfo) + data->content_meta_count.get() * sizeof(nn::hac::sContentMetaInfo) + nn::hac::cnmt::kDigestLen;
 
 	if (sample.size() < minimum_size)
 		return false;
 
-	if (data->type == nx::cnmt::METATYPE_APPLICATION)
+	if (data->type == nn::hac::cnmt::METATYPE_APPLICATION)
 	{
-		const nx::sApplicationMetaExtendedHeader* meta = (const nx::sApplicationMetaExtendedHeader*)(sample.data() + sizeof(nx::sContentMetaHeader));
+		const nn::hac::sApplicationMetaExtendedHeader* meta = (const nn::hac::sApplicationMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
 		if ((meta->patch_id.get() & data->id.get()) != data->id.get())
 			return false;
 	}
-	else if (data->type == nx::cnmt::METATYPE_PATCH)
+	else if (data->type == nn::hac::cnmt::METATYPE_PATCH)
 	{
-		const nx::sPatchMetaExtendedHeader* meta = (const nx::sPatchMetaExtendedHeader*)(sample.data() + sizeof(nx::sContentMetaHeader));
+		const nn::hac::sPatchMetaExtendedHeader* meta = (const nn::hac::sPatchMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
 			return false;
 
 		minimum_size += meta->extended_data_size.get();
 	}
-	else if (data->type == nx::cnmt::METATYPE_ADD_ON_CONTENT)
+	else if (data->type == nn::hac::cnmt::METATYPE_ADD_ON_CONTENT)
 	{
-		const nx::sAddOnContentMetaExtendedHeader* meta = (const nx::sAddOnContentMetaExtendedHeader*)(sample.data() + sizeof(nx::sContentMetaHeader));
+		const nn::hac::sAddOnContentMetaExtendedHeader* meta = (const nn::hac::sAddOnContentMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
 			return false;
 	}
-	else if (data->type == nx::cnmt::METATYPE_DELTA)
+	else if (data->type == nn::hac::cnmt::METATYPE_DELTA)
 	{
-		const nx::sDeltaMetaExtendedHeader* meta = (const nx::sDeltaMetaExtendedHeader*)(sample.data() + sizeof(nx::sContentMetaHeader));
+		const nn::hac::sDeltaMetaExtendedHeader* meta = (const nn::hac::sDeltaMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
 			return false;
 
@@ -937,12 +937,12 @@ bool UserSettings::determineValidCnmtFromSample(const fnd::Vec<byte_t>& sample) 
 
 bool UserSettings::determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) const
 {
-	if (sample.size() != sizeof(nx::sApplicationControlProperty))
+	if (sample.size() != sizeof(nn::hac::sApplicationControlProperty))
 		return false;
 
-	const nx::sApplicationControlProperty* data = (const nx::sApplicationControlProperty*)sample.data();
+	const nn::hac::sApplicationControlProperty* data = (const nn::hac::sApplicationControlProperty*)sample.data();
 
-	if (data->logo_type > nx::nacp::LOGO_Nintendo)
+	if (data->logo_type > nn::hac::nacp::LOGO_Nintendo)
 		return false;
 
 	if (data->display_version[0] == 0)
@@ -1004,16 +1004,16 @@ bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample)
 	return true;
 }
 
-nx::npdm::InstructionType UserSettings::getInstructionTypeFromString(const std::string & type_str)
+nn::hac::npdm::InstructionType UserSettings::getInstructionTypeFromString(const std::string & type_str)
 {
 	std::string str = type_str;
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 
-	nx::npdm::InstructionType type;
+	nn::hac::npdm::InstructionType type;
 	if (str == "32bit")
-		type = nx::npdm::INSTR_32BIT;
+		type = nn::hac::npdm::INSTR_32BIT;
 	else if (str == "64bit")
-		type = nx::npdm::INSTR_64BIT;
+		type = nn::hac::npdm::INSTR_64BIT;
 	else
 		throw fnd::Exception(kModuleName, "Unsupported instruction type: " + str);
 

@@ -1,28 +1,28 @@
-#include <nx/HandleTableSizeHandler.h>
+#include <nn/hac/HandleTableSizeHandler.h>
 
-nx::HandleTableSizeHandler::HandleTableSizeHandler() :
+nn::hac::HandleTableSizeHandler::HandleTableSizeHandler() :
 	mIsSet(false),
 	mEntry(0)
 {}
 
-void nx::HandleTableSizeHandler::operator=(const HandleTableSizeHandler & other)
+void nn::hac::HandleTableSizeHandler::operator=(const HandleTableSizeHandler & other)
 {
 	mIsSet = other.mIsSet;
 	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
 }
 
-bool nx::HandleTableSizeHandler::operator==(const HandleTableSizeHandler & other) const
+bool nn::hac::HandleTableSizeHandler::operator==(const HandleTableSizeHandler & other) const
 {
 	return (mIsSet == other.mIsSet) \
 		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }
 
-bool nx::HandleTableSizeHandler::operator!=(const HandleTableSizeHandler & other) const
+bool nn::hac::HandleTableSizeHandler::operator!=(const HandleTableSizeHandler & other) const
 {
 	return !(*this == other);
 }
 
-void nx::HandleTableSizeHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
+void nn::hac::HandleTableSizeHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{
@@ -36,7 +36,7 @@ void nx::HandleTableSizeHandler::importKernelCapabilityList(const fnd::List<Kern
 	mIsSet = true;
 }
 
-void nx::HandleTableSizeHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
+void nn::hac::HandleTableSizeHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -44,23 +44,23 @@ void nx::HandleTableSizeHandler::exportKernelCapabilityList(fnd::List<KernelCapa
 	caps.addElement(mEntry.getKernelCapability());
 }
 
-void nx::HandleTableSizeHandler::clear()
+void nn::hac::HandleTableSizeHandler::clear()
 {
 	mIsSet = false;
 	mEntry.setHandleTableSize(0);
 }
 
-bool nx::HandleTableSizeHandler::isSet() const
+bool nn::hac::HandleTableSizeHandler::isSet() const
 {
 	return mIsSet;
 }
 
-uint16_t nx::HandleTableSizeHandler::getHandleTableSize() const
+uint16_t nn::hac::HandleTableSizeHandler::getHandleTableSize() const
 {
 	return mEntry.getHandleTableSize();
 }
 
-void nx::HandleTableSizeHandler::setHandleTableSize(uint16_t size)
+void nn::hac::HandleTableSizeHandler::setHandleTableSize(uint16_t size)
 {
 	mEntry.setHandleTableSize(size);
 	mIsSet = true;

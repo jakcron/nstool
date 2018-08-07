@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <fnd/ISerialisable.h>
-#include <pki/sign.h>
+#include <nn/pki/sign.h>
 
+namespace nn
+{
 namespace pki
 {
 	class SignatureBlock
@@ -45,4 +47,5 @@ namespace pki
 		bool mIsLittleEndian;
 		fnd::Vec<byte_t> mSignature;
 	};
+}
 }

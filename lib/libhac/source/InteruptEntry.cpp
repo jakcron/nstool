@@ -1,20 +1,20 @@
-#include <nx/InteruptEntry.h>
+#include <nn/hac/InteruptEntry.h>
 
-nx::InteruptEntry::InteruptEntry() :
+nn::hac::InteruptEntry::InteruptEntry() :
 	mCap(kCapId),
 	mInterupt{0,0}
 {
 	
 }
 
-nx::InteruptEntry::InteruptEntry(const KernelCapabilityEntry & kernel_cap) :
+nn::hac::InteruptEntry::InteruptEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mInterupt{ 0,0 }
 {
 	setKernelCapability(kernel_cap);
 }
 
-nx::InteruptEntry::InteruptEntry(uint32_t interupt0, uint32_t interupt1) :
+nn::hac::InteruptEntry::InteruptEntry(uint32_t interupt0, uint32_t interupt1) :
 	mCap(kCapId),
 	mInterupt{ 0,0 }
 {
@@ -22,30 +22,30 @@ nx::InteruptEntry::InteruptEntry(uint32_t interupt0, uint32_t interupt1) :
 	setInterupt(1, interupt1);
 }
 
-void nx::InteruptEntry::operator=(const InteruptEntry& other)
+void nn::hac::InteruptEntry::operator=(const InteruptEntry& other)
 {
 	mInterupt[0] = other.mInterupt[0];
 	mInterupt[1] = other.mInterupt[1];
 	updateCapField();
 }
 
-bool nx::InteruptEntry::operator==(const InteruptEntry& other) const
+bool nn::hac::InteruptEntry::operator==(const InteruptEntry& other) const
 {
 	return (mInterupt[0] == other.mInterupt[0]) \
 		&& (mInterupt[1] == other.mInterupt[1]);
 }
 
-bool nx::InteruptEntry::operator!=(const InteruptEntry& other) const
+bool nn::hac::InteruptEntry::operator!=(const InteruptEntry& other) const
 {
 	return !(*this == other);
 }
 
-const nx::KernelCapabilityEntry & nx::InteruptEntry::getKernelCapability() const
+const nn::hac::KernelCapabilityEntry & nn::hac::InteruptEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::InteruptEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
+void nn::hac::InteruptEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
@@ -56,17 +56,17 @@ void nx::InteruptEntry::setKernelCapability(const KernelCapabilityEntry & kernel
 	processCapField();
 }
 
-uint32_t nx::InteruptEntry::operator[](size_t index) const
+uint32_t nn::hac::InteruptEntry::operator[](size_t index) const
 {
 	return getInterupt(index);
 }
 
-uint32_t nx::InteruptEntry::getInterupt(size_t index) const
+uint32_t nn::hac::InteruptEntry::getInterupt(size_t index) const
 {
 	return mInterupt[index % kInteruptNum];
 }
 
-void nx::InteruptEntry::setInterupt(size_t index, uint32_t interupt)
+void nn::hac::InteruptEntry::setInterupt(size_t index, uint32_t interupt)
 {
 	if (interupt > kInteruptMax)
 	{

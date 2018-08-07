@@ -1,28 +1,28 @@
-#include <nx/InteruptHandler.h>
+#include <nn/hac/InteruptHandler.h>
 
-nx::InteruptHandler::InteruptHandler() :
+nn::hac::InteruptHandler::InteruptHandler() :
 	mIsSet(false),
 	mInterupts()
 {}
 
-void nx::InteruptHandler::operator=(const InteruptHandler & other)
+void nn::hac::InteruptHandler::operator=(const InteruptHandler & other)
 {
 	mIsSet = other.mIsSet;
 	mInterupts = other.mInterupts;
 }
 
-bool nx::InteruptHandler::operator==(const InteruptHandler & other) const
+bool nn::hac::InteruptHandler::operator==(const InteruptHandler & other) const
 {
 	return (mIsSet == other.mIsSet) \
 		&& (mInterupts == other.mInterupts);
 }
 
-bool nx::InteruptHandler::operator!=(const InteruptHandler & other) const
+bool nn::hac::InteruptHandler::operator!=(const InteruptHandler & other) const
 {
 	return !(*this == other);
 }
 
-void nx::InteruptHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
+void nn::hac::InteruptHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() == 0)
 		return;
@@ -58,7 +58,7 @@ void nx::InteruptHandler::importKernelCapabilityList(const fnd::List<KernelCapab
 	mIsSet = true;
 }
 
-void nx::InteruptHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
+void nn::hac::InteruptHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -84,23 +84,23 @@ void nx::InteruptHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityE
 	}
 }
 
-void nx::InteruptHandler::clear()
+void nn::hac::InteruptHandler::clear()
 {
 	mIsSet = false;
 	mInterupts.clear();
 }
 
-bool nx::InteruptHandler::isSet() const
+bool nn::hac::InteruptHandler::isSet() const
 {
 	return mIsSet;
 }
 
-const fnd::List<uint16_t>& nx::InteruptHandler::getInteruptList() const
+const fnd::List<uint16_t>& nn::hac::InteruptHandler::getInteruptList() const
 {
 	return mInterupts;
 }
 
-void nx::InteruptHandler::setInteruptList(const fnd::List<uint16_t>& interupts)
+void nn::hac::InteruptHandler::setInteruptList(const fnd::List<uint16_t>& interupts)
 {
 	mInterupts.clear();
 	for (size_t i = 0; i < interupts.size(); i++)

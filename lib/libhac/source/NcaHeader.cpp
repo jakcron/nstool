@@ -1,16 +1,16 @@
-#include <nx/NcaHeader.h>
+#include <nn/hac/NcaHeader.h>
 
-nx::NcaHeader::NcaHeader()
+nn::hac::NcaHeader::NcaHeader()
 {
 	clear();
 }
 
-nx::NcaHeader::NcaHeader(const NcaHeader & other)
+nn::hac::NcaHeader::NcaHeader(const NcaHeader & other)
 {
 	*this = other;
 }
 
-bool nx::NcaHeader::operator==(const NcaHeader & other) const
+bool nn::hac::NcaHeader::operator==(const NcaHeader & other) const
 {
 	return (mDistributionType == other.mDistributionType) \
 		&& (mContentType == other.mContentType) \
@@ -24,12 +24,12 @@ bool nx::NcaHeader::operator==(const NcaHeader & other) const
 		&& (mEncAesKeys == other.mEncAesKeys);
 }
 
-bool nx::NcaHeader::operator!=(const NcaHeader & other) const
+bool nn::hac::NcaHeader::operator!=(const NcaHeader & other) const
 {
 	return !(*this == other);
 }
 
-void nx::NcaHeader::operator=(const NcaHeader & other)
+void nn::hac::NcaHeader::operator=(const NcaHeader & other)
 {
 	if (other.getBytes().size())
 	{
@@ -51,7 +51,7 @@ void nx::NcaHeader::operator=(const NcaHeader & other)
 	}
 }
 
-void nx::NcaHeader::toBytes()
+void nn::hac::NcaHeader::toBytes()
 {
 	mRawBinary.alloc(sizeof(sNcaHeader));
 	sNcaHeader* hdr = (sNcaHeader*)mRawBinary.data();
@@ -108,7 +108,7 @@ void nx::NcaHeader::toBytes()
 	}
 }
 
-void nx::NcaHeader::fromBytes(const byte_t * data, size_t len)
+void nn::hac::NcaHeader::fromBytes(const byte_t * data, size_t len)
 {
 	if (len < sizeof(sNcaHeader))
 	{
@@ -158,12 +158,12 @@ void nx::NcaHeader::fromBytes(const byte_t * data, size_t len)
 	}
 }
 
-const fnd::Vec<byte_t>& nx::NcaHeader::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::NcaHeader::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::NcaHeader::clear()
+void nn::hac::NcaHeader::clear()
 {
 	mFormatVersion = NCA3_FORMAT;
 	mDistributionType = nca::DIST_DOWNLOAD;
@@ -179,97 +179,97 @@ void nx::NcaHeader::clear()
 	mEncAesKeys.clear();
 }
 
-nx::NcaHeader::FormatVersion nx::NcaHeader::getFormatVersion() const
+nn::hac::NcaHeader::FormatVersion nn::hac::NcaHeader::getFormatVersion() const
 {
 	return mFormatVersion;
 }
 
-void nx::NcaHeader::setFormatVersion(FormatVersion version)
+void nn::hac::NcaHeader::setFormatVersion(FormatVersion version)
 {
 	mFormatVersion = version;
 }
 
-nx::nca::DistributionType nx::NcaHeader::getDistributionType() const
+nn::hac::nca::DistributionType nn::hac::NcaHeader::getDistributionType() const
 {
 	return mDistributionType;
 }
 
-void nx::NcaHeader::setDistributionType(nca::DistributionType type)
+void nn::hac::NcaHeader::setDistributionType(nca::DistributionType type)
 {
 	mDistributionType = type;
 }
 
-nx::nca::ContentType nx::NcaHeader::getContentType() const
+nn::hac::nca::ContentType nn::hac::NcaHeader::getContentType() const
 {
 	return mContentType;
 }
 
-void nx::NcaHeader::setContentType(nca::ContentType type)
+void nn::hac::NcaHeader::setContentType(nca::ContentType type)
 {
 	mContentType = type;
 }
 
-byte_t nx::NcaHeader::getKeyGeneration() const
+byte_t nn::hac::NcaHeader::getKeyGeneration() const
 {
 	return mKeyGeneration;
 }
 
-void nx::NcaHeader::setKeyGeneration(byte_t gen)
+void nn::hac::NcaHeader::setKeyGeneration(byte_t gen)
 {
 	mKeyGeneration = gen;
 }
 
-byte_t nx::NcaHeader::getKaekIndex() const
+byte_t nn::hac::NcaHeader::getKaekIndex() const
 {
 	return mKaekIndex;
 }
 
-void nx::NcaHeader::setKaekIndex(byte_t index)
+void nn::hac::NcaHeader::setKaekIndex(byte_t index)
 {
 	mKaekIndex = index;
 }
 
-uint64_t nx::NcaHeader::getContentSize() const
+uint64_t nn::hac::NcaHeader::getContentSize() const
 {
 	return mContentSize;
 }
 
-void nx::NcaHeader::setContentSize(uint64_t size)
+void nn::hac::NcaHeader::setContentSize(uint64_t size)
 {
 	mContentSize = size;
 }
 
-uint64_t nx::NcaHeader::getProgramId() const
+uint64_t nn::hac::NcaHeader::getProgramId() const
 {
 	return mProgramId;
 }
 
-void nx::NcaHeader::setProgramId(uint64_t program_id)
+void nn::hac::NcaHeader::setProgramId(uint64_t program_id)
 {
 	mProgramId = program_id;
 }
 
-uint32_t nx::NcaHeader::getContentIndex() const
+uint32_t nn::hac::NcaHeader::getContentIndex() const
 {
 	return mContentIndex;
 }
 
-void nx::NcaHeader::setContentIndex(uint32_t index)
+void nn::hac::NcaHeader::setContentIndex(uint32_t index)
 {
 	mContentIndex = index;
 }
 
-uint32_t nx::NcaHeader::getSdkAddonVersion() const
+uint32_t nn::hac::NcaHeader::getSdkAddonVersion() const
 {
 	return mSdkAddonVersion;
 }
 
-void nx::NcaHeader::setSdkAddonVersion(uint32_t version)
+void nn::hac::NcaHeader::setSdkAddonVersion(uint32_t version)
 {
 	mSdkAddonVersion = version;
 }
 
-bool nx::NcaHeader::hasRightsId() const
+bool nn::hac::NcaHeader::hasRightsId() const
 {
 	bool rightsIdIsSet = false;
 
@@ -282,22 +282,22 @@ bool nx::NcaHeader::hasRightsId() const
 	return rightsIdIsSet;
 }
 
-const byte_t* nx::NcaHeader::getRightsId() const
+const byte_t* nn::hac::NcaHeader::getRightsId() const
 {
 	return mRightsId;
 }
 
-void nx::NcaHeader::setRightsId(const byte_t* rights_id)
+void nn::hac::NcaHeader::setRightsId(const byte_t* rights_id)
 {
 	memcpy(mRightsId, rights_id, nca::kRightsIdLen);
 }
 
-const fnd::List<nx::NcaHeader::sPartition>& nx::NcaHeader::getPartitions() const
+const fnd::List<nn::hac::NcaHeader::sPartition>& nn::hac::NcaHeader::getPartitions() const
 {
 	return mPartitions;
 }
 
-void nx::NcaHeader::setPartitions(const fnd::List<nx::NcaHeader::sPartition>& partitions)
+void nn::hac::NcaHeader::setPartitions(const fnd::List<nn::hac::NcaHeader::sPartition>& partitions)
 {
 	mPartitions = partitions;
 	if (mPartitions.size() >= nca::kPartitionNum)
@@ -306,22 +306,22 @@ void nx::NcaHeader::setPartitions(const fnd::List<nx::NcaHeader::sPartition>& pa
 	}
 }
 
-const fnd::List<crypto::aes::sAes128Key>& nx::NcaHeader::getEncAesKeys() const
+const fnd::List<crypto::aes::sAes128Key>& nn::hac::NcaHeader::getEncAesKeys() const
 {
 	return mEncAesKeys;
 }
 
-void nx::NcaHeader::setEncAesKeys(const fnd::List<crypto::aes::sAes128Key>& keys)
+void nn::hac::NcaHeader::setEncAesKeys(const fnd::List<crypto::aes::sAes128Key>& keys)
 {
 	mEncAesKeys = keys;
 }
 
-uint64_t nx::NcaHeader::blockNumToSize(uint32_t block_num) const
+uint64_t nn::hac::NcaHeader::blockNumToSize(uint32_t block_num) const
 {
 	return block_num*nca::kSectorSize;
 }
 
-uint32_t nx::NcaHeader::sizeToBlockNum(uint64_t real_size) const
+uint32_t nn::hac::NcaHeader::sizeToBlockNum(uint64_t real_size) const
 {
 	return (uint32_t)(align(real_size, nca::kSectorSize) / nca::kSectorSize);
 }

@@ -1,7 +1,9 @@
 #pragma once
 #include <fnd/types.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace romfs
 	{
@@ -54,4 +56,5 @@ namespace nx
 		const char* name() const { return ((char*)(this)) + sizeof(sRomfsFileEntry); }
 	};
 #pragma pack(pop)
+}
 }

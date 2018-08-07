@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <nx/KernelCapabilityEntry.h>
+#include <nn/hac/KernelCapabilityEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class KernelVersionEntry
 	{
@@ -53,4 +55,4 @@ namespace nx
 		}
 	};
 }
-
+}

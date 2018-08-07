@@ -1,6 +1,6 @@
-#include <nx/SystemCallEntry.h>
+#include <nn/hac/SystemCallEntry.h>
 
-nx::SystemCallEntry::SystemCallEntry() :
+nn::hac::SystemCallEntry::SystemCallEntry() :
 	mCap(kCapId),
 	mSystemCallUpper(0),
 	mSystemCallLower(0)
@@ -8,7 +8,7 @@ nx::SystemCallEntry::SystemCallEntry() :
 
 }
 
-nx::SystemCallEntry::SystemCallEntry(const KernelCapabilityEntry & kernel_cap) :
+nn::hac::SystemCallEntry::SystemCallEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mSystemCallUpper(0),
 	mSystemCallLower(0)
@@ -16,7 +16,7 @@ nx::SystemCallEntry::SystemCallEntry(const KernelCapabilityEntry & kernel_cap) :
 	setKernelCapability(kernel_cap);
 }
 
-nx::SystemCallEntry::SystemCallEntry(uint32_t upper_bits, uint32_t lower_bits) :
+nn::hac::SystemCallEntry::SystemCallEntry(uint32_t upper_bits, uint32_t lower_bits) :
 	mCap(kCapId),
 	mSystemCallUpper(0),
 	mSystemCallLower(0)
@@ -25,30 +25,30 @@ nx::SystemCallEntry::SystemCallEntry(uint32_t upper_bits, uint32_t lower_bits) :
 	setSystemCallLowerBits(lower_bits);
 }
 
-void nx::SystemCallEntry::operator=(const SystemCallEntry& other)
+void nn::hac::SystemCallEntry::operator=(const SystemCallEntry& other)
 {
 	mSystemCallUpper = other.mSystemCallUpper;
 	mSystemCallLower = other.mSystemCallLower;
 	updateCapField();
 }
 
-bool nx::SystemCallEntry::operator==(const SystemCallEntry& other) const
+bool nn::hac::SystemCallEntry::operator==(const SystemCallEntry& other) const
 {
 	return (mSystemCallUpper == other.mSystemCallUpper) \
 		&& (mSystemCallLower == other.mSystemCallLower);
 }
 
-bool nx::SystemCallEntry::operator!=(const SystemCallEntry& other) const
+bool nn::hac::SystemCallEntry::operator!=(const SystemCallEntry& other) const
 {
 	return !(*this == other);
 }
 
-const nx::KernelCapabilityEntry & nx::SystemCallEntry::getKernelCapability() const
+const nn::hac::KernelCapabilityEntry & nn::hac::SystemCallEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::SystemCallEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
+void nn::hac::SystemCallEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
@@ -59,12 +59,12 @@ void nx::SystemCallEntry::setKernelCapability(const KernelCapabilityEntry & kern
 	processCapField();
 }
 
-uint32_t nx::SystemCallEntry::getSystemCallUpperBits() const
+uint32_t nn::hac::SystemCallEntry::getSystemCallUpperBits() const
 {
 	return mSystemCallUpper;
 }
 
-void nx::SystemCallEntry::setSystemCallUpperBits(uint32_t upper_bits)
+void nn::hac::SystemCallEntry::setSystemCallUpperBits(uint32_t upper_bits)
 {
 	if (upper_bits > kSysCallUpperMax)
 	{
@@ -75,12 +75,12 @@ void nx::SystemCallEntry::setSystemCallUpperBits(uint32_t upper_bits)
 	updateCapField();
 }
 
-uint32_t nx::SystemCallEntry::getSystemCallLowerBits() const
+uint32_t nn::hac::SystemCallEntry::getSystemCallLowerBits() const
 {
 	return mSystemCallLower;
 }
 
-void nx::SystemCallEntry::setSystemCallLowerBits(uint32_t lower_bits)
+void nn::hac::SystemCallEntry::setSystemCallLowerBits(uint32_t lower_bits)
 {
 	if (lower_bits > kSysCallLowerMax)
 	{

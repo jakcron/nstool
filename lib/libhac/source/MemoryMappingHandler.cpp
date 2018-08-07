@@ -1,30 +1,30 @@
-#include <nx/MemoryMappingHandler.h>
-#include <nx/MemoryPageEntry.h>
+#include <nn/hac/MemoryMappingHandler.h>
+#include <nn/hac/MemoryPageEntry.h>
 
-nx::MemoryMappingHandler::MemoryMappingHandler() :
+nn::hac::MemoryMappingHandler::MemoryMappingHandler() :
 	mIsSet(false)
 {}
 
-void nx::MemoryMappingHandler::operator=(const MemoryMappingHandler & other)
+void nn::hac::MemoryMappingHandler::operator=(const MemoryMappingHandler & other)
 {
 	mIsSet = other.mIsSet;
 	mMemRange = other.mMemRange;
 	mMemPage = other.mMemPage;
 }
 
-bool nx::MemoryMappingHandler::operator==(const MemoryMappingHandler & other) const
+bool nn::hac::MemoryMappingHandler::operator==(const MemoryMappingHandler & other) const
 {
 	return (mIsSet == other.mIsSet) \
 		&& (mMemRange == other.mMemRange) \
 		&& (mMemPage == other.mMemPage);
 }
 
-bool nx::MemoryMappingHandler::operator!=(const MemoryMappingHandler & other) const
+bool nn::hac::MemoryMappingHandler::operator!=(const MemoryMappingHandler & other) const
 {
 	return !(*this == other);
 }
 
-void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
+void nn::hac::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() == 0)
 		return;
@@ -87,7 +87,7 @@ void nx::MemoryMappingHandler::importKernelCapabilityList(const fnd::List<Kernel
 	mIsSet = true;
 }
 
-void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
+void nn::hac::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -116,24 +116,24 @@ void nx::MemoryMappingHandler::exportKernelCapabilityList(fnd::List<KernelCapabi
 	}
 }
 
-void nx::MemoryMappingHandler::clear()
+void nn::hac::MemoryMappingHandler::clear()
 {
 	mIsSet = false;
 	mMemRange.clear();
 	mMemPage.clear();
 }
 
-bool nx::MemoryMappingHandler::isSet() const
+bool nn::hac::MemoryMappingHandler::isSet() const
 {
 	return mIsSet;
 }
 
-const fnd::List<nx::MemoryMappingHandler::sMemoryMapping>& nx::MemoryMappingHandler::getMemoryMaps() const
+const fnd::List<nn::hac::MemoryMappingHandler::sMemoryMapping>& nn::hac::MemoryMappingHandler::getMemoryMaps() const
 {
 	return mMemRange;
 }
 
-const fnd::List<nx::MemoryMappingHandler::sMemoryMapping>& nx::MemoryMappingHandler::getIoMemoryMaps() const
+const fnd::List<nn::hac::MemoryMappingHandler::sMemoryMapping>& nn::hac::MemoryMappingHandler::getIoMemoryMaps() const
 {
 	return mMemPage;
 }

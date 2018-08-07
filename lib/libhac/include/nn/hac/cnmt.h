@@ -2,7 +2,9 @@
 #include <fnd/types.h>
 #include <crypto/sha.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace cnmt
 	{
@@ -132,4 +134,5 @@ namespace nx
 		byte_t data[cnmt::kDigestLen];
 	};
 #pragma pack(pop)
+}
 }

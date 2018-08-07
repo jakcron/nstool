@@ -1,27 +1,27 @@
-#include <nx/MiscFlagsHandler.h>
+#include <nn/hac/MiscFlagsHandler.h>
 
-nx::MiscFlagsHandler::MiscFlagsHandler() :
+nn::hac::MiscFlagsHandler::MiscFlagsHandler() :
 	mIsSet(false)
 {}
 
-void nx::MiscFlagsHandler::operator=(const MiscFlagsHandler & other)
+void nn::hac::MiscFlagsHandler::operator=(const MiscFlagsHandler & other)
 {
 	mIsSet = other.mIsSet;
 	mFlags = other.mFlags;
 }
 
-bool nx::MiscFlagsHandler::operator==(const MiscFlagsHandler & other) const
+bool nn::hac::MiscFlagsHandler::operator==(const MiscFlagsHandler & other) const
 {
 	return (mIsSet == other.mIsSet) \
 		&& (mFlags == other.mFlags);
 }
 
-bool nx::MiscFlagsHandler::operator!=(const MiscFlagsHandler & other) const
+bool nn::hac::MiscFlagsHandler::operator!=(const MiscFlagsHandler & other) const
 {
 	return !(*this == other);
 }
 
-void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
+void nn::hac::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{
@@ -46,7 +46,7 @@ void nx::MiscFlagsHandler::importKernelCapabilityList(const fnd::List<KernelCapa
 	mIsSet = true;
 }
 
-void nx::MiscFlagsHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
+void nn::hac::MiscFlagsHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -66,23 +66,23 @@ void nx::MiscFlagsHandler::exportKernelCapabilityList(fnd::List<KernelCapability
 	caps.addElement(entry.getKernelCapability());
 }
 
-void nx::MiscFlagsHandler::clear()
+void nn::hac::MiscFlagsHandler::clear()
 {
 	mIsSet = false;
 	mFlags.clear();
 }
 
-bool nx::MiscFlagsHandler::isSet() const
+bool nn::hac::MiscFlagsHandler::isSet() const
 {
 	return mIsSet;
 }
 
-const fnd::List<nx::MiscFlagsHandler::Flags>& nx::MiscFlagsHandler::getFlagList() const
+const fnd::List<nn::hac::MiscFlagsHandler::Flags>& nn::hac::MiscFlagsHandler::getFlagList() const
 {
 	return mFlags;
 }
 
-void nx::MiscFlagsHandler::setFlagList(fnd::List<Flags> flags)
+void nn::hac::MiscFlagsHandler::setFlagList(fnd::List<Flags> flags)
 {
 	mFlags = flags;
 	mIsSet = true;

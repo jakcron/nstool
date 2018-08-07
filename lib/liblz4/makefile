@@ -39,7 +39,7 @@ main: build
 rebuild: clean build
 
 build: $(OBJS)
-	ar cr -o $(OUTPUT) $(OBJS)
+	ar $(ARFLAGS) $(OUTPUT) $(OBJS)
 
 clean:
 	rm -rf $(OUTPUT) $(OBJS)

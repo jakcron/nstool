@@ -1,12 +1,12 @@
-#include <nx/KernelVersionEntry.h>
+#include <nn/hac/KernelVersionEntry.h>
 
-nx::KernelVersionEntry::KernelVersionEntry() :
+nn::hac::KernelVersionEntry::KernelVersionEntry() :
 	mCap(kCapId),
 	mVerMajor(0),
 	mVerMinor(0)
 {}
 
-nx::KernelVersionEntry::KernelVersionEntry(const KernelCapabilityEntry & kernel_cap) :
+nn::hac::KernelVersionEntry::KernelVersionEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mVerMajor(0),
 	mVerMinor(0)
@@ -14,7 +14,7 @@ nx::KernelVersionEntry::KernelVersionEntry(const KernelCapabilityEntry & kernel_
 	setKernelCapability(kernel_cap);
 }
 
-nx::KernelVersionEntry::KernelVersionEntry(uint16_t major, uint8_t minor) :
+nn::hac::KernelVersionEntry::KernelVersionEntry(uint16_t major, uint8_t minor) :
 	mCap(kCapId),
 	mVerMajor(0),
 	mVerMinor(0)
@@ -23,30 +23,30 @@ nx::KernelVersionEntry::KernelVersionEntry(uint16_t major, uint8_t minor) :
 	setVerMinor(minor);
 }
 
-void nx::KernelVersionEntry::operator=(const KernelVersionEntry& other)
+void nn::hac::KernelVersionEntry::operator=(const KernelVersionEntry& other)
 {
 	mVerMajor = other.mVerMajor;
 	mVerMinor = other.mVerMinor;
 	updateCapField();
 }
 
-bool nx::KernelVersionEntry::operator==(const KernelVersionEntry& other) const
+bool nn::hac::KernelVersionEntry::operator==(const KernelVersionEntry& other) const
 {
 	return (mVerMajor == other.mVerMajor) \
 		&& (mVerMinor == other.mVerMinor);
 }
 
-bool nx::KernelVersionEntry::operator!=(const KernelVersionEntry& other) const
+bool nn::hac::KernelVersionEntry::operator!=(const KernelVersionEntry& other) const
 {
 	return !(*this == other);
 }
 
-const nx::KernelCapabilityEntry & nx::KernelVersionEntry::getKernelCapability() const
+const nn::hac::KernelCapabilityEntry & nn::hac::KernelVersionEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::KernelVersionEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
+void nn::hac::KernelVersionEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
@@ -57,12 +57,12 @@ void nx::KernelVersionEntry::setKernelCapability(const KernelCapabilityEntry & k
 	processCapField();
 }
 
-uint16_t nx::KernelVersionEntry::getVerMajor() const
+uint16_t nn::hac::KernelVersionEntry::getVerMajor() const
 {
 	return mVerMajor;
 }
 
-void nx::KernelVersionEntry::setVerMajor(uint16_t major)
+void nn::hac::KernelVersionEntry::setVerMajor(uint16_t major)
 {
 	if (major > kVerMajorMax)
 	{
@@ -73,12 +73,12 @@ void nx::KernelVersionEntry::setVerMajor(uint16_t major)
 	updateCapField();
 }
 
-uint8_t nx::KernelVersionEntry::getVerMinor() const
+uint8_t nn::hac::KernelVersionEntry::getVerMinor() const
 {
 	return mVerMinor;
 }
 
-void nx::KernelVersionEntry::setVerMinor(uint8_t minor)
+void nn::hac::KernelVersionEntry::setVerMinor(uint8_t minor)
 {
 	if (minor > kVerMinorMax)
 	{

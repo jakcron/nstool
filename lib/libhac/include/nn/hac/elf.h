@@ -1,7 +1,9 @@
 #pragma once
 #include <fnd/types.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace elf
 	{
@@ -64,4 +66,5 @@ namespace nx
 		le_uint64_t size;
 	};
 #pragma pack(pop)
+}
 }

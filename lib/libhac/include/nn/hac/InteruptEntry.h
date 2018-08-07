@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <nx/KernelCapabilityEntry.h>
+#include <nn/hac/KernelCapabilityEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class InteruptEntry
 	{
@@ -52,5 +54,5 @@ namespace nx
 			mInterupt[1] = (field >> kInteruptBits) & kInteruptMax;
 		}
 	};
-
+}
 }

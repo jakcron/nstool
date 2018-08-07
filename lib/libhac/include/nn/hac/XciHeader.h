@@ -1,9 +1,11 @@
 #pragma once
-#include <nx/xci.h>
+#include <nn/hac/xci.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class XciHeader : 
 		public fnd::ISerialisable
@@ -121,5 +123,5 @@ namespace nx
 		byte_t mUppHash[8];
 		uint64_t mUppId;
 	};
-
+}
 }

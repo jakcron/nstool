@@ -1,8 +1,10 @@
 #pragma once
-#include <nx/IKernelCapabilityHandler.h>
-#include <nx/HandleTableSizeEntry.h>
+#include <nn/hac/IKernelCapabilityHandler.h>
+#include <nn/hac/HandleTableSizeEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class HandleTableSizeHandler :
 		public IKernelCapabilityHandler
@@ -32,4 +34,4 @@ namespace nx
 		HandleTableSizeEntry mEntry;
 	};
 }
-
+}

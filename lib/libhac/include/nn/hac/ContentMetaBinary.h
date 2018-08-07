@@ -2,10 +2,11 @@
 #include <string>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <nx/cnmt.h>
+#include <nn/hac/cnmt.h>
 
-
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class ContentMetaBinary :
 		public fnd::ISerialisable
@@ -200,17 +201,17 @@ namespace nx
 		const DeltaMetaExtendedHeader& getDeltaMetaExtendedHeader() const;
 		void setDeltaMetaExtendedHeader(const DeltaMetaExtendedHeader& exhdr);
 
-		const fnd::List<nx::ContentMetaBinary::ContentInfo>& getContentInfo() const;
-		void setContentInfo(const fnd::List<nx::ContentMetaBinary::ContentInfo>& info);
+		const fnd::List<nn::hac::ContentMetaBinary::ContentInfo>& getContentInfo() const;
+		void setContentInfo(const fnd::List<nn::hac::ContentMetaBinary::ContentInfo>& info);
 
-		const fnd::List<nx::ContentMetaBinary::ContentMetaInfo>& getContentMetaInfo() const;
-		void setContentMetaInfo(const fnd::List<nx::ContentMetaBinary::ContentMetaInfo>& info);
+		const fnd::List<nn::hac::ContentMetaBinary::ContentMetaInfo>& getContentMetaInfo() const;
+		void setContentMetaInfo(const fnd::List<nn::hac::ContentMetaBinary::ContentMetaInfo>& info);
 
 		const fnd::Vec<byte_t>& getExtendedData() const;
 		void setExtendedData(const fnd::Vec<byte_t>& data);
 
-		const nx::sDigest& getDigest() const;
-		void setDigest(const nx::sDigest& digest);
+		const nn::hac::sDigest& getDigest() const;
+		void setDigest(const nn::hac::sDigest& digest);
 
 
 	private:
@@ -232,10 +233,10 @@ namespace nx
 		AddOnContentMetaExtendedHeader mAddOnContentMetaExtendedHeader;
 		DeltaMetaExtendedHeader mDeltaMetaExtendedHeader;
 
-		fnd::List<nx::ContentMetaBinary::ContentInfo> mContentInfo;
-		fnd::List<nx::ContentMetaBinary::ContentMetaInfo> mContentMetaInfo;
+		fnd::List<nn::hac::ContentMetaBinary::ContentInfo> mContentInfo;
+		fnd::List<nn::hac::ContentMetaBinary::ContentMetaInfo> mContentMetaInfo;
 		fnd::Vec<byte_t> mExtendedData;
-		nx::sDigest mDigest;
+		nn::hac::sDigest mDigest;
 
 		inline size_t getExtendedHeaderOffset() const { return sizeof(sContentMetaHeader); }
 		inline size_t getContentInfoOffset(size_t exhdrSize) const { return getExtendedHeaderOffset() + exhdrSize; }
@@ -248,4 +249,5 @@ namespace nx
 		size_t getExtendedDataSize(cnmt::ContentMetaType type, const byte_t* data) const;
 		void validateBinary(const byte_t* bytes, size_t len) const;
 	};
+}
 }

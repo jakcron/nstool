@@ -1,19 +1,19 @@
-#include <nx/NpdmBinary.h>
+#include <nn/hac/NpdmBinary.h>
 
 #include <fnd/SimpleTextOutput.h>
 
-nx::NpdmBinary::NpdmBinary()
+nn::hac::NpdmBinary::NpdmBinary()
 {
 	clear();
 }
 
-nx::NpdmBinary::NpdmBinary(const NpdmBinary & other) :
+nn::hac::NpdmBinary::NpdmBinary(const NpdmBinary & other) :
 	NpdmBinary()
 {
 	*this = other;
 }
 
-void nx::NpdmBinary::operator=(const NpdmBinary & other)
+void nn::hac::NpdmBinary::operator=(const NpdmBinary & other)
 {
 	mRawBinary = other.mRawBinary;
 	mInstructionType = other.mInstructionType;
@@ -28,7 +28,7 @@ void nx::NpdmBinary::operator=(const NpdmBinary & other)
 	mAcid = other.mAcid;
 }
 
-bool nx::NpdmBinary::operator==(const NpdmBinary & other) const
+bool nn::hac::NpdmBinary::operator==(const NpdmBinary & other) const
 {
 	return (mInstructionType == other.mInstructionType) \
 		&& (mProcAddressSpaceType == other.mProcAddressSpaceType) \
@@ -42,12 +42,12 @@ bool nx::NpdmBinary::operator==(const NpdmBinary & other) const
 		&& (mAcid == other.mAcid);
 }
 
-bool nx::NpdmBinary::operator!=(const NpdmBinary & other) const
+bool nn::hac::NpdmBinary::operator!=(const NpdmBinary & other) const
 {
 	return !(*this == other);
 }
 
-void nx::NpdmBinary::toBytes()
+void nn::hac::NpdmBinary::toBytes()
 {
 	if (mAcid.getBytes().size() == 0)
 		mAcid.toBytes();
@@ -103,7 +103,7 @@ void nx::NpdmBinary::toBytes()
 	}
 }
 
-void nx::NpdmBinary::fromBytes(const byte_t* data, size_t len)
+void nn::hac::NpdmBinary::fromBytes(const byte_t* data, size_t len)
 {
 	// check size
 	if (len < sizeof(sNpdmHeader))
@@ -167,12 +167,12 @@ void nx::NpdmBinary::fromBytes(const byte_t* data, size_t len)
 	}	
 }
 
-const fnd::Vec<byte_t>& nx::NpdmBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::NpdmBinary::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::NpdmBinary::clear()
+void nn::hac::NpdmBinary::clear()
 {
 	mRawBinary.clear();
 	mInstructionType = npdm::INSTR_64BIT;
@@ -187,32 +187,32 @@ void nx::NpdmBinary::clear()
 	mAcid.clear();
 }
 
-nx::npdm::InstructionType nx::NpdmBinary::getInstructionType() const
+nn::hac::npdm::InstructionType nn::hac::NpdmBinary::getInstructionType() const
 {
 	return mInstructionType;
 }
 
-void nx::NpdmBinary::setInstructionType(npdm::InstructionType type)
+void nn::hac::NpdmBinary::setInstructionType(npdm::InstructionType type)
 {
 	mInstructionType = type;
 }
 
-nx::npdm::ProcAddrSpaceType nx::NpdmBinary::getProcAddressSpaceType() const
+nn::hac::npdm::ProcAddrSpaceType nn::hac::NpdmBinary::getProcAddressSpaceType() const
 {
 	return mProcAddressSpaceType;
 }
 
-void nx::NpdmBinary::setProcAddressSpaceType(npdm::ProcAddrSpaceType type)
+void nn::hac::NpdmBinary::setProcAddressSpaceType(npdm::ProcAddrSpaceType type)
 {
 	mProcAddressSpaceType = type;
 }
 
-byte_t nx::NpdmBinary::getMainThreadPriority() const
+byte_t nn::hac::NpdmBinary::getMainThreadPriority() const
 {
 	return mMainThreadPriority;
 }
 
-void nx::NpdmBinary::setMainThreadPriority(byte_t priority)
+void nn::hac::NpdmBinary::setMainThreadPriority(byte_t priority)
 {
 	if (priority > npdm::kMaxPriority)
 	{
@@ -222,42 +222,42 @@ void nx::NpdmBinary::setMainThreadPriority(byte_t priority)
 	mMainThreadPriority = priority;
 }
 
-byte_t nx::NpdmBinary::getMainThreadCpuId() const
+byte_t nn::hac::NpdmBinary::getMainThreadCpuId() const
 {
 	return mMainThreadCpuId;
 }
 
-void nx::NpdmBinary::setMainThreadCpuId(byte_t core_num)
+void nn::hac::NpdmBinary::setMainThreadCpuId(byte_t core_num)
 {
 	mMainThreadCpuId = core_num;
 }
 
-uint32_t nx::NpdmBinary::getVersion() const
+uint32_t nn::hac::NpdmBinary::getVersion() const
 {
 	return mVersion;
 }
 
-void nx::NpdmBinary::setVersion(uint32_t version)
+void nn::hac::NpdmBinary::setVersion(uint32_t version)
 {
 	mVersion = version;
 }
 
-uint32_t nx::NpdmBinary::getMainThreadStackSize() const
+uint32_t nn::hac::NpdmBinary::getMainThreadStackSize() const
 {
 	return mMainThreadStackSize;
 }
 
-void nx::NpdmBinary::setMainThreadStackSize(uint32_t size)
+void nn::hac::NpdmBinary::setMainThreadStackSize(uint32_t size)
 {
 	mMainThreadStackSize = size;
 }
 
-const std::string & nx::NpdmBinary::getName() const
+const std::string & nn::hac::NpdmBinary::getName() const
 {
 	return mName;
 }
 
-void nx::NpdmBinary::setName(const std::string & name)
+void nn::hac::NpdmBinary::setName(const std::string & name)
 {
 	if (name.length() > npdm::kNameMaxLen)
 	{
@@ -267,12 +267,12 @@ void nx::NpdmBinary::setName(const std::string & name)
 	mName = name;
 }
 
-const std::string & nx::NpdmBinary::getProductCode() const
+const std::string & nn::hac::NpdmBinary::getProductCode() const
 {
 	return mProductCode;
 }
 
-void nx::NpdmBinary::setProductCode(const std::string & product_code)
+void nn::hac::NpdmBinary::setProductCode(const std::string & product_code)
 {
 	if (product_code.length() > npdm::kProductCodeMaxLen)
 	{
@@ -282,22 +282,22 @@ void nx::NpdmBinary::setProductCode(const std::string & product_code)
 	mProductCode = product_code;
 }
 
-const nx::AccessControlInfoBinary & nx::NpdmBinary::getAci() const
+const nn::hac::AccessControlInfoBinary & nn::hac::NpdmBinary::getAci() const
 {
 	return mAci;
 }
 
-void nx::NpdmBinary::setAci(const AccessControlInfoBinary & aci)
+void nn::hac::NpdmBinary::setAci(const AccessControlInfoBinary & aci)
 {
 	mAci = aci;
 }
 
-const nx::AccessControlInfoDescBinary & nx::NpdmBinary::getAcid() const
+const nn::hac::AccessControlInfoDescBinary & nn::hac::NpdmBinary::getAcid() const
 {
 	return mAcid;
 }
 
-void nx::NpdmBinary::setAcid(const AccessControlInfoDescBinary & acid)
+void nn::hac::NpdmBinary::setAcid(const AccessControlInfoDescBinary & acid)
 {
 	mAcid = acid;
 }

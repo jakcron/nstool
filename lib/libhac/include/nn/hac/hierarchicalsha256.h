@@ -2,7 +2,9 @@
 #include <fnd/types.h>
 #include <crypto/sha.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace hierarchicalsha256
 	{
@@ -23,4 +25,5 @@ namespace nx
 		} layer[hierarchicalsha256::kMaxLayerNum];
 	};
 #pragma pack(pop)
+}
 }

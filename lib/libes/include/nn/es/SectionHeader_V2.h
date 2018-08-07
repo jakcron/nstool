@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <fnd/ISerialisable.h>
-#include <es/ticket.h>
+#include <nn/es/ticket.h>
 
+namespace nn
+{
 namespace es
 {
 	class SectionHeader_V2 :
@@ -52,5 +54,5 @@ namespace es
 		uint16_t mRecordNum;
 		ticket::SectionType mSectionType;
 	};
-
+}
 }

@@ -4,7 +4,7 @@
 #include <fnd/IFile.h>
 #include <fnd/Vec.h>
 #include <fnd/List.h>
-#include <nx/romfs.h>
+#include <nn/hac/romfs.h>
 
 #include "nstool.h"
 
@@ -110,13 +110,13 @@ private:
 
 	size_t mDirNum;
 	size_t mFileNum;
-	nx::sRomfsHeader mHdr;
+	nn::hac::sRomfsHeader mHdr;
 	fnd::Vec<byte_t> mDirNodes;
 	fnd::Vec<byte_t> mFileNodes;
 	sDirectory mRootDir;
 
-	inline nx::sRomfsDirEntry* get_dir_node(uint32_t offset) { return (nx::sRomfsDirEntry*)(mDirNodes.data() + offset); }
-	inline nx::sRomfsFileEntry* get_file_node(uint32_t offset) { return (nx::sRomfsFileEntry*)(mFileNodes.data() + offset); }
+	inline nn::hac::sRomfsDirEntry* get_dir_node(uint32_t offset) { return (nn::hac::sRomfsDirEntry*)(mDirNodes.data() + offset); }
+	inline nn::hac::sRomfsFileEntry* get_file_node(uint32_t offset) { return (nn::hac::sRomfsFileEntry*)(mFileNodes.data() + offset); }
 
 	
 	void printTab(size_t tab) const;
@@ -129,7 +129,7 @@ private:
 	void extractDir(const std::string& path, const sDirectory& dir);
 	void extractFs();
 
-	bool validateHeaderLayout(const nx::sRomfsHeader* hdr) const;
+	bool validateHeaderLayout(const nn::hac::sRomfsHeader* hdr) const;
 	void importDirectory(uint32_t dir_offset, sDirectory& dir);
 	void resolveRomfs();
 };

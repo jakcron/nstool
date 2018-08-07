@@ -1,13 +1,13 @@
-#include <nx/MemoryPageEntry.h>
+#include <nn/hac/MemoryPageEntry.h>
 
-nx::MemoryPageEntry::MemoryPageEntry() :
+nn::hac::MemoryPageEntry::MemoryPageEntry() :
 	mCap(kc::KC_INVALID),
 	mPage(0),
 	mFlag(false),
 	mUseFlag(false)
 {}
 
-nx::MemoryPageEntry::MemoryPageEntry(const KernelCapabilityEntry & kernel_cap) :
+nn::hac::MemoryPageEntry::MemoryPageEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kc::KC_INVALID),
 	mPage(0),
 	mFlag(false),
@@ -16,7 +16,7 @@ nx::MemoryPageEntry::MemoryPageEntry(const KernelCapabilityEntry & kernel_cap) :
 	setKernelCapability(kernel_cap);
 }
 
-nx::MemoryPageEntry::MemoryPageEntry(uint32_t page) :
+nn::hac::MemoryPageEntry::MemoryPageEntry(uint32_t page) :
 	mCap(kc::KC_INVALID),
 	mPage(0),
 	mFlag(false),
@@ -25,7 +25,7 @@ nx::MemoryPageEntry::MemoryPageEntry(uint32_t page) :
 	setPage(page);
 }
 
-nx::MemoryPageEntry::MemoryPageEntry(uint32_t page, bool flag) :
+nn::hac::MemoryPageEntry::MemoryPageEntry(uint32_t page, bool flag) :
 	mCap(kc::KC_INVALID),
 	mPage(0),
 	mFlag(false),
@@ -35,7 +35,7 @@ nx::MemoryPageEntry::MemoryPageEntry(uint32_t page, bool flag) :
 	setFlag(flag);
 }
 
-void nx::MemoryPageEntry::operator=(const MemoryPageEntry& other)
+void nn::hac::MemoryPageEntry::operator=(const MemoryPageEntry& other)
 {
 	mPage = other.mPage;
 	mFlag = other.mFlag;
@@ -43,24 +43,24 @@ void nx::MemoryPageEntry::operator=(const MemoryPageEntry& other)
 	updateCapField();
 }
 
-bool nx::MemoryPageEntry::operator==(const MemoryPageEntry& other) const
+bool nn::hac::MemoryPageEntry::operator==(const MemoryPageEntry& other) const
 {
 	return (mPage == other.mPage) \
 		&& (mFlag == other.mFlag) \
 		&& (mUseFlag == other.mUseFlag);
 }
 
-bool nx::MemoryPageEntry::operator!=(const MemoryPageEntry& other) const
+bool nn::hac::MemoryPageEntry::operator!=(const MemoryPageEntry& other) const
 {
 	return !(*this == other);
 }
 
-const nx::KernelCapabilityEntry & nx::MemoryPageEntry::getKernelCapability() const
+const nn::hac::KernelCapabilityEntry & nn::hac::MemoryPageEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::MemoryPageEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
+void nn::hac::MemoryPageEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kc::KC_MEMORY_MAP && kernel_cap.getType() != kc::KC_IO_MEMORY_MAP)
 	{
@@ -71,12 +71,12 @@ void nx::MemoryPageEntry::setKernelCapability(const KernelCapabilityEntry & kern
 	processCapField();
 }
 
-uint32_t nx::MemoryPageEntry::getPage() const
+uint32_t nn::hac::MemoryPageEntry::getPage() const
 {
 	return mPage;
 }
 
-void nx::MemoryPageEntry::setPage(uint32_t page)
+void nn::hac::MemoryPageEntry::setPage(uint32_t page)
 {
 	if (page > kMaxPage)
 	{
@@ -87,23 +87,23 @@ void nx::MemoryPageEntry::setPage(uint32_t page)
 	updateCapField();
 }
 
-bool nx::MemoryPageEntry::getFlag() const
+bool nn::hac::MemoryPageEntry::getFlag() const
 {
 	return mFlag;
 }
 
-void nx::MemoryPageEntry::setFlag(bool flag)
+void nn::hac::MemoryPageEntry::setFlag(bool flag)
 {
 	mFlag = flag;
 	updateCapField();
 }
 
-bool nx::MemoryPageEntry::isMultiplePages() const
+bool nn::hac::MemoryPageEntry::isMultiplePages() const
 {
 	return mUseFlag;
 }
 
-void nx::MemoryPageEntry::setMapMultiplePages(bool useFlag)
+void nn::hac::MemoryPageEntry::setMapMultiplePages(bool useFlag)
 {
 	mUseFlag = useFlag;
 }

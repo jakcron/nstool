@@ -1,8 +1,10 @@
 #pragma once
 #include <fnd/types.h>
-#include <nx/kc.h>
+#include <nn/hac/kc.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class KernelCapabilityEntry
 	{
@@ -47,4 +49,4 @@ namespace nx
 		}
 	};
 }
-
+}

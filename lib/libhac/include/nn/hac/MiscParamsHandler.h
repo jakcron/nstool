@@ -1,8 +1,10 @@
 #pragma once
-#include <nx/IKernelCapabilityHandler.h>
-#include <nx/MiscParamsEntry.h>
+#include <nn/hac/IKernelCapabilityHandler.h>
+#include <nn/hac/MiscParamsEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class MiscParamsHandler :
 		public IKernelCapabilityHandler
@@ -32,4 +34,4 @@ namespace nx
 		MiscParamsEntry mEntry;
 	};
 }
-
+}

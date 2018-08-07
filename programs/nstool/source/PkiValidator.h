@@ -3,8 +3,8 @@
 #include <fnd/List.h>
 #include <fnd/Vec.h>
 #include <crypto/rsa.h>
-#include <pki/SignedData.h>
-#include <pki/CertificateBody.h>
+#include <nn/pki/SignedData.h>
+#include <nn/pki/CertificateBody.h>
 #include <string>
 
 class PkiValidator

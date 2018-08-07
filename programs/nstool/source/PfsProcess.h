@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
-#include <nx/PfsHeader.h>
+#include <nn/hac/PfsHeader.h>
 
 #include "nstool.h"
 
@@ -24,7 +24,7 @@ public:
 	void setExtractPath(const std::string& path);
 	void setListFs(bool list_fs);
 
-	const nx::PfsHeader& getPfsHeader() const;
+	const nn::hac::PfsHeader& getPfsHeader() const;
 
 private:
 	const std::string kModuleName = "PfsProcess";
@@ -42,12 +42,12 @@ private:
 
 	fnd::Vec<byte_t> mCache;
 
-	nx::PfsHeader mPfs;
+	nn::hac::PfsHeader mPfs;
 
 	void displayHeader();
 	void displayFs();
-	size_t determineHeaderSize(const nx::sPfsHeader* hdr);
-	bool validateHeaderMagic(const nx::sPfsHeader* hdr);
+	size_t determineHeaderSize(const nn::hac::sPfsHeader* hdr);
+	bool validateHeaderMagic(const nn::hac::sPfsHeader* hdr);
 	void validateHfs();
 	void extractFs();
 };

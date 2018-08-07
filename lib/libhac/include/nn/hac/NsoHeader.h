@@ -1,9 +1,11 @@
 #pragma once
-#include <nx/nso.h>
+#include <nn/hac/nso.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class NsoHeader : 
 		public fnd::ISerialisable
@@ -142,5 +144,5 @@ namespace nx
 		sLayout mRoDynStrInfo;
 		sLayout mRoDynSymInfo;
 	};
-
+}
 }

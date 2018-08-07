@@ -1,28 +1,28 @@
-#include <nx/ThreadInfoHandler.h>
+#include <nn/hac/ThreadInfoHandler.h>
 
-nx::ThreadInfoHandler::ThreadInfoHandler() :
+nn::hac::ThreadInfoHandler::ThreadInfoHandler() :
 	mIsSet(false),
 	mEntry(0,0,0,0)
 {}
 
-void nx::ThreadInfoHandler::operator=(const ThreadInfoHandler & other)
+void nn::hac::ThreadInfoHandler::operator=(const ThreadInfoHandler & other)
 {
 	mIsSet = other.mIsSet;
 	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
 }
 
-bool nx::ThreadInfoHandler::operator==(const ThreadInfoHandler & other) const
+bool nn::hac::ThreadInfoHandler::operator==(const ThreadInfoHandler & other) const
 {
 	return (mIsSet == other.mIsSet) \
 		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }
 
-bool nx::ThreadInfoHandler::operator!=(const ThreadInfoHandler & other) const
+bool nn::hac::ThreadInfoHandler::operator!=(const ThreadInfoHandler & other) const
 {
 	return !(*this == other);
 }
 
-void nx::ThreadInfoHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
+void nn::hac::ThreadInfoHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{
@@ -36,7 +36,7 @@ void nx::ThreadInfoHandler::importKernelCapabilityList(const fnd::List<KernelCap
 	mIsSet = true;
 }
 
-void nx::ThreadInfoHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
+void nn::hac::ThreadInfoHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -44,7 +44,7 @@ void nx::ThreadInfoHandler::exportKernelCapabilityList(fnd::List<KernelCapabilit
 	caps.addElement(mEntry.getKernelCapability());
 }
 
-void nx::ThreadInfoHandler::clear()
+void nn::hac::ThreadInfoHandler::clear()
 {
 	mIsSet = false;
 	mEntry.setMaxPriority(0);
@@ -53,50 +53,50 @@ void nx::ThreadInfoHandler::clear()
 	mEntry.setMinCpuId(0);
 }
 
-bool nx::ThreadInfoHandler::isSet() const
+bool nn::hac::ThreadInfoHandler::isSet() const
 {
 	return mIsSet;
 }
 
-uint8_t nx::ThreadInfoHandler::getMinPriority() const
+uint8_t nn::hac::ThreadInfoHandler::getMinPriority() const
 {
 	return mEntry.getMinPriority();
 }
 
-void nx::ThreadInfoHandler::setMinPriority(uint8_t priority)
+void nn::hac::ThreadInfoHandler::setMinPriority(uint8_t priority)
 {
 	mEntry.setMinPriority(priority);
 	mIsSet = true;
 }
 
-uint8_t nx::ThreadInfoHandler::getMaxPriority() const
+uint8_t nn::hac::ThreadInfoHandler::getMaxPriority() const
 {
 	return mEntry.getMaxPriority();
 }
 
-void nx::ThreadInfoHandler::setMaxPriority(uint8_t priority)
+void nn::hac::ThreadInfoHandler::setMaxPriority(uint8_t priority)
 {
 	mEntry.setMaxPriority(priority);
 	mIsSet = true;
 }
 
-uint8_t nx::ThreadInfoHandler::getMinCpuId() const
+uint8_t nn::hac::ThreadInfoHandler::getMinCpuId() const
 {
 	return mEntry.getMinCpuId();
 }
 
-void nx::ThreadInfoHandler::setMinCpuId(uint8_t core_num)
+void nn::hac::ThreadInfoHandler::setMinCpuId(uint8_t core_num)
 {
 	mEntry.setMinCpuId(core_num);
 	mIsSet = true;
 }
 
-uint8_t nx::ThreadInfoHandler::getMaxCpuId() const
+uint8_t nn::hac::ThreadInfoHandler::getMaxCpuId() const
 {
 	return mEntry.getMaxCpuId();
 }
 
-void nx::ThreadInfoHandler::setMaxCpuId(uint8_t core_num)
+void nn::hac::ThreadInfoHandler::setMaxCpuId(uint8_t core_num)
 {
 	mEntry.setMaxCpuId(core_num);
 	mIsSet = true;

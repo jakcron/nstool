@@ -2,12 +2,14 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/ISerialisable.h>
-#include <nx/aci.h>
-#include <nx/FileSystemAccessControlBinary.h>
-#include <nx/ServiceAccessControlBinary.h>
-#include <nx/KernelCapabilityBinary.h>
+#include <nn/hac/aci.h>
+#include <nn/hac/FileSystemAccessControlBinary.h>
+#include <nn/hac/ServiceAccessControlBinary.h>
+#include <nn/hac/KernelCapabilityBinary.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class AccessControlInfoBinary : public fnd::ISerialisable
 	{
@@ -30,13 +32,13 @@ namespace nx
 		uint64_t getProgramId() const;
 		void setProgramId(uint64_t program_id);
 
-		const nx::FileSystemAccessControlBinary& getFileSystemAccessControl() const;
+		const nn::hac::FileSystemAccessControlBinary& getFileSystemAccessControl() const;
 		void setFileSystemAccessControl(const FileSystemAccessControlBinary& fac);
 
-		const nx::ServiceAccessControlBinary& getServiceAccessControl() const;
+		const nn::hac::ServiceAccessControlBinary& getServiceAccessControl() const;
 		void setServiceAccessControl(const ServiceAccessControlBinary& sac);
 
-		const nx::KernelCapabilityBinary& getKernelCapabilities() const;
+		const nn::hac::KernelCapabilityBinary& getKernelCapabilities() const;
 		void setKernelCapabilities(const KernelCapabilityBinary& kc);
 	private:
 		const std::string kModuleName = "ACCESS_CONTROL_INFO_BINARY";
@@ -46,8 +48,9 @@ namespace nx
 
 		// variables
 		uint64_t mProgramId;
-		nx::FileSystemAccessControlBinary mFileSystemAccessControl;
-		nx::ServiceAccessControlBinary mServiceAccessControl;
-		nx::KernelCapabilityBinary mKernelCapabilities;
+		nn::hac::FileSystemAccessControlBinary mFileSystemAccessControl;
+		nn::hac::ServiceAccessControlBinary mServiceAccessControl;
+		nn::hac::KernelCapabilityBinary mKernelCapabilities;
 	};
+}
 }

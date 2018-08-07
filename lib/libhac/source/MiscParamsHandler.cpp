@@ -1,28 +1,28 @@
-#include <nx/MiscParamsHandler.h>
+#include <nn/hac/MiscParamsHandler.h>
 
-nx::MiscParamsHandler::MiscParamsHandler() :
+nn::hac::MiscParamsHandler::MiscParamsHandler() :
 	mIsSet(false),
 	mEntry(0)
 {}
 
-void nx::MiscParamsHandler::operator=(const MiscParamsHandler & other)
+void nn::hac::MiscParamsHandler::operator=(const MiscParamsHandler & other)
 {
 	mIsSet = other.mIsSet;
 	mEntry.setKernelCapability(other.mEntry.getKernelCapability());
 }
 
-bool nx::MiscParamsHandler::operator==(const MiscParamsHandler & other) const
+bool nn::hac::MiscParamsHandler::operator==(const MiscParamsHandler & other) const
 {
 	return (mIsSet == other.mIsSet) \
 		&& (mEntry.getKernelCapability() == other.mEntry.getKernelCapability());
 }
 
-bool nx::MiscParamsHandler::operator!=(const MiscParamsHandler & other) const
+bool nn::hac::MiscParamsHandler::operator!=(const MiscParamsHandler & other) const
 {
 	return !(*this == other);
 }
 
-void nx::MiscParamsHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
+void nn::hac::MiscParamsHandler::importKernelCapabilityList(const fnd::List<KernelCapabilityEntry>& caps)
 {
 	if (caps.size() > kMaxKernelCapNum)
 	{
@@ -37,7 +37,7 @@ void nx::MiscParamsHandler::importKernelCapabilityList(const fnd::List<KernelCap
 	mIsSet = true;
 }
 
-void nx::MiscParamsHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
+void nn::hac::MiscParamsHandler::exportKernelCapabilityList(fnd::List<KernelCapabilityEntry>& caps) const
 {
 	if (isSet() == false)
 		return;
@@ -45,23 +45,23 @@ void nx::MiscParamsHandler::exportKernelCapabilityList(fnd::List<KernelCapabilit
 	caps.addElement(mEntry.getKernelCapability());
 }
 
-void nx::MiscParamsHandler::clear()
+void nn::hac::MiscParamsHandler::clear()
 {
 	mIsSet = false;
 	mEntry.setProgramType(0);
 }
 
-bool nx::MiscParamsHandler::isSet() const
+bool nn::hac::MiscParamsHandler::isSet() const
 {
 	return mIsSet;
 }
 
-uint8_t nx::MiscParamsHandler::getProgramType() const
+uint8_t nn::hac::MiscParamsHandler::getProgramType() const
 {
 	return mEntry.getProgramType();
 }
 
-void nx::MiscParamsHandler::setProgramType(uint8_t type)
+void nn::hac::MiscParamsHandler::setProgramType(uint8_t type)
 {
 	mEntry.setProgramType(type);
 	mIsSet = true;

@@ -3,6 +3,8 @@
 #include <fnd/types.h>
 #include <crypto/rsa.h>
 
+namespace nn
+{
 namespace es
 {
 	namespace ticket
@@ -105,4 +107,5 @@ namespace es
 		inline uint16_t get_group(uint16_t index) const { return index & kGroupMask; }
 	};
 #pragma pack(pop)
+}
 }

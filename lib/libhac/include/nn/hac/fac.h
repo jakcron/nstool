@@ -1,7 +1,9 @@
 #pragma once
 #include <fnd/types.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace fac
 	{
@@ -54,4 +56,5 @@ namespace nx
 		} content_owner_ids, save_data_owner_ids; // the data for these follow later in binary. start/end relative to base of FacData instance
 	};
 #pragma pack(pop)
+}
 }

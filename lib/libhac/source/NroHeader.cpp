@@ -1,16 +1,16 @@
-#include <nx/NroHeader.h>
+#include <nn/hac/NroHeader.h>
 
-nx::NroHeader::NroHeader()
+nn::hac::NroHeader::NroHeader()
 {
 	clear();
 }
 
-nx::NroHeader::NroHeader(const NroHeader& other)
+nn::hac::NroHeader::NroHeader(const NroHeader& other)
 {
 	*this = other;
 }
 
-void nx::NroHeader::operator=(const NroHeader& other)
+void nn::hac::NroHeader::operator=(const NroHeader& other)
 {
 	clear();
 	mRoCrt = other.mRoCrt;
@@ -26,7 +26,7 @@ void nx::NroHeader::operator=(const NroHeader& other)
 	mRoDynSymInfo = other.mRoDynSymInfo;
 }
 
-bool nx::NroHeader::operator==(const NroHeader& other) const
+bool nn::hac::NroHeader::operator==(const NroHeader& other) const
 {
 	return (mRoCrt == other.mRoCrt) \
 		&& (mNroSize == other.mNroSize) \
@@ -41,15 +41,15 @@ bool nx::NroHeader::operator==(const NroHeader& other) const
 		&& (mRoDynSymInfo == other.mRoDynSymInfo);
 }
 
-bool nx::NroHeader::operator!=(const NroHeader& other) const
+bool nn::hac::NroHeader::operator!=(const NroHeader& other) const
 {
 	return !(*this == other);
 }
 
-void nx::NroHeader::toBytes()
+void nn::hac::NroHeader::toBytes()
 {
 	mRawBinary.alloc(sizeof(sNroHeader));
-	nx::sNroHeader* hdr = (nx::sNroHeader*)mRawBinary.data();
+	nn::hac::sNroHeader* hdr = (nn::hac::sNroHeader*)mRawBinary.data();
 
 	// set header identifers
 	hdr->st_magic = nro::kNroStructMagic;
@@ -93,7 +93,7 @@ void nx::NroHeader::toBytes()
 	hdr->dyn_sym.size = mRoDynSymInfo.size;
 }
 
-void nx::NroHeader::fromBytes(const byte_t* data, size_t len)
+void nn::hac::NroHeader::fromBytes(const byte_t* data, size_t len)
 {
 	// check input data size
 	if (len < sizeof(sNroHeader))
@@ -109,7 +109,7 @@ void nx::NroHeader::fromBytes(const byte_t* data, size_t len)
 	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// get sNroHeader ptr
-	const nx::sNroHeader* hdr = (const nx::sNroHeader*)mRawBinary.data();
+	const nn::hac::sNroHeader* hdr = (const nn::hac::sNroHeader*)mRawBinary.data();
 	
 	// check NRO signature
 	if (hdr->st_magic.get() != nro::kNroStructMagic)
@@ -150,12 +150,12 @@ void nx::NroHeader::fromBytes(const byte_t* data, size_t len)
 	mRoDynSymInfo.size = hdr->dyn_sym.size.get();
 }
 
-const fnd::Vec<byte_t>& nx::NroHeader::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::NroHeader::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::NroHeader::clear()
+void nn::hac::NroHeader::clear()
 {
 	mRawBinary.clear();
 	memset(&mRoCrt, 0, sizeof(mRoCrt));
@@ -169,102 +169,102 @@ void nx::NroHeader::clear()
 	memset(&mRoDynSymInfo, 0, sizeof(mRoDynSymInfo));
 }
 
-const nx::NroHeader::sRoCrt& nx::NroHeader::getRoCrt() const
+const nn::hac::NroHeader::sRoCrt& nn::hac::NroHeader::getRoCrt() const
 {
 	return mRoCrt;
 }
 
-void nx::NroHeader::setRoCrt(const sRoCrt& ro_crt)
+void nn::hac::NroHeader::setRoCrt(const sRoCrt& ro_crt)
 {
 	mRoCrt = ro_crt;
 }
 
-uint32_t nx::NroHeader::getNroSize() const
+uint32_t nn::hac::NroHeader::getNroSize() const
 {
 	return mNroSize;
 }
 
-void nx::NroHeader::setNroSize(uint32_t size)
+void nn::hac::NroHeader::setNroSize(uint32_t size)
 {
 	mNroSize = size;
 }
 
-const nx::NroHeader::sSection& nx::NroHeader::getTextInfo() const
+const nn::hac::NroHeader::sSection& nn::hac::NroHeader::getTextInfo() const
 {
 	return mTextInfo;
 }
 
-void nx::NroHeader::setTextInfo(const sSection& info)
+void nn::hac::NroHeader::setTextInfo(const sSection& info)
 {
 	mTextInfo = info;
 }
 
-const nx::NroHeader::sSection& nx::NroHeader::getRoInfo() const
+const nn::hac::NroHeader::sSection& nn::hac::NroHeader::getRoInfo() const
 {
 	return mRoInfo;
 }
 
-void nx::NroHeader::setRoInfo(const sSection& info)
+void nn::hac::NroHeader::setRoInfo(const sSection& info)
 {
 	mRoInfo = info;
 }
 
-const nx::NroHeader::sSection& nx::NroHeader::getDataInfo() const
+const nn::hac::NroHeader::sSection& nn::hac::NroHeader::getDataInfo() const
 {
 	return mDataInfo;
 }
 
-void nx::NroHeader::setDataInfo(const sSection& info)
+void nn::hac::NroHeader::setDataInfo(const sSection& info)
 {
 	mDataInfo = info;
 }
 
-uint32_t nx::NroHeader::getBssSize() const
+uint32_t nn::hac::NroHeader::getBssSize() const
 {
 	return mBssSize;
 }
 
-void nx::NroHeader::setBssSize(uint32_t size)
+void nn::hac::NroHeader::setBssSize(uint32_t size)
 {
 	mBssSize = size;
 }
 
-const nx::NroHeader::sModuleId& nx::NroHeader::getModuleId() const
+const nn::hac::NroHeader::sModuleId& nn::hac::NroHeader::getModuleId() const
 {
 	return mModuleId;
 }
 
-void nx::NroHeader::setModuleId(const sModuleId& id)
+void nn::hac::NroHeader::setModuleId(const sModuleId& id)
 {
 	mModuleId = id;
 }
 
-const nx::NroHeader::sSection& nx::NroHeader::getRoEmbeddedInfo() const
+const nn::hac::NroHeader::sSection& nn::hac::NroHeader::getRoEmbeddedInfo() const
 {
 	return mRoEmbeddedInfo;
 }
 
-void nx::NroHeader::setRoEmbeddedInfo(const sSection& info)
+void nn::hac::NroHeader::setRoEmbeddedInfo(const sSection& info)
 {
 	mRoEmbeddedInfo = info;
 }
 
-const nx::NroHeader::sSection& nx::NroHeader::getRoDynStrInfo() const
+const nn::hac::NroHeader::sSection& nn::hac::NroHeader::getRoDynStrInfo() const
 {
 	return mRoDynStrInfo;
 }
 
-void nx::NroHeader::setRoDynStrInfo(const sSection& info)
+void nn::hac::NroHeader::setRoDynStrInfo(const sSection& info)
 {
 	mRoDynStrInfo = info;
 }
 
-const nx::NroHeader::sSection& nx::NroHeader::getRoDynSymInfo() const
+const nn::hac::NroHeader::sSection& nn::hac::NroHeader::getRoDynSymInfo() const
 {
 	return mRoDynSymInfo;
 }
 
-void nx::NroHeader::setRoDynSymInfo(const sSection& info)
+void nn::hac::NroHeader::setRoDynSymInfo(const sSection& info)
 {
 	mRoDynSymInfo = info;
 }

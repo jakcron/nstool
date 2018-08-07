@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/List.h>
-#include <nx/XciHeader.h>
+#include <nn/hac/XciHeader.h>
 
 #include "nstool.h"
 
@@ -57,8 +57,8 @@ private:
 
 	bool mListFs;
 
-	nx::sXciHeaderPage mHdrPage;
-	nx::XciHeader mHdr;
+	nn::hac::sXciHeaderPage mHdrPage;
+	nn::hac::XciHeader mHdr;
 	PfsProcess mRootPfs;
 	fnd::List<sExtractInfo> mExtractInfo;
 

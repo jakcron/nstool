@@ -1,46 +1,46 @@
-#include <nx/MiscFlagsEntry.h>
+#include <nn/hac/MiscFlagsEntry.h>
 
-nx::MiscFlagsEntry::MiscFlagsEntry() :
+nn::hac::MiscFlagsEntry::MiscFlagsEntry() :
 	mCap(kCapId),
 	mFlags(0)
 {}
 
-nx::MiscFlagsEntry::MiscFlagsEntry(const KernelCapabilityEntry & kernel_cap) :
+nn::hac::MiscFlagsEntry::MiscFlagsEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mFlags(0)
 {
 	setKernelCapability(kernel_cap);
 }
 
-nx::MiscFlagsEntry::MiscFlagsEntry(uint32_t flags) :
+nn::hac::MiscFlagsEntry::MiscFlagsEntry(uint32_t flags) :
 	mCap(kCapId),
 	mFlags(0)
 {
 	setFlags(flags);
 }
 
-void nx::MiscFlagsEntry::operator=(const MiscFlagsEntry& other)
+void nn::hac::MiscFlagsEntry::operator=(const MiscFlagsEntry& other)
 {
 	mFlags = other.mFlags;
 	updateCapField();
 }
 
-bool nx::MiscFlagsEntry::operator==(const MiscFlagsEntry& other) const
+bool nn::hac::MiscFlagsEntry::operator==(const MiscFlagsEntry& other) const
 {
 	return (mFlags == other.mFlags);
 }
 
-bool nx::MiscFlagsEntry::operator!=(const MiscFlagsEntry& other) const
+bool nn::hac::MiscFlagsEntry::operator!=(const MiscFlagsEntry& other) const
 {
 	return !(*this == other);
 }
 
-const nx::KernelCapabilityEntry & nx::MiscFlagsEntry::getKernelCapability() const
+const nn::hac::KernelCapabilityEntry & nn::hac::MiscFlagsEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::MiscFlagsEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
+void nn::hac::MiscFlagsEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
@@ -51,12 +51,12 @@ void nx::MiscFlagsEntry::setKernelCapability(const KernelCapabilityEntry & kerne
 	processCapField();
 }
 
-uint32_t nx::MiscFlagsEntry::getFlags() const
+uint32_t nn::hac::MiscFlagsEntry::getFlags() const
 {
 	return mFlags;
 }
 
-void nx::MiscFlagsEntry::setFlags(uint32_t flags)
+void nn::hac::MiscFlagsEntry::setFlags(uint32_t flags)
 {
 	if ((flags & ~kMaxVal) != 0)
 	{

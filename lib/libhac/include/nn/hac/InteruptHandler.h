@@ -1,8 +1,10 @@
 #pragma once
-#include <nx/IKernelCapabilityHandler.h>
-#include <nx/InteruptEntry.h>
+#include <nn/hac/IKernelCapabilityHandler.h>
+#include <nn/hac/InteruptEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class InteruptHandler :
 		public IKernelCapabilityHandler
@@ -31,4 +33,4 @@ namespace nx
 		fnd::List<uint16_t> mInterupts;
 	};
 }
-
+}

@@ -1,16 +1,16 @@
-#include <nx/AccessControlInfoBinary.h>
+#include <nn/hac/AccessControlInfoBinary.h>
 
-nx::AccessControlInfoBinary::AccessControlInfoBinary()
+nn::hac::AccessControlInfoBinary::AccessControlInfoBinary()
 {
 	clear();
 }
 
-nx::AccessControlInfoBinary::AccessControlInfoBinary(const AccessControlInfoBinary & other)
+nn::hac::AccessControlInfoBinary::AccessControlInfoBinary(const AccessControlInfoBinary & other)
 {
 	*this = other;
 }
 
-void nx::AccessControlInfoBinary::operator=(const AccessControlInfoBinary & other)
+void nn::hac::AccessControlInfoBinary::operator=(const AccessControlInfoBinary & other)
 {
 	mRawBinary = other.mRawBinary;
 	mProgramId = other.mProgramId;
@@ -19,7 +19,7 @@ void nx::AccessControlInfoBinary::operator=(const AccessControlInfoBinary & othe
 	mKernelCapabilities = other.mKernelCapabilities;
 }
 
-bool nx::AccessControlInfoBinary::operator==(const AccessControlInfoBinary & other) const
+bool nn::hac::AccessControlInfoBinary::operator==(const AccessControlInfoBinary & other) const
 {
 	return (mProgramId == other.mProgramId) \
 		&& (mFileSystemAccessControl == other.mFileSystemAccessControl) \
@@ -27,12 +27,12 @@ bool nx::AccessControlInfoBinary::operator==(const AccessControlInfoBinary & oth
 		&& (mKernelCapabilities == other.mKernelCapabilities);
 }
 
-bool nx::AccessControlInfoBinary::operator!=(const AccessControlInfoBinary & other) const
+bool nn::hac::AccessControlInfoBinary::operator!=(const AccessControlInfoBinary & other) const
 {
 	return !(*this == other);
 }
 
-void nx::AccessControlInfoBinary::toBytes()
+void nn::hac::AccessControlInfoBinary::toBytes()
 {
 	if (mFileSystemAccessControl.getBytes().size() == 0)
 		mFileSystemAccessControl.toBytes();
@@ -76,7 +76,7 @@ void nx::AccessControlInfoBinary::toBytes()
 	hdr->kc.size = kc.size;
 }
 
-void nx::AccessControlInfoBinary::fromBytes(const byte_t* data, size_t len)
+void nn::hac::AccessControlInfoBinary::fromBytes(const byte_t* data, size_t len)
 {
 	// check size
 	if (len < sizeof(sAciHeader))
@@ -117,12 +117,12 @@ void nx::AccessControlInfoBinary::fromBytes(const byte_t* data, size_t len)
 	mKernelCapabilities.fromBytes(mRawBinary.data() + hdr.kc.offset.get(), hdr.kc.size.get());
 }
 
-const fnd::Vec<byte_t>& nx::AccessControlInfoBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::AccessControlInfoBinary::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::AccessControlInfoBinary::clear()
+void nn::hac::AccessControlInfoBinary::clear()
 {
 	mRawBinary.clear();
 	mProgramId = 0;
@@ -131,42 +131,42 @@ void nx::AccessControlInfoBinary::clear()
 	mKernelCapabilities.clear();
 }
 
-uint64_t nx::AccessControlInfoBinary::getProgramId() const
+uint64_t nn::hac::AccessControlInfoBinary::getProgramId() const
 {
 	return mProgramId;
 }
 
-void nx::AccessControlInfoBinary::setProgramId(uint64_t program_id)
+void nn::hac::AccessControlInfoBinary::setProgramId(uint64_t program_id)
 {
 	mProgramId = program_id;
 }
 
-const nx::FileSystemAccessControlBinary& nx::AccessControlInfoBinary::getFileSystemAccessControl() const
+const nn::hac::FileSystemAccessControlBinary& nn::hac::AccessControlInfoBinary::getFileSystemAccessControl() const
 {
 	return mFileSystemAccessControl;
 }
 
-void nx::AccessControlInfoBinary::setFileSystemAccessControl(const nx::FileSystemAccessControlBinary& fac)
+void nn::hac::AccessControlInfoBinary::setFileSystemAccessControl(const nn::hac::FileSystemAccessControlBinary& fac)
 {
 	mFileSystemAccessControl = fac;
 }
 
-const nx::ServiceAccessControlBinary& nx::AccessControlInfoBinary::getServiceAccessControl() const
+const nn::hac::ServiceAccessControlBinary& nn::hac::AccessControlInfoBinary::getServiceAccessControl() const
 {
 	return mServiceAccessControl;
 }
 
-void nx::AccessControlInfoBinary::setServiceAccessControl(const nx::ServiceAccessControlBinary& sac)
+void nn::hac::AccessControlInfoBinary::setServiceAccessControl(const nn::hac::ServiceAccessControlBinary& sac)
 {
 	mServiceAccessControl = sac;
 }
 
-const nx::KernelCapabilityBinary& nx::AccessControlInfoBinary::getKernelCapabilities() const
+const nn::hac::KernelCapabilityBinary& nn::hac::AccessControlInfoBinary::getKernelCapabilities() const
 {
 	return mKernelCapabilities;
 }
 
-void nx::AccessControlInfoBinary::setKernelCapabilities(const nx::KernelCapabilityBinary& kc)
+void nn::hac::AccessControlInfoBinary::setKernelCapabilities(const nn::hac::KernelCapabilityBinary& kc)
 {
 	mKernelCapabilities = kc;
 }

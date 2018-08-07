@@ -1,18 +1,16 @@
-#include <es/TicketBody_V2.h>
+#include <nn/es/TicketBody_V2.h>
 
-
-
-es::TicketBody_V2::TicketBody_V2()
+nn::es::TicketBody_V2::TicketBody_V2()
 {
 	clear();
 }
 
-es::TicketBody_V2::TicketBody_V2(const TicketBody_V2 & other)
+nn::es::TicketBody_V2::TicketBody_V2(const TicketBody_V2 & other)
 {
 	*this = other;
 }
 
-void es::TicketBody_V2::operator=(const TicketBody_V2 & other)
+void nn::es::TicketBody_V2::operator=(const TicketBody_V2 & other)
 {
 	if (other.getBytes().size())
 	{
@@ -40,7 +38,7 @@ void es::TicketBody_V2::operator=(const TicketBody_V2 & other)
 	}
 }
 
-bool es::TicketBody_V2::operator==(const TicketBody_V2 & other) const
+bool nn::es::TicketBody_V2::operator==(const TicketBody_V2 & other) const
 {
 	return (mIssuer == other.mIssuer) \
 		&& (memcmp(mEncTitleKey, other.mEncTitleKey, ticket::kEncTitleKeySize) == 0) \
@@ -59,12 +57,12 @@ bool es::TicketBody_V2::operator==(const TicketBody_V2 & other) const
 		&& (mSectEntrySize == other.mSectEntrySize);
 }
 
-bool es::TicketBody_V2::operator!=(const TicketBody_V2 & other) const
+bool nn::es::TicketBody_V2::operator!=(const TicketBody_V2 & other) const
 {
 	return !(*this == other);
 }
 
-void es::TicketBody_V2::toBytes()
+void nn::es::TicketBody_V2::toBytes()
 {
 	mRawBinary.alloc(sizeof(sTicketBody_v2));
 	sTicketBody_v2* body = (sTicketBody_v2*)mRawBinary.data();
@@ -94,7 +92,7 @@ void es::TicketBody_V2::toBytes()
 	body->sect_entry_size = (mSectEntrySize);
 }
 
-void es::TicketBody_V2::fromBytes(const byte_t * bytes, size_t len)
+void nn::es::TicketBody_V2::fromBytes(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sTicketBody_v2))
 	{
@@ -134,12 +132,12 @@ void es::TicketBody_V2::fromBytes(const byte_t * bytes, size_t len)
 	mSectEntrySize = body->sect_entry_size.get();
 }
 
-const fnd::Vec<byte_t>& es::TicketBody_V2::getBytes() const
+const fnd::Vec<byte_t>& nn::es::TicketBody_V2::getBytes() const
 {
 	return mRawBinary;
 }
 
-void es::TicketBody_V2::clear()
+void nn::es::TicketBody_V2::clear()
 {
 	mRawBinary.clear();
 	mIssuer.clear();
@@ -160,12 +158,12 @@ void es::TicketBody_V2::clear()
 	mSectEntrySize = 0;
 }
 
-const std::string & es::TicketBody_V2::getIssuer() const
+const std::string & nn::es::TicketBody_V2::getIssuer() const
 {
 	return mIssuer;
 }
 
-void es::TicketBody_V2::setIssuer(const std::string & issuer)
+void nn::es::TicketBody_V2::setIssuer(const std::string & issuer)
 {
 	if (issuer.length() > ticket::kIssuerSize)
 	{
@@ -175,154 +173,154 @@ void es::TicketBody_V2::setIssuer(const std::string & issuer)
 	mIssuer = issuer;
 }
 
-const byte_t * es::TicketBody_V2::getEncTitleKey() const
+const byte_t * nn::es::TicketBody_V2::getEncTitleKey() const
 {
 	return mEncTitleKey;
 }
 
-void es::TicketBody_V2::setEncTitleKey(const byte_t * data, size_t len)
+void nn::es::TicketBody_V2::setEncTitleKey(const byte_t * data, size_t len)
 {
 	memset(mEncTitleKey, 0, ticket::kEncTitleKeySize);
 	memcpy(mEncTitleKey, data, _MIN(len, ticket::kEncTitleKeySize));
 }
 
-es::ticket::TitleKeyEncType es::TicketBody_V2::getTitleKeyEncType() const
+nn::es::ticket::TitleKeyEncType nn::es::TicketBody_V2::getTitleKeyEncType() const
 {
 	return mEncType;
 }
 
-void es::TicketBody_V2::setTitleKeyEncType(ticket::TitleKeyEncType type)
+void nn::es::TicketBody_V2::setTitleKeyEncType(ticket::TitleKeyEncType type)
 {
 	mEncType = type;
 }
 
-uint16_t es::TicketBody_V2::getTicketVersion() const
+uint16_t nn::es::TicketBody_V2::getTicketVersion() const
 {
 	return mTicketVersion;
 }
 
-void es::TicketBody_V2::setTicketVersion(uint16_t version)
+void nn::es::TicketBody_V2::setTicketVersion(uint16_t version)
 {
 	mTicketVersion = version;
 }
 
-es::ticket::LicenseType es::TicketBody_V2::getLicenseType() const
+nn::es::ticket::LicenseType nn::es::TicketBody_V2::getLicenseType() const
 {
 	return mLicenseType;
 }
 
-void es::TicketBody_V2::setLicenseType(ticket::LicenseType type)
+void nn::es::TicketBody_V2::setLicenseType(ticket::LicenseType type)
 {
 	mLicenseType = type;
 }
 
-byte_t es::TicketBody_V2::getCommonKeyId() const
+byte_t nn::es::TicketBody_V2::getCommonKeyId() const
 {
 	return mCommonKeyId;
 }
 
-void es::TicketBody_V2::setCommonKeyId(byte_t id)
+void nn::es::TicketBody_V2::setCommonKeyId(byte_t id)
 {
 	mCommonKeyId = id;
 }
 
-const fnd::List<es::ticket::PropertyMaskFlags>& es::TicketBody_V2::getPropertyFlags() const
+const fnd::List<nn::es::ticket::PropertyMaskFlags>& nn::es::TicketBody_V2::getPropertyFlags() const
 {
 	return mPropertyFlags;
 }
 
-void es::TicketBody_V2::setPropertyFlags(const fnd::List<es::ticket::PropertyMaskFlags>& flags)
+void nn::es::TicketBody_V2::setPropertyFlags(const fnd::List<nn::es::ticket::PropertyMaskFlags>& flags)
 {
 	mPropertyFlags = flags;
 }
 
-const byte_t * es::TicketBody_V2::getReservedRegion() const
+const byte_t * nn::es::TicketBody_V2::getReservedRegion() const
 {
 	return mReservedRegion;
 }
 
-void es::TicketBody_V2::setReservedRegion(const byte_t * data, size_t len)
+void nn::es::TicketBody_V2::setReservedRegion(const byte_t * data, size_t len)
 {
 	memset(mReservedRegion, 0, ticket::kReservedRegionSize);
 	memcpy(mReservedRegion, data, _MIN(len, ticket::kReservedRegionSize));
 }
 
-uint64_t es::TicketBody_V2::getTicketId() const
+uint64_t nn::es::TicketBody_V2::getTicketId() const
 {
 	return mTicketId;
 }
 
-void es::TicketBody_V2::setTicketId(uint64_t id)
+void nn::es::TicketBody_V2::setTicketId(uint64_t id)
 {
 	mTicketId = id;
 }
 
-uint64_t es::TicketBody_V2::getDeviceId() const
+uint64_t nn::es::TicketBody_V2::getDeviceId() const
 {
 	return mDeviceId;
 }
 
-void es::TicketBody_V2::setDeviceId(uint64_t id)
+void nn::es::TicketBody_V2::setDeviceId(uint64_t id)
 {
 	mDeviceId = id;
 }
 
-const byte_t * es::TicketBody_V2::getRightsId() const
+const byte_t * nn::es::TicketBody_V2::getRightsId() const
 {
 	return mRightsId;
 }
 
-void es::TicketBody_V2::setRightsId(const byte_t * id)
+void nn::es::TicketBody_V2::setRightsId(const byte_t * id)
 {
 	memcpy(mRightsId, id, ticket::kRightsIdSize);
 }
 
-uint32_t es::TicketBody_V2::getAccountId() const
+uint32_t nn::es::TicketBody_V2::getAccountId() const
 {
 	return mAccountId;
 }
 
-void es::TicketBody_V2::setAccountId(uint32_t id)
+void nn::es::TicketBody_V2::setAccountId(uint32_t id)
 {
 	mAccountId = id;
 }
 
-uint32_t es::TicketBody_V2::getSectionTotalSize() const
+uint32_t nn::es::TicketBody_V2::getSectionTotalSize() const
 {
 	return mSectTotalSize;
 }
 
-void es::TicketBody_V2::setSectionTotalSize(uint32_t size)
+void nn::es::TicketBody_V2::setSectionTotalSize(uint32_t size)
 {
 	mSectTotalSize = size;
 }
 
-uint32_t es::TicketBody_V2::getSectionHeaderOffset() const
+uint32_t nn::es::TicketBody_V2::getSectionHeaderOffset() const
 {
 	return mSectHeaderOffset;
 }
 
-void es::TicketBody_V2::setSectionHeaderOffset(uint32_t offset)
+void nn::es::TicketBody_V2::setSectionHeaderOffset(uint32_t offset)
 {
 	mSectHeaderOffset = offset;
 }
 
-uint16_t es::TicketBody_V2::getSectionNum() const
+uint16_t nn::es::TicketBody_V2::getSectionNum() const
 {
 	return mSectNum;
 }
 
-void es::TicketBody_V2::setSectionNum(uint16_t num)
+void nn::es::TicketBody_V2::setSectionNum(uint16_t num)
 {
 	mSectNum = num;
 }
 
-uint16_t es::TicketBody_V2::getSectionEntrySize() const
+uint16_t nn::es::TicketBody_V2::getSectionEntrySize() const
 {
 	return mSectEntrySize;
 }
 
-void es::TicketBody_V2::setSectionEntrySize(uint16_t size)
+void nn::es::TicketBody_V2::setSectionEntrySize(uint16_t size)
 {
 	mSectEntrySize = size;
 }

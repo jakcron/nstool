@@ -51,7 +51,7 @@ void NsoProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void NsoProcess::setInstructionType(nx::npdm::InstructionType type)
+void NsoProcess::setInstructionType(nn::hac::npdm::InstructionType type)
 {
 	mRoMeta.setInstructionType(type);
 }
@@ -74,12 +74,12 @@ const RoMetadataProcess& NsoProcess::getRoMetadataProcess() const
 void NsoProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
-	if (mFile->size() < sizeof(nx::sNsoHeader))
+	if (mFile->size() < sizeof(nn::hac::sNsoHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt NSO: file too small");
 	}
 
-	scratch.alloc(sizeof(nx::sNsoHeader));
+	scratch.alloc(sizeof(nn::hac::sNsoHeader));
 	mFile->read(scratch.data(), 0, scratch.size());
 
 	mHdr.fromBytes(scratch.data(), scratch.size());
@@ -176,7 +176,7 @@ void NsoProcess::displayNsoHeader()
 
 	printf("[NSO Header]\n");
 	printf("  ModuleId:           ");
-	_HEXDUMP_L(mHdr.getModuleId().data, nx::nso::kModuleIdSize);
+	_HEXDUMP_L(mHdr.getModuleId().data, nn::hac::nso::kModuleIdSize);
 	printf("\n");
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{

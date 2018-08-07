@@ -1,16 +1,16 @@
-#include <nx/AssetHeader.h>
+#include <nn/hac/AssetHeader.h>
 
-nx::AssetHeader::AssetHeader()
+nn::hac::AssetHeader::AssetHeader()
 {
 	clear();
 }
 
-nx::AssetHeader::AssetHeader(const AssetHeader& other)
+nn::hac::AssetHeader::AssetHeader(const AssetHeader& other)
 {
 	*this = other;
 }
 
-void nx::AssetHeader::operator=(const AssetHeader& other)
+void nn::hac::AssetHeader::operator=(const AssetHeader& other)
 {
 	mRawBinary = other.mRawBinary;
 	mIconInfo = other.mIconInfo;
@@ -18,22 +18,22 @@ void nx::AssetHeader::operator=(const AssetHeader& other)
 	mRomfsInfo = other.mRomfsInfo;
 }
 
-bool nx::AssetHeader::operator==(const AssetHeader& other) const
+bool nn::hac::AssetHeader::operator==(const AssetHeader& other) const
 {
 	return (mIconInfo == other.mIconInfo) \
 		&& (mNacpInfo == other.mNacpInfo) \
 		&& (mRomfsInfo == other.mRomfsInfo);
 }
 
-bool nx::AssetHeader::operator!=(const AssetHeader& other) const
+bool nn::hac::AssetHeader::operator!=(const AssetHeader& other) const
 {
 	return !(*this == other);
 }
 
-void nx::AssetHeader::toBytes()
+void nn::hac::AssetHeader::toBytes()
 {
 	mRawBinary.alloc(sizeof(sAssetHeader));
-	nx::sAssetHeader* hdr = (nx::sAssetHeader*)mRawBinary.data();
+	nn::hac::sAssetHeader* hdr = (nn::hac::sAssetHeader*)mRawBinary.data();
 
 	// set header identifers
 	hdr->st_magic = aset::kAssetStructMagic;
@@ -52,7 +52,7 @@ void nx::AssetHeader::toBytes()
 	hdr->romfs.size = mRomfsInfo.size;
 }
 
-void nx::AssetHeader::fromBytes(const byte_t* bytes, size_t len)
+void nn::hac::AssetHeader::fromBytes(const byte_t* bytes, size_t len)
 {
 	// check input data size
 	if (len < sizeof(sAssetHeader))
@@ -68,7 +68,7 @@ void nx::AssetHeader::fromBytes(const byte_t* bytes, size_t len)
 	memcpy(mRawBinary.data(), bytes, mRawBinary.size());
 
 	// get sAssetHeader ptr
-	const nx::sAssetHeader* hdr = (const nx::sAssetHeader*)mRawBinary.data();
+	const nn::hac::sAssetHeader* hdr = (const nn::hac::sAssetHeader*)mRawBinary.data();
 	
 	// check NRO signature
 	if (hdr->st_magic.get() != aset::kAssetStructMagic)
@@ -90,12 +90,12 @@ void nx::AssetHeader::fromBytes(const byte_t* bytes, size_t len)
 	mRomfsInfo.size = hdr->romfs.size.get();
 }
 
-const fnd::Vec<byte_t>& nx::AssetHeader::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::AssetHeader::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::AssetHeader::clear()
+void nn::hac::AssetHeader::clear()
 {
 	mRawBinary.clear();
 	memset(&mIconInfo, 0, sizeof(mIconInfo));
@@ -103,32 +103,32 @@ void nx::AssetHeader::clear()
 	memset(&mRomfsInfo, 0, sizeof(mRomfsInfo));
 }
 
-const nx::AssetHeader::sSection& nx::AssetHeader::getIconInfo() const
+const nn::hac::AssetHeader::sSection& nn::hac::AssetHeader::getIconInfo() const
 {
 	return mIconInfo;
 }
 
-void nx::AssetHeader::setIconInfo(const nx::AssetHeader::sSection& info)
+void nn::hac::AssetHeader::setIconInfo(const nn::hac::AssetHeader::sSection& info)
 {
 	mIconInfo = info;
 }
 
-const nx::AssetHeader::sSection& nx::AssetHeader::getNacpInfo() const
+const nn::hac::AssetHeader::sSection& nn::hac::AssetHeader::getNacpInfo() const
 {
 	return mNacpInfo;
 }
 
-void nx::AssetHeader::setNacpInfo(const sSection& info)
+void nn::hac::AssetHeader::setNacpInfo(const sSection& info)
 {
 	mNacpInfo = info;
 }
 
-const nx::AssetHeader::sSection& nx::AssetHeader::getRomfsInfo() const
+const nn::hac::AssetHeader::sSection& nn::hac::AssetHeader::getRomfsInfo() const
 {
 	return mRomfsInfo;
 }
 
-void nx::AssetHeader::setRomfsInfo(const sSection& info)
+void nn::hac::AssetHeader::setRomfsInfo(const sSection& info)
 {
 	mRomfsInfo = info;
 }

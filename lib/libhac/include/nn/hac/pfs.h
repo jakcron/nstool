@@ -1,8 +1,10 @@
 #include <fnd/types.h>
 #include <crypto/sha.h>
-#include <nx/macro.h>
+#include <nn/hac/macro.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace pfs
 	{
@@ -38,4 +40,5 @@ namespace nx
 		crypto::sha::sSha256Hash hash;
 	}; // sizeof(0x40)
 #pragma pack(pop)
+}
 }

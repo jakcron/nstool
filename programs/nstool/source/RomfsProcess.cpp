@@ -182,17 +182,17 @@ void RomfsProcess::extractFs()
 	extractDir(mExtractPath, mRootDir);
 }
 
-bool RomfsProcess::validateHeaderLayout(const nx::sRomfsHeader* hdr) const
+bool RomfsProcess::validateHeaderLayout(const nn::hac::sRomfsHeader* hdr) const
 {
 	bool validLayout = true;
 
-	if (hdr->header_size.get() != sizeof(nx::sRomfsHeader))
+	if (hdr->header_size.get() != sizeof(nn::hac::sRomfsHeader))
 	{
 		validLayout = false;
 	}
 
 	uint64_t pos = hdr->sections[0].offset.get();
-	for (size_t i = 0; i < nx::romfs::SECTION_NUM; i++)
+	for (size_t i = 0; i < nn::hac::romfs::SECTION_NUM; i++)
 	{
 		if (hdr->sections[i].offset.get() != pos)
 		{
@@ -206,7 +206,7 @@ bool RomfsProcess::validateHeaderLayout(const nx::sRomfsHeader* hdr) const
 
 void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 {
-	nx::sRomfsDirEntry* d_node = get_dir_node(dir_offset);
+	nn::hac::sRomfsDirEntry* d_node = get_dir_node(dir_offset);
 
 	/*
 	printf("[DIR-NODE]\n");
@@ -219,9 +219,9 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 	printf("  name=%s\n", d_node->name);
 	*/
 
-	for (uint32_t file_addr = d_node->file.get(); file_addr != nx::romfs::kInvalidAddr; )
+	for (uint32_t file_addr = d_node->file.get(); file_addr != nn::hac::romfs::kInvalidAddr; )
 	{
-		nx::sRomfsFileEntry* f_node = get_file_node(file_addr);
+		nn::hac::sRomfsFileEntry* f_node = get_file_node(file_addr);
 
 		/*
 		printf("[FILE-NODE]\n");
@@ -240,9 +240,9 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 		mFileNum++;
 	}
 
-	for (uint32_t child_addr = d_node->child.get(); child_addr != nx::romfs::kInvalidAddr; )
+	for (uint32_t child_addr = d_node->child.get(); child_addr != nn::hac::romfs::kInvalidAddr; )
 	{
-		nx::sRomfsDirEntry* c_node = get_dir_node(child_addr);
+		nn::hac::sRomfsDirEntry* c_node = get_dir_node(child_addr);
 
 		dir.dir_list.addElement({std::string(c_node->name(), c_node->name_size.get())});
 		importDirectory(child_addr, dir.dir_list.atBack());
@@ -255,7 +255,7 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 void RomfsProcess::resolveRomfs()
 {
 	// read header
-	mFile->read((byte_t*)&mHdr, 0, sizeof(nx::sRomfsHeader));
+	mFile->read((byte_t*)&mHdr, 0, sizeof(nn::hac::sRomfsHeader));
 
 	// logic check on the header layout
 	if (validateHeaderLayout(&mHdr) == false)
@@ -264,21 +264,21 @@ void RomfsProcess::resolveRomfs()
 	}
 
 	// read directory nodes
-	mDirNodes.alloc(mHdr.sections[nx::romfs::DIR_NODE_TABLE].size.get());
-	mFile->read(mDirNodes.data(), mHdr.sections[nx::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.size());
+	mDirNodes.alloc(mHdr.sections[nn::hac::romfs::DIR_NODE_TABLE].size.get());
+	mFile->read(mDirNodes.data(), mHdr.sections[nn::hac::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.size());
 	//printf("[RAW DIR NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mDirNodes.data(), mDirNodes.size());
 
 	// read file nodes
-	mFileNodes.alloc(mHdr.sections[nx::romfs::FILE_NODE_TABLE].size.get());
-	mFile->read(mFileNodes.data(), mHdr.sections[nx::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.size());
+	mFileNodes.alloc(mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].size.get());
+	mFile->read(mFileNodes.data(), mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.size());
 	//printf("[RAW FILE NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mFileNodes.data(), mFileNodes.size());
 	
 	// A logic check on the root directory node
 	if (	get_dir_node(0)->parent.get() != 0 \
-		|| 	get_dir_node(0)->sibling.get() != nx::romfs::kInvalidAddr \
-		|| 	get_dir_node(0)->hash.get() != nx::romfs::kInvalidAddr \
+		|| 	get_dir_node(0)->sibling.get() != nn::hac::romfs::kInvalidAddr \
+		|| 	get_dir_node(0)->hash.get() != nn::hac::romfs::kInvalidAddr \
 		|| 	get_dir_node(0)->name_size.get() != 0)
 	{
 		throw fnd::Exception(kModuleName, "Invalid root directory node");

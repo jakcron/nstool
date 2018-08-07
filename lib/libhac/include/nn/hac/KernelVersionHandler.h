@@ -1,8 +1,10 @@
 #pragma once
-#include <nx/IKernelCapabilityHandler.h>
-#include <nx/KernelVersionEntry.h>
+#include <nn/hac/IKernelCapabilityHandler.h>
+#include <nn/hac/KernelVersionEntry.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class KernelVersionHandler :
 		public IKernelCapabilityHandler
@@ -34,4 +36,4 @@ namespace nx
 		KernelVersionEntry mEntry;
 	};
 }
-
+}

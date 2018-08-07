@@ -3,7 +3,9 @@
 #include <fnd/types.h>
 #include <fnd/ISerialisable.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class ServiceAccessControlEntry : 
 		public fnd::ISerialisable
@@ -48,4 +50,5 @@ namespace nx
 		bool isEqual(const ServiceAccessControlEntry& other) const;
 		void copyFrom(const ServiceAccessControlEntry& other);
 	};
+}
 }

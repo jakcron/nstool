@@ -1,9 +1,11 @@
 #pragma once
-#include <nx/aset.h>
+#include <nn/hac/aset.h>
 #include <fnd/List.h>
 #include <fnd/ISerialisable.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class AssetHeader : 
 		public fnd::ISerialisable
@@ -66,5 +68,5 @@ namespace nx
 		sSection mNacpInfo;
 		sSection mRomfsInfo;
 	};
-
+}
 }

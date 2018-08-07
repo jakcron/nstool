@@ -1,9 +1,11 @@
 #pragma once
 #include <fnd/types.h>
 #include <crypto/sha.h>
-#include <nx/macro.h>
+#include <nn/hac/macro.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace nso
 	{
@@ -62,4 +64,5 @@ namespace nx
 	};
 
 #pragma pack(pop)
+}
 }

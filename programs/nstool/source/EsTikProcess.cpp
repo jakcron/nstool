@@ -2,7 +2,7 @@
 #include <iomanip>
 
 #include <fnd/SimpleTextOutput.h>
-#include <pki/SignUtils.h>
+#include <nn/pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
 #include "EsTikProcess.h"
 #include "PkiValidator.h"

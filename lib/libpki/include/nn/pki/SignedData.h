@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <fnd/ISerialisable.h>
-#include <pki/SignatureBlock.h>
+#include <nn/pki/SignatureBlock.h>
 
+namespace nn
+{
 namespace pki
 {
 	template <class T>

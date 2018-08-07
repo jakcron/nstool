@@ -3,9 +3,11 @@
 #include <fnd/types.h>
 #include <fnd/ISerialisable.h>
 #include <fnd/List.h>
-#include <nx/nacp.h>
+#include <nn/hac/nacp.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class ApplicationControlPropertyBinary :
 		public fnd::ISerialisable
@@ -229,7 +231,7 @@ namespace nx
 		nacp::TouchScreenUsageMode mTouchScreenUsageMode;
 		nacp::AocRegistrationType mAocRegistrationType;
 		nacp::AttributeFlag mAttributeFlag;
-		fnd::List<nx::nacp::Language> mSupportedLanguages;
+		fnd::List<nn::hac::nacp::Language> mSupportedLanguages;
 		nacp::ParentalControlFlag mParentalControlFlag;
 		nacp::ScreenshotMode mScreenshotMode;
 		nacp::VideoCaptureMode mVideoCaptureMode;
@@ -263,4 +265,5 @@ namespace nx
 		nacp::RepairFlag mRepairFlag;
 		byte_t mProgramIndex;
 	};
+}
 }

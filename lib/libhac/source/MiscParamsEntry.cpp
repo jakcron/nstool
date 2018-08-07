@@ -1,46 +1,46 @@
-#include <nx/MiscParamsEntry.h>
+#include <nn/hac/MiscParamsEntry.h>
 
-nx::MiscParamsEntry::MiscParamsEntry() :
+nn::hac::MiscParamsEntry::MiscParamsEntry() :
 	mCap(kCapId),
 	mProgramType(0)
 {}
 
-nx::MiscParamsEntry::MiscParamsEntry(const KernelCapabilityEntry & kernel_cap) :
+nn::hac::MiscParamsEntry::MiscParamsEntry(const KernelCapabilityEntry & kernel_cap) :
 	mCap(kCapId),
 	mProgramType(0)
 {
 	setKernelCapability(kernel_cap);
 }
 
-nx::MiscParamsEntry::MiscParamsEntry(uint8_t program_type) :
+nn::hac::MiscParamsEntry::MiscParamsEntry(uint8_t program_type) :
 	mCap(kCapId),
 	mProgramType(0)
 {
 	setProgramType(program_type);
 }
 
-void nx::MiscParamsEntry::operator=(const MiscParamsEntry& other)
+void nn::hac::MiscParamsEntry::operator=(const MiscParamsEntry& other)
 {
 	mProgramType = other.mProgramType;
 	updateCapField();
 }
 
-bool nx::MiscParamsEntry::operator==(const MiscParamsEntry& other) const
+bool nn::hac::MiscParamsEntry::operator==(const MiscParamsEntry& other) const
 {
 	return (mProgramType == other.mProgramType);
 }
 
-bool nx::MiscParamsEntry::operator!=(const MiscParamsEntry& other) const
+bool nn::hac::MiscParamsEntry::operator!=(const MiscParamsEntry& other) const
 {
 	return !(*this == other);
 }
 
-const nx::KernelCapabilityEntry & nx::MiscParamsEntry::getKernelCapability() const
+const nn::hac::KernelCapabilityEntry & nn::hac::MiscParamsEntry::getKernelCapability() const
 {
 	return mCap;
 }
 
-void nx::MiscParamsEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
+void nn::hac::MiscParamsEntry::setKernelCapability(const KernelCapabilityEntry & kernel_cap)
 {
 	if (kernel_cap.getType() != kCapId)
 	{
@@ -51,12 +51,12 @@ void nx::MiscParamsEntry::setKernelCapability(const KernelCapabilityEntry & kern
 	processCapField();
 }
 
-uint8_t nx::MiscParamsEntry::getProgramType() const
+uint8_t nn::hac::MiscParamsEntry::getProgramType() const
 {
 	return mProgramType;
 }
 
-void nx::MiscParamsEntry::setProgramType(uint8_t type)
+void nn::hac::MiscParamsEntry::setProgramType(uint8_t type)
 {
 	if (type > kMaxProgramType)
 	{

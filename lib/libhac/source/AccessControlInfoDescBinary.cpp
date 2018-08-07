@@ -1,16 +1,16 @@
-#include <nx/AccessControlInfoDescBinary.h>
+#include <nn/hac/AccessControlInfoDescBinary.h>
 
-nx::AccessControlInfoDescBinary::AccessControlInfoDescBinary()
+nn::hac::AccessControlInfoDescBinary::AccessControlInfoDescBinary()
 {
 	clear();
 }
 
-nx::AccessControlInfoDescBinary::AccessControlInfoDescBinary(const AccessControlInfoDescBinary & other)
+nn::hac::AccessControlInfoDescBinary::AccessControlInfoDescBinary(const AccessControlInfoDescBinary & other)
 {
 	*this = other;
 }
 
-void nx::AccessControlInfoDescBinary::operator=(const AccessControlInfoDescBinary & other)
+void nn::hac::AccessControlInfoDescBinary::operator=(const AccessControlInfoDescBinary & other)
 {
 	mRawBinary = other.mRawBinary;
 	mNcaHeaderSignature2Key = other.mNcaHeaderSignature2Key;
@@ -21,7 +21,7 @@ void nx::AccessControlInfoDescBinary::operator=(const AccessControlInfoDescBinar
 	mKernelCapabilities = other.mKernelCapabilities;
 }
 
-bool nx::AccessControlInfoDescBinary::operator==(const AccessControlInfoDescBinary & other) const
+bool nn::hac::AccessControlInfoDescBinary::operator==(const AccessControlInfoDescBinary & other) const
 {
 	return (mNcaHeaderSignature2Key == other.mNcaHeaderSignature2Key) \
 		&& (mFlags == other.mFlags) \
@@ -31,12 +31,12 @@ bool nx::AccessControlInfoDescBinary::operator==(const AccessControlInfoDescBina
 		&& (mKernelCapabilities == other.mKernelCapabilities);
 }
 
-bool nx::AccessControlInfoDescBinary::operator!=(const AccessControlInfoDescBinary & other) const
+bool nn::hac::AccessControlInfoDescBinary::operator!=(const AccessControlInfoDescBinary & other) const
 {
 	return !(*this == other);
 }
 
-void nx::AccessControlInfoDescBinary::toBytes()
+void nn::hac::AccessControlInfoDescBinary::toBytes()
 {
 	if (mFileSystemAccessControl.getBytes().size() == 0)
 		mFileSystemAccessControl.toBytes();
@@ -93,7 +93,7 @@ void nx::AccessControlInfoDescBinary::toBytes()
 	hdr->kc.size = kc.size;
 }
 
-void nx::AccessControlInfoDescBinary::fromBytes(const byte_t* data, size_t len)
+void nn::hac::AccessControlInfoDescBinary::fromBytes(const byte_t* data, size_t len)
 {
 	// check size
 	if (len < sizeof(sAciDescHeader))
@@ -144,12 +144,12 @@ void nx::AccessControlInfoDescBinary::fromBytes(const byte_t* data, size_t len)
 	mKernelCapabilities.fromBytes(mRawBinary.data() + hdr.kc.offset.get(), hdr.kc.size.get());
 }
 
-const fnd::Vec<byte_t>& nx::AccessControlInfoDescBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::AccessControlInfoDescBinary::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::AccessControlInfoDescBinary::generateSignature(const crypto::rsa::sRsa2048Key& key)
+void nn::hac::AccessControlInfoDescBinary::generateSignature(const crypto::rsa::sRsa2048Key& key)
 {
 	if (mRawBinary.size() == 0)
 		toBytes();
@@ -163,7 +163,7 @@ void nx::AccessControlInfoDescBinary::generateSignature(const crypto::rsa::sRsa2
 	}
 }
 
-void nx::AccessControlInfoDescBinary::validateSignature(const crypto::rsa::sRsa2048Key& key) const
+void nn::hac::AccessControlInfoDescBinary::validateSignature(const crypto::rsa::sRsa2048Key& key) const
 {
 	if (mRawBinary.size() == 0)
 		throw fnd::Exception(kModuleName, "No Access Control Info Desc binary exists to verify");
@@ -177,7 +177,7 @@ void nx::AccessControlInfoDescBinary::validateSignature(const crypto::rsa::sRsa2
 	}
 }
 
-void nx::AccessControlInfoDescBinary::clear()
+void nn::hac::AccessControlInfoDescBinary::clear()
 {
 	mRawBinary.clear();
 	memset((void*)&mNcaHeaderSignature2Key, 0, sizeof(mNcaHeaderSignature2Key));
@@ -189,62 +189,62 @@ void nx::AccessControlInfoDescBinary::clear()
 	mKernelCapabilities.clear();
 }
 
-const crypto::rsa::sRsa2048Key& nx::AccessControlInfoDescBinary::getNcaHeaderSignature2Key() const
+const crypto::rsa::sRsa2048Key& nn::hac::AccessControlInfoDescBinary::getNcaHeaderSignature2Key() const
 {
 	return mNcaHeaderSignature2Key;
 }
 
-void nx::AccessControlInfoDescBinary::setNcaHeaderSignature2Key(const crypto::rsa::sRsa2048Key& key)
+void nn::hac::AccessControlInfoDescBinary::setNcaHeaderSignature2Key(const crypto::rsa::sRsa2048Key& key)
 {
 	mNcaHeaderSignature2Key = key;
 }
 
-const fnd::List<nx::aci::Flag>& nx::AccessControlInfoDescBinary::getFlagList() const
+const fnd::List<nn::hac::aci::Flag>& nn::hac::AccessControlInfoDescBinary::getFlagList() const
 {
 	return mFlags;
 }
 
-void nx::AccessControlInfoDescBinary::setFlagList(const fnd::List<nx::aci::Flag>& flags)
+void nn::hac::AccessControlInfoDescBinary::setFlagList(const fnd::List<nn::hac::aci::Flag>& flags)
 {
 	mFlags = flags;
 }
 
-const nx::AccessControlInfoDescBinary::sProgramIdRestrict&  nx::AccessControlInfoDescBinary::getProgramIdRestrict() const
+const nn::hac::AccessControlInfoDescBinary::sProgramIdRestrict&  nn::hac::AccessControlInfoDescBinary::getProgramIdRestrict() const
 {
 	return mProgramIdRestrict;
 }
 
-void nx::AccessControlInfoDescBinary::setProgramIdRestrict(const sProgramIdRestrict& pid_restrict)
+void nn::hac::AccessControlInfoDescBinary::setProgramIdRestrict(const sProgramIdRestrict& pid_restrict)
 {
 	mProgramIdRestrict = pid_restrict;
 }
 
-const nx::FileSystemAccessControlBinary& nx::AccessControlInfoDescBinary::getFileSystemAccessControl() const
+const nn::hac::FileSystemAccessControlBinary& nn::hac::AccessControlInfoDescBinary::getFileSystemAccessControl() const
 {
 	return mFileSystemAccessControl;
 }
 
-void nx::AccessControlInfoDescBinary::setFileSystemAccessControl(const nx::FileSystemAccessControlBinary& fac)
+void nn::hac::AccessControlInfoDescBinary::setFileSystemAccessControl(const nn::hac::FileSystemAccessControlBinary& fac)
 {
 	mFileSystemAccessControl = fac;
 }
 
-const nx::ServiceAccessControlBinary& nx::AccessControlInfoDescBinary::getServiceAccessControl() const
+const nn::hac::ServiceAccessControlBinary& nn::hac::AccessControlInfoDescBinary::getServiceAccessControl() const
 {
 	return mServiceAccessControl;
 }
 
-void nx::AccessControlInfoDescBinary::setServiceAccessControl(const nx::ServiceAccessControlBinary& sac)
+void nn::hac::AccessControlInfoDescBinary::setServiceAccessControl(const nn::hac::ServiceAccessControlBinary& sac)
 {
 	mServiceAccessControl = sac;
 }
 
-const nx::KernelCapabilityBinary& nx::AccessControlInfoDescBinary::getKernelCapabilities() const
+const nn::hac::KernelCapabilityBinary& nn::hac::AccessControlInfoDescBinary::getKernelCapabilities() const
 {
 	return mKernelCapabilities;
 }
 
-void nx::AccessControlInfoDescBinary::setKernelCapabilities(const nx::KernelCapabilityBinary& kc)
+void nn::hac::AccessControlInfoDescBinary::setKernelCapabilities(const nn::hac::KernelCapabilityBinary& kc)
 {
 	mKernelCapabilities = kc;
 }

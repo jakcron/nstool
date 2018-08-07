@@ -1,9 +1,11 @@
 #pragma once
 #include <fnd/types.h>
 #include <crypto/rsa.h>
-#include <nx/macro.h>
+#include <nn/hac/macro.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	namespace nrr
 	{
@@ -33,4 +35,5 @@ namespace nx
 		byte_t reserved_2[8];
 	};
 #pragma pack(pop)
+}
 }

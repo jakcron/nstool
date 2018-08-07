@@ -1,7 +1,9 @@
 #pragma once
-#include <nx/IKernelCapabilityHandler.h>
+#include <nn/hac/IKernelCapabilityHandler.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class MemoryMappingHandler :
 		public IKernelCapabilityHandler
@@ -75,4 +77,4 @@ namespace nx
 		fnd::List<sMemoryMapping> mMemPage;
 	};
 }
-
+}

@@ -1,16 +1,16 @@
-#include <nx/XciHeader.h>
+#include <nn/hac/XciHeader.h>
 
-nx::XciHeader::XciHeader()
+nn::hac::XciHeader::XciHeader()
 {
 	clear();
 }
 
-nx::XciHeader::XciHeader(const XciHeader& other)
+nn::hac::XciHeader::XciHeader(const XciHeader& other)
 {
 	*this = other;
 }
 
-void nx::XciHeader::operator=(const XciHeader& other)
+void nn::hac::XciHeader::operator=(const XciHeader& other)
 {
 	mRomAreaStartPage = other.mRomAreaStartPage;
 	mBackupAreaStartPage = other.mBackupAreaStartPage;
@@ -43,7 +43,7 @@ void nx::XciHeader::operator=(const XciHeader& other)
 	mUppId = other.mUppId;
 }
 
-bool nx::XciHeader::operator==(const XciHeader& other) const
+bool nn::hac::XciHeader::operator==(const XciHeader& other) const
 {
 	return	(mRomAreaStartPage == other.mRomAreaStartPage)
 		&&	(mBackupAreaStartPage == other.mBackupAreaStartPage)
@@ -76,17 +76,17 @@ bool nx::XciHeader::operator==(const XciHeader& other) const
 		&&	(mUppId == other.mUppId);
 }
 
-bool nx::XciHeader::operator!=(const XciHeader& other) const
+bool nn::hac::XciHeader::operator!=(const XciHeader& other) const
 {
 	return !(*this == other);
 }
 
-void nx::XciHeader::toBytes()
+void nn::hac::XciHeader::toBytes()
 {
 	fnd::Exception(kModuleName, "exportBinary() not implemented");
 }
 
-void nx::XciHeader::fromBytes(const byte_t* data, size_t len)
+void nn::hac::XciHeader::fromBytes(const byte_t* data, size_t len)
 {
 	// check input data size
 	if (len < sizeof(sXciHeader))
@@ -102,7 +102,7 @@ void nx::XciHeader::fromBytes(const byte_t* data, size_t len)
 	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// get sXciHeader ptr
-	const nx::sXciHeader* hdr = (const nx::sXciHeader*)mRawBinary.data();
+	const nn::hac::sXciHeader* hdr = (const nn::hac::sXciHeader*)mRawBinary.data();
 	
 	// check XCI signature
 	if (hdr->st_magic.get() != xci::kXciStructMagic)
@@ -148,13 +148,13 @@ void nx::XciHeader::fromBytes(const byte_t* data, size_t len)
 
 }
 
-const fnd::Vec<byte_t>& nx::XciHeader::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::XciHeader::getBytes() const
 {
 	return mRawBinary;
 }
 
 // variables
-void nx::XciHeader::clear()
+void nn::hac::XciHeader::clear()
 {
 	mRomAreaStartPage = 0;
 	mBackupAreaStartPage = 0;
@@ -187,293 +187,293 @@ void nx::XciHeader::clear()
 	mUppId = 0;
 }
 
-uint32_t nx::XciHeader::getRomAreaStartPage() const
+uint32_t nn::hac::XciHeader::getRomAreaStartPage() const
 {
 	return mRomAreaStartPage;
 }
 
-void nx::XciHeader::setRomAreaStartPage(uint32_t startPage)
+void nn::hac::XciHeader::setRomAreaStartPage(uint32_t startPage)
 {
 	mRomAreaStartPage = startPage;
 }
 
-uint32_t nx::XciHeader::getBackupAreaStartPage() const
+uint32_t nn::hac::XciHeader::getBackupAreaStartPage() const
 {
 	return mBackupAreaStartPage;
 }
 
-void nx::XciHeader::setBackupAreaStartPage(uint32_t startPage)
+void nn::hac::XciHeader::setBackupAreaStartPage(uint32_t startPage)
 {
 	mBackupAreaStartPage = startPage;
 }
 
-byte_t nx::XciHeader::getKekIndex() const
+byte_t nn::hac::XciHeader::getKekIndex() const
 {
 	return mKekIndex;
 }
 
-void nx::XciHeader::setKekIndex(byte_t kekIndex)
+void nn::hac::XciHeader::setKekIndex(byte_t kekIndex)
 {
 	mKekIndex = kekIndex;
 }
 
-byte_t nx::XciHeader::getTitleKeyDecIndex() const
+byte_t nn::hac::XciHeader::getTitleKeyDecIndex() const
 {
 	return mTitleKeyDecIndex;
 }
 
-void nx::XciHeader::setTitleKeyDecIndex(byte_t index)
+void nn::hac::XciHeader::setTitleKeyDecIndex(byte_t index)
 {
 	mTitleKeyDecIndex = index;
 }
 
-byte_t nx::XciHeader::getRomSizeType() const
+byte_t nn::hac::XciHeader::getRomSizeType() const
 {
 	return mRomSize;
 }
 
-void nx::XciHeader::setRomSizeType(byte_t romSizeType)
+void nn::hac::XciHeader::setRomSizeType(byte_t romSizeType)
 {
 	mRomSize = romSizeType;
 }
 
-byte_t nx::XciHeader::getCardHeaderVersion() const
+byte_t nn::hac::XciHeader::getCardHeaderVersion() const
 {
 	return mCardHeaderVersion;
 }
 
-void nx::XciHeader::setCardHeaderVersion(byte_t version)
+void nn::hac::XciHeader::setCardHeaderVersion(byte_t version)
 {
 	mCardHeaderVersion = version;
 }
 
-byte_t nx::XciHeader::getFlags() const
+byte_t nn::hac::XciHeader::getFlags() const
 {
 	return mFlags;
 }
 
-void nx::XciHeader::setFlags(byte_t flags)
+void nn::hac::XciHeader::setFlags(byte_t flags)
 {
 	mFlags = flags;
 }
 
-uint64_t nx::XciHeader::getPackageId() const
+uint64_t nn::hac::XciHeader::getPackageId() const
 {
 	return mPackageId;
 }
 
-void nx::XciHeader::setPackageId(uint64_t id)
+void nn::hac::XciHeader::setPackageId(uint64_t id)
 {
 	mPackageId = id;
 }
 
-uint32_t nx::XciHeader::getValidDataEndPage() const
+uint32_t nn::hac::XciHeader::getValidDataEndPage() const
 {
 	return mValidDataEndPage;
 }
 
-void nx::XciHeader::setValidDataEndPage(uint32_t page)
+void nn::hac::XciHeader::setValidDataEndPage(uint32_t page)
 {
 	mValidDataEndPage = page;
 }
 
-const crypto::aes::sAesIvCtr& nx::XciHeader::getAesCbcIv() const
+const crypto::aes::sAesIvCtr& nn::hac::XciHeader::getAesCbcIv() const
 {
 	return mAesCbcIv;
 }
 
-void nx::XciHeader::setAesCbcIv(const crypto::aes::sAesIvCtr& iv)
+void nn::hac::XciHeader::setAesCbcIv(const crypto::aes::sAesIvCtr& iv)
 {
 	mAesCbcIv = iv;
 }
 
-uint64_t nx::XciHeader::getPartitionFsAddress() const
+uint64_t nn::hac::XciHeader::getPartitionFsAddress() const
 {
 	return mPartitionFsHeaderAddress;
 }
 
-void nx::XciHeader::setPartitionFsAddress(uint64_t address)
+void nn::hac::XciHeader::setPartitionFsAddress(uint64_t address)
 {
 	mPartitionFsHeaderAddress = address;
 }
 
-uint64_t nx::XciHeader::getPartitionFsSize() const
+uint64_t nn::hac::XciHeader::getPartitionFsSize() const
 {
 	return mPartitionFsHeaderSize;
 }
 
-void nx::XciHeader::setPartitionFsSize(uint64_t size)
+void nn::hac::XciHeader::setPartitionFsSize(uint64_t size)
 {
 	mPartitionFsHeaderSize = size;
 }
 
-const crypto::sha::sSha256Hash& nx::XciHeader::getPartitionFsHash() const
+const crypto::sha::sSha256Hash& nn::hac::XciHeader::getPartitionFsHash() const
 {
 	return mPartitionFsHeaderHash;
 }
 
-void nx::XciHeader::setPartitionFsHash(const crypto::sha::sSha256Hash& hash)
+void nn::hac::XciHeader::setPartitionFsHash(const crypto::sha::sSha256Hash& hash)
 {
 	mPartitionFsHeaderHash = hash;
 }
 
-const crypto::sha::sSha256Hash& nx::XciHeader::getInitialDataHash() const
+const crypto::sha::sSha256Hash& nn::hac::XciHeader::getInitialDataHash() const
 {
 	return mInitialDataHash;
 }
 
-void nx::XciHeader::setInitialDataHash(const crypto::sha::sSha256Hash& hash)
+void nn::hac::XciHeader::setInitialDataHash(const crypto::sha::sSha256Hash& hash)
 {
 	mInitialDataHash = hash;
 }
 
-uint32_t nx::XciHeader::getSelSec() const
+uint32_t nn::hac::XciHeader::getSelSec() const
 {
 	return mSelSec;
 }
 
-void nx::XciHeader::setSelSec(uint32_t sel_sec)
+void nn::hac::XciHeader::setSelSec(uint32_t sel_sec)
 {
 	mSelSec = sel_sec;
 }
 
-uint32_t nx::XciHeader::getSelT1Key() const
+uint32_t nn::hac::XciHeader::getSelT1Key() const
 {
 	return mSelT1Key;
 }
 
-void nx::XciHeader::setSelT1Key(uint32_t sel_t1_key)
+void nn::hac::XciHeader::setSelT1Key(uint32_t sel_t1_key)
 {
 	mSelT1Key = sel_t1_key;
 }
 
-uint32_t nx::XciHeader::getSelKey() const
+uint32_t nn::hac::XciHeader::getSelKey() const
 {
 	return mSelKey;
 }
 
-void nx::XciHeader::setSelKey(uint32_t sel_key)
+void nn::hac::XciHeader::setSelKey(uint32_t sel_key)
 {
 	mSelKey = sel_key;
 }
 
-uint32_t nx::XciHeader::getLimAreaPage() const
+uint32_t nn::hac::XciHeader::getLimAreaPage() const
 {
 	return mLimAreaPage;
 }
 
-void nx::XciHeader::setLimAreaPage(uint32_t page)
+void nn::hac::XciHeader::setLimAreaPage(uint32_t page)
 {
 	mLimAreaPage = page;
 }
 
 
-uint32_t nx::XciHeader::getFwVerMajor() const
+uint32_t nn::hac::XciHeader::getFwVerMajor() const
 {
 	return mFwVersion[xci::FWVER_MAJOR];
 }
 
-void nx::XciHeader::setFwVerMajor(uint32_t ver)
+void nn::hac::XciHeader::setFwVerMajor(uint32_t ver)
 {
 	mFwVersion[xci::FWVER_MAJOR] = ver;
 }
 
-uint32_t nx::XciHeader::getFwVerMinor() const
+uint32_t nn::hac::XciHeader::getFwVerMinor() const
 {
 	return mFwVersion[xci::FWVER_MINOR];
 }
 
-void nx::XciHeader::setFwVerMinor(uint32_t ver)
+void nn::hac::XciHeader::setFwVerMinor(uint32_t ver)
 {
 	mFwVersion[xci::FWVER_MINOR] = ver;
 }
 
-uint32_t nx::XciHeader::getAccCtrl1() const
+uint32_t nn::hac::XciHeader::getAccCtrl1() const
 {
 	return mAccCtrl1;
 }
 
-void nx::XciHeader::setAccCtrl1(uint32_t acc_ctrl_1)
+void nn::hac::XciHeader::setAccCtrl1(uint32_t acc_ctrl_1)
 {
 	mAccCtrl1 = acc_ctrl_1;
 }
 
-uint32_t nx::XciHeader::getWait1TimeRead() const
+uint32_t nn::hac::XciHeader::getWait1TimeRead() const
 {
 	return mWait1TimeRead;
 }
 
-void nx::XciHeader::setWait1TimeRead(uint32_t seconds)
+void nn::hac::XciHeader::setWait1TimeRead(uint32_t seconds)
 {
 	mWait1TimeRead = seconds;
 }
 
-uint32_t nx::XciHeader::getWait2TimeRead() const
+uint32_t nn::hac::XciHeader::getWait2TimeRead() const
 {
 	return mWait2TimeRead;
 }
 
-void nx::XciHeader::setWait2TimeRead(uint32_t seconds)
+void nn::hac::XciHeader::setWait2TimeRead(uint32_t seconds)
 {
 	mWait2TimeRead = seconds;
 }
 
-uint32_t nx::XciHeader::getWait1TimeWrite() const
+uint32_t nn::hac::XciHeader::getWait1TimeWrite() const
 {
 	return mWait1TimeWrite;
 }
 
-void nx::XciHeader::setWait1TimeWrite(uint32_t seconds)
+void nn::hac::XciHeader::setWait1TimeWrite(uint32_t seconds)
 {
 	mWait1TimeWrite = seconds;
 }
 
-uint32_t nx::XciHeader::getWait2TimeWrite() const
+uint32_t nn::hac::XciHeader::getWait2TimeWrite() const
 {
 	return mWait2TimeWrite;
 }
 
-void nx::XciHeader::setWait2TimeWrite(uint32_t seconds)
+void nn::hac::XciHeader::setWait2TimeWrite(uint32_t seconds)
 {
 	mWait2TimeWrite = seconds;
 }
 
-uint32_t nx::XciHeader::getFwMode() const
+uint32_t nn::hac::XciHeader::getFwMode() const
 {
 	return mFwMode;
 }
 
-void nx::XciHeader::setFwMode(uint32_t fw_mode)
+void nn::hac::XciHeader::setFwMode(uint32_t fw_mode)
 {
 	mFwMode = fw_mode;
 }
 
-uint32_t nx::XciHeader::getUppVersion() const
+uint32_t nn::hac::XciHeader::getUppVersion() const
 {
 	return mUppVersion;
 }
 
-void nx::XciHeader::setUppVersion(uint32_t version)
+void nn::hac::XciHeader::setUppVersion(uint32_t version)
 {
 	mUppVersion = version;
 }
 
-const byte_t* nx::XciHeader::getUppHash() const
+const byte_t* nn::hac::XciHeader::getUppHash() const
 {
 	return mUppHash;
 }
 
-void nx::XciHeader::setUppHash(const byte_t* hash)
+void nn::hac::XciHeader::setUppHash(const byte_t* hash)
 {
 	memcpy(mUppHash, hash, xci::kUppHashLen);
 }
 
-uint64_t nx::XciHeader::getUppId() const
+uint64_t nn::hac::XciHeader::getUppId() const
 {
 	return mUppId;
 }
 
-void nx::XciHeader::setUppId(uint64_t id)
+void nn::hac::XciHeader::setUppId(uint64_t id)
 {
 	mUppId = id;
 }

@@ -3,7 +3,9 @@
 #include <fnd/types.h>
 #include <crypto/aes.h>
 
-namespace nx
+namespace nn
+{
+namespace hac
 {
 	class AesKeygen
 	{
@@ -16,4 +18,5 @@ namespace nx
 		// 3 stage key generation dst = ((src1_key.decrypt(src1)).decrypt(src2)).decrypt(src3)
 		static void generateKey(byte_t* dst, const byte_t* src1, const byte_t* src2, const byte_t* src3, const byte_t* src1_key);
 	};
+}
 }

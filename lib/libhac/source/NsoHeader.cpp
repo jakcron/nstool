@@ -1,16 +1,16 @@
-#include <nx/NsoHeader.h>
+#include <nn/hac/NsoHeader.h>
 
-nx::NsoHeader::NsoHeader()
+nn::hac::NsoHeader::NsoHeader()
 {
 	clear();
 }
 
-nx::NsoHeader::NsoHeader(const NsoHeader& other)
+nn::hac::NsoHeader::NsoHeader(const NsoHeader& other)
 {
 	*this = other;
 }
 
-void nx::NsoHeader::operator=(const NsoHeader& other)
+void nn::hac::NsoHeader::operator=(const NsoHeader& other)
 {
 	clear();
 	mModuleId = other.mModuleId;
@@ -25,7 +25,7 @@ void nx::NsoHeader::operator=(const NsoHeader& other)
 }
 
 
-bool nx::NsoHeader::operator==(const NsoHeader& other) const
+bool nn::hac::NsoHeader::operator==(const NsoHeader& other) const
 {
 	return (mModuleId == other.mModuleId) \
 		&& (mBssSize == other.mBssSize) \
@@ -38,15 +38,15 @@ bool nx::NsoHeader::operator==(const NsoHeader& other) const
 		&& (mRoDynSymInfo == other.mRoDynSymInfo);
 }
 
-bool nx::NsoHeader::operator!=(const NsoHeader& other) const
+bool nn::hac::NsoHeader::operator!=(const NsoHeader& other) const
 {
 	return !(*this == other);
 }
 
-void nx::NsoHeader::toBytes()
+void nn::hac::NsoHeader::toBytes()
 {
 	mRawBinary.alloc(sizeof(sNsoHeader));
-	nx::sNsoHeader* hdr = (nx::sNsoHeader*)mRawBinary.data();
+	nn::hac::sNsoHeader* hdr = (nn::hac::sNsoHeader*)mRawBinary.data();
 
 	// set header identifers
 	hdr->st_magic = nso::kNsoStructMagic;
@@ -125,7 +125,7 @@ void nx::NsoHeader::toBytes()
 	hdr->flags = flags;
 }
 
-void nx::NsoHeader::fromBytes(const byte_t* data, size_t len)
+void nn::hac::NsoHeader::fromBytes(const byte_t* data, size_t len)
 {
 	// check input data size
 	if (len < sizeof(sNsoHeader))
@@ -141,7 +141,7 @@ void nx::NsoHeader::fromBytes(const byte_t* data, size_t len)
 	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// get sNsoHeader ptr
-	const nx::sNsoHeader* hdr = (const nx::sNsoHeader*)mRawBinary.data();
+	const nn::hac::sNsoHeader* hdr = (const nn::hac::sNsoHeader*)mRawBinary.data();
 	
 	// check NSO signature
 	if (hdr->st_magic.get() != nso::kNsoStructMagic)
@@ -196,12 +196,12 @@ void nx::NsoHeader::fromBytes(const byte_t* data, size_t len)
 	mRoDynSymInfo.size = hdr->dyn_sym.size.get();
 }
 
-const fnd::Vec<byte_t>& nx::NsoHeader::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::NsoHeader::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::NsoHeader::clear()
+void nn::hac::NsoHeader::clear()
 {
 	mRawBinary.clear();
 	memset(&mModuleId, 0, sizeof(mModuleId));
@@ -215,92 +215,92 @@ void nx::NsoHeader::clear()
 	memset(&mRoDynSymInfo, 0, sizeof(mRoDynSymInfo));
 }
 
-const nx::NsoHeader::sModuleId& nx::NsoHeader::getModuleId() const
+const nn::hac::NsoHeader::sModuleId& nn::hac::NsoHeader::getModuleId() const
 {
 	return mModuleId;
 }
 
-void nx::NsoHeader::setModuleId(const sModuleId& id)
+void nn::hac::NsoHeader::setModuleId(const sModuleId& id)
 {
 	mModuleId = id;
 }
 
-uint32_t nx::NsoHeader::getBssSize() const
+uint32_t nn::hac::NsoHeader::getBssSize() const
 {
 	return mBssSize;
 }
 
-void nx::NsoHeader::setBssSize(uint32_t size)
+void nn::hac::NsoHeader::setBssSize(uint32_t size)
 {
 	mBssSize = size;
 }
 
-const nx::NsoHeader::sCodeSegment& nx::NsoHeader::getTextSegmentInfo() const
+const nn::hac::NsoHeader::sCodeSegment& nn::hac::NsoHeader::getTextSegmentInfo() const
 {
 	return mTextSegmentInfo;
 }
 
-void nx::NsoHeader::setTextSegmentInfo(const sCodeSegment& info)
+void nn::hac::NsoHeader::setTextSegmentInfo(const sCodeSegment& info)
 {
 	mTextSegmentInfo = info;
 }
 
-const nx::NsoHeader::sCodeSegment& nx::NsoHeader::getRoSegmentInfo() const
+const nn::hac::NsoHeader::sCodeSegment& nn::hac::NsoHeader::getRoSegmentInfo() const
 {
 	return mRoSegmentInfo;
 }
 
-void nx::NsoHeader::setRoSegmentInfo(const sCodeSegment& info)
+void nn::hac::NsoHeader::setRoSegmentInfo(const sCodeSegment& info)
 {
 	mRoSegmentInfo = info;
 }
 
-const nx::NsoHeader::sCodeSegment& nx::NsoHeader::getDataSegmentInfo() const
+const nn::hac::NsoHeader::sCodeSegment& nn::hac::NsoHeader::getDataSegmentInfo() const
 {
 	return mDataSegmentInfo;
 }
 
-void nx::NsoHeader::setDataSegmentInfo(const sCodeSegment& info)
+void nn::hac::NsoHeader::setDataSegmentInfo(const sCodeSegment& info)
 {
 	mDataSegmentInfo = info;
 }
 
-const nx::NsoHeader::sLayout& nx::NsoHeader::getModuleNameInfo() const
+const nn::hac::NsoHeader::sLayout& nn::hac::NsoHeader::getModuleNameInfo() const
 {
 	return mModuleNameInfo;
 }
 
-void nx::NsoHeader::setModuleNameInfo(const sLayout& info)
+void nn::hac::NsoHeader::setModuleNameInfo(const sLayout& info)
 {
 	mModuleNameInfo = info;
 }
 
-const nx::NsoHeader::sLayout& nx::NsoHeader::getRoEmbeddedInfo() const
+const nn::hac::NsoHeader::sLayout& nn::hac::NsoHeader::getRoEmbeddedInfo() const
 {
 	return mRoEmbeddedInfo;
 }
 
-void nx::NsoHeader::setRoEmbeddedInfo(const sLayout& info)
+void nn::hac::NsoHeader::setRoEmbeddedInfo(const sLayout& info)
 {
 	mRoEmbeddedInfo = info;
 }
 
-const nx::NsoHeader::sLayout& nx::NsoHeader::getRoDynStrInfo() const
+const nn::hac::NsoHeader::sLayout& nn::hac::NsoHeader::getRoDynStrInfo() const
 {
 	return mRoDynStrInfo;
 }
 
-void nx::NsoHeader::setRoDynStrInfo(const sLayout& info)
+void nn::hac::NsoHeader::setRoDynStrInfo(const sLayout& info)
 {
 	mRoDynStrInfo = info;
 }
 
-const nx::NsoHeader::sLayout& nx::NsoHeader::getRoDynSymInfo() const
+const nn::hac::NsoHeader::sLayout& nn::hac::NsoHeader::getRoDynSymInfo() const
 {
 	return mRoDynSymInfo;
 }
 
-void nx::NsoHeader::setRoDynSymInfo(const sLayout& info)
+void nn::hac::NsoHeader::setRoDynSymInfo(const sLayout& info)
 {
 	mRoDynSymInfo = info;
 }

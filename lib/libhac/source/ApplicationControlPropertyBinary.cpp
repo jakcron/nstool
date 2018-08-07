@@ -1,16 +1,16 @@
-#include <nx/ApplicationControlPropertyBinary.h>
+#include <nn/hac/ApplicationControlPropertyBinary.h>
 
-nx::ApplicationControlPropertyBinary::ApplicationControlPropertyBinary()
+nn::hac::ApplicationControlPropertyBinary::ApplicationControlPropertyBinary()
 {
 	clear();
 }
 
-nx::ApplicationControlPropertyBinary::ApplicationControlPropertyBinary(const ApplicationControlPropertyBinary& other)
+nn::hac::ApplicationControlPropertyBinary::ApplicationControlPropertyBinary(const ApplicationControlPropertyBinary& other)
 {
 	*this = other;
 }
 
-void nx::ApplicationControlPropertyBinary::operator=(const ApplicationControlPropertyBinary& other)
+void nn::hac::ApplicationControlPropertyBinary::operator=(const ApplicationControlPropertyBinary& other)
 {
 	clear();
 	mTitle = other.mTitle;
@@ -54,7 +54,7 @@ void nx::ApplicationControlPropertyBinary::operator=(const ApplicationControlPro
 	mProgramIndex = other.mProgramIndex;
 }
 
-bool nx::ApplicationControlPropertyBinary::operator==(const ApplicationControlPropertyBinary& other) const
+bool nn::hac::ApplicationControlPropertyBinary::operator==(const ApplicationControlPropertyBinary& other) const
 {
 	return (mTitle == other.mTitle) \
 		&& (mIsbn == other.mIsbn) \
@@ -97,14 +97,14 @@ bool nx::ApplicationControlPropertyBinary::operator==(const ApplicationControlPr
 		&& (mProgramIndex == other.mProgramIndex);
 }
 
-bool nx::ApplicationControlPropertyBinary::operator!=(const ApplicationControlPropertyBinary& other) const
+bool nn::hac::ApplicationControlPropertyBinary::operator!=(const ApplicationControlPropertyBinary& other) const
 {
 	return !(*this == other);
 }
 
-void nx::ApplicationControlPropertyBinary::toBytes()
+void nn::hac::ApplicationControlPropertyBinary::toBytes()
 {
-	mRawBinary.alloc(sizeof(nx::sApplicationControlProperty));
+	mRawBinary.alloc(sizeof(nn::hac::sApplicationControlProperty));
 
 	sApplicationControlProperty* data = (sApplicationControlProperty*)mRawBinary.data();
 
@@ -182,16 +182,16 @@ void nx::ApplicationControlPropertyBinary::toBytes()
 	data->cache_storage_data_and_journal_size_max = mCacheStorageDataAndJournalSizeMax;
 }
 
-void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t len)
+void nn::hac::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t len)
 {
-	if (len < sizeof(nx::sApplicationControlProperty))
+	if (len < sizeof(nn::hac::sApplicationControlProperty))
 	{
 		throw fnd::Exception(kModuleName, "NACP too small");
 	}
 
 	clear();
 
-	mRawBinary.alloc(sizeof(nx::sApplicationControlProperty));
+	mRawBinary.alloc(sizeof(nn::hac::sApplicationControlProperty));
 	memcpy(mRawBinary.data(), bytes, mRawBinary.size());
 
 	const sApplicationControlProperty* data = (const sApplicationControlProperty*)mRawBinary.data();
@@ -275,12 +275,12 @@ void nx::ApplicationControlPropertyBinary::fromBytes(const byte_t* bytes, size_t
 	mCacheStorageDataAndJournalSizeMax = (int64_t)data->cache_storage_data_and_journal_size_max.get();
 }
 
-const fnd::Vec<byte_t>& nx::ApplicationControlPropertyBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::ApplicationControlPropertyBinary::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nx::ApplicationControlPropertyBinary::clear()
+void nn::hac::ApplicationControlPropertyBinary::clear()
 {
 	mRawBinary.clear();
 	mTitle.clear();
@@ -324,392 +324,392 @@ void nx::ApplicationControlPropertyBinary::clear()
 	mProgramIndex = 0;
 }
 
-const fnd::List<nx::ApplicationControlPropertyBinary::sTitle>& nx::ApplicationControlPropertyBinary::getTitle() const
+const fnd::List<nn::hac::ApplicationControlPropertyBinary::sTitle>& nn::hac::ApplicationControlPropertyBinary::getTitle() const
 {
 	return mTitle;
 }
 
-void nx::ApplicationControlPropertyBinary::setTitle(const fnd::List<sTitle>& title)
+void nn::hac::ApplicationControlPropertyBinary::setTitle(const fnd::List<sTitle>& title)
 {
 	mTitle = title;
 }
 
-const std::string& nx::ApplicationControlPropertyBinary::getIsbn() const
+const std::string& nn::hac::ApplicationControlPropertyBinary::getIsbn() const
 {
 	return mIsbn;
 }
 
-void nx::ApplicationControlPropertyBinary::setIsbn(const std::string& isbn)
+void nn::hac::ApplicationControlPropertyBinary::setIsbn(const std::string& isbn)
 {
 	mIsbn = isbn;
 }
 
-nx::nacp::StartupUserAccount nx::ApplicationControlPropertyBinary::getStartupUserAccount() const
+nn::hac::nacp::StartupUserAccount nn::hac::ApplicationControlPropertyBinary::getStartupUserAccount() const
 {
 	return mStartupUserAccount;
 }
 
-void nx::ApplicationControlPropertyBinary::setStartupUserAccount(nacp::StartupUserAccount var)
+void nn::hac::ApplicationControlPropertyBinary::setStartupUserAccount(nacp::StartupUserAccount var)
 {
 	mStartupUserAccount = var;
 }
 
-nx::nacp::TouchScreenUsageMode nx::ApplicationControlPropertyBinary::getTouchScreenUsageMode() const
+nn::hac::nacp::TouchScreenUsageMode nn::hac::ApplicationControlPropertyBinary::getTouchScreenUsageMode() const
 {
 	return mTouchScreenUsageMode;
 }
 
-void nx::ApplicationControlPropertyBinary::setTouchScreenUsageMode(nacp::TouchScreenUsageMode var)
+void nn::hac::ApplicationControlPropertyBinary::setTouchScreenUsageMode(nacp::TouchScreenUsageMode var)
 {
 	mTouchScreenUsageMode = var;
 }
 
-nx::nacp::AocRegistrationType nx::ApplicationControlPropertyBinary::getAocRegistrationType() const
+nn::hac::nacp::AocRegistrationType nn::hac::ApplicationControlPropertyBinary::getAocRegistrationType() const
 {
 	return mAocRegistrationType;
 }
 
-void nx::ApplicationControlPropertyBinary::setAocRegistrationType(nacp::AocRegistrationType var)
+void nn::hac::ApplicationControlPropertyBinary::setAocRegistrationType(nacp::AocRegistrationType var)
 {
 	mAocRegistrationType = var;
 }
 
-nx::nacp::AttributeFlag nx::ApplicationControlPropertyBinary::getAttributeFlag() const
+nn::hac::nacp::AttributeFlag nn::hac::ApplicationControlPropertyBinary::getAttributeFlag() const
 {
 	return mAttributeFlag;
 }
 
-void nx::ApplicationControlPropertyBinary::setAttributeFlag(nacp::AttributeFlag var)
+void nn::hac::ApplicationControlPropertyBinary::setAttributeFlag(nacp::AttributeFlag var)
 {
 	mAttributeFlag = var;
 }
 
-const fnd::List<nx::nacp::Language>& nx::ApplicationControlPropertyBinary::getSupportedLanguages() const
+const fnd::List<nn::hac::nacp::Language>& nn::hac::ApplicationControlPropertyBinary::getSupportedLanguages() const
 {
 	return mSupportedLanguages;
 }
 
-void nx::ApplicationControlPropertyBinary::setSupportedLanguages(const fnd::List<nacp::Language>& var)
+void nn::hac::ApplicationControlPropertyBinary::setSupportedLanguages(const fnd::List<nacp::Language>& var)
 {
 	mSupportedLanguages = var;
 }
 
-nx::nacp::ParentalControlFlag nx::ApplicationControlPropertyBinary::getParentalControlFlag() const
+nn::hac::nacp::ParentalControlFlag nn::hac::ApplicationControlPropertyBinary::getParentalControlFlag() const
 {
 	return mParentalControlFlag;
 }
 
-void nx::ApplicationControlPropertyBinary::setParentalControlFlag(nacp::ParentalControlFlag var)
+void nn::hac::ApplicationControlPropertyBinary::setParentalControlFlag(nacp::ParentalControlFlag var)
 {
 	mParentalControlFlag = var;
 }
 
-nx::nacp::ScreenshotMode nx::ApplicationControlPropertyBinary::getScreenshotMode() const
+nn::hac::nacp::ScreenshotMode nn::hac::ApplicationControlPropertyBinary::getScreenshotMode() const
 {
 	return mScreenshotMode;
 }
 
-void nx::ApplicationControlPropertyBinary::setScreenshotMode(nacp::ScreenshotMode var)
+void nn::hac::ApplicationControlPropertyBinary::setScreenshotMode(nacp::ScreenshotMode var)
 {
 	mScreenshotMode = var;
 }
 
-nx::nacp::VideoCaptureMode nx::ApplicationControlPropertyBinary::getVideoCaptureMode() const
+nn::hac::nacp::VideoCaptureMode nn::hac::ApplicationControlPropertyBinary::getVideoCaptureMode() const
 {
 	return mVideoCaptureMode;
 }
 
-void nx::ApplicationControlPropertyBinary::setVideoCaptureMode(nacp::VideoCaptureMode var)
+void nn::hac::ApplicationControlPropertyBinary::setVideoCaptureMode(nacp::VideoCaptureMode var)
 {
 	mVideoCaptureMode = var;
 }
 
-nx::nacp::DataLossConfirmation nx::ApplicationControlPropertyBinary::getDataLossConfirmation() const
+nn::hac::nacp::DataLossConfirmation nn::hac::ApplicationControlPropertyBinary::getDataLossConfirmation() const
 {
 	return mDataLossConfirmation;
 }
 
-void nx::ApplicationControlPropertyBinary::setDataLossConfirmation(nacp::DataLossConfirmation var)
+void nn::hac::ApplicationControlPropertyBinary::setDataLossConfirmation(nacp::DataLossConfirmation var)
 {
 	mDataLossConfirmation = var;
 }
 
-nx::nacp::PlayLogPolicy nx::ApplicationControlPropertyBinary::getPlayLogPolicy() const
+nn::hac::nacp::PlayLogPolicy nn::hac::ApplicationControlPropertyBinary::getPlayLogPolicy() const
 {
 	return mPlayLogPolicy;
 }
 
-void nx::ApplicationControlPropertyBinary::setPlayLogPolicy(nacp::PlayLogPolicy var)
+void nn::hac::ApplicationControlPropertyBinary::setPlayLogPolicy(nacp::PlayLogPolicy var)
 {
 	mPlayLogPolicy = var;
 }
 
-uint64_t nx::ApplicationControlPropertyBinary::getPresenceGroupId() const
+uint64_t nn::hac::ApplicationControlPropertyBinary::getPresenceGroupId() const
 {
 	return mPresenceGroupId;
 }
 
-void nx::ApplicationControlPropertyBinary::setPresenceGroupId(uint64_t var)
+void nn::hac::ApplicationControlPropertyBinary::setPresenceGroupId(uint64_t var)
 {
 	mPresenceGroupId = var;
 }
 
-const fnd::List<nx::ApplicationControlPropertyBinary::sRating>& nx::ApplicationControlPropertyBinary::getRatingAge() const
+const fnd::List<nn::hac::ApplicationControlPropertyBinary::sRating>& nn::hac::ApplicationControlPropertyBinary::getRatingAge() const
 {
 	return mRatingAge;
 }
 
-void nx::ApplicationControlPropertyBinary::setRatingAge(const fnd::List<sRating>& var)
+void nn::hac::ApplicationControlPropertyBinary::setRatingAge(const fnd::List<sRating>& var)
 {
 	mRatingAge = var;
 }
 
-const std::string& nx::ApplicationControlPropertyBinary::getDisplayVersion() const
+const std::string& nn::hac::ApplicationControlPropertyBinary::getDisplayVersion() const
 {
 	return mDisplayVersion;
 }
 
-void nx::ApplicationControlPropertyBinary::setDisplayVersion(const std::string& var)
+void nn::hac::ApplicationControlPropertyBinary::setDisplayVersion(const std::string& var)
 {
 	mDisplayVersion = var;
 }
 
-uint64_t nx::ApplicationControlPropertyBinary::getAocBaseId() const
+uint64_t nn::hac::ApplicationControlPropertyBinary::getAocBaseId() const
 {
 	return mAocBaseId;
 }
 
-void nx::ApplicationControlPropertyBinary::setAocBaseId(uint64_t var)
+void nn::hac::ApplicationControlPropertyBinary::setAocBaseId(uint64_t var)
 {
 	mAocBaseId = var;
 }
 
-uint64_t nx::ApplicationControlPropertyBinary::getSaveDatawOwnerId() const
+uint64_t nn::hac::ApplicationControlPropertyBinary::getSaveDatawOwnerId() const
 {
 	return mSaveDatawOwnerId;
 }
 
-void nx::ApplicationControlPropertyBinary::setSaveDatawOwnerId(uint64_t var)
+void nn::hac::ApplicationControlPropertyBinary::setSaveDatawOwnerId(uint64_t var)
 {
 	mSaveDatawOwnerId = var;
 }
 
-const nx::ApplicationControlPropertyBinary::sStorageSize& nx::ApplicationControlPropertyBinary::getUserAccountSaveDataSize() const
+const nn::hac::ApplicationControlPropertyBinary::sStorageSize& nn::hac::ApplicationControlPropertyBinary::getUserAccountSaveDataSize() const
 {
 	return mUserAccountSaveDataSize;
 }
 
-void nx::ApplicationControlPropertyBinary::setUserAccountSaveDataSize(const sStorageSize& var)
+void nn::hac::ApplicationControlPropertyBinary::setUserAccountSaveDataSize(const sStorageSize& var)
 {
 	mUserAccountSaveDataSize = var;
 }
 
-const nx::ApplicationControlPropertyBinary::sStorageSize& nx::ApplicationControlPropertyBinary::getDeviceSaveDataSize() const
+const nn::hac::ApplicationControlPropertyBinary::sStorageSize& nn::hac::ApplicationControlPropertyBinary::getDeviceSaveDataSize() const
 {
 	return mDeviceSaveDataSize;
 }
 
-void nx::ApplicationControlPropertyBinary::setDeviceSaveDataSize(const sStorageSize& var)
+void nn::hac::ApplicationControlPropertyBinary::setDeviceSaveDataSize(const sStorageSize& var)
 {
 	mDeviceSaveDataSize = var;
 }
 
-int64_t nx::ApplicationControlPropertyBinary::getBcatDeliveryCacheStorageSize() const
+int64_t nn::hac::ApplicationControlPropertyBinary::getBcatDeliveryCacheStorageSize() const
 {
 	return mBcatDeliveryCacheStorageSize;
 }
 
-void nx::ApplicationControlPropertyBinary::setBcatDeliveryCacheStorageSize(int64_t var)
+void nn::hac::ApplicationControlPropertyBinary::setBcatDeliveryCacheStorageSize(int64_t var)
 {
 	mBcatDeliveryCacheStorageSize = var;
 }
 
-const std::string& nx::ApplicationControlPropertyBinary::getApplicationErrorCodeCategory() const
+const std::string& nn::hac::ApplicationControlPropertyBinary::getApplicationErrorCodeCategory() const
 {
 	return mApplicationErrorCodeCategory;
 }
 
-void nx::ApplicationControlPropertyBinary::setApplicationErrorCodeCategory(const std::string& var)
+void nn::hac::ApplicationControlPropertyBinary::setApplicationErrorCodeCategory(const std::string& var)
 {
 	mApplicationErrorCodeCategory = var;
 }
 
-const fnd::List<uint64_t>& nx::ApplicationControlPropertyBinary::getLocalCommunicationId() const
+const fnd::List<uint64_t>& nn::hac::ApplicationControlPropertyBinary::getLocalCommunicationId() const
 {
 	return mLocalCommunicationId;
 }
 
-void nx::ApplicationControlPropertyBinary::setLocalCommunicationId(const fnd::List<uint64_t>& var)
+void nn::hac::ApplicationControlPropertyBinary::setLocalCommunicationId(const fnd::List<uint64_t>& var)
 {
 	mLocalCommunicationId = var;
 }
 
-nx::nacp::LogoType nx::ApplicationControlPropertyBinary::getLogoType() const
+nn::hac::nacp::LogoType nn::hac::ApplicationControlPropertyBinary::getLogoType() const
 {
 	return mLogoType;
 }
 
-void nx::ApplicationControlPropertyBinary::setLogoType(nacp::LogoType var)
+void nn::hac::ApplicationControlPropertyBinary::setLogoType(nacp::LogoType var)
 {
 	mLogoType = var;
 }
 
-nx::nacp::LogoHandling nx::ApplicationControlPropertyBinary::getLogoHandling() const
+nn::hac::nacp::LogoHandling nn::hac::ApplicationControlPropertyBinary::getLogoHandling() const
 {
 	return mLogoHandling;
 }
 
-void nx::ApplicationControlPropertyBinary::setLogoHandling(nacp::LogoHandling var)
+void nn::hac::ApplicationControlPropertyBinary::setLogoHandling(nacp::LogoHandling var)
 {
 	mLogoHandling = var;
 }
 
-nx::nacp::RuntimeAocInstallMode nx::ApplicationControlPropertyBinary::getRuntimeAocInstallMode() const
+nn::hac::nacp::RuntimeAocInstallMode nn::hac::ApplicationControlPropertyBinary::getRuntimeAocInstallMode() const
 {
 	return mRuntimeAocInstallMode;
 }
 
-void nx::ApplicationControlPropertyBinary::setRuntimeAocInstallMode(nacp::RuntimeAocInstallMode var)
+void nn::hac::ApplicationControlPropertyBinary::setRuntimeAocInstallMode(nacp::RuntimeAocInstallMode var)
 {
 	mRuntimeAocInstallMode = var;
 }
 
-nx::nacp::CrashReportMode nx::ApplicationControlPropertyBinary::getCrashReportMode() const
+nn::hac::nacp::CrashReportMode nn::hac::ApplicationControlPropertyBinary::getCrashReportMode() const
 {
 	return mCrashReportMode;
 }
 
-void nx::ApplicationControlPropertyBinary::setCrashReportMode(nacp::CrashReportMode var)
+void nn::hac::ApplicationControlPropertyBinary::setCrashReportMode(nacp::CrashReportMode var)
 {
 	mCrashReportMode = var;
 }
 
-nx::nacp::Hdcp nx::ApplicationControlPropertyBinary::getHdcp() const
+nn::hac::nacp::Hdcp nn::hac::ApplicationControlPropertyBinary::getHdcp() const
 {
 	return mHdcp;
 }
 
-void nx::ApplicationControlPropertyBinary::setHdcp(nacp::Hdcp var)
+void nn::hac::ApplicationControlPropertyBinary::setHdcp(nacp::Hdcp var)
 {
 	mHdcp = var;
 }
 
-uint64_t nx::ApplicationControlPropertyBinary::getSeedForPsuedoDeviceId() const
+uint64_t nn::hac::ApplicationControlPropertyBinary::getSeedForPsuedoDeviceId() const
 {
 	return mSeedForPsuedoDeviceId;
 }
 
-void nx::ApplicationControlPropertyBinary::setSeedForPsuedoDeviceId(uint64_t var)
+void nn::hac::ApplicationControlPropertyBinary::setSeedForPsuedoDeviceId(uint64_t var)
 {
 	mSeedForPsuedoDeviceId = var;
 }
 
-const std::string& nx::ApplicationControlPropertyBinary::getBcatPassphase() const
+const std::string& nn::hac::ApplicationControlPropertyBinary::getBcatPassphase() const
 {
 	return mBcatPassphase;
 }
 
-void nx::ApplicationControlPropertyBinary::setBcatPassphase(const std::string& var)
+void nn::hac::ApplicationControlPropertyBinary::setBcatPassphase(const std::string& var)
 {
 	mBcatPassphase = var;
 }
 
-const nx::ApplicationControlPropertyBinary::sStorageSize& nx::ApplicationControlPropertyBinary::getUserAccountSaveDataMax() const
+const nn::hac::ApplicationControlPropertyBinary::sStorageSize& nn::hac::ApplicationControlPropertyBinary::getUserAccountSaveDataMax() const
 {
 	return mUserAccountSaveDataMax;
 }
 
-void nx::ApplicationControlPropertyBinary::setUserAccountSaveDataMax(const sStorageSize& var)
+void nn::hac::ApplicationControlPropertyBinary::setUserAccountSaveDataMax(const sStorageSize& var)
 {
 	mUserAccountSaveDataMax = var;
 }
 
-const nx::ApplicationControlPropertyBinary::sStorageSize& nx::ApplicationControlPropertyBinary::getDeviceSaveDataMax() const
+const nn::hac::ApplicationControlPropertyBinary::sStorageSize& nn::hac::ApplicationControlPropertyBinary::getDeviceSaveDataMax() const
 {
 	return mDeviceSaveDataMax;
 }
 
-void nx::ApplicationControlPropertyBinary::setDeviceSaveDataMax(const sStorageSize& var)
+void nn::hac::ApplicationControlPropertyBinary::setDeviceSaveDataMax(const sStorageSize& var)
 {
 	mDeviceSaveDataMax = var;
 }
 
-int64_t nx::ApplicationControlPropertyBinary::getTemporaryStorageSize() const
+int64_t nn::hac::ApplicationControlPropertyBinary::getTemporaryStorageSize() const
 {
 	return mTemporaryStorageSize;
 }
 
-void nx::ApplicationControlPropertyBinary::setTemporaryStorageSize(int64_t var)
+void nn::hac::ApplicationControlPropertyBinary::setTemporaryStorageSize(int64_t var)
 {
 	mTemporaryStorageSize = var;
 }
 
-const nx::ApplicationControlPropertyBinary::sStorageSize& nx::ApplicationControlPropertyBinary::getCacheStorageSize() const
+const nn::hac::ApplicationControlPropertyBinary::sStorageSize& nn::hac::ApplicationControlPropertyBinary::getCacheStorageSize() const
 {
 	return mCacheStorageSize;
 }
 
-void nx::ApplicationControlPropertyBinary::setCacheStorageSize(const sStorageSize& var)
+void nn::hac::ApplicationControlPropertyBinary::setCacheStorageSize(const sStorageSize& var)
 {
 	mCacheStorageSize = var;
 }
 
-int64_t nx::ApplicationControlPropertyBinary::getCacheStorageDataAndJournalSizeMax() const
+int64_t nn::hac::ApplicationControlPropertyBinary::getCacheStorageDataAndJournalSizeMax() const
 {
 	return mCacheStorageDataAndJournalSizeMax;
 }
 
-void nx::ApplicationControlPropertyBinary::setCacheStorageDataAndJournalSizeMax(int64_t var)
+void nn::hac::ApplicationControlPropertyBinary::setCacheStorageDataAndJournalSizeMax(int64_t var)
 {
 	mCacheStorageDataAndJournalSizeMax = var;
 }
 
-uint16_t nx::ApplicationControlPropertyBinary::getCacheStorageIndexMax() const
+uint16_t nn::hac::ApplicationControlPropertyBinary::getCacheStorageIndexMax() const
 {
 	return mCacheStorageIndexMax;
 }
 
-void nx::ApplicationControlPropertyBinary::setCacheStorageIndexMax(uint16_t var)
+void nn::hac::ApplicationControlPropertyBinary::setCacheStorageIndexMax(uint16_t var)
 {
 	mCacheStorageIndexMax = var;
 }
 
-const fnd::List<uint64_t>& nx::ApplicationControlPropertyBinary::getPlayLogQueryableApplicationId() const
+const fnd::List<uint64_t>& nn::hac::ApplicationControlPropertyBinary::getPlayLogQueryableApplicationId() const
 {
 	return mPlayLogQueryableApplicationId;
 }
 
-void nx::ApplicationControlPropertyBinary::setPlayLogQueryableApplicationId(const fnd::List<uint64_t>& var)
+void nn::hac::ApplicationControlPropertyBinary::setPlayLogQueryableApplicationId(const fnd::List<uint64_t>& var)
 {
 	mPlayLogQueryableApplicationId = var;
 }
 
-nx::nacp::PlayLogQueryCapability nx::ApplicationControlPropertyBinary::getPlayLogQueryCapability() const
+nn::hac::nacp::PlayLogQueryCapability nn::hac::ApplicationControlPropertyBinary::getPlayLogQueryCapability() const
 {
 	return mPlayLogQueryCapability;
 }
 
-void nx::ApplicationControlPropertyBinary::setPlayLogQueryCapability(nacp::PlayLogQueryCapability var)
+void nn::hac::ApplicationControlPropertyBinary::setPlayLogQueryCapability(nacp::PlayLogQueryCapability var)
 {
 	mPlayLogQueryCapability = var;
 }
 
-nx::nacp::RepairFlag nx::ApplicationControlPropertyBinary::getRepairFlag() const
+nn::hac::nacp::RepairFlag nn::hac::ApplicationControlPropertyBinary::getRepairFlag() const
 {
 	return mRepairFlag;
 }
 
-void nx::ApplicationControlPropertyBinary::setRepairFlag(nacp::RepairFlag var)
+void nn::hac::ApplicationControlPropertyBinary::setRepairFlag(nacp::RepairFlag var)
 {
 	mRepairFlag = var;
 }
 
-byte_t nx::ApplicationControlPropertyBinary::getProgramIndex() const
+byte_t nn::hac::ApplicationControlPropertyBinary::getProgramIndex() const
 {
 	return mProgramIndex;
 }
 
-void nx::ApplicationControlPropertyBinary::setProgramIndex(byte_t var)
+void nn::hac::ApplicationControlPropertyBinary::setProgramIndex(byte_t var)
 {
 	mProgramIndex = var;
 }

@@ -1,5 +1,5 @@
 #include <compress/lz4.h>
-#include "lz4/lz4.h"
+#include <lz4.h>
 
 void compress::lz4::compressData(const uint8_t* src, uint32_t src_len, uint8_t* dst, uint32_t dst_capacity, uint32_t& compressed_size)
 {
