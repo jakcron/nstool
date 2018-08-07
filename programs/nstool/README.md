@@ -1,5 +1,5 @@
 # Nintendo Switch Tool (NSTool) ![DeviceTag](https://img.shields.io/badge/Device-SWITCH-e60012.svg)
-General purpose reading/extration tool for Nintendo Switch file formats.
+General purpose reading/extraction tool for Nintendo Switch file formats.
 
 ## Supported File Formats
 * NPDM (.npdm)
