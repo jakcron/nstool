@@ -1,5 +1,19 @@
-# Format
-Programs in NXTools currently recognise the following keys (## represents a hexadecimal number between 00 and 1F):
+
+# About
+Keyset files are ASCII text files containing one key per line, in the form "__key_name = HEXADECIMALKEY__". Case and whitespace do not matter, ';' character can be used to insert comments.
+
+# Loading keyset files automatically
+If a keyset file is located in ___$HOME/.switch/___ it will be loaded automatically.
+
+# General Keys (prod.keys and dev.keys)
+Some switch files formats feature encryption and or cryptographic signatures. In order to process these file formats, some keys are required. These keys can be supplied via a keyfile: ___prod.keys___ (or ___dev.keys___ for devkit variants).
+
+This keyset file can be provided via the command line (refer to usage for details).
+
+
+
+## Format
+The following keys are recognised (## represents a hexadecimal number between 00 and 1F):
 
 ```
 ; Key Sources
@@ -47,8 +61,8 @@ acid_sign_key_modulus            : RSA2048 Modulus (0x100 bytes)
 acid_sign_key_private            : RSA2048 Private Exponent (0x100 bytes)
 ```
 
-# Compatibility with hactool keyset files
-NXTools keyset files share the same keyset file format as [hactool](https://github.com/SciresM/hactool/blob/master/KEYS.md), but names of keys may differ. For compatibility, hactool names for equivalent keys are accepted.
+## Compatibility with hactool keyset files
+`prod.keys` (and `dev.keys`) keyset files share the same keyset file format as [hactool](https://github.com/SciresM/hactool/blob/master/KEYS.md), but names of keys may differ. For compatibility, hactool names for equivalent keys are accepted.
 ```
 titlekek_source                  : hactool alias for ticket_commonkey_source
 header_key_source                : hactool alias for nca_header_key_source

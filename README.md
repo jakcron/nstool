@@ -1,35 +1,22 @@
-# NXTools
+# NNTools
 
-Tools & Libraries for NX (Nintendo Switch).
+Tools & Libraries for Nintendo devices.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 # Tools
-
-* __nstool__ - read *.npdm, read/extract PartitionFS (PFS0|HFS0) blobs (including *.nsp), read/extract RomFS blobs, read/extract *.xci, read/extract *.nca, read *.cnmt, read *.nso, read *.nro, read *.nacp
+* [__nstool__](/programs/nstool/README.md) - General purpose reading/extraction tool for Nintendo Switch file formats.
 
 # Libraries
-
 * __libfnd__ - Foundation library.
 * __libcrypto__ - Cryptographic functions (AES,SHA,RSA). Wrapper for [mbedTLS](https://github.com/ARMmbed/mbedtls)
 * __libcompress__ - Compression algorithms (LZ4). Wrapper for [lz4](https://github.com/lz4/lz4)
 * __libpki__ - Processes Nintendo's proprietary PKI.
 * __libes__ - Processes Nintendo's eShop file types.
-* __libnx__  - Processes NX file types.
-* __libnx-hb__ - Processes NX file types (homebrew extensions).
+* __libhac__  - Processes Nintendo Switch file types.
+* __libhac-hb__ - Processes Nintendo Switch file types (homebrew extensions).
 
 # Building
-
 On MacOS/Linux/WSL run `make`.
 
 For Windows, Visual Studio 2017 is supported.
-
-# External Keys
-
-Programs/libraries don't embed any keys that are copyright protected. However keys can be imported via a keyset file. 
-
-For programs that support it, the keyset file can be provided via the command line (see program usage for details). Alternatively a keyset file located in ___$HOME/.switch/prod.keys___ (or ___$HOME/.switch/dev.keys___ for dev) will be imported automatically if one is not provided at the command line.
-
-Keyset files are ASCII text files containing one key per line, in the form "__key_name = HEXADECIMALKEY__". Case and whitespace do not matter, ';' character can be used to insert comments.
-
-See [KEYS.md](/KEYS.md) for more details.
