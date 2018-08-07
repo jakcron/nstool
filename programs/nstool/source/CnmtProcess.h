@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
-#include <nx/ContentMetaBinary.h>
+#include <nn/hac/ContentMetaBinary.h>
 
 #include "nstool.h"
 
@@ -18,7 +18,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	const nx::ContentMetaBinary& getContentMetaBinary() const;
+	const nn::hac::ContentMetaBinary& getContentMetaBinary() const;
 
 private:
 	const std::string kModuleName = "CnmtProcess";
@@ -28,7 +28,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nx::ContentMetaBinary mCnmt;
+	nn::hac::ContentMetaBinary mCnmt;
 
 	void displayCmnt();
 };

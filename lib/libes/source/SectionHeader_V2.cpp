@@ -1,16 +1,14 @@
-#include <es/SectionHeader_V2.h>
+#include <nn/es/SectionHeader_V2.h>
 
-
-
-es::SectionHeader_V2::SectionHeader_V2()
+nn::es::SectionHeader_V2::SectionHeader_V2()
 {}
 
-es::SectionHeader_V2::SectionHeader_V2(const SectionHeader_V2 & other)
+nn::es::SectionHeader_V2::SectionHeader_V2(const SectionHeader_V2 & other)
 {
 	*this = other;
 }
 
-void es::SectionHeader_V2::operator=(const SectionHeader_V2 & other)
+void nn::es::SectionHeader_V2::operator=(const SectionHeader_V2 & other)
 {
 	if (other.getBytes().size())
 	{
@@ -27,7 +25,7 @@ void es::SectionHeader_V2::operator=(const SectionHeader_V2 & other)
 	}
 }
 
-bool es::SectionHeader_V2::operator==(const SectionHeader_V2 & other) const
+bool nn::es::SectionHeader_V2::operator==(const SectionHeader_V2 & other) const
 {
 	return (mSectionOffset == other.mSectionOffset) \
 		&& (mRecordSize == other.mRecordSize) \
@@ -36,12 +34,12 @@ bool es::SectionHeader_V2::operator==(const SectionHeader_V2 & other) const
 		&& (mSectionType == other.mSectionType);
 }
 
-bool es::SectionHeader_V2::operator!=(const SectionHeader_V2 & other) const
+bool nn::es::SectionHeader_V2::operator!=(const SectionHeader_V2 & other) const
 {
 	return !(*this ==other);
 }
 
-void es::SectionHeader_V2::toBytes()
+void nn::es::SectionHeader_V2::toBytes()
 {
 	mRawBinary.alloc(sizeof(sSectionHeader_v2));
 	sSectionHeader_v2* hdr = (sSectionHeader_v2*)mRawBinary.data();
@@ -53,7 +51,7 @@ void es::SectionHeader_V2::toBytes()
 	hdr->section_type = (mSectionType);
 }
 
-void es::SectionHeader_V2::fromBytes(const byte_t * bytes, size_t len)
+void nn::es::SectionHeader_V2::fromBytes(const byte_t * bytes, size_t len)
 {
 	if (len < sizeof(sSectionHeader_v2))
 	{
@@ -73,12 +71,12 @@ void es::SectionHeader_V2::fromBytes(const byte_t * bytes, size_t len)
 	mSectionType = (ticket::SectionType)hdr->section_type.get();
 }
 
-const fnd::Vec<byte_t>& es::SectionHeader_V2::getBytes() const
+const fnd::Vec<byte_t>& nn::es::SectionHeader_V2::getBytes() const
 {
 	return mRawBinary;
 }
 
-void es::SectionHeader_V2::clear()
+void nn::es::SectionHeader_V2::clear()
 {
 	mRawBinary.clear();
 	mSectionOffset = 0;
@@ -88,52 +86,52 @@ void es::SectionHeader_V2::clear()
 	mSectionType = ticket::SECTION_PERMANENT;
 }
 
-uint32_t es::SectionHeader_V2::getSectionOffset() const
+uint32_t nn::es::SectionHeader_V2::getSectionOffset() const
 {
 	return mSectionOffset;
 }
 
-void es::SectionHeader_V2::setSectionOffset(uint32_t offset)
+void nn::es::SectionHeader_V2::setSectionOffset(uint32_t offset)
 {
 	mSectionOffset = offset;
 }
 
-uint32_t es::SectionHeader_V2::getRecordSize() const
+uint32_t nn::es::SectionHeader_V2::getRecordSize() const
 {
 	return mRecordSize;
 }
 
-void es::SectionHeader_V2::setRecordSize(uint32_t size)
+void nn::es::SectionHeader_V2::setRecordSize(uint32_t size)
 {
 	mRecordSize = size;
 }
 
-uint32_t es::SectionHeader_V2::getSectionSize() const
+uint32_t nn::es::SectionHeader_V2::getSectionSize() const
 {
 	return mSectionSize;
 }
 
-void es::SectionHeader_V2::getSectionSize(uint32_t size)
+void nn::es::SectionHeader_V2::getSectionSize(uint32_t size)
 {
 	mSectionSize = size;
 }
 
-uint16_t es::SectionHeader_V2::getRecordNum() const
+uint16_t nn::es::SectionHeader_V2::getRecordNum() const
 {
 	return mRecordNum;
 }
 
-void es::SectionHeader_V2::setRecordNum(uint16_t record_num)
+void nn::es::SectionHeader_V2::setRecordNum(uint16_t record_num)
 {
 	mRecordNum = record_num;
 }
 
-es::ticket::SectionType es::SectionHeader_V2::getSectionType() const
+nn::es::ticket::SectionType nn::es::SectionHeader_V2::getSectionType() const
 {
 	return mSectionType;
 }
 
-void es::SectionHeader_V2::setSectionType(ticket::SectionType type)
+void nn::es::SectionHeader_V2::setSectionType(ticket::SectionType type)
 {
 	mSectionType = type;
 }

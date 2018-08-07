@@ -1,7 +1,7 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/Vec.h>
-#include <compress/lz4.h>
-#include <nx/nro-hb.h>
+#include <fnd/lz4.h>
+#include <nn/hac/nro-hb.h>
 #include "OffsetAdjustedIFile.h"
 #include "NroProcess.h"
 
@@ -56,7 +56,7 @@ void NroProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void NroProcess::setInstructionType(nx::npdm::InstructionType type)
+void NroProcess::setInstructionType(nn::hac::npdm::InstructionType type)
 {
 	mRoMeta.setInstructionType(type);
 }
@@ -99,19 +99,19 @@ const RoMetadataProcess& NroProcess::getRoMetadataProcess() const
 void NroProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
-	if (mFile->size() < sizeof(nx::sNroHeader))
+	if (mFile->size() < sizeof(nn::hac::sNroHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt NRO: file too small");
 	}
 
-	scratch.alloc(sizeof(nx::sNroHeader));
+	scratch.alloc(sizeof(nn::hac::sNroHeader));
 	mFile->read(scratch.data(), 0, scratch.size());
 
 	mHdr.fromBytes(scratch.data(), scratch.size());
 
 	// setup homebrew extension
-	nx::sNroHeader* raw_hdr = (nx::sNroHeader*)scratch.data();
-	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nx::nro::kNroHomebrewStructMagic && mFile->size() > mHdr.getNroSize())
+	nn::hac::sNroHeader* raw_hdr = (nn::hac::sNroHeader*)scratch.data();
+	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nn::hac::nro::kNroHomebrewStructMagic && mFile->size() > mHdr.getNroSize())
 	{
 		mIsHomebrewNro = true;
 		mAssetProc.setInputFile(new OffsetAdjustedIFile(mFile, false, mHdr.getNroSize(), mFile->size() - mHdr.getNroSize()), true);
@@ -137,10 +137,10 @@ void NroProcess::displayHeader()
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
 	printf("[NRO Header]\n");
 	printf("  RoCrt:       ");
-	_HEXDUMP_L(mHdr.getRoCrt().data, nx::nro::kRoCrtSize);
+	_HEXDUMP_L(mHdr.getRoCrt().data, nn::hac::nro::kRoCrtSize);
 	printf("\n");
 	printf("  ModuleId:    ");
-	_HEXDUMP_L(mHdr.getModuleId().data, nx::nro::kModuleIdSize);
+	_HEXDUMP_L(mHdr.getModuleId().data, nn::hac::nro::kModuleIdSize);
 	printf("\n");
 	printf("  NroSize:     0x%" PRIx32 "\n", mHdr.getNroSize());
 	printf("  Program Sections:\n");

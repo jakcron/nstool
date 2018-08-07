@@ -3,8 +3,8 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
-#include <nx/npdm.h>
-#include <nx/NsoHeader.h>
+#include <nn/hac/npdm.h>
+#include <nn/hac/NsoHeader.h>
 
 #include "nstool.h"
 #include "RoMetadataProcess.h"
@@ -21,7 +21,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	void setInstructionType(nx::npdm::InstructionType type);
+	void setInstructionType(nn::hac::npdm::InstructionType type);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
@@ -34,11 +34,11 @@ private:
 
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
-	nx::npdm::InstructionType mInstructionType;
+	nn::hac::npdm::InstructionType mInstructionType;
 	bool mListApi;
 	bool mListSymbols;
 
-	nx::NsoHeader mHdr;
+	nn::hac::NsoHeader mHdr;
 	fnd::Vec<byte_t> mTextBlob, mRoBlob, mDataBlob;
 	RoMetadataProcess mRoMeta;
 

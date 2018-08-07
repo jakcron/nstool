@@ -33,13 +33,13 @@ void PfsProcess::process()
 	}
 	
 	// open minimum header to get full header size
-	scratch.alloc(sizeof(nx::sPfsHeader));
+	scratch.alloc(sizeof(nn::hac::sPfsHeader));
 	mFile->read(scratch.data(), 0, scratch.size());
-	if (validateHeaderMagic(((nx::sPfsHeader*)scratch.data())) == false)
+	if (validateHeaderMagic(((nn::hac::sPfsHeader*)scratch.data())) == false)
 	{
 		throw fnd::Exception(kModuleName, "Corrupt Header");
 	}
-	size_t pfsHeaderSize = determineHeaderSize(((nx::sPfsHeader*)scratch.data()));
+	size_t pfsHeaderSize = determineHeaderSize(((nn::hac::sPfsHeader*)scratch.data()));
 	
 	// open minimum header to get full header size
 	scratch.alloc(pfsHeaderSize);
@@ -90,7 +90,7 @@ void PfsProcess::setListFs(bool list_fs)
 	mListFs = list_fs;
 }
 
-const nx::PfsHeader& PfsProcess::getPfsHeader() const
+const nn::hac::PfsHeader& PfsProcess::getPfsHeader() const
 {
 	return mPfs;
 }
@@ -124,31 +124,31 @@ void PfsProcess::displayFs()
 	}
 }
 
-size_t PfsProcess::determineHeaderSize(const nx::sPfsHeader* hdr)
+size_t PfsProcess::determineHeaderSize(const nn::hac::sPfsHeader* hdr)
 {
 	size_t fileEntrySize = 0;
-	if (hdr->st_magic.get() == nx::pfs::kPfsStructMagic)
-		fileEntrySize = sizeof(nx::sPfsFile);
+	if (hdr->st_magic.get() == nn::hac::pfs::kPfsStructMagic)
+		fileEntrySize = sizeof(nn::hac::sPfsFile);
 	else
-		fileEntrySize = sizeof(nx::sHashedPfsFile);
+		fileEntrySize = sizeof(nn::hac::sHashedPfsFile);
 
-	return sizeof(nx::sPfsHeader) + hdr->file_num.get() * fileEntrySize + hdr->name_table_size.get();
+	return sizeof(nn::hac::sPfsHeader) + hdr->file_num.get() * fileEntrySize + hdr->name_table_size.get();
 }
 
-bool PfsProcess::validateHeaderMagic(const nx::sPfsHeader* hdr)
+bool PfsProcess::validateHeaderMagic(const nn::hac::sPfsHeader* hdr)
 {
-	return hdr->st_magic.get() == nx::pfs::kPfsStructMagic || hdr->st_magic.get() == nx::pfs::kHashedPfsStructMagic;
+	return hdr->st_magic.get() == nn::hac::pfs::kPfsStructMagic || hdr->st_magic.get() == nn::hac::pfs::kHashedPfsStructMagic;
 }
 
 void PfsProcess::validateHfs()
 {
-	crypto::sha::sSha256Hash hash;
-	const fnd::List<nx::PfsHeader::sFile>& file = mPfs.getFileList();
+	fnd::sha::sSha256Hash hash;
+	const fnd::List<nn::hac::PfsHeader::sFile>& file = mPfs.getFileList();
 	for (size_t i = 0; i < file.size(); i++)
 	{
 		mCache.alloc(file[i].hash_protected_size);
 		mFile->read(mCache.data(), file[i].offset, file[i].hash_protected_size);
-		crypto::sha::Sha256(mCache.data(), file[i].hash_protected_size, hash.bytes);
+		fnd::sha::Sha256(mCache.data(), file[i].hash_protected_size, hash.bytes);
 		if (hash != file[i].hash)
 		{
 			printf("[WARNING] HFS0 %s%s%s: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", file[i].name.c_str());
@@ -165,7 +165,7 @@ void PfsProcess::extractFs()
 	fnd::io::makeDirectory(mExtractPath);
 
 	fnd::SimpleFile outFile;
-	const fnd::List<nx::PfsHeader::sFile>& file = mPfs.getFileList();
+	const fnd::List<nn::hac::PfsHeader::sFile>& file = mPfs.getFileList();
 
 	std::string file_path;
 	for (size_t i = 0; i < file.size(); i++)

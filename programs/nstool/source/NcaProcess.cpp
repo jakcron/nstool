@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <fnd/SimpleTextOutput.h>
-#include <nx/NcaUtils.h>
-#include <nx/AesKeygen.h>
+#include <nn/hac/NcaUtils.h>
+#include <nn/hac/AesKeygen.h>
 #include "NcaProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
@@ -11,15 +11,15 @@
 #include "AesCtrWrappedIFile.h"
 #include "HashTreeWrappedIFile.h"
 
-const char* getFormatVersionStr(nx::NcaHeader::FormatVersion format_ver)
+const char* getFormatVersionStr(nn::hac::NcaHeader::FormatVersion format_ver)
 {
 	const char* str;
 	switch (format_ver)
 	{
-		case (nx::NcaHeader::NCA2_FORMAT):
+		case (nn::hac::NcaHeader::NCA2_FORMAT):
 			str = "NCA2";
 			break;
-		case (nx::NcaHeader::NCA3_FORMAT):
+		case (nn::hac::NcaHeader::NCA3_FORMAT):
 			str = "NCA3";
 			break;
 		default:
@@ -29,15 +29,15 @@ const char* getFormatVersionStr(nx::NcaHeader::FormatVersion format_ver)
 	return str;
 }
 
-const char* getDistributionTypeStr(nx::nca::DistributionType dist_type)
+const char* getDistributionTypeStr(nn::hac::nca::DistributionType dist_type)
 {
 	const char* str;
 	switch (dist_type)
 	{
-		case (nx::nca::DIST_DOWNLOAD):
+		case (nn::hac::nca::DIST_DOWNLOAD):
 			str = "Download";
 			break;
-		case (nx::nca::DIST_GAME_CARD):
+		case (nn::hac::nca::DIST_GAME_CARD):
 			str = "Game Card";
 			break;
 		default:
@@ -48,27 +48,27 @@ const char* getDistributionTypeStr(nx::nca::DistributionType dist_type)
 }
 
 
- const char* getContentTypeStr(nx::nca::ContentType cont_type)
+ const char* getContentTypeStr(nn::hac::nca::ContentType cont_type)
 {
 	const char* str;
 	switch (cont_type)
 	{
-		case (nx::nca::TYPE_PROGRAM):
+		case (nn::hac::nca::TYPE_PROGRAM):
 			str = "Program";
 			break;
-		case (nx::nca::TYPE_META):
+		case (nn::hac::nca::TYPE_META):
 			str = "Meta";
 			break;
-		case (nx::nca::TYPE_CONTROL):
+		case (nn::hac::nca::TYPE_CONTROL):
 			str = "Control";
 			break;
-		case (nx::nca::TYPE_MANUAL):
+		case (nn::hac::nca::TYPE_MANUAL):
 			str = "Manual";
 			break;
-		case (nx::nca::TYPE_DATA):
+		case (nn::hac::nca::TYPE_DATA):
 			str = "Data";
 			break;
-		case (nx::nca::TYPE_PUBLIC_DATA):
+		case (nn::hac::nca::TYPE_PUBLIC_DATA):
 			str = "PublicData";
 			break;
 		default:
@@ -78,24 +78,24 @@ const char* getDistributionTypeStr(nx::nca::DistributionType dist_type)
 	return str;
 }
 
-const char* getEncryptionTypeStr(nx::nca::EncryptionType enc_type)
+const char* getEncryptionTypeStr(nn::hac::nca::EncryptionType enc_type)
 {
 	const char* str;
 	switch (enc_type)
 	{
-		case (nx::nca::CRYPT_AUTO):
+		case (nn::hac::nca::CRYPT_AUTO):
 			str = "Auto";
 			break;
-		case (nx::nca::CRYPT_NONE):
+		case (nn::hac::nca::CRYPT_NONE):
 			str = "None";
 			break;
-		case (nx::nca::CRYPT_AESXTS):
+		case (nn::hac::nca::CRYPT_AESXTS):
 			str = "AesXts";
 			break;
-		case (nx::nca::CRYPT_AESCTR):
+		case (nn::hac::nca::CRYPT_AESCTR):
 			str = "AesCtr";
 			break;
-		case (nx::nca::CRYPT_AESCTREX):
+		case (nn::hac::nca::CRYPT_AESCTREX):
 			str = "AesCtrEx";
 			break;
 		default:
@@ -105,21 +105,21 @@ const char* getEncryptionTypeStr(nx::nca::EncryptionType enc_type)
 	return str;
 }
 
-inline const char* getHashTypeStr(nx::nca::HashType hash_type)
+inline const char* getHashTypeStr(nn::hac::nca::HashType hash_type)
 {
 	const char* str;
 	switch (hash_type)
 	{
-		case (nx::nca::HASH_AUTO):
+		case (nn::hac::nca::HASH_AUTO):
 			str = "Auto";
 			break;
-		case (nx::nca::HASH_NONE):
+		case (nn::hac::nca::HASH_NONE):
 			str = "None";
 			break;
-		case (nx::nca::HASH_HIERARCHICAL_SHA256):
+		case (nn::hac::nca::HASH_HIERARCHICAL_SHA256):
 			str = "HierarchicalSha256";
 			break;
-		case (nx::nca::HASH_HIERARCHICAL_INTERGRITY):
+		case (nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY):
 			str = "HierarchicalIntegrity";
 			break;
 		default:
@@ -129,15 +129,15 @@ inline const char* getHashTypeStr(nx::nca::HashType hash_type)
 	return str;
 }
 
-inline const char* getFormatTypeStr(nx::nca::FormatType format_type)
+inline const char* getFormatTypeStr(nn::hac::nca::FormatType format_type)
 {
 	const char* str;
 	switch (format_type)
 	{
-		case (nx::nca::FORMAT_ROMFS):
+		case (nn::hac::nca::FORMAT_ROMFS):
 			str = "RomFs";
 			break;
-		case (nx::nca::FORMAT_PFS0):
+		case (nn::hac::nca::FORMAT_PFS0):
 			str = "PartitionFs";
 			break;
 		default:
@@ -147,18 +147,18 @@ inline const char* getFormatTypeStr(nx::nca::FormatType format_type)
 	return str;
 }
 
-inline const char* getKaekIndexStr(nx::nca::KeyAreaEncryptionKeyIndex keak_index)
+inline const char* getKaekIndexStr(nn::hac::nca::KeyAreaEncryptionKeyIndex keak_index)
 {
 	const char* str;
 	switch (keak_index)
 	{
-		case (nx::nca::KAEK_IDX_APPLICATION):
+		case (nn::hac::nca::KAEK_IDX_APPLICATION):
 			str = "Application";
 			break;
-		case (nx::nca::KAEK_IDX_OCEAN):
+		case (nn::hac::nca::KAEK_IDX_OCEAN):
 			str = "Ocean";
 			break;
-		case (nx::nca::KAEK_IDX_SYSTEM):
+		case (nn::hac::nca::KAEK_IDX_SYSTEM):
 			str = "System";
 			break;
 		default:
@@ -168,27 +168,27 @@ inline const char* getKaekIndexStr(nx::nca::KeyAreaEncryptionKeyIndex keak_index
 	return str;
 }
 
-inline const char* getContentTypeForMountStr(nx::nca::ContentType cont_type)
+inline const char* getContentTypeForMountStr(nn::hac::nca::ContentType cont_type)
 {
 	const char* str;
 	switch (cont_type)
 	{
-		case (nx::nca::TYPE_PROGRAM):
+		case (nn::hac::nca::TYPE_PROGRAM):
 			str = "program";
 			break;
-		case (nx::nca::TYPE_META):
+		case (nn::hac::nca::TYPE_META):
 			str = "meta";
 			break;
-		case (nx::nca::TYPE_CONTROL):
+		case (nn::hac::nca::TYPE_CONTROL):
 			str = "control";
 			break;
-		case (nx::nca::TYPE_MANUAL):
+		case (nn::hac::nca::TYPE_MANUAL):
 			str = "manual";
 			break;
-		case (nx::nca::TYPE_DATA):
+		case (nn::hac::nca::TYPE_DATA):
 			str = "data";
 			break;
-		case (nx::nca::TYPE_PUBLIC_DATA):
+		case (nn::hac::nca::TYPE_PUBLIC_DATA):
 			str = "publicData";
 			break;
 		default:
@@ -203,13 +203,13 @@ const char* getProgramPartitionNameStr(size_t i)
 	const char* str;
 	switch (i)
 	{
-		case (nx::nca::PARTITION_CODE):
+		case (nn::hac::nca::PARTITION_CODE):
 			str = "code";
 			break;
-		case (nx::nca::PARTITION_DATA):
+		case (nn::hac::nca::PARTITION_DATA):
 			str = "data";
 			break;
-		case (nx::nca::PARTITION_LOGO):
+		case (nn::hac::nca::PARTITION_LOGO):
 			str = "logo";
 			break;
 		default:
@@ -228,7 +228,7 @@ NcaProcess::NcaProcess() :
 	mVerify(false),
 	mListFs(false)
 {
-	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
+	for (size_t i = 0; i < nn::hac::nca::kPartitionNum; i++)
 	{
 		mPartitionPath[i].doExtract = false;
 		mPartitions[i].reader = nullptr;
@@ -242,7 +242,7 @@ NcaProcess::~NcaProcess()
 		delete mFile;
 	}
 
-	for (size_t i = 0; i < nx::nca::kPartitionNum; i++)
+	for (size_t i = 0; i < nn::hac::nca::kPartitionNum; i++)
 	{
 		if (mPartitions[i].reader != nullptr)
 		{
@@ -259,16 +259,16 @@ void NcaProcess::process()
 	}
 	
 	// read header block
-	mFile->read((byte_t*)&mHdrBlock, 0, sizeof(nx::sNcaHeaderBlock));
+	mFile->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
 	
 	// decrypt header block
-	nx::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
+	nn::hac::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
 
 	// generate header hash
-	crypto::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader), mHdrHash.bytes);
+	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader), mHdrHash.bytes);
 
 	// proccess main header
-	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nx::sNcaHeader));
+	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader));
 
 	// determine keys
 	generateNcaBodyEncryptionKeys();
@@ -341,18 +341,18 @@ void NcaProcess::setListFs(bool list_fs)
 void NcaProcess::generateNcaBodyEncryptionKeys()
 {
 	// create zeros key
-	crypto::aes::sAes128Key zero_aesctr_key;
+	fnd::aes::sAes128Key zero_aesctr_key;
 	memset(zero_aesctr_key.key, 0, sizeof(zero_aesctr_key));
-	crypto::aes::sAesXts128Key zero_aesxts_key;
+	fnd::aes::sAesXts128Key zero_aesxts_key;
 	memset(zero_aesxts_key.key, 0, sizeof(zero_aesxts_key));
 	
 	// get key data from header
-	byte_t masterkey_rev = nx::NcaUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
+	byte_t masterkey_rev = nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
 	byte_t keak_index = mHdr.getKaekIndex();
 
 	// process key area
 	sKeys::sKeyAreaKey keak;
-	for (size_t i = 0; i < nx::nca::kAesKeyNum; i++)
+	for (size_t i = 0; i < nn::hac::nca::kAesKeyNum; i++)
 	{
 		if (mHdr.getEncAesKeys()[i] != zero_aesctr_key)
 		{
@@ -361,7 +361,7 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 			if (i < 4 && mKeyset->nca.key_area_key[keak_index][masterkey_rev] != zero_aesctr_key)
 			{
 				keak.decrypted = true;
-				nx::AesKeygen::generateKey(keak.dec.key, keak.enc.key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
+				nn::hac::AesKeygen::generateKey(keak.dec.key, keak.enc.key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
 			}
 			else
 			{
@@ -384,13 +384,13 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 			// the title key is provided (sourced from ticket)
 			if (mKeyset->nca.manual_title_key_aesctr != zero_aesctr_key)
 			{
-				nx::AesKeygen::generateKey(mBodyKeys.aes_ctr.var.key, mKeyset->nca.manual_title_key_aesctr.key, mKeyset->ticket.titlekey_kek[masterkey_rev].key);
+				nn::hac::AesKeygen::generateKey(mBodyKeys.aes_ctr.var.key, mKeyset->nca.manual_title_key_aesctr.key, mKeyset->ticket.titlekey_kek[masterkey_rev].key);
 				mBodyKeys.aes_ctr.isSet = true;
 			}
 			if (mKeyset->nca.manual_title_key_aesxts != zero_aesxts_key)
 			{
-				nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[0], mKeyset->nca.manual_title_key_aesxts.key[0], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
-				nx::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[1], mKeyset->nca.manual_title_key_aesxts.key[1], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
+				nn::hac::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[0], mKeyset->nca.manual_title_key_aesxts.key[0], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
+				nn::hac::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[1], mKeyset->nca.manual_title_key_aesxts.key[1], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
 				mBodyKeys.aes_xts.isSet = true;
 			}
 		}
@@ -398,21 +398,21 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	// otherwise decrypt key area
 	else
 	{
-		crypto::aes::sAes128Key keak_aesctr_key = zero_aesctr_key;
-		crypto::aes::sAesXts128Key keak_aesxts_key = zero_aesxts_key;
+		fnd::aes::sAes128Key keak_aesctr_key = zero_aesctr_key;
+		fnd::aes::sAesXts128Key keak_aesxts_key = zero_aesxts_key;
 		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
 		{
-			if (mBodyKeys.keak_list[i].index == nx::nca::KEY_AESCTR && mBodyKeys.keak_list[i].decrypted)
+			if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESCTR && mBodyKeys.keak_list[i].decrypted)
 			{
 				keak_aesctr_key = mBodyKeys.keak_list[i].dec;
 			}
-			else if (mBodyKeys.keak_list[i].index == nx::nca::KEY_AESXTS_0 && mBodyKeys.keak_list[i].decrypted)
+			else if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESXTS_0 && mBodyKeys.keak_list[i].decrypted)
 			{
-				memcpy(keak_aesxts_key.key[0], mBodyKeys.keak_list[i].dec.key, sizeof(crypto::aes::sAes128Key));
+				memcpy(keak_aesxts_key.key[0], mBodyKeys.keak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
 			}
-			else if (mBodyKeys.keak_list[i].index == nx::nca::KEY_AESXTS_1 && mBodyKeys.keak_list[i].decrypted)
+			else if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESXTS_1 && mBodyKeys.keak_list[i].decrypted)
 			{
-				memcpy(keak_aesxts_key.key[1], mBodyKeys.keak_list[i].dec.key, sizeof(crypto::aes::sAes128Key));
+				memcpy(keak_aesxts_key.key[1], mBodyKeys.keak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
 			}
 		}
 
@@ -465,15 +465,15 @@ void NcaProcess::generatePartitionConfiguration()
 	for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
 	{
 		// get reference to relevant structures
-		const nx::NcaHeader::sPartition& partition = mHdr.getPartitions()[i];
-		nx::sNcaFsHeader& fs_header = mHdrBlock.fs_header[partition.index];
+		const nn::hac::NcaHeader::sPartition& partition = mHdr.getPartitions()[i];
+		nn::hac::sNcaFsHeader& fs_header = mHdrBlock.fs_header[partition.index];
 
 		// output structure
 		sPartitionInfo& info = mPartitions[partition.index];
 
 		// validate header hash
-		crypto::sha::sSha256Hash calc_hash;
-		crypto::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.index], sizeof(nx::sNcaFsHeader), calc_hash.bytes);
+		fnd::sha::sSha256Hash calc_hash;
+		fnd::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.index], sizeof(nn::hac::sNcaFsHeader), calc_hash.bytes);
 		if (calc_hash.compare(partition.hash) == false)
 		{
 			error.clear();
@@ -482,7 +482,7 @@ void NcaProcess::generatePartitionConfiguration()
 		}
 			
 
-		if (fs_header.version.get() != nx::nca::kDefaultFsHeaderVersion)
+		if (fs_header.version.get() != nn::hac::nca::kDefaultFsHeaderVersion)
 		{
 			error.clear();
 			error <<  "NCA FS Header [" << partition.index << "] Version(" << fs_header.version.get() << "): UNSUPPORTED";
@@ -490,19 +490,19 @@ void NcaProcess::generatePartitionConfiguration()
 		}
 
 		// setup AES-CTR 
-		nx::NcaUtils::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.iv);
+		nn::hac::NcaUtils::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.iv);
 
 		// save partition config
 		info.reader = nullptr;
 		info.offset = partition.offset;
 		info.size = partition.size;
-		info.format_type = (nx::nca::FormatType)fs_header.format_type;
-		info.hash_type = (nx::nca::HashType)fs_header.hash_type;
-		info.enc_type = (nx::nca::EncryptionType)fs_header.encryption_type;
-		if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
-			info.hash_tree_meta.importData(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen, HashTreeMeta::HASH_TYPE_SHA256);
-		else if (info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
-			info.hash_tree_meta.importData(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen, HashTreeMeta::HASH_TYPE_INTEGRITY);
+		info.format_type = (nn::hac::nca::FormatType)fs_header.format_type;
+		info.hash_type = (nn::hac::nca::HashType)fs_header.hash_type;
+		info.enc_type = (nn::hac::nca::EncryptionType)fs_header.encryption_type;
+		if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256)
+			info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, HashTreeMeta::HASH_TYPE_SHA256);
+		else if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
+			info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, HashTreeMeta::HASH_TYPE_INTEGRITY);
 
 		// create reader
 		try 
@@ -510,8 +510,8 @@ void NcaProcess::generatePartitionConfiguration()
 			// filter out unrecognised format types
 			switch (info.format_type)
 			{
-				case (nx::nca::FORMAT_PFS0):
-				case (nx::nca::FORMAT_ROMFS):
+				case (nn::hac::nca::FORMAT_PFS0):
+				case (nn::hac::nca::FORMAT_ROMFS):
 					break;
 				default:
 					error.clear();
@@ -520,17 +520,17 @@ void NcaProcess::generatePartitionConfiguration()
 			}
 
 			// create reader based on encryption type0
-			if (info.enc_type == nx::nca::CRYPT_NONE)
+			if (info.enc_type == nn::hac::nca::CRYPT_NONE)
 			{
 				info.reader = new OffsetAdjustedIFile(mFile, SHARED_IFILE, info.offset, info.size);
 			}
-			else if (info.enc_type == nx::nca::CRYPT_AESCTR)
+			else if (info.enc_type == nn::hac::nca::CRYPT_AESCTR)
 			{
 				if (mBodyKeys.aes_ctr.isSet == false)
 					throw fnd::Exception(kModuleName, "AES-CTR Key was not determined");
 				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mFile, SHARED_IFILE, mBodyKeys.aes_ctr.var, info.aes_ctr), OWN_IFILE, info.offset, info.size);
 			}
-			else if (info.enc_type == nx::nca::CRYPT_AESXTS || info.enc_type == nx::nca::CRYPT_AESCTREX)
+			else if (info.enc_type == nn::hac::nca::CRYPT_AESXTS || info.enc_type == nn::hac::nca::CRYPT_AESCTREX)
 			{
 				error.clear();
 				error <<  "EncryptionType(" << getEncryptionTypeStr(info.enc_type) << "): UNSUPPORTED";
@@ -544,13 +544,13 @@ void NcaProcess::generatePartitionConfiguration()
 			}
 
 			// filter out unrecognised hash types, and hash based readers
-			if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256 || info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
+			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256 || info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{	
 				fnd::IFile* tmp = info.reader;
 				info.reader = nullptr;
 				info.reader = new HashTreeWrappedIFile(tmp, OWN_IFILE, info.hash_tree_meta);
 			}
-			else if (info.hash_type != nx::nca::HASH_NONE)
+			else if (info.hash_type != nn::hac::nca::HASH_NONE)
 			{
 				error.clear();
 				error <<  "HashType(" << info.hash_type << "): UNKNOWN";
@@ -570,34 +570,34 @@ void NcaProcess::generatePartitionConfiguration()
 void NcaProcess::validateNcaSignatures()
 {
 	// validate signature[0]
-	if (crypto::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
+	if (fnd::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
 	{
 		printf("[WARNING] NCA Header Main Signature: FAIL \n");
 	}
 
 	// validate signature[1]
-	if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
+	if (mHdr.getContentType() == nn::hac::nca::TYPE_PROGRAM)
 	{
-		if (mPartitions[nx::nca::PARTITION_CODE].format_type == nx::nca::FORMAT_PFS0)
+		if (mPartitions[nn::hac::nca::PARTITION_CODE].format_type == nn::hac::nca::FORMAT_PFS0)
 		{
-			if (mPartitions[nx::nca::PARTITION_CODE].reader != nullptr)
+			if (mPartitions[nn::hac::nca::PARTITION_CODE].reader != nullptr)
 			{
 				PfsProcess exefs;
-				exefs.setInputFile(mPartitions[nx::nca::PARTITION_CODE].reader, SHARED_IFILE);
+				exefs.setInputFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, SHARED_IFILE);
 				exefs.setCliOutputMode(0);
 				exefs.process();
 
 				// open main.npdm
 				if (exefs.getPfsHeader().getFileList().hasElement(kNpdmExefsPath) == true)
 				{
-					const nx::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
+					const nn::hac::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
 
 					NpdmProcess npdm;
-					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nx::nca::PARTITION_CODE].reader, SHARED_IFILE, file.offset, file.size), OWN_IFILE);
+					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, SHARED_IFILE, file.offset, file.size), OWN_IFILE);
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
-					if (crypto::rsa::pss::rsaVerify(npdm.getNpdmBinary().getAcid().getNcaHeaderSignature2Key(), crypto::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					if (fnd::rsa::pss::rsaVerify(npdm.getNpdmBinary().getAcid().getNcaHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
 						printf("[WARNING] NCA Header ACID Signature: FAIL \n");
 					}
@@ -630,7 +630,7 @@ void NcaProcess::displayHeader()
 	printf("  Dist. Type:      %s\n", getDistributionTypeStr(mHdr.getDistributionType()));
 	printf("  Content Type:    %s\n", getContentTypeStr(mHdr.getContentType()));
 	printf("  Key Generation:  %d\n", mHdr.getKeyGeneration());
-	printf("  Kaek Index:      %s (%d)\n", getKaekIndexStr((nx::nca::KeyAreaEncryptionKeyIndex)mHdr.getKaekIndex()), mHdr.getKaekIndex());
+	printf("  Kaek Index:      %s (%d)\n", getKaekIndexStr((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKaekIndex()), mHdr.getKaekIndex());
 	printf("  Size:            0x%" PRIx64 "\n", mHdr.getContentSize());
 	printf("  ProgID:          0x%016" PRIx64 "\n", mHdr.getProgramId());
 	printf("  Content Index:   %" PRIu32 "\n", mHdr.getContentIndex());
@@ -640,7 +640,7 @@ void NcaProcess::displayHeader()
 	if (mHdr.hasRightsId())
 	{
 		printf("  RightsId:        ");
-		fnd::SimpleTextOutput::hexDump(mHdr.getRightsId(), nx::nca::kRightsIdLen);
+		fnd::SimpleTextOutput::hexDump(mHdr.getRightsId(), nn::hac::nca::kRightsIdLen);
 	}
 	
 
@@ -683,14 +683,14 @@ void NcaProcess::displayHeader()
 			printf("      Format Type: %s\n", getFormatTypeStr(info.format_type));
 			printf("      Hash Type:   %s\n", getHashTypeStr(info.hash_type));
 			printf("      Enc. Type:   %s\n", getEncryptionTypeStr(info.enc_type));
-			if (info.enc_type == nx::nca::CRYPT_AESCTR)
+			if (info.enc_type == nn::hac::nca::CRYPT_AESCTR)
 			{
 				printf("        AES-CTR:     ");
-				crypto::aes::sAesIvCtr ctr;
-				crypto::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
-				fnd::SimpleTextOutput::hexDump(ctr.iv, sizeof(crypto::aes::sAesIvCtr));
+				fnd::aes::sAesIvCtr ctr;
+				fnd::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
+				fnd::SimpleTextOutput::hexDump(ctr.iv, sizeof(fnd::aes::sAesIvCtr));
 			}
-			if (info.hash_type == nx::nca::HASH_HIERARCHICAL_INTERGRITY)
+			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{
 				HashTreeMeta& hash_hdr = info.hash_tree_meta;
 				printf("      HierarchicalIntegrity Header:\n");
@@ -712,15 +712,15 @@ void NcaProcess::displayHeader()
 				for (size_t j = 0; j < hash_hdr.getMasterHashList().size(); j++)
 				{
 					printf("        Master Hash %d:     ", (int)j);
-					fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(crypto::sha::sSha256Hash));
+					fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(fnd::sha::sSha256Hash));
 				}
 			}
-			else if (info.hash_type == nx::nca::HASH_HIERARCHICAL_SHA256)
+			else if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256)
 			{
 				HashTreeMeta& hash_hdr = info.hash_tree_meta;
 				printf("      HierarchicalSha256 Header:\n");
 				printf("        Master Hash:       ");
-				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(crypto::sha::sSha256Hash));
+				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(fnd::sha::sSha256Hash));
 				printf("        HashBlockSize:     0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
 				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().size());
 				printf("        Hash Layer:\n");
@@ -733,7 +733,7 @@ void NcaProcess::displayHeader()
 			//else
 			//{
 			//	printf("      Hash Superblock:\n");
-			//	fnd::SimpleTextOutput::hxdStyleDump(fs_header.hash_superblock, nx::nca::kFsHeaderHashSuperblockLen);
+			//	fnd::SimpleTextOutput::hxdStyleDump(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen);
 			//}
 		}
 	}
@@ -762,13 +762,13 @@ void NcaProcess::processPartitions()
 			continue;
 		}
 
-		if (partition.format_type == nx::nca::FORMAT_PFS0)
+		if (partition.format_type == nn::hac::nca::FORMAT_PFS0)
 		{
 			PfsProcess pfs;
 			pfs.setInputFile(partition.reader, SHARED_IFILE);
 			pfs.setCliOutputMode(mCliOutputMode);
 			pfs.setListFs(mListFs);
-			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
+			if (mHdr.getContentType() == nn::hac::nca::TYPE_PROGRAM)
 			{
 				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + std::string(getProgramPartitionNameStr(index)));
 			}
@@ -783,13 +783,13 @@ void NcaProcess::processPartitions()
 			pfs.process();
 			//printf("pfs.process() end\n");
 		}
-		else if (partition.format_type == nx::nca::FORMAT_ROMFS)
+		else if (partition.format_type == nn::hac::nca::FORMAT_ROMFS)
 		{
 			RomfsProcess romfs;
 			romfs.setInputFile(partition.reader, SHARED_IFILE);
 			romfs.setCliOutputMode(mCliOutputMode);
 			romfs.setListFs(mListFs);
-			if (mHdr.getContentType() == nx::nca::TYPE_PROGRAM)
+			if (mHdr.getContentType() == nn::hac::nca::TYPE_PROGRAM)
 			{
 				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + std::string(getProgramPartitionNameStr(index)));
 			}

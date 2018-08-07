@@ -3,54 +3,54 @@
 #include "OffsetAdjustedIFile.h"
 #include "NacpProcess.h"
 
-const char* getLanguageStr(nx::nacp::Language var)
+const char* getLanguageStr(nn::hac::nacp::Language var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::LANG_AmericanEnglish):
+	case (nn::hac::nacp::LANG_AmericanEnglish):
 		str = "AmericanEnglish";
 		break;
-	case (nx::nacp::LANG_BritishEnglish):
+	case (nn::hac::nacp::LANG_BritishEnglish):
 		str = "BritishEnglish";
 		break;
-	case (nx::nacp::LANG_Japanese):
+	case (nn::hac::nacp::LANG_Japanese):
 		str = "Japanese";
 		break;
-	case (nx::nacp::LANG_French):
+	case (nn::hac::nacp::LANG_French):
 		str = "French";
 		break;
-	case (nx::nacp::LANG_German):
+	case (nn::hac::nacp::LANG_German):
 		str = "German";
 		break;
-	case (nx::nacp::LANG_LatinAmericanSpanish):
+	case (nn::hac::nacp::LANG_LatinAmericanSpanish):
 		str = "LatinAmericanSpanish";
 		break;
-	case (nx::nacp::LANG_Spanish):
+	case (nn::hac::nacp::LANG_Spanish):
 		str = "Spanish";
 		break;
-	case (nx::nacp::LANG_Italian):
+	case (nn::hac::nacp::LANG_Italian):
 		str = "Italian";
 		break;
-	case (nx::nacp::LANG_Dutch):
+	case (nn::hac::nacp::LANG_Dutch):
 		str = "Dutch";
 		break;
-	case (nx::nacp::LANG_CanadianFrench):
+	case (nn::hac::nacp::LANG_CanadianFrench):
 		str = "CanadianFrench";
 		break;
-	case (nx::nacp::LANG_Portuguese):
+	case (nn::hac::nacp::LANG_Portuguese):
 		str = "Portuguese";
 		break;
-	case (nx::nacp::LANG_Russian):
+	case (nn::hac::nacp::LANG_Russian):
 		str = "Russian";
 		break;
-	case (nx::nacp::LANG_Korean):
+	case (nn::hac::nacp::LANG_Korean):
 		str = "Korean";
 		break;
-	case (nx::nacp::LANG_TraditionalChinese):
+	case (nn::hac::nacp::LANG_TraditionalChinese):
 		str = "TraditionalChinese";
 		break;
-	case (nx::nacp::LANG_SimplifiedChinese):
+	case (nn::hac::nacp::LANG_SimplifiedChinese):
 		str = "SimplifiedChinese";
 		break;
 	default:
@@ -59,18 +59,18 @@ const char* getLanguageStr(nx::nacp::Language var)
 	return str;
 }
 
-const char* getStartupUserAccountStr(nx::nacp::StartupUserAccount var)
+const char* getStartupUserAccountStr(nn::hac::nacp::StartupUserAccount var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::USER_None):
+	case (nn::hac::nacp::USER_None):
 		str = "None";
 		break;
-	case (nx::nacp::USER_Required):
+	case (nn::hac::nacp::USER_Required):
 		str = "Required";
 		break;
-	case (nx::nacp::USER_RequiredWithNetworkServiceAccountAvailable):
+	case (nn::hac::nacp::USER_RequiredWithNetworkServiceAccountAvailable):
 		str = "RequiredWithNetworkServiceAccountAvailable";
 		break;
 	default:
@@ -79,18 +79,18 @@ const char* getStartupUserAccountStr(nx::nacp::StartupUserAccount var)
 	return str;
 }
 
-const char* getTouchScreenUsageModeStr(nx::nacp::TouchScreenUsageMode var)
+const char* getTouchScreenUsageModeStr(nn::hac::nacp::TouchScreenUsageMode var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::TOUCH_None):
+	case (nn::hac::nacp::TOUCH_None):
 		str = "None";
 		break;
-	case (nx::nacp::TOUCH_Supported):
+	case (nn::hac::nacp::TOUCH_Supported):
 		str = "Supported";
 		break;
-	case (nx::nacp::TOUCH_Required):
+	case (nn::hac::nacp::TOUCH_Required):
 		str = "Required";
 		break;
 	default:
@@ -99,15 +99,15 @@ const char* getTouchScreenUsageModeStr(nx::nacp::TouchScreenUsageMode var)
 	return str;
 }
 
-const char* getAocRegistrationTypeStr(nx::nacp::AocRegistrationType var)
+const char* getAocRegistrationTypeStr(nn::hac::nacp::AocRegistrationType var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::AOC_AllOnLaunch):
+	case (nn::hac::nacp::AOC_AllOnLaunch):
 		str = "AllOnLaunch";
 		break;
-	case (nx::nacp::AOC_OnDemand):
+	case (nn::hac::nacp::AOC_OnDemand):
 		str = "OnDemand";
 		break;
 	default:
@@ -116,18 +116,18 @@ const char* getAocRegistrationTypeStr(nx::nacp::AocRegistrationType var)
 	return str;
 }
 
-const char* getAttributeFlagStr(nx::nacp::AttributeFlag var)
+const char* getAttributeFlagStr(nn::hac::nacp::AttributeFlag var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::ATTR_None):
+	case (nn::hac::nacp::ATTR_None):
 		str = "None";
 		break;
-	case (nx::nacp::ATTR_Demo):
+	case (nn::hac::nacp::ATTR_Demo):
 		str = "Demo";
 		break;
-	case (nx::nacp::ATTR_RetailInteractiveDisplay):
+	case (nn::hac::nacp::ATTR_RetailInteractiveDisplay):
 		str = "RetailInteractiveDisplay";
 		break;
 	default:
@@ -136,15 +136,15 @@ const char* getAttributeFlagStr(nx::nacp::AttributeFlag var)
 	return str;
 }
 
-const char* getParentalControlFlagStr(nx::nacp::ParentalControlFlag var)
+const char* getParentalControlFlagStr(nn::hac::nacp::ParentalControlFlag var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::PC_None):
+	case (nn::hac::nacp::PC_None):
 		str = "None";
 		break;
-	case (nx::nacp::PC_FreeCommunication):
+	case (nn::hac::nacp::PC_FreeCommunication):
 		str = "FreeCommunication";
 		break;
 	default:
@@ -153,15 +153,15 @@ const char* getParentalControlFlagStr(nx::nacp::ParentalControlFlag var)
 	return str;
 }
 
-const char* getScreenshotModeStr(nx::nacp::ScreenshotMode var)
+const char* getScreenshotModeStr(nn::hac::nacp::ScreenshotMode var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::SCRN_Allow):
+	case (nn::hac::nacp::SCRN_Allow):
 		str = "Allow";
 		break;
-	case (nx::nacp::SCRN_Deny):
+	case (nn::hac::nacp::SCRN_Deny):
 		str = "Deny";
 		break;
 	default:
@@ -170,18 +170,18 @@ const char* getScreenshotModeStr(nx::nacp::ScreenshotMode var)
 	return str;
 }
 
-const char* getVideoCaptureModeStr(nx::nacp::VideoCaptureMode var)
+const char* getVideoCaptureModeStr(nn::hac::nacp::VideoCaptureMode var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::VCAP_Disable):
+	case (nn::hac::nacp::VCAP_Disable):
 		str = "Disable";
 		break;
-	case (nx::nacp::VCAP_Manual):
+	case (nn::hac::nacp::VCAP_Manual):
 		str = "Manual";
 		break;
-	case (nx::nacp::VCAP_Enable):
+	case (nn::hac::nacp::VCAP_Enable):
 		str = "Enable";
 		break;
 	default:
@@ -190,15 +190,15 @@ const char* getVideoCaptureModeStr(nx::nacp::VideoCaptureMode var)
 	return str;
 }
 
-const char* getDataLossConfirmationStr(nx::nacp::DataLossConfirmation var)
+const char* getDataLossConfirmationStr(nn::hac::nacp::DataLossConfirmation var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::DLOSS_None):
+	case (nn::hac::nacp::DLOSS_None):
 		str = "None";
 		break;
-	case (nx::nacp::DLOSS_Required):
+	case (nn::hac::nacp::DLOSS_Required):
 		str = "Required";
 		break;
 	default:
@@ -207,18 +207,18 @@ const char* getDataLossConfirmationStr(nx::nacp::DataLossConfirmation var)
 	return str;
 }
 
-const char* getPlayLogPolicyStr(nx::nacp::PlayLogPolicy var)
+const char* getPlayLogPolicyStr(nn::hac::nacp::PlayLogPolicy var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::PLP_All):
+	case (nn::hac::nacp::PLP_All):
 		str = "All";
 		break;
-	case (nx::nacp::PLP_LogOnly):
+	case (nn::hac::nacp::PLP_LogOnly):
 		str = "LogOnly";
 		break;
-	case (nx::nacp::PLP_None):
+	case (nn::hac::nacp::PLP_None):
 		str = "None";
 		break;
 	default:
@@ -227,45 +227,45 @@ const char* getPlayLogPolicyStr(nx::nacp::PlayLogPolicy var)
 	return str;
 }
 
-const char* getOrganisationStr(nx::nacp::Organisation var)
+const char* getOrganisationStr(nn::hac::nacp::Organisation var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::ORGN_CERO):
+	case (nn::hac::nacp::ORGN_CERO):
 		str = "CERO";
 		break;
-	case (nx::nacp::ORGN_GRACGCRB):
+	case (nn::hac::nacp::ORGN_GRACGCRB):
 		str = "GRACGCRB";
 		break;
-	case (nx::nacp::ORGN_GSRMR):
+	case (nn::hac::nacp::ORGN_GSRMR):
 		str = "GSRMR";
 		break;
-	case (nx::nacp::ORGN_ESRB):
+	case (nn::hac::nacp::ORGN_ESRB):
 		str = "ESRB";
 		break;
-	case (nx::nacp::ORGN_ClassInd):
+	case (nn::hac::nacp::ORGN_ClassInd):
 		str = "ClassInd";
 		break;
-	case (nx::nacp::ORGN_USK):
+	case (nn::hac::nacp::ORGN_USK):
 		str = "USK";
 		break;
-	case (nx::nacp::ORGN_PEGI):
+	case (nn::hac::nacp::ORGN_PEGI):
 		str = "PEGI";
 		break;
-	case (nx::nacp::ORGN_PEGIPortugal):
+	case (nn::hac::nacp::ORGN_PEGIPortugal):
 		str = "PEGIPortugal";
 		break;
-	case (nx::nacp::ORGN_PEGIBBFC):
+	case (nn::hac::nacp::ORGN_PEGIBBFC):
 		str = "PEGIBBFC";
 		break;
-	case (nx::nacp::ORGN_Russian):
+	case (nn::hac::nacp::ORGN_Russian):
 		str = "Russian";
 		break;
-	case (nx::nacp::ORGN_ACB):
+	case (nn::hac::nacp::ORGN_ACB):
 		str = "ACB";
 		break;
-	case (nx::nacp::ORGN_OFLC):
+	case (nn::hac::nacp::ORGN_OFLC):
 		str = "OFLC";
 		break;
 	default:
@@ -274,18 +274,18 @@ const char* getOrganisationStr(nx::nacp::Organisation var)
 	return str;
 }
 
-const char* getLogoTypeStr(nx::nacp::LogoType var)
+const char* getLogoTypeStr(nn::hac::nacp::LogoType var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::LOGO_LicensedByNintendo):
+	case (nn::hac::nacp::LOGO_LicensedByNintendo):
 		str = "LicensedByNintendo";
 		break;
-	case (nx::nacp::LOGO_DistributedByNintendo):
+	case (nn::hac::nacp::LOGO_DistributedByNintendo):
 		str = "DistributedByNintendo";
 		break;
-	case (nx::nacp::LOGO_Nintendo):
+	case (nn::hac::nacp::LOGO_Nintendo):
 		str = "Nintendo";
 		break;
 	default:
@@ -294,15 +294,15 @@ const char* getLogoTypeStr(nx::nacp::LogoType var)
 	return str;
 }
 
-const char* getLogoHandlingStr(nx::nacp::LogoHandling var)
+const char* getLogoHandlingStr(nn::hac::nacp::LogoHandling var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::LHND_Auto):
+	case (nn::hac::nacp::LHND_Auto):
 		str = "Auto";
 		break;
-	case (nx::nacp::LHND_None):
+	case (nn::hac::nacp::LHND_None):
 		str = "None";
 		break;
 	default:
@@ -311,15 +311,15 @@ const char* getLogoHandlingStr(nx::nacp::LogoHandling var)
 	return str;
 }
 
-const char* getRuntimeAocInstallModeStr(nx::nacp::RuntimeAocInstallMode var)
+const char* getRuntimeAocInstallModeStr(nn::hac::nacp::RuntimeAocInstallMode var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::RTAOC_Deny):
+	case (nn::hac::nacp::RTAOC_Deny):
 		str = "Deny";
 		break;
-	case (nx::nacp::RTAOC_AllowAppend):
+	case (nn::hac::nacp::RTAOC_AllowAppend):
 		str = "AllowAppend";
 		break;
 	default:
@@ -328,15 +328,15 @@ const char* getRuntimeAocInstallModeStr(nx::nacp::RuntimeAocInstallMode var)
 	return str;
 }
 
-const char* getCrashReportModeStr(nx::nacp::CrashReportMode var)
+const char* getCrashReportModeStr(nn::hac::nacp::CrashReportMode var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::CREP_Deny):
+	case (nn::hac::nacp::CREP_Deny):
 		str = "Deny";
 		break;
-	case (nx::nacp::CREP_Allow):
+	case (nn::hac::nacp::CREP_Allow):
 		str = "Allow";
 		break;
 	default:
@@ -345,15 +345,15 @@ const char* getCrashReportModeStr(nx::nacp::CrashReportMode var)
 	return str;
 }
 
-const char* getHdcpStr(nx::nacp::Hdcp var)
+const char* getHdcpStr(nn::hac::nacp::Hdcp var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::HDCP_None):
+	case (nn::hac::nacp::HDCP_None):
 		str = "None";
 		break;
-	case (nx::nacp::HDCP_Required):
+	case (nn::hac::nacp::HDCP_Required):
 		str = "Required";
 		break;
 	default:
@@ -362,18 +362,18 @@ const char* getHdcpStr(nx::nacp::Hdcp var)
 	return str;
 }
 
-const char* getPlayLogQueryCapabilityStr(nx::nacp::PlayLogQueryCapability var)
+const char* getPlayLogQueryCapabilityStr(nn::hac::nacp::PlayLogQueryCapability var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::PLQC_None):
+	case (nn::hac::nacp::PLQC_None):
 		str = "None";
 		break;
-	case (nx::nacp::PLQC_Whitelist):
+	case (nn::hac::nacp::PLQC_Whitelist):
 		str = "Whitelist";
 		break;
-	case (nx::nacp::PLQC_All):
+	case (nn::hac::nacp::PLQC_All):
 		str = "All";
 		break;
 	default:
@@ -382,15 +382,15 @@ const char* getPlayLogQueryCapabilityStr(nx::nacp::PlayLogQueryCapability var)
 	return str;
 }
 
-const char* getRepairFlagStr(nx::nacp::RepairFlag var)
+const char* getRepairFlagStr(nn::hac::nacp::RepairFlag var)
 {
 	const char* str = nullptr;
 	switch(var)
 	{
-	case (nx::nacp::REPF_None):
+	case (nn::hac::nacp::REPF_None):
 		str = "None";
 		break;
-	case (nx::nacp::REPF_SuppressGameCardAccess):
+	case (nn::hac::nacp::REPF_SuppressGameCardAccess):
 		str = "SuppressGameCardAccess";
 		break;
 	default:
@@ -473,7 +473,7 @@ void NacpProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-const nx::ApplicationControlPropertyBinary& NacpProcess::getApplicationControlPropertyBinary() const
+const nn::hac::ApplicationControlPropertyBinary& NacpProcess::getApplicationControlPropertyBinary() const
 {
 	return mNacp;
 }

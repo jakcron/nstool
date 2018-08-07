@@ -1,5 +1,5 @@
 #include <fnd/SimpleTextOutput.h>
-#include <nx/XciUtils.h>
+#include <nn/hac/XciUtils.h>
 #include "OffsetAdjustedIFile.h"
 #include "XciProcess.h"
 
@@ -33,11 +33,11 @@ void XciProcess::process()
 	}
 	
 	// read header page
-	mFile->read((byte_t*)&mHdrPage, 0, sizeof(nx::sXciHeaderPage));
+	mFile->read((byte_t*)&mHdrPage, 0, sizeof(nn::hac::sXciHeaderPage));
 
 	// allocate memory for and decrypt sXciHeader
-	scratch.alloc(sizeof(nx::sXciHeader));
-	nx::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.data(), mKeyset->xci.header_key.key);
+	scratch.alloc(sizeof(nn::hac::sXciHeader));
+	nn::hac::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.data(), mKeyset->xci.header_key.key);
 
 	// validate header signature
 	if (mVerify)
@@ -130,22 +130,22 @@ void XciProcess::displayHeader()
 	{
 		printf("  RomAreaStartPage:       0x%0x", mHdr.getRomAreaStartPage());
 		if (mHdr.getRomAreaStartPage() != (uint32_t)(-1))
-			printf(" (0x%" PRIx64 ")", nx::XciUtils::blockToAddr(mHdr.getRomAreaStartPage()));
+			printf(" (0x%" PRIx64 ")", nn::hac::XciUtils::blockToAddr(mHdr.getRomAreaStartPage()));
 		printf("\n");
 
 		printf("  BackupAreaStartPage:    0x%0x", mHdr.getBackupAreaStartPage());
 		if (mHdr.getBackupAreaStartPage() != (uint32_t)(-1))
-			printf(" (0x%" PRIx64 ")", nx::XciUtils::blockToAddr(mHdr.getBackupAreaStartPage()));
+			printf(" (0x%" PRIx64 ")", nn::hac::XciUtils::blockToAddr(mHdr.getBackupAreaStartPage()));
 		printf("\n");
 
 		printf("  ValidDataEndPage:       0x%x", mHdr.getValidDataEndPage());
 		if (mHdr.getValidDataEndPage() != (uint32_t)(-1))
-			printf(" (0x%" PRIx64 ")", nx::XciUtils::blockToAddr(mHdr.getValidDataEndPage()));
+			printf(" (0x%" PRIx64 ")", nn::hac::XciUtils::blockToAddr(mHdr.getValidDataEndPage()));
 		printf("\n");
 
 		printf("  LimArea:                0x%x", mHdr.getLimAreaPage());
 		if (mHdr.getLimAreaPage() != (uint32_t)(-1))
-			printf(" (0x%" PRIx64 ")", nx::XciUtils::blockToAddr(mHdr.getLimAreaPage()));
+			printf(" (0x%" PRIx64 ")", nn::hac::XciUtils::blockToAddr(mHdr.getLimAreaPage()));
 		printf("\n");
 
 		printf("  PartitionFs Header:\n");
@@ -183,18 +183,18 @@ void XciProcess::displayHeader()
 bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
 {
 	fnd::Vec<byte_t> scratch;
-	crypto::sha::sSha256Hash calc_hash;
+	fnd::sha::sSha256Hash calc_hash;
 	scratch.alloc(len);
 	mFile->read(scratch.data(), offset, scratch.size());
-	crypto::sha::Sha256(scratch.data(), scratch.size(), calc_hash.bytes);
+	fnd::sha::Sha256(scratch.data(), scratch.size(), calc_hash.bytes);
 	return calc_hash.compare(test_hash);
 }
 
 void XciProcess::validateXciSignature()
 {
-	crypto::sha::sSha256Hash calc_hash;
-	crypto::sha::Sha256((byte_t*)&mHdrPage.header, sizeof(nx::sXciHeader), calc_hash.bytes);
-	if (crypto::rsa::pkcs::rsaVerify(mKeyset->xci.header_sign_key, crypto::sha::HASH_SHA256, calc_hash.bytes, mHdrPage.signature) != 0)
+	fnd::sha::sSha256Hash calc_hash;
+	fnd::sha::Sha256((byte_t*)&mHdrPage.header, sizeof(nn::hac::sXciHeader), calc_hash.bytes);
+	if (fnd::rsa::pkcs::rsaVerify(mKeyset->xci.header_sign_key, fnd::sha::HASH_SHA256, calc_hash.bytes, mHdrPage.signature) != 0)
 	{
 		printf("[WARNING] XCI Header Signature: FAIL \n");
 	}
@@ -216,7 +216,7 @@ void XciProcess::processRootPfs()
 
 void XciProcess::processPartitionPfs()
 {
-	const fnd::List<nx::PfsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
+	const fnd::List<nn::hac::PfsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
 	for (size_t i = 0; i < rootPartitions.size(); i++)
 	{
 		// this must be validated here because only the size of the root partiton header is known at verification time
@@ -243,22 +243,22 @@ const char* XciProcess::getRomSizeStr(byte_t rom_size) const
 	const char* str = "unknown";
 	switch (rom_size)
 	{
-		case (nx::xci::ROM_SIZE_1GB):
+		case (nn::hac::xci::ROM_SIZE_1GB):
 			str = "1GB";
 			break;
-		case (nx::xci::ROM_SIZE_2GB):
+		case (nn::hac::xci::ROM_SIZE_2GB):
 			str = "2GB";
 			break;
-		case (nx::xci::ROM_SIZE_4GB):
+		case (nn::hac::xci::ROM_SIZE_4GB):
 			str = "4GB";
 			break;
-		case (nx::xci::ROM_SIZE_8GB):
+		case (nn::hac::xci::ROM_SIZE_8GB):
 			str = "8GB";
 			break;
-		case (nx::xci::ROM_SIZE_16GB):
+		case (nn::hac::xci::ROM_SIZE_16GB):
 			str = "16GB";
 			break;
-		case (nx::xci::ROM_SIZE_32GB):
+		case (nn::hac::xci::ROM_SIZE_32GB):
 			str = "32GB";
 			break;
 	}
@@ -270,13 +270,13 @@ const char* XciProcess::getHeaderFlagStr(byte_t flag) const
 	const char* str = "unknown";
 	switch (flag)
 	{
-		case (nx::xci::FLAG_AUTOBOOT):
+		case (nn::hac::xci::FLAG_AUTOBOOT):
 			str = "AutoBoot";
 			break;
-		case (nx::xci::FLAG_HISTORY_ERASE):
+		case (nn::hac::xci::FLAG_HISTORY_ERASE):
 			str = "HistoryErase";
 			break;
-		case (nx::xci::FLAG_REPAIR_TOOL):
+		case (nn::hac::xci::FLAG_REPAIR_TOOL):
 			str = "RepairTool";
 			break;
 	}
@@ -289,10 +289,10 @@ const char* XciProcess::getCardClockRate(uint32_t acc_ctrl_1) const
 	const char* str = "unknown";
 	switch (acc_ctrl_1)
 	{
-		case (nx::xci::CLOCK_RATE_25):
+		case (nn::hac::xci::CLOCK_RATE_25):
 			str = "20 MHz";
 			break;
-		case (nx::xci::CLOCK_RATE_50):
+		case (nn::hac::xci::CLOCK_RATE_50):
 			str = "50 MHz";
 			break;
 

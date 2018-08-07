@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/SimpleFile.h>
-#include <nx/NcaHeader.h>
+#include <nn/hac/NcaHeader.h>
 #include "HashTreeMeta.h"
 
 
@@ -44,14 +44,14 @@ private:
 	{
 		std::string path;
 		bool doExtract;
-	} mPartitionPath[nx::nca::kPartitionNum];
+	} mPartitionPath[nn::hac::nca::kPartitionNum];
 
 	bool mListFs;
 
 	// data
-	nx::sNcaHeaderBlock mHdrBlock;
-	crypto::sha::sSha256Hash mHdrHash;
-	nx::NcaHeader mHdr;
+	nn::hac::sNcaHeaderBlock mHdrBlock;
+	fnd::sha::sSha256Hash mHdrHash;
+	nn::hac::NcaHeader mHdr;
 
 	// crypto
 	struct sKeys
@@ -60,8 +60,8 @@ private:
 		{
 			byte_t index;
 			bool decrypted;
-			crypto::aes::sAes128Key enc;
-			crypto::aes::sAes128Key dec;
+			fnd::aes::sAes128Key enc;
+			fnd::aes::sAes128Key dec;
 
 			void operator=(const sKeyAreaKey& other)
 			{
@@ -86,8 +86,8 @@ private:
 		};
 		fnd::List<sKeyAreaKey> keak_list;
 
-		sOptional<crypto::aes::sAes128Key> aes_ctr;
-		sOptional<crypto::aes::sAesXts128Key> aes_xts;
+		sOptional<fnd::aes::sAes128Key> aes_ctr;
+		sOptional<fnd::aes::sAesXts128Key> aes_xts;
 	} mBodyKeys;
 	
 	struct sPartitionInfo
@@ -98,12 +98,12 @@ private:
 		size_t size;
 
 		// meta data
-		nx::nca::FormatType format_type;
-		nx::nca::HashType hash_type;
-		nx::nca::EncryptionType enc_type;
+		nn::hac::nca::FormatType format_type;
+		nn::hac::nca::HashType hash_type;
+		nn::hac::nca::EncryptionType enc_type;
 		HashTreeMeta hash_tree_meta;
-		crypto::aes::sAesIvCtr aes_ctr;
-	} mPartitions[nx::nca::kPartitionNum];
+		fnd::aes::sAesIvCtr aes_ctr;
+	} mPartitions[nn::hac::nca::kPartitionNum];
 
 	void generateNcaBodyEncryptionKeys();
 	void generatePartitionConfiguration();

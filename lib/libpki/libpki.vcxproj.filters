@@ -15,22 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\pki\cert.h">
+    <ClInclude Include="include\nn\pki\cert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pki\CertificateBody.h">
+    <ClInclude Include="include\nn\pki\CertificateBody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pki\sign.h">
+    <ClInclude Include="include\nn\pki\sign.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pki\SignatureBlock.h">
+    <ClInclude Include="include\nn\pki\SignatureBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pki\SignedData.h">
+    <ClInclude Include="include\nn\pki\SignedData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pki\SignUtils.h">
+    <ClInclude Include="include\nn\pki\SignUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

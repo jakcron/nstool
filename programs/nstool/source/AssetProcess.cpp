@@ -74,12 +74,12 @@ void AssetProcess::setRomfsExtractPath(const std::string& path)
 void AssetProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
-	if (mFile->size() < sizeof(nx::sAssetHeader))
+	if (mFile->size() < sizeof(nn::hac::sAssetHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt ASET: file too small");
 	}
 
-	scratch.alloc(sizeof(nx::sAssetHeader));
+	scratch.alloc(sizeof(nn::hac::sAssetHeader));
 	mFile->read(scratch.data(), 0, scratch.size());
 
 	mHdr.fromBytes(scratch.data(), scratch.size());

@@ -80,7 +80,7 @@ void NpdmProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-const nx::NpdmBinary& NpdmProcess::getNpdmBinary() const
+const nn::hac::NpdmBinary& NpdmProcess::getNpdmBinary() const
 {
 	return mNpdm;
 }
@@ -336,7 +336,7 @@ const std::string kMemMapType[2] = { "Io", "Static" };
  
 const std::string kAcidTarget[2] = { "Development", "Production" };
 
-void NpdmProcess::validateAcidSignature(const nx::AccessControlInfoDescBinary& acid)
+void NpdmProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid)
 {
 	try {
 		acid.validateSignature(mKeyset->acid_sign_key);
@@ -347,7 +347,7 @@ void NpdmProcess::validateAcidSignature(const nx::AccessControlInfoDescBinary& a
 	
 }
 
-void NpdmProcess::validateAciFromAcid(const nx::AccessControlInfoBinary& aci, const nx::AccessControlInfoDescBinary& acid)
+void NpdmProcess::validateAciFromAcid(const nn::hac::AccessControlInfoBinary& aci, const nn::hac::AccessControlInfoDescBinary& acid)
 {
 	// check Program ID
 	if (acid.getProgramIdRestrict().min > 0 && aci.getProgramId() < acid.getProgramIdRestrict().min)
@@ -468,7 +468,7 @@ void NpdmProcess::validateAciFromAcid(const nx::AccessControlInfoBinary& aci, co
 
 		if (rightFound == false)
 		{
-			const nx::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getMemoryMaps()[i];
+			const nn::hac::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getMemoryMaps()[i];
 
 			printf("[WARNING] ACI/KC MemoryMap: FAIL (0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s) not permitted)\n", (uint64_t)map.addr << 12, ((uint64_t)(map.addr + map.size) << 12) - 1, kMemMapPerm[map.perm].c_str(), kMemMapType[map.type].c_str());
 		}
@@ -484,7 +484,7 @@ void NpdmProcess::validateAciFromAcid(const nx::AccessControlInfoBinary& aci, co
 
 		if (rightFound == false)
 		{
-			const nx::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps()[i];
+			const nn::hac::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps()[i];
 
 			printf("[WARNING] ACI/KC IoMemoryMap: FAIL (0x%016" PRIx64 " - 0x%016" PRIx64 " (perm=%s) (type=%s) not permitted)\n", (uint64_t)map.addr << 12, ((uint64_t)(map.addr + map.size) << 12) - 1, kMemMapPerm[map.perm].c_str(), kMemMapType[map.type].c_str());
 		}
@@ -538,7 +538,7 @@ void NpdmProcess::validateAciFromAcid(const nx::AccessControlInfoBinary& aci, co
 	}
 }
 
-void NpdmProcess::displayNpdmHeader(const nx::NpdmBinary& hdr)
+void NpdmProcess::displayNpdmHeader(const nn::hac::NpdmBinary& hdr)
 {
 	printf("[NPDM HEADER]\n");
 	printf("  Process Architecture Params:\n");
@@ -557,13 +557,13 @@ void NpdmProcess::displayNpdmHeader(const nx::NpdmBinary& hdr)
 	}
 }
 
-void NpdmProcess::displayAciHdr(const nx::AccessControlInfoBinary& aci)
+void NpdmProcess::displayAciHdr(const nn::hac::AccessControlInfoBinary& aci)
 {
 	printf("[Access Control Info]\n");
 	printf("  ProgramID:       0x%016" PRIx64 "\n", aci.getProgramId());
 }
 
-void NpdmProcess::displayAciDescHdr(const nx::AccessControlInfoDescBinary& acid)
+void NpdmProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& acid)
 {
 	printf("[Access Control Info Desc]\n");
 	if (acid.getFlagList().size() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
@@ -579,7 +579,7 @@ void NpdmProcess::displayAciDescHdr(const nx::AccessControlInfoDescBinary& acid)
 	printf("    Max:           0x%016" PRIx64 "\n", acid.getProgramIdRestrict().max);
 }
 
-void NpdmProcess::displayFac(const nx::FileSystemAccessControlBinary& fac)
+void NpdmProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
 {
 	printf("[FS Access Control]\n");
 	printf("  Format Version:  %d\n", fac.getFormatVersion());
@@ -620,7 +620,7 @@ void NpdmProcess::displayFac(const nx::FileSystemAccessControlBinary& fac)
 	
 }
 
-void NpdmProcess::displaySac(const nx::ServiceAccessControlBinary& sac)
+void NpdmProcess::displaySac(const nn::hac::ServiceAccessControlBinary& sac)
 {
 	printf("[Service Access Control]\n");
 	printf("  Service List:\n");
@@ -634,12 +634,12 @@ void NpdmProcess::displaySac(const nx::ServiceAccessControlBinary& sac)
 	}
 }
 
-void NpdmProcess::displayKernelCap(const nx::KernelCapabilityBinary& kern)
+void NpdmProcess::displayKernelCap(const nn::hac::KernelCapabilityBinary& kern)
 {
 	printf("[Kernel Capabilities]\n");
 	if (kern.getThreadInfo().isSet())
 	{
-		nx::ThreadInfoHandler threadInfo = kern.getThreadInfo();
+		nn::hac::ThreadInfoHandler threadInfo = kern.getThreadInfo();
 		printf("  Thread Priority:\n");
 		printf("    Min:     %d\n", threadInfo.getMinPriority());
 		printf("    Max:     %d\n", threadInfo.getMaxPriority());
@@ -666,8 +666,8 @@ void NpdmProcess::displayKernelCap(const nx::KernelCapabilityBinary& kern)
 	}
 	if (kern.getMemoryMaps().isSet())
 	{
-		fnd::List<nx::MemoryMappingHandler::sMemoryMapping> maps = kern.getMemoryMaps().getMemoryMaps();
-		fnd::List<nx::MemoryMappingHandler::sMemoryMapping> ioMaps = kern.getMemoryMaps().getIoMemoryMaps();
+		fnd::List<nn::hac::MemoryMappingHandler::sMemoryMapping> maps = kern.getMemoryMaps().getMemoryMaps();
+		fnd::List<nn::hac::MemoryMappingHandler::sMemoryMapping> ioMaps = kern.getMemoryMaps().getIoMemoryMaps();
 
 		printf("  MemoryMaps:\n");
 		for (size_t i = 0; i < maps.size(); i++)
@@ -707,7 +707,7 @@ void NpdmProcess::displayKernelCap(const nx::KernelCapabilityBinary& kern)
 	}
 	if (kern.getMiscFlags().isSet())
 	{
-		fnd::List<nx::MiscFlagsHandler::Flags> flagList = kern.getMiscFlags().getFlagList();
+		fnd::List<nn::hac::MiscFlagsHandler::Flags> flagList = kern.getMiscFlags().getFlagList();
 
 		printf("  Misc Flags:\n");
 		for (uint32_t i = 0; i < flagList.size(); i++)

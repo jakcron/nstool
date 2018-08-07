@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
-#include <nx/AssetHeader.h>
+#include <nn/hac/AssetHeader.h>
 #include "NacpProcess.h"
 #include "RomfsProcess.h"
 
@@ -38,7 +38,7 @@ private:
 	sOptional<std::string> mIconExtractPath;
 	sOptional<std::string> mNacpExtractPath;
 
-	nx::AssetHeader mHdr;
+	nn::hac::AssetHeader mHdr;
 	NacpProcess mNacp;
 	RomfsProcess mRomfs;
 

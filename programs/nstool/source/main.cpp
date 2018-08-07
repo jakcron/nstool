@@ -46,13 +46,13 @@ int main(int argc, char** argv)
 			xci.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getXciUpdatePath().isSet)
-				xci.setPartitionForExtract(nx::xci::kUpdatePartitionStr, user_set.getXciUpdatePath().var);
+				xci.setPartitionForExtract(nn::hac::xci::kUpdatePartitionStr, user_set.getXciUpdatePath().var);
 			if (user_set.getXciLogoPath().isSet)
-				xci.setPartitionForExtract(nx::xci::kLogoPartitionStr, user_set.getXciLogoPath().var);
+				xci.setPartitionForExtract(nn::hac::xci::kLogoPartitionStr, user_set.getXciLogoPath().var);
 			if (user_set.getXciNormalPath().isSet)
-				xci.setPartitionForExtract(nx::xci::kNormalPartitionStr, user_set.getXciNormalPath().var);
+				xci.setPartitionForExtract(nn::hac::xci::kNormalPartitionStr, user_set.getXciNormalPath().var);
 			if (user_set.getXciSecurePath().isSet)
-				xci.setPartitionForExtract(nx::xci::kSecurePartitionStr, user_set.getXciSecurePath().var);
+				xci.setPartitionForExtract(nn::hac::xci::kSecurePartitionStr, user_set.getXciSecurePath().var);
 			xci.setListFs(user_set.isListFs());
 
 			xci.process();

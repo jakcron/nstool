@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\nn\hac\AccessControlInfoBinary.h" />
+    <ClInclude Include="include\nn\hac\AccessControlInfoDescBinary.h" />
+    <ClInclude Include="include\nn\hac\aci.h" />
+    <ClInclude Include="include\nn\hac\AesKeygen.h" />
+    <ClInclude Include="include\nn\hac\ApplicationControlPropertyBinary.h" />
+    <ClInclude Include="include\nn\hac\ApplicationControlPropertyUtils.h" />
+    <ClInclude Include="include\nn\hac\cnmt.h" />
+    <ClInclude Include="include\nn\hac\ContentMetaBinary.h" />
+    <ClInclude Include="include\nn\hac\elf.h" />
+    <ClInclude Include="include\nn\hac\fac.h" />
+    <ClInclude Include="include\nn\hac\FileSystemAccessControlBinary.h" />
+    <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h" />
+    <ClInclude Include="include\nn\hac\HandleTableSizeHandler.h" />
+    <ClInclude Include="include\nn\hac\hierarchicalintegrity.h" />
+    <ClInclude Include="include\nn\hac\HierarchicalIntegrityHeader.h" />
+    <ClInclude Include="include\nn\hac\hierarchicalsha256.h" />
+    <ClInclude Include="include\nn\hac\HierarchicalSha256Header.h" />
+    <ClInclude Include="include\nn\hac\IKernelCapabilityHandler.h" />
+    <ClInclude Include="include\nn\hac\InteruptEntry.h" />
+    <ClInclude Include="include\nn\hac\InteruptHandler.h" />
+    <ClInclude Include="include\nn\hac\kc.h" />
+    <ClInclude Include="include\nn\hac\KernelCapabilityBinary.h" />
+    <ClInclude Include="include\nn\hac\KernelCapabilityEntry.h" />
+    <ClInclude Include="include\nn\hac\KernelVersionEntry.h" />
+    <ClInclude Include="include\nn\hac\KernelVersionHandler.h" />
+    <ClInclude Include="include\nn\hac\macro.h" />
+    <ClInclude Include="include\nn\hac\MemoryMappingHandler.h" />
+    <ClInclude Include="include\nn\hac\MemoryPageEntry.h" />
+    <ClInclude Include="include\nn\hac\MiscFlagsEntry.h" />
+    <ClInclude Include="include\nn\hac\MiscFlagsHandler.h" />
+    <ClInclude Include="include\nn\hac\MiscParamsEntry.h" />
+    <ClInclude Include="include\nn\hac\MiscParamsHandler.h" />
+    <ClInclude Include="include\nn\hac\nacp.h" />
+    <ClInclude Include="include\nn\hac\nca.h" />
+    <ClInclude Include="include\nn\hac\NcaHeader.h" />
+    <ClInclude Include="include\nn\hac\NcaUtils.h" />
+    <ClInclude Include="include\nn\hac\npdm.h" />
+    <ClInclude Include="include\nn\hac\NpdmBinary.h" />
+    <ClInclude Include="include\nn\hac\nro.h" />
+    <ClInclude Include="include\nn\hac\NroHeader.h" />
+    <ClInclude Include="include\nn\hac\nrr.h" />
+    <ClInclude Include="include\nn\hac\nso.h" />
+    <ClInclude Include="include\nn\hac\NsoHeader.h" />
+    <ClInclude Include="include\nn\hac\pfs.h" />
+    <ClInclude Include="include\nn\hac\PfsHeader.h" />
+    <ClInclude Include="include\nn\hac\romfs.h" />
+    <ClInclude Include="include\nn\hac\ServiceAccessControlBinary.h" />
+    <ClInclude Include="include\nn\hac\ServiceAccessControlEntry.h" />
+    <ClInclude Include="include\nn\hac\SystemCallEntry.h" />
+    <ClInclude Include="include\nn\hac\SystemCallHandler.h" />
+    <ClInclude Include="include\nn\hac\ThreadInfoEntry.h" />
+    <ClInclude Include="include\nn\hac\ThreadInfoHandler.h" />
+    <ClInclude Include="include\nn\hac\xci.h" />
+    <ClInclude Include="include\nn\hac\XciHeader.h" />
+    <ClInclude Include="include\nn\hac\XciUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\AccessControlInfoBinary.cpp" />
+    <ClCompile Include="source\AccessControlInfoDescBinary.cpp" />
+    <ClCompile Include="source\AesKeygen.cpp" />
+    <ClCompile Include="source\ApplicationControlPropertyBinary.cpp" />
+    <ClCompile Include="source\ApplicationControlPropertyUtils.cpp" />
+    <ClCompile Include="source\ContentMetaBinary.cpp" />
+    <ClCompile Include="source\FileSystemAccessControlBinary.cpp" />
+    <ClCompile Include="source\HandleTableSizeEntry.cpp" />
+    <ClCompile Include="source\HandleTableSizeHandler.cpp" />
+    <ClCompile Include="source\HierarchicalIntegrityHeader.cpp" />
+    <ClCompile Include="source\HierarchicalSha256Header.cpp" />
+    <ClCompile Include="source\InteruptEntry.cpp" />
+    <ClCompile Include="source\InteruptHandler.cpp" />
+    <ClCompile Include="source\KernelCapabilityBinary.cpp" />
+    <ClCompile Include="source\KernelCapabilityEntry.cpp" />
+    <ClCompile Include="source\KernelVersionEntry.cpp" />
+    <ClCompile Include="source\KernelVersionHandler.cpp" />
+    <ClCompile Include="source\MemoryMappingHandler.cpp" />
+    <ClCompile Include="source\MemoryPageEntry.cpp" />
+    <ClCompile Include="source\MiscFlagsEntry.cpp" />
+    <ClCompile Include="source\MiscFlagsHandler.cpp" />
+    <ClCompile Include="source\MiscParamsEntry.cpp" />
+    <ClCompile Include="source\MiscParamsHandler.cpp" />
+    <ClCompile Include="source\NcaHeader.cpp" />
+    <ClCompile Include="source\NcaUtils.cpp" />
+    <ClCompile Include="source\NpdmBinary.cpp" />
+    <ClCompile Include="source\NroHeader.cpp" />
+    <ClCompile Include="source\NsoHeader.cpp" />
+    <ClCompile Include="source\PfsHeader.cpp" />
+    <ClCompile Include="source\ServiceAccessControlBinary.cpp" />
+    <ClCompile Include="source\ServiceAccessControlEntry.cpp" />
+    <ClCompile Include="source\SystemCallEntry.cpp" />
+    <ClCompile Include="source\SystemCallHandler.cpp" />
+    <ClCompile Include="source\ThreadInfoEntry.cpp" />
+    <ClCompile Include="source\ThreadInfoHandler.cpp" />
+    <ClCompile Include="source\XciHeader.cpp" />
+    <ClCompile Include="source\XciUtils.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{91BA9E79-8242-4F7D-B997-0DFEC95EA22B}</ProjectGuid>
+    <RootNamespace>hac</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <ProjectName>libhac</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libhac\include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libhac\include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libhac\include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libhac\include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

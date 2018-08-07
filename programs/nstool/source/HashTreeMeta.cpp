@@ -40,13 +40,13 @@ void HashTreeMeta::importData(const byte_t* data, size_t len, HashTreeType type)
 {
 	if (type == HASH_TYPE_INTEGRITY)
 	{
-		nx::HierarchicalIntegrityHeader hdr;
+		nn::hac::HierarchicalIntegrityHeader hdr;
 		hdr.fromBytes(data, len);
 		importHierarchicalIntergityHeader(hdr);
 	}
 	else if (type == HASH_TYPE_SHA256)
 	{
-		nx::HierarchicalSha256Header hdr;
+		nn::hac::HierarchicalSha256Header hdr;
 		hdr.fromBytes(data, len);
 		importHierarchicalSha256Header(hdr);
 	}
@@ -72,12 +72,12 @@ void  HashTreeMeta::setDataLayer(const sLayer& data_info)
 	mDataLayer = data_info;
 }
 
-const fnd::List<crypto::sha::sSha256Hash>&  HashTreeMeta::getMasterHashList() const
+const fnd::List<fnd::sha::sSha256Hash>&  HashTreeMeta::getMasterHashList() const
 {
 	return mMasterHashList;
 }
 
-void  HashTreeMeta::setMasterHashList(const fnd::List<crypto::sha::sSha256Hash>& master_hash_list)
+void  HashTreeMeta::setMasterHashList(const fnd::List<fnd::sha::sSha256Hash>& master_hash_list)
 {
 	mMasterHashList = master_hash_list;
 }
@@ -92,7 +92,7 @@ void HashTreeMeta::setAlignHashToBlock(bool doAlign)
 	mDoAlignHashToBlock = doAlign;
 }
 
-void HashTreeMeta::importHierarchicalIntergityHeader(const nx::HierarchicalIntegrityHeader& hdr)
+void HashTreeMeta::importHierarchicalIntergityHeader(const nn::hac::HierarchicalIntegrityHeader& hdr)
 {
 	mDoAlignHashToBlock = true;
 	for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
@@ -113,7 +113,7 @@ void HashTreeMeta::importHierarchicalIntergityHeader(const nx::HierarchicalInteg
 	mMasterHashList = hdr.getMasterHashList();
 }
 
-void HashTreeMeta::importHierarchicalSha256Header(const nx::HierarchicalSha256Header& hdr)
+void HashTreeMeta::importHierarchicalSha256Header(const nn::hac::HierarchicalSha256Header& hdr)
 {
 	mDoAlignHashToBlock = false;
 	for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)

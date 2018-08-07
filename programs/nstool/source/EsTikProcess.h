@@ -3,9 +3,9 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/Vec.h>
-#include <pki/SignedData.h>
-#include <pki/CertificateBody.h>
-#include <es/TicketBody_V2.h>
+#include <nn/pki/SignedData.h>
+#include <nn/pki/CertificateBody.h>
+#include <nn/es/TicketBody_V2.h>
 #include "nstool.h"
 
 class EsTikProcess
@@ -18,7 +18,7 @@ public:
 
 	void setInputFile(fnd::IFile* file, bool ownIFile);
 	void setKeyset(const sKeyset* keyset);
-	void setCertificateChain(const fnd::List<pki::SignedData<pki::CertificateBody>>& certs);
+	void setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
 	void setCliOutputMode(CliOutputMode mode);
 	void setVerifyMode(bool verify);
 
@@ -31,9 +31,9 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	
-	fnd::List<pki::SignedData<pki::CertificateBody>> mCerts;
+	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> mCerts;
 
-	pki::SignedData<es::TicketBody_V2> mTik;
+	nn::pki::SignedData<nn::es::TicketBody_V2> mTik;
 
 	void importTicket();
 	void verifyTicket();

@@ -1,6 +1,6 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/Vec.h>
-#include <compress/lz4.h>
+#include <fnd/lz4.h>
 #include "OffsetAdjustedIFile.h"
 #include "NsoProcess.h"
 
@@ -51,7 +51,7 @@ void NsoProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void NsoProcess::setInstructionType(nx::npdm::InstructionType type)
+void NsoProcess::setInstructionType(nn::hac::npdm::InstructionType type)
 {
 	mRoMeta.setInstructionType(type);
 }
@@ -74,12 +74,12 @@ const RoMetadataProcess& NsoProcess::getRoMetadataProcess() const
 void NsoProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
-	if (mFile->size() < sizeof(nx::sNsoHeader))
+	if (mFile->size() < sizeof(nn::hac::sNsoHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt NSO: file too small");
 	}
 
-	scratch.alloc(sizeof(nx::sNsoHeader));
+	scratch.alloc(sizeof(nn::hac::sNsoHeader));
 	mFile->read(scratch.data(), 0, scratch.size());
 
 	mHdr.fromBytes(scratch.data(), scratch.size());
@@ -89,7 +89,7 @@ void NsoProcess::importCodeSegments()
 {
 	fnd::Vec<byte_t> scratch;
 	uint32_t decompressed_len;
-	crypto::sha::sSha256Hash calc_hash;
+	fnd::sha::sSha256Hash calc_hash;
 
 	// process text segment
 	if (mHdr.getTextSegmentInfo().is_compressed)
@@ -97,7 +97,7 @@ void NsoProcess::importCodeSegments()
 		scratch.alloc(mHdr.getTextSegmentInfo().file_layout.size);
 		mFile->read(scratch.data(), mHdr.getTextSegmentInfo().file_layout.offset, scratch.size());
 		mTextBlob.alloc(mHdr.getTextSegmentInfo().memory_layout.size);
-		compress::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mTextBlob.data(), (uint32_t)mTextBlob.size(), decompressed_len);
+		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mTextBlob.data(), (uint32_t)mTextBlob.size(), decompressed_len);
 		if (decompressed_len != mTextBlob.size())
 		{
 			throw fnd::Exception(kModuleName, "NSO text segment failed to decompress");
@@ -110,7 +110,7 @@ void NsoProcess::importCodeSegments()
 	}
 	if (mHdr.getTextSegmentInfo().is_hashed)
 	{
-		crypto::sha::Sha256(mTextBlob.data(), mTextBlob.size(), calc_hash.bytes);
+		fnd::sha::Sha256(mTextBlob.data(), mTextBlob.size(), calc_hash.bytes);
 		if (calc_hash != mHdr.getTextSegmentInfo().hash)
 		{
 			throw fnd::Exception(kModuleName, "NSO text segment failed SHA256 verification");
@@ -123,7 +123,7 @@ void NsoProcess::importCodeSegments()
 		scratch.alloc(mHdr.getRoSegmentInfo().file_layout.size);
 		mFile->read(scratch.data(), mHdr.getRoSegmentInfo().file_layout.offset, scratch.size());
 		mRoBlob.alloc(mHdr.getRoSegmentInfo().memory_layout.size);
-		compress::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mRoBlob.data(), (uint32_t)mRoBlob.size(), decompressed_len);
+		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mRoBlob.data(), (uint32_t)mRoBlob.size(), decompressed_len);
 		if (decompressed_len != mRoBlob.size())
 		{
 			throw fnd::Exception(kModuleName, "NSO ro segment failed to decompress");
@@ -136,7 +136,7 @@ void NsoProcess::importCodeSegments()
 	}
 	if (mHdr.getRoSegmentInfo().is_hashed)
 	{
-		crypto::sha::Sha256(mRoBlob.data(), mRoBlob.size(), calc_hash.bytes);
+		fnd::sha::Sha256(mRoBlob.data(), mRoBlob.size(), calc_hash.bytes);
 		if (calc_hash != mHdr.getRoSegmentInfo().hash)
 		{
 			throw fnd::Exception(kModuleName, "NSO ro segment failed SHA256 verification");
@@ -149,7 +149,7 @@ void NsoProcess::importCodeSegments()
 		scratch.alloc(mHdr.getDataSegmentInfo().file_layout.size);
 		mFile->read(scratch.data(), mHdr.getDataSegmentInfo().file_layout.offset, scratch.size());
 		mDataBlob.alloc(mHdr.getDataSegmentInfo().memory_layout.size);
-		compress::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mDataBlob.data(), (uint32_t)mDataBlob.size(), decompressed_len);
+		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mDataBlob.data(), (uint32_t)mDataBlob.size(), decompressed_len);
 		if (decompressed_len != mDataBlob.size())
 		{
 			throw fnd::Exception(kModuleName, "NSO data segment failed to decompress");
@@ -162,7 +162,7 @@ void NsoProcess::importCodeSegments()
 	}
 	if (mHdr.getDataSegmentInfo().is_hashed)
 	{
-		crypto::sha::Sha256(mDataBlob.data(), mDataBlob.size(), calc_hash.bytes);
+		fnd::sha::Sha256(mDataBlob.data(), mDataBlob.size(), calc_hash.bytes);
 		if (calc_hash != mHdr.getDataSegmentInfo().hash)
 		{
 			throw fnd::Exception(kModuleName, "NSO data segment failed SHA256 verification");
@@ -176,7 +176,7 @@ void NsoProcess::displayNsoHeader()
 
 	printf("[NSO Header]\n");
 	printf("  ModuleId:           ");
-	_HEXDUMP_L(mHdr.getModuleId().data, nx::nso::kModuleIdSize);
+	_HEXDUMP_L(mHdr.getModuleId().data, nn::hac::nso::kModuleIdSize);
 	printf("\n");
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{

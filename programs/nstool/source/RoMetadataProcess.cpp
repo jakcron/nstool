@@ -5,7 +5,7 @@
 
 RoMetadataProcess::RoMetadataProcess() :
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
-	mInstructionType(nx::npdm::INSTR_64BIT),
+	mInstructionType(nn::hac::npdm::INSTR_64BIT),
 	mListApi(false),
 	mListSymbols(false),
 	mApiInfo(),
@@ -59,7 +59,7 @@ void RoMetadataProcess::setCliOutputMode(CliOutputMode type)
 	mCliOutputMode = type;
 }
 
-void RoMetadataProcess::setInstructionType(nx::npdm::InstructionType type)
+void RoMetadataProcess::setInstructionType(nn::hac::npdm::InstructionType type)
 {
 	mInstructionType = type;
 }
@@ -123,7 +123,7 @@ void RoMetadataProcess::importApiList()
 
 	if (mDynSym.size > 0)
 	{
-		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mInstructionType == nx::npdm::INSTR_64BIT);
+		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mInstructionType == nn::hac::npdm::INSTR_64BIT);
 	}
 }
 
@@ -174,30 +174,30 @@ void RoMetadataProcess::displayRoMetaData()
 	}
 }
 
-const char* RoMetadataProcess::getSectionIndexStr(nx::elf::SpecialSectionIndex shn_index) const
+const char* RoMetadataProcess::getSectionIndexStr(nn::hac::elf::SpecialSectionIndex shn_index) const
 {
 	const char* str;
 	switch (shn_index)
 	{
-		case (nx::elf::SHN_UNDEF):
+		case (nn::hac::elf::SHN_UNDEF):
 			str = "UNDEF";
 			break;
-		case (nx::elf::SHN_LOPROC):
+		case (nn::hac::elf::SHN_LOPROC):
 			str = "LOPROC";
 			break;
-		case (nx::elf::SHN_HIPROC):
+		case (nn::hac::elf::SHN_HIPROC):
 			str = "HIPROC";
 			break;
-		case (nx::elf::SHN_LOOS):
+		case (nn::hac::elf::SHN_LOOS):
 			str = "LOOS";
 			break;
-		case (nx::elf::SHN_HIOS):
+		case (nn::hac::elf::SHN_HIOS):
 			str = "HIOS";
 			break;
-		case (nx::elf::SHN_ABS):
+		case (nn::hac::elf::SHN_ABS):
 			str = "ABS";
 			break;
-		case (nx::elf::SHN_COMMON):
+		case (nn::hac::elf::SHN_COMMON):
 			str = "COMMON";
 			break;
 		default:
@@ -207,36 +207,36 @@ const char* RoMetadataProcess::getSectionIndexStr(nx::elf::SpecialSectionIndex s
 	return str;
 }
 
-const char* RoMetadataProcess::getSymbolTypeStr(nx::elf::SymbolType symbol_type) const
+const char* RoMetadataProcess::getSymbolTypeStr(nn::hac::elf::SymbolType symbol_type) const
 {
 	const char* str;
 	switch (symbol_type)
 	{
-		case (nx::elf::STT_NOTYPE):
+		case (nn::hac::elf::STT_NOTYPE):
 			str = "NOTYPE";
 			break;
-		case (nx::elf::STT_OBJECT):
+		case (nn::hac::elf::STT_OBJECT):
 			str = "OBJECT";
 			break;
-		case (nx::elf::STT_FUNC):
+		case (nn::hac::elf::STT_FUNC):
 			str = "FUNC";
 			break;
-		case (nx::elf::STT_SECTION):
+		case (nn::hac::elf::STT_SECTION):
 			str = "SECTION";
 			break;
-		case (nx::elf::STT_FILE):
+		case (nn::hac::elf::STT_FILE):
 			str = "FILE";
 			break;
-		case (nx::elf::STT_LOOS):
+		case (nn::hac::elf::STT_LOOS):
 			str = "LOOS";
 			break;
-		case (nx::elf::STT_HIOS):
+		case (nn::hac::elf::STT_HIOS):
 			str = "HIOS";
 			break;
-		case (nx::elf::STT_LOPROC):
+		case (nn::hac::elf::STT_LOPROC):
 			str = "LOPROC";
 			break;
-		case (nx::elf::STT_HIPROC):
+		case (nn::hac::elf::STT_HIPROC):
 			str = "HIPROC";
 			break;
 		default:
@@ -246,30 +246,30 @@ const char* RoMetadataProcess::getSymbolTypeStr(nx::elf::SymbolType symbol_type)
 	return str;
 }
 
-const char* RoMetadataProcess::getSymbolBindingStr(nx::elf::SymbolBinding symbol_binding) const
+const char* RoMetadataProcess::getSymbolBindingStr(nn::hac::elf::SymbolBinding symbol_binding) const
 {
 	const char* str;
 	switch (symbol_binding)
 	{
-		case (nx::elf::STB_LOCAL):
+		case (nn::hac::elf::STB_LOCAL):
 			str = "LOCAL";
 			break;
-		case (nx::elf::STB_GLOBAL):
+		case (nn::hac::elf::STB_GLOBAL):
 			str = "GLOBAL";
 			break;
-		case (nx::elf::STB_WEAK):
+		case (nn::hac::elf::STB_WEAK):
 			str = "WEAK";
 			break;
-		case (nx::elf::STB_LOOS):
+		case (nn::hac::elf::STB_LOOS):
 			str = "LOOS";
 			break;
-		case (nx::elf::STB_HIOS):
+		case (nn::hac::elf::STB_HIOS):
 			str = "HIOS";
 			break;
-		case (nx::elf::STB_LOPROC):
+		case (nn::hac::elf::STB_LOPROC):
 			str = "LOPROC";
 			break;
-		case (nx::elf::STB_HIPROC):
+		case (nn::hac::elf::STB_HIPROC):
 			str = "HIPROC";
 			break;
 		default:

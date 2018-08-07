@@ -7,7 +7,6 @@ DEPENDS = fnd crypto
 LIB_DIR = ..
 INCS = -I"include" $(foreach dep,$(DEPENDS), -I"$(LIB_DIR)/lib$(dep)/include")
 
-
 # Compiler Settings
 CXXFLAGS = -std=c++11 $(INCS) -D__STDC_FORMAT_MACROS -Wall -Wno-unused-value
 CFLAGS = -std=c11 $(INCS) -Wall -Wno-unused-value
@@ -22,15 +21,14 @@ else
 	UNAME = $(shell uname -s)
 	ifeq ($(UNAME), Darwin)
 		# MacOS Only Flags/Libs
-		CFLAGS += -Wno-unused-private-field
-		CXXFLAGS += -Wno-unused-private-field
+		CFLAGS += -arch x86_64 -Wno-unused-private-field
+		CXXFLAGS += -arch x86_64 -Wno-unused-private-field
 		ARFLAGS = rc
 	else
 		# *nix Only Flags/Libs
 		CFLAGS += -Wno-unused-but-set-variable
 		CXXFLAGS += -Wno-unused-but-set-variable
 	endif
-
 endif
 
 # Output

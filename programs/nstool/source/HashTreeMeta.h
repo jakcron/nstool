@@ -1,6 +1,6 @@
 #pragma once
-#include <nx/HierarchicalIntegrityHeader.h>
-#include <nx/HierarchicalSha256Header.h>
+#include <nn/hac/HierarchicalIntegrityHeader.h>
+#include <nn/hac/HierarchicalSha256Header.h>
 
 class HashTreeMeta
 {
@@ -50,8 +50,8 @@ public:
 	const sLayer& getDataLayer() const;
 	void setDataLayer(const sLayer& data_info);
 
-	const fnd::List<crypto::sha::sSha256Hash>& getMasterHashList() const;
-	void setMasterHashList(const fnd::List<crypto::sha::sSha256Hash>& master_hash_list);
+	const fnd::List<fnd::sha::sSha256Hash>& getMasterHashList() const;
+	void setMasterHashList(const fnd::List<fnd::sha::sSha256Hash>& master_hash_list);
 
 	bool getAlignHashToBlock() const;
 	void setAlignHashToBlock(bool doAlign);
@@ -60,9 +60,9 @@ private:
 	// data
 	fnd::List<sLayer> mLayerInfo;
 	sLayer mDataLayer;
-	fnd::List<crypto::sha::sSha256Hash> mMasterHashList;
+	fnd::List<fnd::sha::sSha256Hash> mMasterHashList;
 	bool mDoAlignHashToBlock;
 
-	void importHierarchicalIntergityHeader(const nx::HierarchicalIntegrityHeader& hdr);
-	void importHierarchicalSha256Header(const nx::HierarchicalSha256Header& hdr);
+	void importHierarchicalIntergityHeader(const nn::hac::HierarchicalIntegrityHeader& hdr);
+	void importHierarchicalSha256Header(const nn::hac::HierarchicalSha256Header& hdr);
 };

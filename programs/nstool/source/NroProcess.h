@@ -3,8 +3,8 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
-#include <nx/npdm.h>
-#include <nx/NroHeader.h>
+#include <nn/hac/npdm.h>
+#include <nn/hac/NroHeader.h>
 #include "AssetProcess.h"
 
 #include "nstool.h"
@@ -22,7 +22,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	void setInstructionType(nx::npdm::InstructionType type);
+	void setInstructionType(nn::hac::npdm::InstructionType type);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
@@ -42,7 +42,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nx::NroHeader mHdr;
+	nn::hac::NroHeader mHdr;
 	fnd::Vec<byte_t> mTextBlob, mRoBlob, mDataBlob;
 	RoMetadataProcess mRoMeta;
 	bool mIsHomebrewNro;
