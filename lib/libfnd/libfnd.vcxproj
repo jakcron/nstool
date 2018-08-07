@@ -19,10 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7BE99936-0D40-410D-944B-4513C2EFF8DC}</ProjectGuid>
-    <RootNamespace>es</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>libes</ProjectName>
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{4D27EDB9-5110-44FE-8CE2-D46C5AD3C55B}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -75,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libes\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -84,7 +83,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libes\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -95,7 +94,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libes\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -110,7 +109,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libes\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -122,13 +121,28 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\es\SectionHeader_V2.h" />
-    <ClInclude Include="include\es\ticket.h" />
-    <ClInclude Include="include\es\TicketBody_V2.h" />
+    <ClInclude Include="include\fnd\BitMath.h" />
+    <ClInclude Include="include\fnd\elf.h" />
+    <ClInclude Include="include\fnd\Endian.h" />
+    <ClInclude Include="include\fnd\Exception.h" />
+    <ClInclude Include="include\fnd\IFile.h" />
+    <ClInclude Include="include\fnd\io.h" />
+    <ClInclude Include="include\fnd\ISerialisable.h" />
+    <ClInclude Include="include\fnd\List.h" />
+    <ClInclude Include="include\fnd\ResourceFileReader.h" />
+    <ClInclude Include="include\fnd\SimpleFile.h" />
+    <ClInclude Include="include\fnd\SimpleTextOutput.h" />
+    <ClInclude Include="include\fnd\StringConv.h" />
+    <ClInclude Include="include\fnd\types.h" />
+    <ClInclude Include="include\fnd\Vec.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\SectionHeader_V2.cpp" />
-    <ClCompile Include="source\TicketBody_V2.cpp" />
+    <ClCompile Include="source\Exception.cpp" />
+    <ClCompile Include="source\io.cpp" />
+    <ClCompile Include="source\ResourceFileReader.cpp" />
+    <ClCompile Include="source\SimpleFile.cpp" />
+    <ClCompile Include="source\SimpleTextOutput.cpp" />
+    <ClCompile Include="source\StringConv.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

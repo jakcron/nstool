@@ -15,33 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\nn\pki\cert.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\pki\CertificateBody.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\pki\sign.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\pki\SignatureBlock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\pki\SignedData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\pki\SignUtils.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\lz4.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\CertificateBody.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SignatureBlock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\SignUtils.cpp">
+    <ClCompile Include="source\lz4.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

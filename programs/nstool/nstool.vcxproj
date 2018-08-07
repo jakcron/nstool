@@ -151,22 +151,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\lib\libpolarssl\libpolarssl.vcxproj">
+      <Project>{394EFC16-BD3A-4538-B33D-7BA1EDB8DAC1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\lib\liblz4\liblz4.vcxproj">
+      <Project>{AB0C3362-63AB-480A-ADBC-2EF7D859778B}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\lib\libcompress\libcompress.vcxproj">
       <Project>{cf01b5b7-730a-447f-9bb2-5eda9b082177}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\lib\libcrypto\crypto.vcxproj">
+    <ProjectReference Include="..\..\lib\libcrypto\libcrypto.vcxproj">
       <Project>{6adbb60d-dba0-411d-bd2d-a355ef8e0fe1}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\lib\libes\es.vcxproj">
+    <ProjectReference Include="..\..\lib\libes\libes.vcxproj">
       <Project>{7be99936-0d40-410d-944b-4513c2eff8dc}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\lib\libfnd\fnd.vcxproj">
+    <ProjectReference Include="..\..\lib\libfnd\libfnd.vcxproj">
       <Project>{4d27edb9-5110-44fe-8ce2-d46c5ad3c55b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\lib\libnx-hb\libnx-hb.vcxproj">
+    <ProjectReference Include="..\..\lib\libhac-hb\libhac-hb.vcxproj">
       <Project>{738cb4fc-cd9e-4b81-a04b-deadbfa71c63}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\lib\libnx\nx.vcxproj">
+    <ProjectReference Include="..\..\lib\libhac\libhac.vcxproj">
       <Project>{91ba9e79-8242-4f7d-b997-0dfec95ea22b}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\lib\libpki\libpki.vcxproj">

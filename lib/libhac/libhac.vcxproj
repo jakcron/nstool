@@ -22,61 +22,61 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\nx\AccessControlInfoBinary.h" />
-    <ClInclude Include="include\nx\AccessControlInfoDescBinary.h" />
-    <ClInclude Include="include\nx\aci.h" />
-    <ClInclude Include="include\nx\AesKeygen.h" />
-    <ClInclude Include="include\nx\ApplicationControlPropertyBinary.h" />
-    <ClInclude Include="include\nx\ApplicationControlPropertyUtils.h" />
-    <ClInclude Include="include\nx\cnmt.h" />
-    <ClInclude Include="include\nx\ContentMetaBinary.h" />
-    <ClInclude Include="include\nx\elf.h" />
-    <ClInclude Include="include\nx\fac.h" />
-    <ClInclude Include="include\nx\FileSystemAccessControlBinary.h" />
-    <ClInclude Include="include\nx\HandleTableSizeEntry.h" />
-    <ClInclude Include="include\nx\HandleTableSizeHandler.h" />
-    <ClInclude Include="include\nx\hierarchicalintegrity.h" />
-    <ClInclude Include="include\nx\HierarchicalIntegrityHeader.h" />
-    <ClInclude Include="include\nx\hierarchicalsha256.h" />
-    <ClInclude Include="include\nx\HierarchicalSha256Header.h" />
-    <ClInclude Include="include\nx\IKernelCapabilityHandler.h" />
-    <ClInclude Include="include\nx\InteruptEntry.h" />
-    <ClInclude Include="include\nx\InteruptHandler.h" />
-    <ClInclude Include="include\nx\kc.h" />
-    <ClInclude Include="include\nx\KernelCapabilityBinary.h" />
-    <ClInclude Include="include\nx\KernelCapabilityEntry.h" />
-    <ClInclude Include="include\nx\KernelVersionEntry.h" />
-    <ClInclude Include="include\nx\KernelVersionHandler.h" />
-    <ClInclude Include="include\nx\macro.h" />
-    <ClInclude Include="include\nx\MemoryMappingHandler.h" />
-    <ClInclude Include="include\nx\MemoryPageEntry.h" />
-    <ClInclude Include="include\nx\MiscFlagsEntry.h" />
-    <ClInclude Include="include\nx\MiscFlagsHandler.h" />
-    <ClInclude Include="include\nx\MiscParamsEntry.h" />
-    <ClInclude Include="include\nx\MiscParamsHandler.h" />
-    <ClInclude Include="include\nx\nacp.h" />
-    <ClInclude Include="include\nx\nca.h" />
-    <ClInclude Include="include\nx\NcaHeader.h" />
-    <ClInclude Include="include\nx\NcaUtils.h" />
-    <ClInclude Include="include\nx\npdm.h" />
-    <ClInclude Include="include\nx\NpdmBinary.h" />
-    <ClInclude Include="include\nx\nro.h" />
-    <ClInclude Include="include\nx\NroHeader.h" />
-    <ClInclude Include="include\nx\nrr.h" />
-    <ClInclude Include="include\nx\nso.h" />
-    <ClInclude Include="include\nx\NsoHeader.h" />
-    <ClInclude Include="include\nx\pfs.h" />
-    <ClInclude Include="include\nx\PfsHeader.h" />
-    <ClInclude Include="include\nx\romfs.h" />
-    <ClInclude Include="include\nx\ServiceAccessControlBinary.h" />
-    <ClInclude Include="include\nx\ServiceAccessControlEntry.h" />
-    <ClInclude Include="include\nx\SystemCallEntry.h" />
-    <ClInclude Include="include\nx\SystemCallHandler.h" />
-    <ClInclude Include="include\nx\ThreadInfoEntry.h" />
-    <ClInclude Include="include\nx\ThreadInfoHandler.h" />
-    <ClInclude Include="include\nx\xci.h" />
-    <ClInclude Include="include\nx\XciHeader.h" />
-    <ClInclude Include="include\nx\XciUtils.h" />
+    <ClInclude Include="include\nn\hac\AccessControlInfoBinary.h" />
+    <ClInclude Include="include\nn\hac\AccessControlInfoDescBinary.h" />
+    <ClInclude Include="include\nn\hac\aci.h" />
+    <ClInclude Include="include\nn\hac\AesKeygen.h" />
+    <ClInclude Include="include\nn\hac\ApplicationControlPropertyBinary.h" />
+    <ClInclude Include="include\nn\hac\ApplicationControlPropertyUtils.h" />
+    <ClInclude Include="include\nn\hac\cnmt.h" />
+    <ClInclude Include="include\nn\hac\ContentMetaBinary.h" />
+    <ClInclude Include="include\nn\hac\elf.h" />
+    <ClInclude Include="include\nn\hac\fac.h" />
+    <ClInclude Include="include\nn\hac\FileSystemAccessControlBinary.h" />
+    <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h" />
+    <ClInclude Include="include\nn\hac\HandleTableSizeHandler.h" />
+    <ClInclude Include="include\nn\hac\hierarchicalintegrity.h" />
+    <ClInclude Include="include\nn\hac\HierarchicalIntegrityHeader.h" />
+    <ClInclude Include="include\nn\hac\hierarchicalsha256.h" />
+    <ClInclude Include="include\nn\hac\HierarchicalSha256Header.h" />
+    <ClInclude Include="include\nn\hac\IKernelCapabilityHandler.h" />
+    <ClInclude Include="include\nn\hac\InteruptEntry.h" />
+    <ClInclude Include="include\nn\hac\InteruptHandler.h" />
+    <ClInclude Include="include\nn\hac\kc.h" />
+    <ClInclude Include="include\nn\hac\KernelCapabilityBinary.h" />
+    <ClInclude Include="include\nn\hac\KernelCapabilityEntry.h" />
+    <ClInclude Include="include\nn\hac\KernelVersionEntry.h" />
+    <ClInclude Include="include\nn\hac\KernelVersionHandler.h" />
+    <ClInclude Include="include\nn\hac\macro.h" />
+    <ClInclude Include="include\nn\hac\MemoryMappingHandler.h" />
+    <ClInclude Include="include\nn\hac\MemoryPageEntry.h" />
+    <ClInclude Include="include\nn\hac\MiscFlagsEntry.h" />
+    <ClInclude Include="include\nn\hac\MiscFlagsHandler.h" />
+    <ClInclude Include="include\nn\hac\MiscParamsEntry.h" />
+    <ClInclude Include="include\nn\hac\MiscParamsHandler.h" />
+    <ClInclude Include="include\nn\hac\nacp.h" />
+    <ClInclude Include="include\nn\hac\nca.h" />
+    <ClInclude Include="include\nn\hac\NcaHeader.h" />
+    <ClInclude Include="include\nn\hac\NcaUtils.h" />
+    <ClInclude Include="include\nn\hac\npdm.h" />
+    <ClInclude Include="include\nn\hac\NpdmBinary.h" />
+    <ClInclude Include="include\nn\hac\nro.h" />
+    <ClInclude Include="include\nn\hac\NroHeader.h" />
+    <ClInclude Include="include\nn\hac\nrr.h" />
+    <ClInclude Include="include\nn\hac\nso.h" />
+    <ClInclude Include="include\nn\hac\NsoHeader.h" />
+    <ClInclude Include="include\nn\hac\pfs.h" />
+    <ClInclude Include="include\nn\hac\PfsHeader.h" />
+    <ClInclude Include="include\nn\hac\romfs.h" />
+    <ClInclude Include="include\nn\hac\ServiceAccessControlBinary.h" />
+    <ClInclude Include="include\nn\hac\ServiceAccessControlEntry.h" />
+    <ClInclude Include="include\nn\hac\SystemCallEntry.h" />
+    <ClInclude Include="include\nn\hac\SystemCallHandler.h" />
+    <ClInclude Include="include\nn\hac\ThreadInfoEntry.h" />
+    <ClInclude Include="include\nn\hac\ThreadInfoHandler.h" />
+    <ClInclude Include="include\nn\hac\xci.h" />
+    <ClInclude Include="include\nn\hac\XciHeader.h" />
+    <ClInclude Include="include\nn\hac\XciUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AccessControlInfoBinary.cpp" />
@@ -120,9 +120,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{91BA9E79-8242-4F7D-B997-0DFEC95EA22B}</ProjectGuid>
-    <RootNamespace>nx</RootNamespace>
+    <RootNamespace>hac</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
-    <ProjectName>libnx</ProjectName>
+    <ProjectName>libhac</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -175,7 +175,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libnx\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libhac\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -184,7 +184,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libnx\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libhac\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -195,7 +195,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libnx\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libhac\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -210,7 +210,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libnx\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libfnd\include;..\libcrypto\include;..\libhac\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

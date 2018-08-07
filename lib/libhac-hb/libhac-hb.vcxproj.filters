@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\nx\aset.h">
+    <ClInclude Include="include\nn\hac\aset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nx\AssetHeader.h">
+    <ClInclude Include="include\nn\hac\AssetHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nx\nro-hb.h">
+    <ClInclude Include="include\nn\hac\nro-hb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

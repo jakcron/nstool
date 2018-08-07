@@ -7,7 +7,7 @@
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -15,33 +15,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\nn\pki\cert.h">
+    <ClInclude Include="include\crypto\aes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\pki\CertificateBody.h">
+    <ClInclude Include="include\crypto\rsa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\pki\sign.h">
+    <ClInclude Include="include\crypto\sha.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\pki\SignatureBlock.h">
+    <ClInclude Include="include\crypto\ecdsa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\pki\SignedData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\pki\SignUtils.h">
+    <ClInclude Include="include\crypto\base64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\CertificateBody.cpp">
+    <ClCompile Include="source\aes_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\SignatureBlock.cpp">
+    <ClCompile Include="source\rsa_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\SignUtils.cpp">
+    <ClCompile Include="source\sha_wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\base64_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
