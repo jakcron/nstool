@@ -31,4 +31,10 @@ private:
 	nn::hac::ContentMetaBinary mCnmt;
 
 	void displayCmnt();
+
+	const char* getBoolStr(bool state) const;
+	const char* getContentTypeStr(byte_t type) const;
+	const char* getContentMetaTypeStr(byte_t type) const;
+	const char* getUpdateTypeStr(byte_t type) const;
+	const char* getContentMetaAttrStr(byte_t type) const;
 };

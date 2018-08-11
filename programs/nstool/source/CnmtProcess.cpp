@@ -2,64 +2,59 @@
 #include "OffsetAdjustedIFile.h"
 #include "CnmtProcess.h"
 
-const std::string kContentTypeStr[7] =
+CnmtProcess::CnmtProcess() :
+	mFile(nullptr),
+	mOwnIFile(false),
+	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mVerify(false)
 {
-	"Meta",
-	"Program",
-	"Data",
-	"Control",
-	"HtmlDocument",
-	"LegalInformation",
-	"DeltaFragment"
-};
+}
 
-const std::string kContentMetaTypeStr[2][0x80] =
+CnmtProcess::~CnmtProcess()
 {
+	if (mOwnIFile)
 	{
-		"",
-		"SystemProgram",
-		"SystemData",
-		"SystemUpdate",
-		"BootImagePackage",
-		"BootImagePackageSafe"
-	},
-	{
-		"Application",
-		"Patch",
-		"AddOnContent",
-		"Delta"
+		delete mFile;
 	}
-};
-
-const std::string kUpdateTypeStr[3] =
-{
-	"ApplyAsDelta",
-	"Overwrite",
-	"Create"
-};
-
-const std::string kContentMetaAttrStr[3] =
-{
-	"IncludesExFatDriver",
-	"Rebootless"
-};
-
-
-std::string kUnknownStr = "Unknown";
-
-inline const char* getBoolStr(bool isTrue)
-{
-	return isTrue? "TRUE" : "FALSE";
 }
 
-inline const char* getContentTypeStr(byte_t i)
+void CnmtProcess::process()
 {
-	return i < 7 ? kContentTypeStr[i].c_str() : kUnknownStr.c_str();
+	fnd::Vec<byte_t> scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
+	scratch.alloc(mFile->size());
+	mFile->read(scratch.data(), 0, scratch.size());
+
+	mCnmt.fromBytes(scratch.data(), scratch.size());
+
+	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+		displayCmnt();
 }
 
-inline const char* getContentMetaTypeStr(byte_t i)
+void CnmtProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 {
-	return (i < 0x80) ? kContentMetaTypeStr[0][i].c_str() : kContentMetaTypeStr[1][i - 0x80].c_str();
+	mFile = file;
+	mOwnIFile = ownIFile;
+}
+
+void CnmtProcess::setCliOutputMode(CliOutputMode type)
+{
+	mCliOutputMode = type;
+}
+
+void CnmtProcess::setVerifyMode(bool verify)
+{
+	mVerify = verify;
+}
+
+const nn::hac::ContentMetaBinary& CnmtProcess::getContentMetaBinary() const
+{
+	return mCnmt;
 }
 
 void CnmtProcess::displayCmnt()
@@ -141,57 +136,126 @@ void CnmtProcess::displayCmnt()
 #undef _SPLIT_VER
 }
 
-CnmtProcess::CnmtProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
-	mVerify(false)
+const char* CnmtProcess::getBoolStr(bool state) const
 {
+	return state? "TRUE" : "FALSE";
 }
 
-CnmtProcess::~CnmtProcess()
+const char* CnmtProcess::getContentTypeStr(byte_t type) const
 {
-	if (mOwnIFile)
+	const char* str = nullptr;
+
+	switch (type)
 	{
-		delete mFile;
+	case (nn::hac::cnmt::TYPE_META):
+		str = "Meta";
+		break;
+	case (nn::hac::cnmt::TYPE_PROGRAM):
+		str = "Program";
+		break;
+	case (nn::hac::cnmt::TYPE_DATA):
+		str = "Data";
+		break;
+	case (nn::hac::cnmt::TYPE_CONTROL):
+		str = "Control";
+		break;
+	case (nn::hac::cnmt::TYPE_HTML_DOCUMENT):
+		str = "HtmlDocument";
+		break;
+	case (nn::hac::cnmt::TYPE_LEGAL_INFORMATION):
+		str = "LegalInformation";
+		break;
+	case (nn::hac::cnmt::TYPE_DELTA_FRAGMENT):
+		str = "DeltaFragment";
+		break;
+	default:
+		str = "Unknown";
+		break;
 	}
+
+	return str;
 }
 
-void CnmtProcess::process()
+const char* CnmtProcess::getContentMetaTypeStr(byte_t type) const
 {
-	fnd::Vec<byte_t> scratch;
+	const char* str = nullptr;
 
-	if (mFile == nullptr)
+	switch (type)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+	case (nn::hac::cnmt::METATYPE_SYSTEM_PROGRAM):
+		str = "SystemProgram";
+		break;
+	case (nn::hac::cnmt::METATYPE_SYSTEM_DATA):
+		str = "SystemData";
+		break;
+	case (nn::hac::cnmt::METATYPE_SYSTEM_UPDATE):
+		str = "SystemUpdate";
+		break;
+	case (nn::hac::cnmt::METATYPE_BOOT_IMAGE_PACKAGE):
+		str = "BootImagePackage";
+		break;
+	case (nn::hac::cnmt::METATYPE_BOOT_IMAGE_PACKAGE_SAFE):
+		str = "BootImagePackageSafe";
+		break;
+	case (nn::hac::cnmt::METATYPE_APPLICATION):
+		str = "Application";
+		break;
+	case (nn::hac::cnmt::METATYPE_PATCH):
+		str = "Patch";
+		break;
+	case (nn::hac::cnmt::METATYPE_ADD_ON_CONTENT):
+		str = "AddOnContent";
+		break;
+	case (nn::hac::cnmt::METATYPE_DELTA):
+		str = "Delta";
+		break;
+	default:
+		str = "Unknown";
+		break;
 	}
 
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
-
-	mCnmt.fromBytes(scratch.data(), scratch.size());
-
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
-		displayCmnt();
+	return str;
 }
 
-void CnmtProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+const char* CnmtProcess::getUpdateTypeStr(byte_t type) const
 {
-	mFile = file;
-	mOwnIFile = ownIFile;
+	const char* str = nullptr;
+
+	switch (type)
+	{
+	case (nn::hac::cnmt::UPDATETYPE_APPLY_AS_DELTA):
+		str = "ApplyAsDelta";
+		break;
+	case (nn::hac::cnmt::UPDATETYPE_OVERWRITE):
+		str = "Overwrite";
+		break;
+	case (nn::hac::cnmt::UPDATETYPE_CREATE):
+		str = "Create";
+		break;
+	default:
+		str = "Unknown";
+		break;
+	}
+
+	return str;
 }
 
-void CnmtProcess::setCliOutputMode(CliOutputMode type)
+const char* CnmtProcess::getContentMetaAttrStr(byte_t type) const
 {
-	mCliOutputMode = type;
-}
+	const char* str = nullptr;
 
-void CnmtProcess::setVerifyMode(bool verify)
-{
-	mVerify = verify;
-}
+	switch (type)
+	{
+	case (nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER):
+		str = "IncludesExFatDriver";
+		break;
+	case (nn::hac::cnmt::ATTRIBUTE_REBOOTLESS):
+		str = "Rebootless";
+		break;
+	default:
+		str = "Unknown";
+		break;
+	}
 
-const nn::hac::ContentMetaBinary& CnmtProcess::getContentMetaBinary() const
-{
-	return mCnmt;
+	return str;
 }
