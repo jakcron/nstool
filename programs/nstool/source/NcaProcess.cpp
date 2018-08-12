@@ -11,215 +11,6 @@
 #include "AesCtrWrappedIFile.h"
 #include "HashTreeWrappedIFile.h"
 
-const char* getFormatVersionStr(nn::hac::NcaHeader::FormatVersion format_ver)
-{
-	const char* str;
-	switch (format_ver)
-	{
-		case (nn::hac::NcaHeader::NCA2_FORMAT):
-			str = "NCA2";
-			break;
-		case (nn::hac::NcaHeader::NCA3_FORMAT):
-			str = "NCA3";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-	return str;
-}
-
-const char* getDistributionTypeStr(nn::hac::nca::DistributionType dist_type)
-{
-	const char* str;
-	switch (dist_type)
-	{
-		case (nn::hac::nca::DIST_DOWNLOAD):
-			str = "Download";
-			break;
-		case (nn::hac::nca::DIST_GAME_CARD):
-			str = "Game Card";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-	return str;
-}
-
-
- const char* getContentTypeStr(nn::hac::nca::ContentType cont_type)
-{
-	const char* str;
-	switch (cont_type)
-	{
-		case (nn::hac::nca::TYPE_PROGRAM):
-			str = "Program";
-			break;
-		case (nn::hac::nca::TYPE_META):
-			str = "Meta";
-			break;
-		case (nn::hac::nca::TYPE_CONTROL):
-			str = "Control";
-			break;
-		case (nn::hac::nca::TYPE_MANUAL):
-			str = "Manual";
-			break;
-		case (nn::hac::nca::TYPE_DATA):
-			str = "Data";
-			break;
-		case (nn::hac::nca::TYPE_PUBLIC_DATA):
-			str = "PublicData";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-	return str;
-}
-
-const char* getEncryptionTypeStr(nn::hac::nca::EncryptionType enc_type)
-{
-	const char* str;
-	switch (enc_type)
-	{
-		case (nn::hac::nca::CRYPT_AUTO):
-			str = "Auto";
-			break;
-		case (nn::hac::nca::CRYPT_NONE):
-			str = "None";
-			break;
-		case (nn::hac::nca::CRYPT_AESXTS):
-			str = "AesXts";
-			break;
-		case (nn::hac::nca::CRYPT_AESCTR):
-			str = "AesCtr";
-			break;
-		case (nn::hac::nca::CRYPT_AESCTREX):
-			str = "AesCtrEx";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-	return str;
-}
-
-inline const char* getHashTypeStr(nn::hac::nca::HashType hash_type)
-{
-	const char* str;
-	switch (hash_type)
-	{
-		case (nn::hac::nca::HASH_AUTO):
-			str = "Auto";
-			break;
-		case (nn::hac::nca::HASH_NONE):
-			str = "None";
-			break;
-		case (nn::hac::nca::HASH_HIERARCHICAL_SHA256):
-			str = "HierarchicalSha256";
-			break;
-		case (nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY):
-			str = "HierarchicalIntegrity";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-	return str;
-}
-
-inline const char* getFormatTypeStr(nn::hac::nca::FormatType format_type)
-{
-	const char* str;
-	switch (format_type)
-	{
-		case (nn::hac::nca::FORMAT_ROMFS):
-			str = "RomFs";
-			break;
-		case (nn::hac::nca::FORMAT_PFS0):
-			str = "PartitionFs";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-	return str;
-}
-
-inline const char* getKaekIndexStr(nn::hac::nca::KeyAreaEncryptionKeyIndex keak_index)
-{
-	const char* str;
-	switch (keak_index)
-	{
-		case (nn::hac::nca::KAEK_IDX_APPLICATION):
-			str = "Application";
-			break;
-		case (nn::hac::nca::KAEK_IDX_OCEAN):
-			str = "Ocean";
-			break;
-		case (nn::hac::nca::KAEK_IDX_SYSTEM):
-			str = "System";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-	return str;
-}
-
-inline const char* getContentTypeForMountStr(nn::hac::nca::ContentType cont_type)
-{
-	const char* str;
-	switch (cont_type)
-	{
-		case (nn::hac::nca::TYPE_PROGRAM):
-			str = "program";
-			break;
-		case (nn::hac::nca::TYPE_META):
-			str = "meta";
-			break;
-		case (nn::hac::nca::TYPE_CONTROL):
-			str = "control";
-			break;
-		case (nn::hac::nca::TYPE_MANUAL):
-			str = "manual";
-			break;
-		case (nn::hac::nca::TYPE_DATA):
-			str = "data";
-			break;
-		case (nn::hac::nca::TYPE_PUBLIC_DATA):
-			str = "publicData";
-			break;
-		default:
-			str = "";
-			break;
-	}
-	return str;
-}
-
-const char* getProgramPartitionNameStr(size_t i)
-{
-	const char* str;
-	switch (i)
-	{
-		case (nn::hac::nca::PARTITION_CODE):
-			str = "code";
-			break;
-		case (nn::hac::nca::PARTITION_DATA):
-			str = "data";
-			break;
-		case (nn::hac::nca::PARTITION_LOGO):
-			str = "logo";
-			break;
-		default:
-			str = "";
-			break;
-	}
-	return str;
-}
-
-
 NcaProcess::NcaProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
@@ -805,4 +596,230 @@ void NcaProcess::processPartitions()
 			//printf("romfs.process() end\n");
 		}
 	}
+}
+
+const char* NcaProcess::getFormatVersionStr(nn::hac::NcaHeader::FormatVersion format_ver) const
+{
+	const char* str = nullptr;
+
+	switch (format_ver)
+	{
+		case (nn::hac::NcaHeader::NCA2_FORMAT):
+			str = "NCA2";
+			break;
+		case (nn::hac::NcaHeader::NCA3_FORMAT):
+			str = "NCA3";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+
+	return str;
+}
+
+const char* NcaProcess::getDistributionTypeStr(nn::hac::nca::DistributionType dist_type) const
+{
+	const char* str = nullptr;
+
+	switch (dist_type)
+	{
+		case (nn::hac::nca::DIST_DOWNLOAD):
+			str = "Download";
+			break;
+		case (nn::hac::nca::DIST_GAME_CARD):
+			str = "Game Card";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+
+	return str;
+}
+
+
+const char* NcaProcess::getContentTypeStr(nn::hac::nca::ContentType cont_type) const
+{
+	const char* str = nullptr;
+
+	switch (cont_type)
+	{
+		case (nn::hac::nca::TYPE_PROGRAM):
+			str = "Program";
+			break;
+		case (nn::hac::nca::TYPE_META):
+			str = "Meta";
+			break;
+		case (nn::hac::nca::TYPE_CONTROL):
+			str = "Control";
+			break;
+		case (nn::hac::nca::TYPE_MANUAL):
+			str = "Manual";
+			break;
+		case (nn::hac::nca::TYPE_DATA):
+			str = "Data";
+			break;
+		case (nn::hac::nca::TYPE_PUBLIC_DATA):
+			str = "PublicData";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+
+	return str;
+}
+
+const char* NcaProcess::getEncryptionTypeStr(nn::hac::nca::EncryptionType enc_type) const
+{
+	const char* str = nullptr;
+
+	switch (enc_type)
+	{
+		case (nn::hac::nca::CRYPT_AUTO):
+			str = "Auto";
+			break;
+		case (nn::hac::nca::CRYPT_NONE):
+			str = "None";
+			break;
+		case (nn::hac::nca::CRYPT_AESXTS):
+			str = "AesXts";
+			break;
+		case (nn::hac::nca::CRYPT_AESCTR):
+			str = "AesCtr";
+			break;
+		case (nn::hac::nca::CRYPT_AESCTREX):
+			str = "AesCtrEx";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+
+	return str;
+}
+
+const char* NcaProcess::getHashTypeStr(nn::hac::nca::HashType hash_type) const
+{
+	const char* str = nullptr;
+
+	switch (hash_type)
+	{
+		case (nn::hac::nca::HASH_AUTO):
+			str = "Auto";
+			break;
+		case (nn::hac::nca::HASH_NONE):
+			str = "None";
+			break;
+		case (nn::hac::nca::HASH_HIERARCHICAL_SHA256):
+			str = "HierarchicalSha256";
+			break;
+		case (nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY):
+			str = "HierarchicalIntegrity";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+
+	return str;
+}
+
+const char* NcaProcess::getFormatTypeStr(nn::hac::nca::FormatType format_type) const
+{
+	const char* str = nullptr;
+
+	switch (format_type)
+	{
+		case (nn::hac::nca::FORMAT_ROMFS):
+			str = "RomFs";
+			break;
+		case (nn::hac::nca::FORMAT_PFS0):
+			str = "PartitionFs";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+
+	return str;
+}
+
+const char* NcaProcess::getKaekIndexStr(nn::hac::nca::KeyAreaEncryptionKeyIndex keak_index) const
+{
+	const char* str = nullptr;
+
+	switch (keak_index)
+	{
+		case (nn::hac::nca::KAEK_IDX_APPLICATION):
+			str = "Application";
+			break;
+		case (nn::hac::nca::KAEK_IDX_OCEAN):
+			str = "Ocean";
+			break;
+		case (nn::hac::nca::KAEK_IDX_SYSTEM):
+			str = "System";
+			break;
+		default:
+			str = "Unknown";
+			break;
+	}
+
+	return str;
+}
+
+const char* NcaProcess::getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const
+{
+	const char* str = nullptr;
+
+	switch (cont_type)
+	{
+		case (nn::hac::nca::TYPE_PROGRAM):
+			str = "program";
+			break;
+		case (nn::hac::nca::TYPE_META):
+			str = "meta";
+			break;
+		case (nn::hac::nca::TYPE_CONTROL):
+			str = "control";
+			break;
+		case (nn::hac::nca::TYPE_MANUAL):
+			str = "manual";
+			break;
+		case (nn::hac::nca::TYPE_DATA):
+			str = "data";
+			break;
+		case (nn::hac::nca::TYPE_PUBLIC_DATA):
+			str = "publicData";
+			break;
+		default:
+			str = "";
+			break;
+	}
+
+	return str;
+}
+
+const char* NcaProcess::getProgramPartitionNameStr(size_t i) const
+{
+	const char* str = nullptr;
+
+	switch (i)
+	{
+		case (nn::hac::nca::PARTITION_CODE):
+			str = "code";
+			break;
+		case (nn::hac::nca::PARTITION_DATA):
+			str = "data";
+			break;
+		case (nn::hac::nca::PARTITION_LOGO):
+			str = "logo";
+			break;
+		default:
+			str = "";
+			break;
+	}
+
+	return str;
 }
