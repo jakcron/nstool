@@ -33,8 +33,8 @@ private:
 	void displayCmnt();
 
 	const char* getBoolStr(bool state) const;
-	const char* getContentTypeStr(byte_t type) const;
-	const char* getContentMetaTypeStr(byte_t type) const;
-	const char* getUpdateTypeStr(byte_t type) const;
-	const char* getContentMetaAttrStr(byte_t type) const;
+	const char* getContentTypeStr(nn::hac::cnmt::ContentType type) const;
+	const char* getContentMetaTypeStr(nn::hac::cnmt::ContentMetaType type) const;
+	const char* getUpdateTypeStr(nn::hac::cnmt::UpdateType type) const;
+	const char* getContentMetaAttrStr(nn::hac::cnmt::ContentMetaAttribute attr) const;
 };

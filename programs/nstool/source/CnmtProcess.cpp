@@ -1,4 +1,6 @@
 #include <fnd/SimpleTextOutput.h>
+#include <iostream>
+#include <iomanip>
 #include "OffsetAdjustedIFile.h"
 #include "CnmtProcess.h"
 
@@ -59,38 +61,37 @@ const nn::hac::ContentMetaBinary& CnmtProcess::getContentMetaBinary() const
 
 void CnmtProcess::displayCmnt()
 {
-#define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
-#define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
+#define _SPLIT_VER(ver) (uint32_t)((ver>>26) & 0x3f) << "." << (uint32_t)((ver>>20) & 0x3f) << "." << (uint32_t)((ver>>16) & 0xf) << "." << (uint32_t)(ver & 0xffff)
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
 
-	printf("[ContentMeta]\n");
-	printf("  TitleId:               0x%016" PRIx64 "\n", (uint64_t)mCnmt.getTitleId());
-	printf("  Version:               v%" PRId32 " (%d.%d.%d.%d)\n", (uint32_t)mCnmt.getTitleVersion(), _SPLIT_VER(mCnmt.getTitleVersion()));
-	printf("  Type:                  %s (%d)\n", getContentMetaTypeStr(mCnmt.getType()), mCnmt.getType());
-	printf("  Attributes:            %x\n", mCnmt.getAttributes());
-	printf("    IncludesExFatDriver: %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)));
-	printf("    Rebootless:          %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)));
-	printf("  RequiredDownloadSystemVersion: v%" PRId32 " (%d.%d.%d.%d)\n", (uint32_t)mCnmt.getRequiredDownloadSystemVersion(), _SPLIT_VER(mCnmt.getRequiredDownloadSystemVersion()));
+	std::cout << "[ContentMeta]" << std::endl;
+	std::cout << "  TitleId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getTitleId() << std::endl;
+	std::cout << "  Version:               v" << std::dec << mCnmt.getTitleVersion() << " (" << _SPLIT_VER(mCnmt.getTitleVersion()) << ")"<< std::endl;
+	std::cout << "  Type:                  " << getContentMetaTypeStr(mCnmt.getType()) << " (" << std::dec << mCnmt.getType() << ")" << std::endl;
+	std::cout << "  Attributes:            " << std::hex << mCnmt.getAttributes() << std::endl;
+	std::cout << "    IncludesExFatDriver: " << getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)) << std::endl;
+	std::cout << "    Rebootless:          " << getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)) << std::endl;
+	std::cout << "  RequiredDownloadSystemVersion: v" << mCnmt.getRequiredDownloadSystemVersion() << " (" << _SPLIT_VER(mCnmt.getRequiredDownloadSystemVersion()) << ")"<< std::endl;
 	switch(mCnmt.getType())
 	{
 		case (nn::hac::cnmt::METATYPE_APPLICATION):
-			printf("  ApplicationExtendedHeader:\n");
-			printf("    RequiredSystemVersion: v%" PRId32 " (%d.%d.%d.%d)\n", (uint32_t)mCnmt.getApplicationMetaExtendedHeader().required_system_version, _SPLIT_VER(mCnmt.getApplicationMetaExtendedHeader().required_system_version));
-			printf("    PatchId:               0x%016" PRIx64 "\n", (uint64_t)mCnmt.getApplicationMetaExtendedHeader().patch_id);
+			std::cout << "  ApplicationExtendedHeader:" << std::endl;
+			std::cout << "    RequiredSystemVersion: v" << std::dec << mCnmt.getApplicationMetaExtendedHeader().required_system_version << " (" << _SPLIT_VER(mCnmt.getApplicationMetaExtendedHeader().required_system_version) << ")"<< std::endl;
+			std::cout << "    PatchId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getApplicationMetaExtendedHeader().patch_id << std::endl;
 			break;
 		case (nn::hac::cnmt::METATYPE_PATCH):
-			printf("  PatchMetaExtendedHeader:\n");
-			printf("    RequiredSystemVersion: v%" PRId32 " (%d.%d.%d.%d))\n", (uint32_t)mCnmt.getPatchMetaExtendedHeader().required_system_version, _SPLIT_VER(mCnmt.getPatchMetaExtendedHeader().required_system_version));
-			printf("    ApplicationId:         0x%016" PRIx64 "\n", (uint64_t)mCnmt.getPatchMetaExtendedHeader().application_id);
+			std::cout << "  PatchMetaExtendedHeader:" << std::endl;
+			std::cout << "    RequiredSystemVersion: v" << std::dec << mCnmt.getPatchMetaExtendedHeader().required_system_version << " (" << _SPLIT_VER(mCnmt.getPatchMetaExtendedHeader().required_system_version) << ")"<< std::endl;
+			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getPatchMetaExtendedHeader().application_id << std::endl;
 			break;
 		case (nn::hac::cnmt::METATYPE_ADD_ON_CONTENT):
-			printf("  AddOnContentMetaExtendedHeader:\n");
-			printf("    RequiredSystemVersion: v%" PRId32 " (%d.%d.%d.%d)\n", (uint32_t)mCnmt.getAddOnContentMetaExtendedHeader().required_system_version, _SPLIT_VER(mCnmt.getAddOnContentMetaExtendedHeader().required_system_version));
-			printf("    ApplicationId:         0x%016" PRIx64 "\n", (uint64_t)mCnmt.getAddOnContentMetaExtendedHeader().application_id);
+			std::cout << "  AddOnContentMetaExtendedHeader:" << std::endl;
+			std::cout << "    RequiredSystemVersion: v" << std::dec << mCnmt.getAddOnContentMetaExtendedHeader().required_system_version << " (" << _SPLIT_VER(mCnmt.getAddOnContentMetaExtendedHeader().required_system_version) << ")"<< std::endl;
+			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getAddOnContentMetaExtendedHeader().application_id << std::endl;
 			break;
 		case (nn::hac::cnmt::METATYPE_DELTA):
-			printf("  DeltaMetaExtendedHeader:\n");
-			printf("    ApplicationId:         0x%016" PRIx64 "\n", (uint64_t)mCnmt.getDeltaMetaExtendedHeader().application_id);
+			std::cout << "  DeltaMetaExtendedHeader:" << std::endl;
+			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getDeltaMetaExtendedHeader().application_id << std::endl;
 			break;
 		default:
 			break;
@@ -101,38 +102,38 @@ void CnmtProcess::displayCmnt()
 		for (size_t i = 0; i < mCnmt.getContentInfo().size(); i++)
 		{
 			const nn::hac::ContentMetaBinary::ContentInfo& info = mCnmt.getContentInfo()[i];
-			printf("    %d\n", (int)i);
-			printf("      Type:         %s (%d)\n", getContentTypeStr(info.type), info.type);
-			printf("      Id:           ");
+			std::cout << "    " << std::dec << i << std::endl;
+			std::cout << "      Type:         " << getContentTypeStr(info.type) << " (" << std::dec << info.type << ")" << std::endl;
+			std::cout << "      Id:           ";
 			_HEXDUMP_L(info.nca_id, nn::hac::cnmt::kContentIdLen);
-			printf("\n");
-			printf("      Size:         0x%" PRIx64 "\n", (uint64_t)info.size);
-			printf("      Hash:         ");
+			std::cout << std::endl;
+			std::cout << "      Size:         0x" << std::hex << info.size << std::endl;
+			std::cout << "      Hash:         ";
 			_HEXDUMP_L(info.hash.bytes, sizeof(info.hash));
-			printf("\n");
+			std::cout << std::endl;
 		}
 	}
 	if (mCnmt.getContentMetaInfo().size() > 0)
 	{
-		printf("  ContentMetaInfo:\n");
+		std::cout << "  ContentMetaInfo:" << std::endl;
 		for (size_t i = 0; i < mCnmt.getContentMetaInfo().size(); i++)
 		{
 			const nn::hac::ContentMetaBinary::ContentMetaInfo& info = mCnmt.getContentMetaInfo()[i];
-			printf("    %d\n", (int)i);
-			printf("      Id:           0x%016" PRIx64 "\n", (uint64_t)info.id);
-			printf("      Version:      v%" PRId32 " (%d.%d.%d.%d)\n", (uint32_t)info.version, _SPLIT_VER(info.version));
-			printf("      Type:         %s (%d)\n", getContentMetaTypeStr(info.type), info.type);
-			printf("      Attributes:   %x\n", mCnmt.getAttributes());
-			printf("        IncludesExFatDriver: %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)));
-			printf("        Rebootless:          %s\n", getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)));
+			std::cout << "    " << std::dec << i << std::endl;
+			std::cout << "      Id:           0x" << std::hex << std::setw(16) << std::setfill('0') << info.id << std::endl;
+			std::cout << "      Version:      v" << std::dec << info.version << " (" << _SPLIT_VER(info.version) << ")"<< std::endl;
+			std::cout << "      Type:         " << getContentMetaTypeStr(info.type) << " (" << std::dec << info.type << ")" << std::endl; 
+			std::cout << "      Attributes:   " << std::hex << info.attributes << std::endl;
+			std::cout << "        IncludesExFatDriver: " << getBoolStr(_HAS_BIT(info.attributes, nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)) << std::endl;
+			std::cout << "        Rebootless:          " << getBoolStr(_HAS_BIT(info.attributes, nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)) << std::endl;
 		}
 	}
-	printf("  Digest:   ");
+
+	std::cout << "  Digest:   ";
 	_HEXDUMP_L(mCnmt.getDigest().data, nn::hac::cnmt::kDigestLen);
-	printf("\n");
+	std::cout << std::endl;
 
 #undef _HEXDUMP_L
-#undef _HEXDUMP_U
 #undef _SPLIT_VER
 }
 
@@ -141,7 +142,7 @@ const char* CnmtProcess::getBoolStr(bool state) const
 	return state? "TRUE" : "FALSE";
 }
 
-const char* CnmtProcess::getContentTypeStr(byte_t type) const
+const char* CnmtProcess::getContentTypeStr(nn::hac::cnmt::ContentType type) const
 {
 	const char* str = nullptr;
 
@@ -176,7 +177,7 @@ const char* CnmtProcess::getContentTypeStr(byte_t type) const
 	return str;
 }
 
-const char* CnmtProcess::getContentMetaTypeStr(byte_t type) const
+const char* CnmtProcess::getContentMetaTypeStr(nn::hac::cnmt::ContentMetaType type) const
 {
 	const char* str = nullptr;
 
@@ -217,7 +218,7 @@ const char* CnmtProcess::getContentMetaTypeStr(byte_t type) const
 	return str;
 }
 
-const char* CnmtProcess::getUpdateTypeStr(byte_t type) const
+const char* CnmtProcess::getUpdateTypeStr(nn::hac::cnmt::UpdateType type) const
 {
 	const char* str = nullptr;
 
@@ -240,11 +241,11 @@ const char* CnmtProcess::getUpdateTypeStr(byte_t type) const
 	return str;
 }
 
-const char* CnmtProcess::getContentMetaAttrStr(byte_t type) const
+const char* CnmtProcess::getContentMetaAttrStr(nn::hac::cnmt::ContentMetaAttribute attr) const
 {
 	const char* str = nullptr;
 
-	switch (type)
+	switch (attr)
 	{
 	case (nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER):
 		str = "IncludesExFatDriver";
