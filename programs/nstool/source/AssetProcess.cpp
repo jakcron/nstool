@@ -1,5 +1,7 @@
 #include <fnd/SimpleFile.h>
 #include <fnd/Vec.h>
+#include <iostream>
+#include <iomanip>
 #include "AssetProcess.h"
 #include "OffsetAdjustedIFile.h"
 
@@ -141,16 +143,16 @@ void AssetProcess::displayHeader()
 {
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
-		printf("[ASET Header]\n");
-		printf("  Icon:\n");
-		printf("    Offset:       0x%" PRIx64 "\n", mHdr.getIconInfo().offset);
-		printf("    Size:         0x%" PRIx64 "\n", mHdr.getIconInfo().size);
-		printf("  NACP:\n");
-		printf("    Offset:       0x%" PRIx64 "\n", mHdr.getNacpInfo().offset);
-		printf("    Size:         0x%" PRIx64 "\n", mHdr.getNacpInfo().size);
-		printf("  RomFS:\n");
-		printf("    Offset:       0x%" PRIx64 "\n", mHdr.getRomfsInfo().offset);
-		printf("    Size:         0x%" PRIx64 "\n", mHdr.getRomfsInfo().size);
+		std::cout << "[ASET Header]" << std::endl;
+		std::cout << "  Icon:" << std::endl;
+		std::cout << "    Offset:       0x" << std::hex << mHdr.getIconInfo().offset << std::endl;
+		std::cout << "    Size:         0x" << std::hex << mHdr.getIconInfo().size << std::endl;
+		std::cout << "  NACP:" << std::endl;
+		std::cout << "    Offset:       0x" << std::hex << mHdr.getNacpInfo().offset << std::endl;
+		std::cout << "    Size:         0x" << std::hex << mHdr.getNacpInfo().size << std::endl;
+		std::cout << "  RomFS:" << std::endl;
+		std::cout << "    Offset:       0x" << std::hex << mHdr.getRomfsInfo().offset << std::endl;
+		std::cout << "    Size:         0x" << std::hex << mHdr.getRomfsInfo().size << std::endl;
 	}	
 }
 		
