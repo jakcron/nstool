@@ -3,426 +3,6 @@
 #include "OffsetAdjustedIFile.h"
 #include "NacpProcess.h"
 
-const char* getLanguageStr(nn::hac::nacp::Language var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::LANG_AmericanEnglish):
-		str = "AmericanEnglish";
-		break;
-	case (nn::hac::nacp::LANG_BritishEnglish):
-		str = "BritishEnglish";
-		break;
-	case (nn::hac::nacp::LANG_Japanese):
-		str = "Japanese";
-		break;
-	case (nn::hac::nacp::LANG_French):
-		str = "French";
-		break;
-	case (nn::hac::nacp::LANG_German):
-		str = "German";
-		break;
-	case (nn::hac::nacp::LANG_LatinAmericanSpanish):
-		str = "LatinAmericanSpanish";
-		break;
-	case (nn::hac::nacp::LANG_Spanish):
-		str = "Spanish";
-		break;
-	case (nn::hac::nacp::LANG_Italian):
-		str = "Italian";
-		break;
-	case (nn::hac::nacp::LANG_Dutch):
-		str = "Dutch";
-		break;
-	case (nn::hac::nacp::LANG_CanadianFrench):
-		str = "CanadianFrench";
-		break;
-	case (nn::hac::nacp::LANG_Portuguese):
-		str = "Portuguese";
-		break;
-	case (nn::hac::nacp::LANG_Russian):
-		str = "Russian";
-		break;
-	case (nn::hac::nacp::LANG_Korean):
-		str = "Korean";
-		break;
-	case (nn::hac::nacp::LANG_TraditionalChinese):
-		str = "TraditionalChinese";
-		break;
-	case (nn::hac::nacp::LANG_SimplifiedChinese):
-		str = "SimplifiedChinese";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getStartupUserAccountStr(nn::hac::nacp::StartupUserAccount var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::USER_None):
-		str = "None";
-		break;
-	case (nn::hac::nacp::USER_Required):
-		str = "Required";
-		break;
-	case (nn::hac::nacp::USER_RequiredWithNetworkServiceAccountAvailable):
-		str = "RequiredWithNetworkServiceAccountAvailable";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getTouchScreenUsageModeStr(nn::hac::nacp::TouchScreenUsageMode var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::TOUCH_None):
-		str = "None";
-		break;
-	case (nn::hac::nacp::TOUCH_Supported):
-		str = "Supported";
-		break;
-	case (nn::hac::nacp::TOUCH_Required):
-		str = "Required";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getAocRegistrationTypeStr(nn::hac::nacp::AocRegistrationType var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::AOC_AllOnLaunch):
-		str = "AllOnLaunch";
-		break;
-	case (nn::hac::nacp::AOC_OnDemand):
-		str = "OnDemand";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getAttributeFlagStr(nn::hac::nacp::AttributeFlag var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::ATTR_None):
-		str = "None";
-		break;
-	case (nn::hac::nacp::ATTR_Demo):
-		str = "Demo";
-		break;
-	case (nn::hac::nacp::ATTR_RetailInteractiveDisplay):
-		str = "RetailInteractiveDisplay";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getParentalControlFlagStr(nn::hac::nacp::ParentalControlFlag var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::PC_None):
-		str = "None";
-		break;
-	case (nn::hac::nacp::PC_FreeCommunication):
-		str = "FreeCommunication";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getScreenshotModeStr(nn::hac::nacp::ScreenshotMode var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::SCRN_Allow):
-		str = "Allow";
-		break;
-	case (nn::hac::nacp::SCRN_Deny):
-		str = "Deny";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getVideoCaptureModeStr(nn::hac::nacp::VideoCaptureMode var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::VCAP_Disable):
-		str = "Disable";
-		break;
-	case (nn::hac::nacp::VCAP_Manual):
-		str = "Manual";
-		break;
-	case (nn::hac::nacp::VCAP_Enable):
-		str = "Enable";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getDataLossConfirmationStr(nn::hac::nacp::DataLossConfirmation var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::DLOSS_None):
-		str = "None";
-		break;
-	case (nn::hac::nacp::DLOSS_Required):
-		str = "Required";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getPlayLogPolicyStr(nn::hac::nacp::PlayLogPolicy var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::PLP_All):
-		str = "All";
-		break;
-	case (nn::hac::nacp::PLP_LogOnly):
-		str = "LogOnly";
-		break;
-	case (nn::hac::nacp::PLP_None):
-		str = "None";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getOrganisationStr(nn::hac::nacp::Organisation var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::ORGN_CERO):
-		str = "CERO";
-		break;
-	case (nn::hac::nacp::ORGN_GRACGCRB):
-		str = "GRACGCRB";
-		break;
-	case (nn::hac::nacp::ORGN_GSRMR):
-		str = "GSRMR";
-		break;
-	case (nn::hac::nacp::ORGN_ESRB):
-		str = "ESRB";
-		break;
-	case (nn::hac::nacp::ORGN_ClassInd):
-		str = "ClassInd";
-		break;
-	case (nn::hac::nacp::ORGN_USK):
-		str = "USK";
-		break;
-	case (nn::hac::nacp::ORGN_PEGI):
-		str = "PEGI";
-		break;
-	case (nn::hac::nacp::ORGN_PEGIPortugal):
-		str = "PEGIPortugal";
-		break;
-	case (nn::hac::nacp::ORGN_PEGIBBFC):
-		str = "PEGIBBFC";
-		break;
-	case (nn::hac::nacp::ORGN_Russian):
-		str = "Russian";
-		break;
-	case (nn::hac::nacp::ORGN_ACB):
-		str = "ACB";
-		break;
-	case (nn::hac::nacp::ORGN_OFLC):
-		str = "OFLC";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getLogoTypeStr(nn::hac::nacp::LogoType var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::LOGO_LicensedByNintendo):
-		str = "LicensedByNintendo";
-		break;
-	case (nn::hac::nacp::LOGO_DistributedByNintendo):
-		str = "DistributedByNintendo";
-		break;
-	case (nn::hac::nacp::LOGO_Nintendo):
-		str = "Nintendo";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getLogoHandlingStr(nn::hac::nacp::LogoHandling var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::LHND_Auto):
-		str = "Auto";
-		break;
-	case (nn::hac::nacp::LHND_None):
-		str = "None";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getRuntimeAocInstallModeStr(nn::hac::nacp::RuntimeAocInstallMode var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::RTAOC_Deny):
-		str = "Deny";
-		break;
-	case (nn::hac::nacp::RTAOC_AllowAppend):
-		str = "AllowAppend";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getCrashReportModeStr(nn::hac::nacp::CrashReportMode var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::CREP_Deny):
-		str = "Deny";
-		break;
-	case (nn::hac::nacp::CREP_Allow):
-		str = "Allow";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getHdcpStr(nn::hac::nacp::Hdcp var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::HDCP_None):
-		str = "None";
-		break;
-	case (nn::hac::nacp::HDCP_Required):
-		str = "Required";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getPlayLogQueryCapabilityStr(nn::hac::nacp::PlayLogQueryCapability var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::PLQC_None):
-		str = "None";
-		break;
-	case (nn::hac::nacp::PLQC_Whitelist):
-		str = "Whitelist";
-		break;
-	case (nn::hac::nacp::PLQC_All):
-		str = "All";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-const char* getRepairFlagStr(nn::hac::nacp::RepairFlag var)
-{
-	const char* str = nullptr;
-	switch(var)
-	{
-	case (nn::hac::nacp::REPF_None):
-		str = "None";
-		break;
-	case (nn::hac::nacp::REPF_SuppressGameCardAccess):
-		str = "SuppressGameCardAccess";
-		break;
-	default:
-		str = "Unknown";
-	}
-	return str;
-}
-
-std::string getSaveDataSizeStr(int64_t size)
-{
-	static const int64_t kKiloByte = 1024;
-	static const int64_t kMegaByte = 1024 * 1024;
-
-	std::stringstream sstr;
-
-
-	if (size < kKiloByte)
-	{
-		sstr << size << " B";
-	}
-	else if (size < kMegaByte)
-	{
-		sstr << (size/kKiloByte) << " KB";
-	}
-	else
-	{
-		sstr << (size/kMegaByte) << " MB";
-	}
-
-	return sstr.str();
-}
-
 NacpProcess::NacpProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
@@ -597,4 +177,460 @@ void NacpProcess::displayNacp()
 		if (mNacp.getPresenceGroupId() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 			printf("    PresenceGroupId:              0x%016" PRIx64 "\n", mNacp.getPresenceGroupId());
 	}
+}
+
+const char* NacpProcess::getLanguageStr(nn::hac::nacp::Language var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::LANG_AmericanEnglish):
+		str = "AmericanEnglish";
+		break;
+	case (nn::hac::nacp::LANG_BritishEnglish):
+		str = "BritishEnglish";
+		break;
+	case (nn::hac::nacp::LANG_Japanese):
+		str = "Japanese";
+		break;
+	case (nn::hac::nacp::LANG_French):
+		str = "French";
+		break;
+	case (nn::hac::nacp::LANG_German):
+		str = "German";
+		break;
+	case (nn::hac::nacp::LANG_LatinAmericanSpanish):
+		str = "LatinAmericanSpanish";
+		break;
+	case (nn::hac::nacp::LANG_Spanish):
+		str = "Spanish";
+		break;
+	case (nn::hac::nacp::LANG_Italian):
+		str = "Italian";
+		break;
+	case (nn::hac::nacp::LANG_Dutch):
+		str = "Dutch";
+		break;
+	case (nn::hac::nacp::LANG_CanadianFrench):
+		str = "CanadianFrench";
+		break;
+	case (nn::hac::nacp::LANG_Portuguese):
+		str = "Portuguese";
+		break;
+	case (nn::hac::nacp::LANG_Russian):
+		str = "Russian";
+		break;
+	case (nn::hac::nacp::LANG_Korean):
+		str = "Korean";
+		break;
+	case (nn::hac::nacp::LANG_TraditionalChinese):
+		str = "TraditionalChinese";
+		break;
+	case (nn::hac::nacp::LANG_SimplifiedChinese):
+		str = "SimplifiedChinese";
+		break;
+	default:
+		str = "Unknown";
+	}
+	
+	return str;
+}
+
+const char* NacpProcess::getStartupUserAccountStr(nn::hac::nacp::StartupUserAccount var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::USER_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::USER_Required):
+		str = "Required";
+		break;
+	case (nn::hac::nacp::USER_RequiredWithNetworkServiceAccountAvailable):
+		str = "RequiredWithNetworkServiceAccountAvailable";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getTouchScreenUsageModeStr(nn::hac::nacp::TouchScreenUsageMode var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::TOUCH_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::TOUCH_Supported):
+		str = "Supported";
+		break;
+	case (nn::hac::nacp::TOUCH_Required):
+		str = "Required";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getAocRegistrationTypeStr(nn::hac::nacp::AocRegistrationType var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::AOC_AllOnLaunch):
+		str = "AllOnLaunch";
+		break;
+	case (nn::hac::nacp::AOC_OnDemand):
+		str = "OnDemand";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getAttributeFlagStr(nn::hac::nacp::AttributeFlag var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::ATTR_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::ATTR_Demo):
+		str = "Demo";
+		break;
+	case (nn::hac::nacp::ATTR_RetailInteractiveDisplay):
+		str = "RetailInteractiveDisplay";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getParentalControlFlagStr(nn::hac::nacp::ParentalControlFlag var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::PC_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::PC_FreeCommunication):
+		str = "FreeCommunication";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getScreenshotModeStr(nn::hac::nacp::ScreenshotMode var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::SCRN_Allow):
+		str = "Allow";
+		break;
+	case (nn::hac::nacp::SCRN_Deny):
+		str = "Deny";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getVideoCaptureModeStr(nn::hac::nacp::VideoCaptureMode var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::VCAP_Disable):
+		str = "Disable";
+		break;
+	case (nn::hac::nacp::VCAP_Manual):
+		str = "Manual";
+		break;
+	case (nn::hac::nacp::VCAP_Enable):
+		str = "Enable";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getDataLossConfirmationStr(nn::hac::nacp::DataLossConfirmation var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::DLOSS_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::DLOSS_Required):
+		str = "Required";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getPlayLogPolicyStr(nn::hac::nacp::PlayLogPolicy var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::PLP_All):
+		str = "All";
+		break;
+	case (nn::hac::nacp::PLP_LogOnly):
+		str = "LogOnly";
+		break;
+	case (nn::hac::nacp::PLP_None):
+		str = "None";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getOrganisationStr(nn::hac::nacp::Organisation var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::ORGN_CERO):
+		str = "CERO";
+		break;
+	case (nn::hac::nacp::ORGN_GRACGCRB):
+		str = "GRACGCRB";
+		break;
+	case (nn::hac::nacp::ORGN_GSRMR):
+		str = "GSRMR";
+		break;
+	case (nn::hac::nacp::ORGN_ESRB):
+		str = "ESRB";
+		break;
+	case (nn::hac::nacp::ORGN_ClassInd):
+		str = "ClassInd";
+		break;
+	case (nn::hac::nacp::ORGN_USK):
+		str = "USK";
+		break;
+	case (nn::hac::nacp::ORGN_PEGI):
+		str = "PEGI";
+		break;
+	case (nn::hac::nacp::ORGN_PEGIPortugal):
+		str = "PEGIPortugal";
+		break;
+	case (nn::hac::nacp::ORGN_PEGIBBFC):
+		str = "PEGIBBFC";
+		break;
+	case (nn::hac::nacp::ORGN_Russian):
+		str = "Russian";
+		break;
+	case (nn::hac::nacp::ORGN_ACB):
+		str = "ACB";
+		break;
+	case (nn::hac::nacp::ORGN_OFLC):
+		str = "OFLC";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getLogoTypeStr(nn::hac::nacp::LogoType var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::LOGO_LicensedByNintendo):
+		str = "LicensedByNintendo";
+		break;
+	case (nn::hac::nacp::LOGO_DistributedByNintendo):
+		str = "DistributedByNintendo";
+		break;
+	case (nn::hac::nacp::LOGO_Nintendo):
+		str = "Nintendo";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getLogoHandlingStr(nn::hac::nacp::LogoHandling var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::LHND_Auto):
+		str = "Auto";
+		break;
+	case (nn::hac::nacp::LHND_None):
+		str = "None";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getRuntimeAocInstallModeStr(nn::hac::nacp::RuntimeAocInstallMode var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::RTAOC_Deny):
+		str = "Deny";
+		break;
+	case (nn::hac::nacp::RTAOC_AllowAppend):
+		str = "AllowAppend";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getCrashReportModeStr(nn::hac::nacp::CrashReportMode var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::CREP_Deny):
+		str = "Deny";
+		break;
+	case (nn::hac::nacp::CREP_Allow):
+		str = "Allow";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getHdcpStr(nn::hac::nacp::Hdcp var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::HDCP_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::HDCP_Required):
+		str = "Required";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getPlayLogQueryCapabilityStr(nn::hac::nacp::PlayLogQueryCapability var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::PLQC_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::PLQC_Whitelist):
+		str = "Whitelist";
+		break;
+	case (nn::hac::nacp::PLQC_All):
+		str = "All";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getRepairFlagStr(nn::hac::nacp::RepairFlag var) const
+{
+	const char* str = nullptr;
+
+	switch(var)
+	{
+	case (nn::hac::nacp::REPF_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::REPF_SuppressGameCardAccess):
+		str = "SuppressGameCardAccess";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+std::string NacpProcess::getSaveDataSizeStr(int64_t size) const
+{
+	static const int64_t kKiloByte = 1024;
+	static const int64_t kMegaByte = 1024 * 1024;
+
+	std::stringstream sstr;
+
+
+	if (size < kKiloByte)
+	{
+		sstr << size << " B";
+	}
+	else if (size < kMegaByte)
+	{
+		sstr << (size/kKiloByte) << " KB";
+	}
+	else
+	{
+		sstr << (size/kMegaByte) << " MB";
+	}
+
+	return sstr.str();
 }
