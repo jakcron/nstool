@@ -120,7 +120,7 @@ void XciProcess::displayHeader()
 	}
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("  Enc Header AES-IV:\n");
+		printf("  Extended Header AES-IV:\n");
 		fnd::SimpleTextOutput::hexDump(mHdr.getAesCbcIv().iv, sizeof(mHdr.getAesCbcIv().iv), 0x10, 4);
 	}
 	printf("  SelSec:                 0x%x\n", mHdr.getSelSec());
@@ -240,7 +240,8 @@ void XciProcess::processPartitionPfs()
 
 const char* XciProcess::getRomSizeStr(byte_t rom_size) const
 {
-	const char* str = "unknown";
+	const char* str = nullptr;
+
 	switch (rom_size)
 	{
 		case (nn::hac::xci::ROM_SIZE_1GB):
@@ -261,13 +262,18 @@ const char* XciProcess::getRomSizeStr(byte_t rom_size) const
 		case (nn::hac::xci::ROM_SIZE_32GB):
 			str = "32GB";
 			break;
+		default:
+			str = "Unknown";
+			break;
 	}
+
 	return str;
 }
 
 const char* XciProcess::getHeaderFlagStr(byte_t flag) const
 {
-	const char* str = "unknown";
+	const char* str = nullptr;
+	
 	switch (flag)
 	{
 		case (nn::hac::xci::FLAG_AUTOBOOT):
@@ -279,14 +285,19 @@ const char* XciProcess::getHeaderFlagStr(byte_t flag) const
 		case (nn::hac::xci::FLAG_REPAIR_TOOL):
 			str = "RepairTool";
 			break;
+		default:
+			str = "Unknown";
+			break;
 	}
+
 	return str;
 }
 
 
 const char* XciProcess::getCardClockRate(uint32_t acc_ctrl_1) const
 {
-	const char* str = "unknown";
+	const char* str = nullptr;
+
 	switch (acc_ctrl_1)
 	{
 		case (nn::hac::xci::CLOCK_RATE_25):
@@ -295,7 +306,10 @@ const char* XciProcess::getCardClockRate(uint32_t acc_ctrl_1) const
 		case (nn::hac::xci::CLOCK_RATE_50):
 			str = "50 MHz";
 			break;
-
+		default:
+			str = "Unknown";
+			break;
 	}
+
 	return str;
 }
