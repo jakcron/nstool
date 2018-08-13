@@ -1,4 +1,6 @@
 #include <sstream>
+#include <iostream>
+#include <iomanip>
 #include <fnd/SimpleTextOutput.h>
 #include "OffsetAdjustedIFile.h"
 #include "NacpProcess.h"
@@ -21,17 +23,7 @@ NacpProcess::~NacpProcess()
 
 void NacpProcess::process()
 {
-	fnd::Vec<byte_t> scratch;
-
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
-
-	mNacp.fromBytes(scratch.data(), scratch.size());
+	importNacp();
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayNacp();
@@ -58,124 +50,139 @@ const nn::hac::ApplicationControlPropertyBinary& NacpProcess::getApplicationCont
 	return mNacp;
 }
 
+void NacpProcess::importNacp()
+{
+	fnd::Vec<byte_t> scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
+	scratch.alloc(mFile->size());
+	mFile->read(scratch.data(), 0, scratch.size());
+
+	mNacp.fromBytes(scratch.data(), scratch.size());
+}
+
 void NacpProcess::displayNacp()
 {
-	printf("[ApplicationControlProperty]\n");
-	printf("  Menu Description:\n");
-	printf("    DisplayVersion:               %s\n", mNacp.getDisplayVersion().c_str());
+	std::cout << "[ApplicationControlProperty]" << std::endl;
+	std::cout << "  Menu Description:" << std::endl;
+	std::cout << "    DisplayVersion:               " << mNacp.getDisplayVersion() << std::endl;
 	if (mNacp.getIsbn().empty() == false || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-		printf("    ISBN:                         %s\n", mNacp.getIsbn().c_str());
+		std::cout << "    ISBN:                         " << mNacp.getIsbn() << std::endl;
 	for (size_t i = 0; i < mNacp.getTitle().size(); i++)
 	{
-		printf("    %s Title:\n", getLanguageStr(mNacp.getTitle()[i].language));
-		printf("      Name:                       %s\n", mNacp.getTitle()[i].name.c_str());
-		printf("      Publisher:                  %s\n", mNacp.getTitle()[i].publisher.c_str());
+		std::cout << "    " << getLanguageStr(mNacp.getTitle()[i].language) << " Title:" << std::endl;
+		std::cout << "      Name:                       " << mNacp.getTitle()[i].name << std::endl;
+		std::cout << "      Publisher:                  " << mNacp.getTitle()[i].publisher << std::endl;
 	}
-	printf("  Logo:\n");
-	printf("    Type:                         %s\n", getLogoTypeStr(mNacp.getLogoType()));
-	printf("    Handling:                     %s\n", getLogoHandlingStr(mNacp.getLogoHandling()));
-	printf("  AddOnContent:\n");
-	printf("    BaseId:                       0x%016" PRIx64 "\n", mNacp.getAocBaseId());
-	printf("    RegistrationType:             %s\n", getAocRegistrationTypeStr(mNacp.getAocRegistrationType()));
-	printf("    RuntimeInstallMode:           %s\n", getRuntimeAocInstallModeStr(mNacp.getRuntimeAocInstallMode()));
-	printf("  Play Log:\n");
-	printf("    PlayLogPolicy:                %s\n", getPlayLogPolicyStr(mNacp.getPlayLogPolicy()));
-	printf("    PlayLogQueryCapability:       %s\n", getPlayLogQueryCapabilityStr(mNacp.getPlayLogQueryCapability()));
+	std::cout << "  Logo:" << std::endl;
+	std::cout << "    Type:                         " << getLogoTypeStr(mNacp.getLogoType()) << std::endl;
+	std::cout << "    Handling:                     " << getLogoHandlingStr(mNacp.getLogoHandling()) << std::endl;
+	std::cout << "  AddOnContent:" << std::endl;
+	std::cout << "    BaseId:                       0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getAocBaseId() << std::endl;
+	std::cout << "    RegistrationType:             " << getAocRegistrationTypeStr(mNacp.getAocRegistrationType()) << std::endl;
+	std::cout << "    RuntimeInstallMode:           " << getRuntimeAocInstallModeStr(mNacp.getRuntimeAocInstallMode()) << std::endl;
+	std::cout << "  Play Log:" << std::endl;
+	std::cout << "    PlayLogPolicy:                " << getPlayLogPolicyStr(mNacp.getPlayLogPolicy()) << std::endl;
+	std::cout << "    PlayLogQueryCapability:       " << getPlayLogQueryCapabilityStr(mNacp.getPlayLogQueryCapability()) << std::endl;
 	if (mNacp.getPlayLogQueryableApplicationId().size() > 0)
 	{
-		printf("    PlayLogQueryableApplicationId:\n");
+		std::cout << "    PlayLogQueryableApplicationId:" << std::endl;
 		for (size_t i = 0; i < mNacp.getPlayLogQueryableApplicationId().size(); i++)
 		{
-			printf("      0x%016" PRIx64 "\n", mNacp.getPlayLogQueryableApplicationId()[i]);
+			std::cout << "      0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getPlayLogQueryableApplicationId()[i] << std::endl;
 		}
 	}
-	printf("  Parental Controls:\n");
-	printf("    ParentalControlFlag:          %s\n", getParentalControlFlagStr(mNacp.getParentalControlFlag()));
+	std::cout << "  Parental Controls:" << std::endl;
+	std::cout << "    ParentalControlFlag:          " << getParentalControlFlagStr(mNacp.getParentalControlFlag()) << std::endl;
 	for (size_t i = 0; i < mNacp.getRatingAge().size(); i++)
 	{
-		printf("    Age Restriction:\n");
-		printf("      Agency:  %s\n", getOrganisationStr(mNacp.getRatingAge()[i].organisation));
-		printf("      Age:     %d\n", mNacp.getRatingAge()[i].age);
+		std::cout << "    Age Restriction:" << std::endl;
+		std::cout << "      Agency:  " << getOrganisationStr(mNacp.getRatingAge()[i].organisation) << std::endl;
+		std::cout << "      Age:     " << std::dec << (uint32_t)mNacp.getRatingAge()[i].age << std::endl;
 	}
 	
 	if (mNacp.getBcatPassphase().empty() == false || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("  BCAT:\n");
-		printf("    BcatPassphase:                %s\n", mNacp.getBcatPassphase().c_str());
-		printf("    DeliveryCacheStorageSize:     0x%016" PRIx64 "\n", mNacp.getBcatDeliveryCacheStorageSize());
+		std::cout << "  BCAT:" << std::endl;
+		std::cout << "    BcatPassphase:                " << mNacp.getBcatPassphase() << std::endl;
+		std::cout << "    DeliveryCacheStorageSize:     0x" << std::hex << mNacp.getBcatDeliveryCacheStorageSize() << std::endl;
 	}
 	if (mNacp.getLocalCommunicationId().size() > 0)
 	{
-		printf("  Local Area Communication:\n");
-		printf("    LocalCommunicationId:\n");
+		std::cout << "  Local Area Communication:" << std::endl;
+		std::cout << "    LocalCommunicationId:" << std::endl;
 		for (size_t i = 0; i < mNacp.getLocalCommunicationId().size(); i++)
 		{
-			printf("      0x%016" PRIx64 "\n", mNacp.getLocalCommunicationId()[i]);
+			std::cout << "      0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getLocalCommunicationId()[i] << std::endl;
 		}
 	}
-	printf("  SaveData:\n");
-	printf("    SaveDatawOwnerId:             0x%016" PRIx64 "\n", mNacp.getSaveDatawOwnerId());
+	std::cout << "  SaveData:" << std::endl;
+	std::cout << "    SaveDatawOwnerId:             0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getSaveDatawOwnerId() << std::endl;
 	if (mNacp.getUserAccountSaveDataSize().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    UserAccountSaveData:\n");
-		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getUserAccountSaveDataSize().size).c_str());
-		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getUserAccountSaveDataSize().journal_size).c_str());
+		std::cout << "    UserAccountSaveData:" << std::endl;
+		std::cout << "      Size:                       " << getSaveDataSizeStr(mNacp.getUserAccountSaveDataSize().size) << std::endl;
+		std::cout << "      JournalSize:                " << getSaveDataSizeStr(mNacp.getUserAccountSaveDataSize().journal_size) << std::endl;
 	}
 	if (mNacp.getDeviceSaveDataSize().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    DeviceSaveData:\n");
-		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getDeviceSaveDataSize().size).c_str());
-		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getDeviceSaveDataSize().journal_size).c_str());
+		std::cout << "    DeviceSaveData:" << std::endl;
+		std::cout << "      Size:                       " << getSaveDataSizeStr(mNacp.getDeviceSaveDataSize().size) << std::endl;
+		std::cout << "      JournalSize:                " << getSaveDataSizeStr(mNacp.getDeviceSaveDataSize().journal_size) << std::endl;
 	}
 	if (mNacp.getUserAccountSaveDataMax().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    UserAccountSaveDataMax:\n");
-		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getUserAccountSaveDataMax().size).c_str());
-		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getUserAccountSaveDataMax().journal_size).c_str());
+		std::cout << "    UserAccountSaveDataMax:" << std::endl;
+		std::cout << "      Size:                       " << getSaveDataSizeStr(mNacp.getUserAccountSaveDataMax().size) << std::endl;
+		std::cout << "      JournalSize:                " << getSaveDataSizeStr(mNacp.getUserAccountSaveDataMax().journal_size) << std::endl;
 	}
 	if (mNacp.getDeviceSaveDataMax().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    DeviceSaveDataMax:\n");
-		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getDeviceSaveDataMax().size).c_str());
-		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getDeviceSaveDataMax().journal_size).c_str());
+		std::cout << "    DeviceSaveDataMax:" << std::endl;
+		std::cout << "      Size:                       " << getSaveDataSizeStr(mNacp.getDeviceSaveDataMax().size) << std::endl;
+		std::cout << "      JournalSize:                " << getSaveDataSizeStr(mNacp.getDeviceSaveDataMax().journal_size) << std::endl;
 	}
 	if (mNacp.getTemporaryStorageSize() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    TemporaryStorageSize:         %s\n", getSaveDataSizeStr(mNacp.getTemporaryStorageSize()).c_str());
+		std::cout << "    TemporaryStorageSize:         " << getSaveDataSizeStr(mNacp.getTemporaryStorageSize()) << std::endl;
 	}
 	if (mNacp.getCacheStorageSize().journal_size > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    CacheStorage:\n");
-		printf("      Size:                       %s\n", getSaveDataSizeStr(mNacp.getCacheStorageSize().size).c_str());
-		printf("      JournalSize:                %s\n", getSaveDataSizeStr(mNacp.getCacheStorageSize().journal_size).c_str());
-		printf("      MaxDataAndJournalSize:      %s\n", getSaveDataSizeStr(mNacp.getCacheStorageDataAndJournalSizeMax()).c_str());
-		printf("      StorageIndexMax:            0x%" PRIx16 "\n", mNacp.getCacheStorageIndexMax());
+		std::cout << "    CacheStorage:" << std::endl;
+		std::cout << "      Size:                       " << getSaveDataSizeStr(mNacp.getCacheStorageSize().size) << std::endl;
+		std::cout << "      JournalSize:                " << getSaveDataSizeStr(mNacp.getCacheStorageSize().journal_size) << std::endl;
+		std::cout << "      MaxDataAndJournalSize:      " << getSaveDataSizeStr(mNacp.getCacheStorageDataAndJournalSizeMax()) << std::endl;
+		std::cout << "      StorageIndexMax:            0x" << std::hex << mNacp.getCacheStorageIndexMax() << std::endl;
 	}
-	printf("  Other Flags:\n");
-	printf("    StartupUserAccount:           %s\n", getStartupUserAccountStr(mNacp.getStartupUserAccount()));
+	std::cout << "  Other Flags:" << std::endl;
+	std::cout << "    StartupUserAccount:           " << getStartupUserAccountStr(mNacp.getStartupUserAccount()) << std::endl;
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    TouchScreenUsageMode:         %s\n", getTouchScreenUsageModeStr(mNacp.getTouchScreenUsageMode()));
+		std::cout << "    TouchScreenUsageMode:         " << getTouchScreenUsageModeStr(mNacp.getTouchScreenUsageMode()) << std::endl;
 	}
-	printf("    AttributeFlag:                %s\n", getAttributeFlagStr(mNacp.getAttributeFlag()));
-	printf("    CrashReportMode:              %s\n", getCrashReportModeStr(mNacp.getCrashReportMode()));
-	printf("    HDCP:                         %s\n", getHdcpStr(mNacp.getHdcp()));
-	printf("    ScreenshotMode:               %s\n", getScreenshotModeStr(mNacp.getScreenshotMode()));
-	printf("    VideoCaptureMode:             %s\n", getVideoCaptureModeStr(mNacp.getVideoCaptureMode()));
-	printf("    DataLossConfirmation:         %s\n", getDataLossConfirmationStr(mNacp.getDataLossConfirmation()));
-	printf("    RepairFlag:                   %s\n", getRepairFlagStr(mNacp.getRepairFlag()));
-	printf("    ProgramIndex:                 0x%02x\n", mNacp.getProgramIndex());
+	std::cout << "    AttributeFlag:                " << getAttributeFlagStr(mNacp.getAttributeFlag()) << std::endl;
+	std::cout << "    CrashReportMode:              " << getCrashReportModeStr(mNacp.getCrashReportMode()) << std::endl;
+	std::cout << "    HDCP:                         " << getHdcpStr(mNacp.getHdcp()) << std::endl;
+	std::cout << "    ScreenshotMode:               " << getScreenshotModeStr(mNacp.getScreenshotMode()) << std::endl;
+	std::cout << "    VideoCaptureMode:             " << getVideoCaptureModeStr(mNacp.getVideoCaptureMode()) << std::endl;
+	std::cout << "    DataLossConfirmation:         " << getDataLossConfirmationStr(mNacp.getDataLossConfirmation()) << std::endl;
+	std::cout << "    RepairFlag:                   " << getRepairFlagStr(mNacp.getRepairFlag()) << std::endl;
+	std::cout << "    ProgramIndex:                 0x" << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)mNacp.getProgramIndex() << std::endl;
 	if (mNacp.getApplicationErrorCodeCategory().empty() == false || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    ApplicationErrorCodeCategory: %s\n", mNacp.getApplicationErrorCodeCategory().c_str());
+		std::cout << "    ApplicationErrorCodeCategory: " << mNacp.getApplicationErrorCodeCategory() << std::endl;
 	}
 	if (mNacp.getSeedForPsuedoDeviceId() > 0 || mNacp.getPresenceGroupId() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("  Other Ids:\n");
+		std::cout << "  Other Ids:" << std::endl;
 		if (mNacp.getSeedForPsuedoDeviceId() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-			printf("    SeedForPsuedoDeviceId:        0x%016" PRIx64 "\n", mNacp.getSeedForPsuedoDeviceId());
+			std::cout << "    SeedForPsuedoDeviceId:        0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getSeedForPsuedoDeviceId() << std::endl;
 		if (mNacp.getPresenceGroupId() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-			printf("    PresenceGroupId:              0x%016" PRIx64 "\n", mNacp.getPresenceGroupId());
+			std::cout << "    PresenceGroupId:              0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getPresenceGroupId() << std::endl;
 	}
 }
 

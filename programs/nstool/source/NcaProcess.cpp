@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <fnd/SimpleTextOutput.h>
 #include <nn/hac/NcaUtils.h>
@@ -44,22 +45,8 @@ NcaProcess::~NcaProcess()
 
 void NcaProcess::process()
 {
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-	
-	// read header block
-	mFile->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
-	
-	// decrypt header block
-	nn::hac::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
-
-	// generate header hash
-	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader), mHdrHash.bytes);
-
-	// proccess main header
-	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader));
+	// import header
+	importHeader();
 
 	// determine keys
 	generateNcaBodyEncryptionKeys();
@@ -127,6 +114,26 @@ void NcaProcess::setPartition3ExtractPath(const std::string& path)
 void NcaProcess::setListFs(bool list_fs)
 {
 	mListFs = list_fs;
+}
+
+void NcaProcess::importHeader()
+{
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+	
+	// read header block
+	mFile->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
+	
+	// decrypt header block
+	nn::hac::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
+
+	// generate header hash
+	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader), mHdrHash.bytes);
+
+	// proccess main header
+	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader));
 }
 
 void NcaProcess::generateNcaBodyEncryptionKeys()
@@ -231,17 +238,17 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	{
 		if (mBodyKeys.aes_ctr.isSet)
 		{
-			printf("[NCA Body Key]\n");
-			printf("  AES-CTR Key: ");
+			std::cout << "[NCA Body Key]" << std::endl;
+			std::cout << "  AES-CTR Key: ";
 			fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_ctr.var.key, sizeof(mBodyKeys.aes_ctr.var));
 		}
 		
 		if (mBodyKeys.aes_xts.isSet)
 		{
-			printf("[NCA Body Key]\n");
-			printf("  AES-XTS Key0: ");
+			std::cout << "[NCA Body Key]" << std::endl;
+			std::cout << "  AES-XTS Key0: ";
 			fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[0], sizeof(mBodyKeys.aes_ctr.var));
-			printf("  AES-XTS Key1: ");
+			std::cout << "  AES-XTS Key1: ";
 			fnd::SimpleTextOutput::hexDump(mBodyKeys.aes_xts.var.key[1], sizeof(mBodyKeys.aes_ctr.var));
 		}
 	}
@@ -363,7 +370,7 @@ void NcaProcess::validateNcaSignatures()
 	// validate signature[0]
 	if (fnd::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
 	{
-		printf("[WARNING] NCA Header Main Signature: FAIL \n");
+		std::cout << "[WARNING] NCA Header Main Signature: FAIL" << std::endl;
 	}
 
 	// validate signature[1]
@@ -390,93 +397,90 @@ void NcaProcess::validateNcaSignatures()
 
 					if (fnd::rsa::pss::rsaVerify(npdm.getNpdmBinary().getAcid().getNcaHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
-						printf("[WARNING] NCA Header ACID Signature: FAIL \n");
+						std::cout << "[WARNING] NCA Header ACID Signature: FAIL" << std::endl;
 					}
 									
 				}
 				else
 				{
-					printf("[WARNING] NCA Header ACID Signature: FAIL (\"%s\" not present in ExeFs)\n", kNpdmExefsPath.c_str());
+					std::cout << "[WARNING] NCA Header ACID Signature: FAIL (\"" << kNpdmExefsPath << "\" not present in ExeFs)" << std::endl;
 				}
 			}
 			else
 			{
-				printf("[WARNING] NCA Header ACID Signature: FAIL (ExeFs unreadable)\n");
+				std::cout << "[WARNING] NCA Header ACID Signature: FAIL (ExeFs unreadable)" << std::endl;
 			}
 		}
 		else
 		{
-			printf("[WARNING] NCA Header ACID Signature: FAIL (No ExeFs partition)\n");
+			std::cout << "[WARNING] NCA Header ACID Signature: FAIL (No ExeFs partition)" << std::endl;
 		}
 	}
 }
 
 void NcaProcess::displayHeader()
 {
-#define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
-
-	printf("[NCA Header]\n");
-	printf("  Format Type:     %s\n", getFormatVersionStr(mHdr.getFormatVersion()));
-	printf("  Dist. Type:      %s\n", getDistributionTypeStr(mHdr.getDistributionType()));
-	printf("  Content Type:    %s\n", getContentTypeStr(mHdr.getContentType()));
-	printf("  Key Generation:  %d\n", mHdr.getKeyGeneration());
-	printf("  Kaek Index:      %s (%d)\n", getKaekIndexStr((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKaekIndex()), mHdr.getKaekIndex());
-	printf("  Size:            0x%" PRIx64 "\n", mHdr.getContentSize());
-	printf("  ProgID:          0x%016" PRIx64 "\n", mHdr.getProgramId());
-	printf("  Content Index:   %" PRIu32 "\n", mHdr.getContentIndex());
-#define _SPLIT_VER(ver) ( (ver>>24) & 0xff), ( (ver>>16) & 0xff), ( (ver>>8) & 0xff)
-	printf("  SdkAddon Ver.:   v%" PRIu32 " (%d.%d.%d)\n", mHdr.getSdkAddonVersion(), _SPLIT_VER(mHdr.getSdkAddonVersion()));
+	std::cout << "[NCA Header]" << std::endl;
+	std::cout << "  Format Type:     " << getFormatVersionStr(mHdr.getFormatVersion()) << std::endl;
+	std::cout << "  Dist. Type:      " << getDistributionTypeStr(mHdr.getDistributionType()) << std::endl;
+	std::cout << "  Content Type:    " << getContentTypeStr(mHdr.getContentType()) << std::endl;
+	std::cout << "  Key Generation:  " << std::dec << (uint32_t)mHdr.getKeyGeneration() << std::endl;
+	std::cout << "  Kaek Index:      " << getKaekIndexStr((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKaekIndex()) << " (" << std::dec << (uint32_t)mHdr.getKaekIndex() << ")" << std::endl;
+	std::cout << "  Size:            0x" << std::hex << mHdr.getContentSize() << std::endl;
+	std::cout << "  ProgID:          0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getProgramId() << std::endl;
+	std::cout << "  Content Index:   " << std::dec << mHdr.getContentIndex() << std::endl;
+#define _SPLIT_VER(ver) std::dec << (uint32_t)((ver>>24) & 0xff) << "." << (uint32_t)((ver>>16) & 0xff) << "." << (uint32_t)((ver>>8) & 0xff)
+	std::cout << "  SdkAddon Ver.:   v" << std::dec << mHdr.getSdkAddonVersion() << " (" << _SPLIT_VER(mHdr.getSdkAddonVersion()) << ")" << std::endl;
 #undef _SPLIT_VER
 	if (mHdr.hasRightsId())
 	{
-		printf("  RightsId:        ");
+		std::cout << "  RightsId:        ";
 		fnd::SimpleTextOutput::hexDump(mHdr.getRightsId(), nn::hac::nca::kRightsIdLen);
 	}
 	
-
+#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)var[a__a__A]; } while(0)
 	if (mBodyKeys.keak_list.size() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
 	{
-		printf("  Key Area: \n");
-		printf("    <--------------------------------------------------------------------------->\n");
-		printf("    | IDX | ENCRYPTED KEY                    | DECRYPTED KEY                    |\n");
-		printf("    |-----|----------------------------------|----------------------------------|\n");
+		std::cout << "  Key Area:" << std::endl;
+		std::cout << "    <--------------------------------------------------------------------------->" << std::endl;
+		std::cout << "    | IDX | ENCRYPTED KEY                    | DECRYPTED KEY                    |" << std::endl;
+		std::cout << "    |-----|----------------------------------|----------------------------------|" << std::endl;
 		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
 		{
-			printf("    | %3d | ", mBodyKeys.keak_list[i].index);
+			std::cout << "    | " << std::dec << std::setw(3) << std::setfill(' ') << (uint32_t)mBodyKeys.keak_list[i].index << " | ";
 			
 			_HEXDUMP_L(mBodyKeys.keak_list[i].enc.key, 16);
-			//for (size_t j = 0; j < 16; j++) printf("%02x", mBodyKeys.keak_list[i].enc.key[j]);
 			
-			printf(" | ");
+			std::cout << " | ";
 			
 			if (mBodyKeys.keak_list[i].decrypted)
 				_HEXDUMP_L(mBodyKeys.keak_list[i].dec.key, 16);
 			else
-				printf("<unable to decrypt>             ");
+				std::cout << "<unable to decrypt>             ";
 			
-			printf(" |\n");
+			std::cout << " |" << std::endl;
 		}
-		printf("    <--------------------------------------------------------------------------->\n");
+		std::cout << "    <--------------------------------------------------------------------------->" << std::endl;
 	}
+#undef _HEXDUMP_L
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
-		printf("  Partitions:\n");
+		std::cout << "  Partitions:" << std::endl;
 		for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
 		{
 			size_t index = mHdr.getPartitions()[i].index;
 			sPartitionInfo& info = mPartitions[index];
 
-			printf("    %d:\n", (int)index);
-			printf("      Offset:      0x%" PRIx64 "\n", (uint64_t)info.offset);
-			printf("      Size:        0x%" PRIx64 "\n", (uint64_t)info.size);
-			printf("      Format Type: %s\n", getFormatTypeStr(info.format_type));
-			printf("      Hash Type:   %s\n", getHashTypeStr(info.hash_type));
-			printf("      Enc. Type:   %s\n", getEncryptionTypeStr(info.enc_type));
+			std::cout << "    " << std::dec << index << ":" << std::endl;
+			std::cout << "      Offset:      0x" << std::hex << (uint64_t)info.offset << std::endl;
+			std::cout << "      Size:        0x" << std::hex << (uint64_t)info.size << std::endl;
+			std::cout << "      Format Type: " << getFormatTypeStr(info.format_type) << std::endl;
+			std::cout << "      Hash Type:   " << getHashTypeStr(info.hash_type) << std::endl;
+			std::cout << "      Enc. Type:   " << getEncryptionTypeStr(info.enc_type) << std::endl;
 			if (info.enc_type == nn::hac::nca::CRYPT_AESCTR)
 			{
-				printf("        AES-CTR:     ");
+				std::cout << "        AES-CTR:     ";
 				fnd::aes::sAesIvCtr ctr;
 				fnd::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
 				fnd::SimpleTextOutput::hexDump(ctr.iv, sizeof(fnd::aes::sAesIvCtr));
@@ -484,53 +488,41 @@ void NcaProcess::displayHeader()
 			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{
 				HashTreeMeta& hash_hdr = info.hash_tree_meta;
-				printf("      HierarchicalIntegrity Header:\n");
-				//printf("        TypeId:            0x%x\n", hash_hdr.type_id.get());
-				//printf("        MasterHashSize:    0x%x\n", hash_hdr.master_hash_size.get());
-				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().size());
+				std::cout << "      HierarchicalIntegrity Header:" << std::endl;
 				for (size_t j = 0; j < hash_hdr.getHashLayerInfo().size(); j++)
 				{
-					printf("        Hash Layer %d:\n", (int)j);
-					printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].offset);
-					printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[j].size);
-					printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getHashLayerInfo()[j].block_size);
+					std::cout << "        Hash Layer " << std::dec << j << ":" << std::endl;
+					std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[j].offset << std::endl;
+					std::cout << "          Size:            0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[j].size << std::endl;
+					std::cout << "          BlockSize:       0x" << std::hex << (uint32_t)hash_hdr.getHashLayerInfo()[j].block_size << std::endl;
 				}
 
-				printf("        Data Layer:\n");
-				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
-				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
-				printf("          BlockSize:       0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
+				std::cout << "        Data Layer:" << std::endl;
+				std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getDataLayer().offset << std::endl;
+				std::cout << "          Size:            0x" << std::hex << (uint64_t)hash_hdr.getDataLayer().size << std::endl;
+				std::cout << "          BlockSize:       0x" << std::hex << (uint32_t)hash_hdr.getDataLayer().block_size << std::endl;
 				for (size_t j = 0; j < hash_hdr.getMasterHashList().size(); j++)
 				{
-					printf("        Master Hash %d:     ", (int)j);
+					std::cout << "        Master Hash " << std::dec << j << ":     ";
 					fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[j].bytes, sizeof(fnd::sha::sSha256Hash));
 				}
 			}
 			else if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256)
 			{
 				HashTreeMeta& hash_hdr = info.hash_tree_meta;
-				printf("      HierarchicalSha256 Header:\n");
-				printf("        Master Hash:       ");
+				std::cout << "      HierarchicalSha256 Header:" << std::endl;
+				std::cout << "        Master Hash:       ";
 				fnd::SimpleTextOutput::hexDump(hash_hdr.getMasterHashList()[0].bytes, sizeof(fnd::sha::sSha256Hash));
-				printf("        HashBlockSize:     0x%" PRIx32 "\n", (uint32_t)hash_hdr.getDataLayer().block_size);
-				//printf("        LayerNum:          %d\n", hash_hdr.getLayerInfo().size());
-				printf("        Hash Layer:\n");
-				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].offset);
-				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getHashLayerInfo()[0].size);
-				printf("        Data Layer:\n");
-				printf("          Offset:          0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().offset);
-				printf("          Size:            0x%" PRIx64 "\n", (uint64_t)hash_hdr.getDataLayer().size);
+				std::cout << "        HashBlockSize:     0x" << std::hex << (uint32_t)hash_hdr.getDataLayer().block_size << std::endl;
+				std::cout << "        Hash Layer:" << std::endl;
+				std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[0].offset << std::endl;
+				std::cout << "          Size:            0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[0].size << std::endl;
+				std::cout << "        Data Layer:" << std::endl;
+				std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getDataLayer().offset << std::endl;
+				std::cout << "          Size:            0x" << std::hex << (uint64_t)hash_hdr.getDataLayer().size << std::endl;
 			}
-			//else
-			//{
-			//	printf("      Hash Superblock:\n");
-			//	fnd::SimpleTextOutput::hxdStyleDump(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen);
-			//}
 		}
 	}
-	
-#undef _HEXDUMP_U
-#undef _HEXDUMP_L
 }
 
 
@@ -544,12 +536,12 @@ void NcaProcess::processPartitions()
 		// if the reader is null, skip
 		if (partition.reader == nullptr)
 		{
-			printf("[WARNING] NCA Partition %d not readable.", (int)index);
+			std::cout << "[WARNING] NCA Partition " << std::dec << index << " not readable.";
 			if (partition.fail_reason.empty() == false)
 			{
-				printf(" (%s)", partition.fail_reason.c_str());
+				std::cout << " (" << partition.fail_reason << ")";
 			}
-			printf("\n");
+			std::cout << std::endl;
 			continue;
 		}
 
@@ -570,9 +562,7 @@ void NcaProcess::processPartitions()
 			
 			if (mPartitionPath[index].doExtract)
 				pfs.setExtractPath(mPartitionPath[index].path);
-			//printf("pfs.process(%lx)\n",partition.data_offset);
 			pfs.process();
-			//printf("pfs.process() end\n");
 		}
 		else if (partition.format_type == nn::hac::nca::FORMAT_ROMFS)
 		{
@@ -591,9 +581,7 @@ void NcaProcess::processPartitions()
 
 			if (mPartitionPath[index].doExtract)
 				romfs.setExtractPath(mPartitionPath[index].path);
-			//printf("romfs.process(%lx)\n", partition.data_offset);
 			romfs.process();
-			//printf("romfs.process() end\n");
 		}
 	}
 }

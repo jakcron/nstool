@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-
 #include <fnd/SimpleTextOutput.h>
 #include <nn/pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
@@ -25,12 +24,8 @@ PkiCertProcess::~PkiCertProcess()
 
 void PkiCertProcess::process()
 {
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
 	importCerts();
+
 	if (mVerify)
 		validateCerts();
 
@@ -62,6 +57,11 @@ void PkiCertProcess::setVerifyMode(bool verify)
 void PkiCertProcess::importCerts()
 {
 	fnd::Vec<byte_t> scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
 
 	scratch.alloc(mFile->size());
 	mFile->read(scratch.data(), 0, scratch.size());
@@ -100,10 +100,6 @@ void PkiCertProcess::displayCerts()
 
 void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
 {
-#define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
-#define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
-
 	std::cout << "[NNPKI Certificate]" << std::endl;
 
 	std::cout << "  SignType       " << getSignTypeStr(cert.getSignature().getSignType());
@@ -143,12 +139,6 @@ void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateB
 		std::cout << "    S:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().s, getHexDumpLen(fnd::ecdsa::kEcdsa240Size), 0x10, 6);
 	}
-	
-
-
-#undef _HEXDUMP_L
-#undef _HEXDUMP_U
-#undef _SPLIT_VER
 }
 
 size_t PkiCertProcess::getHexDumpLen(size_t max_size) const

@@ -32,6 +32,8 @@ private:
 
 	nn::hac::NpdmBinary mNpdm;
 
+	void importNpdm();
+
 	void validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid);
 	void validateAciFromAcid(const nn::hac::AccessControlInfoBinary& aci, const nn::hac::AccessControlInfoDescBinary& acid);
 

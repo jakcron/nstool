@@ -30,6 +30,7 @@ private:
 
 	nn::hac::ApplicationControlPropertyBinary mNacp;
 
+	void importNacp();
 	void displayNacp();
 	const char* getLanguageStr(nn::hac::nacp::Language var) const;
 	const char* getStartupUserAccountStr(nn::hac::nacp::StartupUserAccount var) const;

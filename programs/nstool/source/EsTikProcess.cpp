@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-
 #include <fnd/SimpleTextOutput.h>
 #include <nn/pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
@@ -64,12 +63,14 @@ void EsTikProcess::setVerifyMode(bool verify)
 
 void EsTikProcess::importTicket()
 {
+	fnd::Vec<byte_t> scratch;
+
+
 	if (mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	fnd::Vec<byte_t> scratch;
 	scratch.alloc(mFile->size());
 	mFile->read(scratch.data(), 0, scratch.size());
 	mTik.fromBytes(scratch.data(), scratch.size());

@@ -1,4 +1,6 @@
 #include <sstream>
+#include <iostream>
+#include <iomanip>
 #include <fnd/types.h>
 
 #include "RoMetadataProcess.h"
@@ -23,12 +25,8 @@ RoMetadataProcess::RoMetadataProcess() :
 
 void RoMetadataProcess::process()
 {
-	if (mRoBlob.size() == 0)
-	{
-		throw fnd::Exception(kModuleName, "No ro binary set.");
-	}
-
 	importApiList();
+	
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayRoMetaData();
 }
@@ -101,6 +99,11 @@ const fnd::List<ElfSymbolParser::sElfSymbol>& RoMetadataProcess::getSymbolList()
 
 void RoMetadataProcess::importApiList()
 {
+	if (mRoBlob.size() == 0)
+	{
+		throw fnd::Exception(kModuleName, "No ro binary set.");
+	}
+
 	if (mApiInfo.size > 0)
 	{
 		std::stringstream list_stream(std::string((char*)mRoBlob.data() + mApiInfo.offset, mApiInfo.size));
@@ -133,43 +136,43 @@ void RoMetadataProcess::displayRoMetaData()
 	
 	if (api_num > 0 && (mListApi || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
-		printf("[SDK API List]\n");
+		std::cout << "[SDK API List]" << std::endl;
 		if (mSdkVerApiList.size() > 0)
 		{
-			printf("  Sdk Revision: %s\n", mSdkVerApiList[0].getModuleName().c_str());
+			std::cout << "  Sdk Revision: " << mSdkVerApiList[0].getModuleName() << std::endl;
 		}
 		if (mPublicApiList.size() > 0)
 		{
-			printf("  Public APIs:\n");
+			std::cout << "  Public APIs:" << std::endl;
 			for (size_t i = 0; i < mPublicApiList.size(); i++)
 			{
-				printf("    %s (vender: %s)\n", mPublicApiList[i].getModuleName().c_str(), mPublicApiList[i].getVenderName().c_str());
+				std::cout << "    " << mPublicApiList[i].getModuleName() << " (vender: " << mPublicApiList[i].getVenderName() << ")" << std::endl;
 			}
 		}
 		if (mDebugApiList.size() > 0)
 		{
-			printf("  Debug APIs:\n");
+			std::cout << "  Debug APIs:" << std::endl;
 			for (size_t i = 0; i < mDebugApiList.size(); i++)
 			{
-				printf("    %s (vender: %s)\n", mDebugApiList[i].getModuleName().c_str(), mDebugApiList[i].getVenderName().c_str());
+				std::cout << "    " << mDebugApiList[i].getModuleName() << " (vender: " << mDebugApiList[i].getVenderName() << ")" << std::endl;
 			}
 		}
 		if (mPrivateApiList.size() > 0)
 		{
-			printf("  Private APIs:\n");
+			std::cout << "  Private APIs:" << std::endl;
 			for (size_t i = 0; i < mPrivateApiList.size(); i++)
 			{
-				printf("    %s (vender: %s)\n", mPrivateApiList[i].getModuleName().c_str(), mPrivateApiList[i].getVenderName().c_str());
+				std::cout << "    " << mPrivateApiList[i].getModuleName() << " (vender: " << mPrivateApiList[i].getVenderName() << ")" << std::endl;
 			}
 		}
 	}
 	if (mSymbolList.getSymbolList().size() > 0 && (mListSymbols || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
-		printf("[Symbol List]\n");
+		std::cout << "[Symbol List]" << std::endl;
 		for (size_t i = 0; i < mSymbolList.getSymbolList().size(); i++)
 		{
 			const ElfSymbolParser::sElfSymbol& symbol = mSymbolList.getSymbolList()[i];
-			printf("  %s [SHN=%s (%04x)][STT=%s][STB=%s]\n", symbol.name.c_str(), getSectionIndexStr(symbol.shn_index), symbol.shn_index, getSymbolTypeStr(symbol.symbol_type), getSymbolBindingStr(symbol.symbol_binding));
+			std::cout << "  " << symbol.name << " [SHN=" << getSectionIndexStr(symbol.shn_index) << " (" << std::hex << std::setw(4) << std::setfill('0') << symbol.shn_index << ")][STT=" << getSymbolTypeStr(symbol.symbol_type) << "][STB=" << getSymbolBindingStr(symbol.symbol_binding) << "]" << std::endl;
 		}
 	}
 }

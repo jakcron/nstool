@@ -1,7 +1,7 @@
-#include <fnd/SimpleFile.h>
-#include <fnd/Vec.h>
 #include <iostream>
 #include <iomanip>
+#include <fnd/SimpleFile.h>
+#include <fnd/Vec.h>
 #include "AssetProcess.h"
 #include "OffsetAdjustedIFile.h"
 
@@ -25,11 +25,6 @@ AssetProcess::~AssetProcess()
 
 void AssetProcess::process()
 {
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
 	importHeader();
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayHeader();
@@ -76,6 +71,12 @@ void AssetProcess::setRomfsExtractPath(const std::string& path)
 void AssetProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
 	if (mFile->size() < sizeof(nn::hac::sAssetHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt ASET: file too small");

@@ -1,6 +1,6 @@
-#include <fnd/SimpleTextOutput.h>
 #include <iostream>
 #include <iomanip>
+#include <fnd/SimpleTextOutput.h>
 #include "OffsetAdjustedIFile.h"
 #include "CnmtProcess.h"
 
@@ -22,20 +22,10 @@ CnmtProcess::~CnmtProcess()
 
 void CnmtProcess::process()
 {
-	fnd::Vec<byte_t> scratch;
-
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
-
-	mCnmt.fromBytes(scratch.data(), scratch.size());
+	importCnmt();
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
-		displayCmnt();
+		displayCnmt();
 }
 
 void CnmtProcess::setInputFile(fnd::IFile* file, bool ownIFile)
@@ -59,7 +49,22 @@ const nn::hac::ContentMetaBinary& CnmtProcess::getContentMetaBinary() const
 	return mCnmt;
 }
 
-void CnmtProcess::displayCmnt()
+void CnmtProcess::importCnmt()
+{
+	fnd::Vec<byte_t> scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
+	scratch.alloc(mFile->size());
+	mFile->read(scratch.data(), 0, scratch.size());
+
+	mCnmt.fromBytes(scratch.data(), scratch.size());
+}
+
+void CnmtProcess::displayCnmt()
 {
 #define _SPLIT_VER(ver) (uint32_t)((ver>>26) & 0x3f) << "." << (uint32_t)((ver>>20) & 0x3f) << "." << (uint32_t)((ver>>16) & 0xf) << "." << (uint32_t)(ver & 0xffff)
 #define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
@@ -68,7 +73,7 @@ void CnmtProcess::displayCmnt()
 	std::cout << "  TitleId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getTitleId() << std::endl;
 	std::cout << "  Version:               v" << std::dec << mCnmt.getTitleVersion() << " (" << _SPLIT_VER(mCnmt.getTitleVersion()) << ")"<< std::endl;
 	std::cout << "  Type:                  " << getContentMetaTypeStr(mCnmt.getType()) << " (" << std::dec << mCnmt.getType() << ")" << std::endl;
-	std::cout << "  Attributes:            " << std::hex << mCnmt.getAttributes() << std::endl;
+	std::cout << "  Attributes:            0x" << std::hex << (uint32_t)mCnmt.getAttributes() << std::endl;
 	std::cout << "    IncludesExFatDriver: " << getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)) << std::endl;
 	std::cout << "    Rebootless:          " << getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)) << std::endl;
 	std::cout << "  RequiredDownloadSystemVersion: v" << mCnmt.getRequiredDownloadSystemVersion() << " (" << _SPLIT_VER(mCnmt.getRequiredDownloadSystemVersion()) << ")"<< std::endl;
@@ -123,7 +128,7 @@ void CnmtProcess::displayCmnt()
 			std::cout << "      Id:           0x" << std::hex << std::setw(16) << std::setfill('0') << info.id << std::endl;
 			std::cout << "      Version:      v" << std::dec << info.version << " (" << _SPLIT_VER(info.version) << ")"<< std::endl;
 			std::cout << "      Type:         " << getContentMetaTypeStr(info.type) << " (" << std::dec << info.type << ")" << std::endl; 
-			std::cout << "      Attributes:   " << std::hex << info.attributes << std::endl;
+			std::cout << "      Attributes:   0x" << std::hex << (uint32_t)info.attributes << std::endl;
 			std::cout << "        IncludesExFatDriver: " << getBoolStr(_HAS_BIT(info.attributes, nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)) << std::endl;
 			std::cout << "        Rebootless:          " << getBoolStr(_HAS_BIT(info.attributes, nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)) << std::endl;
 		}

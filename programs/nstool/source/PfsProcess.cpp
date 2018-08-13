@@ -1,3 +1,5 @@
+#include <iostream>
+#include <iomanip>
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
 #include "PfsProcess.h"
@@ -25,26 +27,7 @@ PfsProcess::~PfsProcess()
 
 void PfsProcess::process()
 {
-	fnd::Vec<byte_t> scratch;
-
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-	
-	// open minimum header to get full header size
-	scratch.alloc(sizeof(nn::hac::sPfsHeader));
-	mFile->read(scratch.data(), 0, scratch.size());
-	if (validateHeaderMagic(((nn::hac::sPfsHeader*)scratch.data())) == false)
-	{
-		throw fnd::Exception(kModuleName, "Corrupt Header");
-	}
-	size_t pfsHeaderSize = determineHeaderSize(((nn::hac::sPfsHeader*)scratch.data()));
-	
-	// open minimum header to get full header size
-	scratch.alloc(pfsHeaderSize);
-	mFile->read(scratch.data(), 0, scratch.size());
-	mPfs.fromBytes(scratch.data(), scratch.size());
+	importHeader();
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 	{
@@ -95,32 +78,64 @@ const nn::hac::PfsHeader& PfsProcess::getPfsHeader() const
 	return mPfs;
 }
 
+void PfsProcess::importHeader()
+{
+	fnd::Vec<byte_t> scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+	
+	// open minimum header to get full header size
+	scratch.alloc(sizeof(nn::hac::sPfsHeader));
+	mFile->read(scratch.data(), 0, scratch.size());
+	if (validateHeaderMagic(((nn::hac::sPfsHeader*)scratch.data())) == false)
+	{
+		throw fnd::Exception(kModuleName, "Corrupt Header");
+	}
+	size_t pfsHeaderSize = determineHeaderSize(((nn::hac::sPfsHeader*)scratch.data()));
+	
+	// open minimum header to get full header size
+	scratch.alloc(pfsHeaderSize);
+	mFile->read(scratch.data(), 0, scratch.size());
+	mPfs.fromBytes(scratch.data(), scratch.size());
+}
+
 void PfsProcess::displayHeader()
 {
-	printf("[PartitionFS]\n");
-	printf("  Type:        %s\n", mPfs.getFsType() == mPfs.TYPE_PFS0? "PFS0" : "HFS0");
-	printf("  FileNum:     %" PRId64 "\n", (uint64_t)mPfs.getFileList().size());
-	if (mMountName.empty() == false)	
-		printf("  MountPoint:  %s%s\n", mMountName.c_str(), mMountName.at(mMountName.length()-1) != '/' ? "/" : "");
+	std::cout << "[PartitionFS]" << std::endl;
+	std::cout << "  Type:        " << getFsTypeStr(mPfs.getFsType()) << std::endl;
+	std::cout << "  FileNum:     " << std::dec << mPfs.getFileList().size() << std::endl;
+	if (mMountName.empty() == false)
+	{
+		std::cout << "  MountPoint:  " << mMountName;
+		if (mMountName.at(mMountName.length()-1) != '/')
+			std::cout << "/";
+		std::cout << std::endl;
+	}
 }
 
 void PfsProcess::displayFs()
 {	
 	for (size_t i = 0; i < mPfs.getFileList().size(); i++)
 	{
-		printf("    %s", mPfs.getFileList()[i].name.c_str());
+		const nn::hac::PfsHeader::sFile& file = mPfs.getFileList()[i];
+		std::cout << "    " << file.name;
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 		{
-			if (mPfs.getFsType() == mPfs.TYPE_PFS0)
-				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", (uint64_t)mPfs.getFileList()[i].offset, (uint64_t)mPfs.getFileList()[i].size);
-			else
-				printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ", hash_protected_size=0x%" PRIx64 ")\n", (uint64_t)mPfs.getFileList()[i].offset, (uint64_t)mPfs.getFileList()[i].size, (uint64_t)mPfs.getFileList()[i].hash_protected_size);
+			switch (mPfs.getFsType())
+			{
+			case (nn::hac::PfsHeader::TYPE_PFS0):
+				std::cout << std::hex << " (offset=0x" << file.offset << ", size=0x" << file.size << ")";
+				break;
+			case (nn::hac::PfsHeader::TYPE_HFS0):
+				std::cout << std::hex << " (offset=0x" << file.offset << ", size=0x" << file.size << ", hash_protected_size=0x" << file.hash_protected_size << ")";
+				break;
+			}
+			
 		}
-		else
-		{
-			printf("\n");
-		}
-		
+		std::cout << std::endl;
 	}
 }
 
@@ -186,4 +201,24 @@ void PfsProcess::extractFs()
 		}		
 		outFile.close();
 	}
+}
+
+const char* PfsProcess::getFsTypeStr(nn::hac::PfsHeader::FsType type) const
+{
+	const char* str = nullptr;
+
+	switch (type)
+	{
+	case (nn::hac::PfsHeader::TYPE_PFS0):
+		str = "PFS0";
+		break;
+	case (nn::hac::PfsHeader::TYPE_HFS0):
+		str = "HFS0";
+		break;
+	default:
+		str = "Unknown";
+		break;
+	}
+
+	return str;
 }

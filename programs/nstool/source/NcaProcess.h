@@ -105,6 +105,7 @@ private:
 		fnd::aes::sAesIvCtr aes_ctr;
 	} mPartitions[nn::hac::nca::kPartitionNum];
 
+	void importHeader();
 	void generateNcaBodyEncryptionKeys();
 	void generatePartitionConfiguration();
 	void validateNcaSignatures();

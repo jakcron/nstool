@@ -62,6 +62,7 @@ private:
 	PfsProcess mRootPfs;
 	fnd::List<sExtractInfo> mExtractInfo;
 
+	void importHeader();
 	void displayHeader();
 	bool validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash);
 	void validateXciSignature();
