@@ -67,7 +67,6 @@ void CnmtProcess::importCnmt()
 void CnmtProcess::displayCnmt()
 {
 #define _SPLIT_VER(ver) (uint32_t)((ver>>26) & 0x3f) << "." << (uint32_t)((ver>>20) & 0x3f) << "." << (uint32_t)((ver>>16) & 0xf) << "." << (uint32_t)(ver & 0xffff)
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
 
 	std::cout << "[ContentMeta]" << std::endl;
 	std::cout << "  TitleId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getTitleId() << std::endl;
@@ -109,13 +108,9 @@ void CnmtProcess::displayCnmt()
 			const nn::hac::ContentMetaBinary::ContentInfo& info = mCnmt.getContentInfo()[i];
 			std::cout << "    " << std::dec << i << std::endl;
 			std::cout << "      Type:         " << getContentTypeStr(info.type) << " (" << std::dec << info.type << ")" << std::endl;
-			std::cout << "      Id:           ";
-			_HEXDUMP_L(info.nca_id, nn::hac::cnmt::kContentIdLen);
-			std::cout << std::endl;
+			std::cout << "      Id:           " << fnd::SimpleTextOutput::arrayToString(info.nca_id, nn::hac::cnmt::kContentIdLen, false, "") << std::endl;
 			std::cout << "      Size:         0x" << std::hex << info.size << std::endl;
-			std::cout << "      Hash:         ";
-			_HEXDUMP_L(info.hash.bytes, sizeof(info.hash));
-			std::cout << std::endl;
+			std::cout << "      Hash:         " << fnd::SimpleTextOutput::arrayToString(info.hash.bytes, sizeof(info.hash), false, "") << std::endl;
 		}
 	}
 	if (mCnmt.getContentMetaInfo().size() > 0)
@@ -134,11 +129,8 @@ void CnmtProcess::displayCnmt()
 		}
 	}
 
-	std::cout << "  Digest:   ";
-	_HEXDUMP_L(mCnmt.getDigest().data, nn::hac::cnmt::kDigestLen);
-	std::cout << std::endl;
+	std::cout << "  Digest:   " << fnd::SimpleTextOutput::arrayToString(mCnmt.getDigest().data, nn::hac::cnmt::kDigestLen, false, "") << std::endl;
 
-#undef _HEXDUMP_L
 #undef _SPLIT_VER
 }
 

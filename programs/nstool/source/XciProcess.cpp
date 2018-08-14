@@ -121,12 +121,13 @@ void XciProcess::displayHeader()
 		std::cout << "    KekIndex:             " << std::dec << (uint32_t)mHdr.getKekIndex() << std::endl;
 		std::cout << "    TitleKeyDecIndex:     " << std::dec << (uint32_t)mHdr.getTitleKeyDecIndex() << std::endl;
 		std::cout << "    Hash:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(mHdr.getInitialDataHash().bytes, sizeof(mHdr.getInitialDataHash().bytes), 0x10, 6);
+		std::cout << "      " << fnd::SimpleTextOutput::arrayToString(mHdr.getInitialDataHash().bytes, 0x10, true, "") << std::endl;
+		std::cout << "      " << fnd::SimpleTextOutput::arrayToString(mHdr.getInitialDataHash().bytes+0x10, 0x10, true, "") << std::endl;
 	}
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		std::cout << "  Extended Header AES-IV:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(mHdr.getAesCbcIv().iv, sizeof(mHdr.getAesCbcIv().iv), 0x10, 4);
+		std::cout << "    " << fnd::SimpleTextOutput::arrayToString(mHdr.getAesCbcIv().iv, sizeof(mHdr.getAesCbcIv().iv), true, "") << std::endl;
 	}
 	std::cout << "  SelSec:                 0x" << std::hex << mHdr.getSelSec() << std::endl;
 	std::cout << "  SelT1Key:               0x" << std::hex << mHdr.getSelT1Key() << std::endl;
@@ -159,7 +160,8 @@ void XciProcess::displayHeader()
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		{
 			std::cout << "    Hash:" << std::endl;
-			fnd::SimpleTextOutput::hexDump(mHdr.getPartitionFsHash().bytes, sizeof(mHdr.getPartitionFsHash().bytes), 0x10, 6);
+			std::cout << "      " << fnd::SimpleTextOutput::arrayToString(mHdr.getPartitionFsHash().bytes, 0x10, true, "") << std::endl;
+			std::cout << "      " << fnd::SimpleTextOutput::arrayToString(mHdr.getPartitionFsHash().bytes+0x10, 0x10, true, "") << std::endl;
 		}
 	}
 
@@ -180,8 +182,7 @@ void XciProcess::displayHeader()
 		std::cout << "    CUP Version:          v" << std::dec << mHdr.getUppVersion() << " (" << _SPLIT_VER(mHdr.getUppVersion()) << ")" << std::endl;
 #undef _SPLIT_VER
 		std::cout << "    CUP TitleId:          0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getUppId() << std::endl;
-		std::cout << "    Partition Hash:       ";
-		fnd::SimpleTextOutput::hexDump(mHdr.getUppHash(), 8);
+		std::cout << "    Partition Hash:       " << fnd::SimpleTextOutput::arrayToString(mHdr.getUppHash(), 8, true, "") << std::endl;
 	}
 }
 

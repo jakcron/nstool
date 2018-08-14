@@ -175,12 +175,8 @@ void NsoProcess::importCodeSegments()
 
 void NsoProcess::displayNsoHeader()
 {
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)var[a__a__A]; } while(0)
-
 	std::cout << "[NSO Header]" << std::endl;
-	std::cout << "  ModuleId:           ";
-	_HEXDUMP_L(mHdr.getModuleId().data, nn::hac::nso::kModuleIdSize);
-	std::cout << std::endl;
+	std::cout << "  ModuleId:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getModuleId().data, nn::hac::nso::kModuleIdSize, false, "") << std::endl;
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
 		std::cout << "  Program Segments:" << std::endl;
@@ -203,18 +199,14 @@ void NsoProcess::displayNsoHeader()
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getTextSegmentInfo().memory_layout.size << std::endl;
 	if (mHdr.getTextSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		std::cout << "      Hash:           ";
-		_HEXDUMP_L(mHdr.getTextSegmentInfo().hash.bytes, 32);
-		std::cout << std::endl;
+		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getTextSegmentInfo().hash.bytes, 32, false, "") << std::endl;
 	}
 	std::cout << "    .ro:" << std::endl;
 	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getRoSegmentInfo().memory_layout.offset << std::endl;
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getRoSegmentInfo().memory_layout.size << std::endl;
 	if (mHdr.getRoSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		std::cout << "      Hash:           ";
-		_HEXDUMP_L(mHdr.getRoSegmentInfo().hash.bytes, 32);
-		std::cout << std::endl;
+		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getRoSegmentInfo().hash.bytes, 32, false, "") << std::endl;
 	}
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
@@ -234,13 +226,10 @@ void NsoProcess::displayNsoHeader()
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getDataSegmentInfo().memory_layout.size << std::endl;
 	if (mHdr.getDataSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		std::cout << "      Hash:           ";
-		_HEXDUMP_L(mHdr.getDataSegmentInfo().hash.bytes, 32);
-		std::cout << std::endl;
+		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getDataSegmentInfo().hash.bytes, 32, false, "") << std::endl;
 	}
 	std::cout << "    .bss:" << std::endl;
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getBssSize() << std::endl;
-#undef _HEXDUMP_L
 }
 
 void NsoProcess::processRoMeta()

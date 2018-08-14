@@ -137,14 +137,9 @@ void NroProcess::importCodeSegments()
 
 void NroProcess::displayHeader()
 {
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)var[a__a__A]; } while(0)
 	std::cout << "[NRO Header]" << std::endl;
-	std::cout << "  RoCrt:       ";
-	_HEXDUMP_L(mHdr.getRoCrt().data, nn::hac::nro::kRoCrtSize);
-	std::cout << std::endl;
-	std::cout << "  ModuleId:    ";
-	_HEXDUMP_L(mHdr.getModuleId().data, nn::hac::nro::kModuleIdSize);
-	std::cout << std::endl;
+	std::cout << "  RoCrt:       " << fnd::SimpleTextOutput::arrayToString(mHdr.getRoCrt().data, nn::hac::nro::kRoCrtSize, false, "") << std::endl;
+	std::cout << "  ModuleId:    " << fnd::SimpleTextOutput::arrayToString(mHdr.getModuleId().data, nn::hac::nro::kModuleIdSize, false, "") << std::endl;
 	std::cout << "  NroSize:     0x" << std::hex << mHdr.getNroSize() << std::endl;
 	std::cout << "  Program Sections:" << std::endl;
 	std::cout << "     .text:" << std::endl;
@@ -170,8 +165,6 @@ void NroProcess::displayHeader()
 	std::cout << "      Size:       0x" << std::hex << mHdr.getDataInfo().size << std::endl;
 	std::cout << "    .bss:" << std::endl;
 	std::cout << "      Size:       0x" << std::hex << mHdr.getBssSize() << std::endl;
-	
-#undef _HEXDUMP_L
 }
 
 void NroProcess::processRoMeta()
