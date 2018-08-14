@@ -104,7 +104,7 @@ void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateB
 
 	std::cout << "  SignType       " << getSignTypeStr(cert.getSignature().getSignType());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-		std::cout << " (0x" << std::hex << cert.getSignature().getSignType() << ") (" << getEndiannessStr(cert.getSignature().isLittleEndian());
+		std::cout << " (0x" << std::hex << cert.getSignature().getSignType() << ") (" << getEndiannessStr(cert.getSignature().isLittleEndian()) << ")";
 	std::cout << std::endl;
 
 	std::cout << "  Issuer:        " << cert.getBody().getIssuer() << std::endl;
@@ -126,9 +126,9 @@ void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateB
 	else if (cert.getBody().getPublicKeyType() == nn::pki::cert::RSA2048)
 	{
 		std::cout << "  PublicKey:" << std::endl;
-		std::cout << "    Public Exponent:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, getHexDumpLen(fnd::rsa::kRsa2048Size), 0x10, 6);
 		std::cout << "    Modulus:" << std::endl;
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, getHexDumpLen(fnd::rsa::kRsa2048Size), 0x10, 6);
+		std::cout << "    Public Exponent:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().public_exponent, fnd::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
 	else if (cert.getBody().getPublicKeyType() == nn::pki::cert::ECDSA240)
