@@ -21,8 +21,8 @@ namespace fnd
 
 			void operator=(const sEcdsa240Point& other)
 			{
-				memcpy(this->r, r, kEcdsa240Size);
-				memcpy(this->s, s, kEcdsa240Size);
+				memcpy(this->r, other.r, kEcdsa240Size);
+				memcpy(this->s, other.s, kEcdsa240Size);
 			}
 
 			bool operator==(const sEcdsa240Point& other) const

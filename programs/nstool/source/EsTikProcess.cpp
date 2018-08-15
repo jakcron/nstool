@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-
 #include <fnd/SimpleTextOutput.h>
 #include <nn/pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
@@ -64,12 +63,14 @@ void EsTikProcess::setVerifyMode(bool verify)
 
 void EsTikProcess::importTicket()
 {
+	fnd::Vec<byte_t> scratch;
+
+
 	if (mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	fnd::Vec<byte_t> scratch;
 	scratch.alloc(mFile->size());
 	mFile->read(scratch.data(), 0, scratch.size());
 	mTik.fromBytes(scratch.data(), scratch.size());
@@ -106,9 +107,7 @@ void EsTikProcess::verifyTicket()
 
 void EsTikProcess::displayTicket()
 {
-#define _SPLIT_VER(ver) ( (ver>>10) & 0x3f), ( (ver>>4) & 0x3f), ( (ver>>0) & 0xf)
-#define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
+#define _SPLIT_VER(ver) (uint32_t)((ver>>10) & 0x3f) << "." << (uint32_t)((ver>>4) & 0x3f) << "." << (uint32_t)((ver>>0) & 0xf)
 
 	const nn::es::TicketBody_V2& body = mTik.getBody();	
 
@@ -127,10 +126,10 @@ void EsTikProcess::displayTicket()
 	size_t size = body.getTitleKeyEncType() == nn::es::ticket::RSA2048 ? fnd::rsa::kRsa2048Size : fnd::aes::kAes128KeySize;
 	fnd::SimpleTextOutput::hexDump(body.getEncTitleKey(), size, 0x10, 6);
 
-	printf("  Version:          v%d.%d.%d", _SPLIT_VER(body.getTicketVersion()));
+	std::cout << "  Version:          v" << _SPLIT_VER(body.getTicketVersion());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-		printf(" (%d)", body.getTicketVersion());
-	printf("\n");
+		std::cout << " (" << (uint32_t)body.getTicketVersion() << ")";
+	std::cout << std::endl;
 	
 	std::cout << "  License Type:     " << getLicenseTypeStr(body.getLicenseType()) << std::endl; 
 	
@@ -163,9 +162,6 @@ void EsTikProcess::displayTicket()
 	std::cout << "  SectionNum:             0x" << std::hex << body.getSectionNum() << std::endl;
 	std::cout << "  SectionEntrySize:       0x" << std::hex << body.getSectionEntrySize() << std::endl;
 
-	
-#undef _HEXDUMP_L
-#undef _HEXDUMP_U
 #undef _SPLIT_VER
 }
 

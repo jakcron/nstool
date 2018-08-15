@@ -1,3 +1,5 @@
+#include <iostream>
+#include <iomanip>
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
@@ -30,18 +32,15 @@ RomfsProcess::~RomfsProcess()
 
 void RomfsProcess::process()
 {
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
 	resolveRomfs();	
+
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 	{
 		displayHeader();
 		if (mListFs || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 			displayFs();
 	}
+
 	if (mExtract)
 		extractFs();	
 }
@@ -87,19 +86,19 @@ void RomfsProcess::printTab(size_t tab) const
 {
 	for (size_t i = 0; i < tab; i++)
 	{
-		printf("  ");
+		std::cout << "  ";
 	}
 }
 
 void RomfsProcess::displayFile(const sFile& file, size_t tab) const
 {
 	printTab(tab);
-	printf("%s", file.name.c_str());
+	std::cout << file.name;
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
-		printf(" (offset=0x%" PRIx64 ", size=0x%" PRIx64 ")", file.offset, file.size);
+		std::cout << std::hex << " (offset=0x" << file.offset << ", size=0x" << file.size << ")";
 	}
-	putchar('\n');
+	std::cout << std::endl;
 }
 
 void RomfsProcess::displayDir(const sDirectory& dir, size_t tab) const
@@ -107,7 +106,7 @@ void RomfsProcess::displayDir(const sDirectory& dir, size_t tab) const
 	if (dir.name.empty() == false)
 	{
 		printTab(tab);
-		printf("%s\n", dir.name.c_str());
+		std::cout << dir.name << std::endl;
 	}
 
 	for (size_t i = 0; i < dir.dir_list.size(); i++)
@@ -122,11 +121,16 @@ void RomfsProcess::displayDir(const sDirectory& dir, size_t tab) const
 
 void RomfsProcess::displayHeader()
 {
-	printf("[RomFS]\n");
-	printf("  DirNum:      %" PRId64 "\n", (uint64_t)mDirNum);
-	printf("  FileNum:     %" PRId64 "\n", (uint64_t)mFileNum);
-	if (mMountName.empty() == false)	
-		printf("  MountPoint:  %s%s\n", mMountName.c_str(), mMountName.at(mMountName.length()-1) != '/' ? "/" : "");
+	std::cout << "[RomFS]" << std::endl;
+	std::cout << "  DirNum:     " << std::dec << mDirNum << std::endl;
+	std::cout << "  FileNum:    " << std::dec << mFileNum << std::endl;
+	if (mMountName.empty() == false)
+	{
+		std::cout << "  MountPoint:  " << mMountName;
+		if (mMountName.at(mMountName.length()-1) != '/')
+			std::cout << "/";
+		std::cout << std::endl;
+	}
 }
 
 void RomfsProcess::displayFs()
@@ -156,7 +160,7 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 		fnd::io::appendToPath(file_path, dir.file_list[i].name);
 
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
-			printf("extract=[%s]\n", file_path.c_str());	
+			std::cout << "extract=[" << file_path << "]" << std::endl;	
 		
 		outFile.open(file_path, outFile.Create);
 		mFile->seek(dir.file_list[i].offset);
@@ -254,6 +258,11 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 
 void RomfsProcess::resolveRomfs()
 {
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
 	// read header
 	mFile->read((byte_t*)&mHdr, 0, sizeof(nn::hac::sRomfsHeader));
 

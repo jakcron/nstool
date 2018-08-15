@@ -44,10 +44,13 @@ private:
 
 	nn::hac::PfsHeader mPfs;
 
+	void importHeader();
 	void displayHeader();
 	void displayFs();
 	size_t determineHeaderSize(const nn::hac::sPfsHeader* hdr);
 	bool validateHeaderMagic(const nn::hac::sPfsHeader* hdr);
 	void validateHfs();
 	void extractFs();
+
+	const char* getFsTypeStr(nn::hac::PfsHeader::FsType type) const;
 };

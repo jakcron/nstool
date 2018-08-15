@@ -1,3 +1,5 @@
+#include <iostream>
+#include <iomanip>
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/Vec.h>
 #include <fnd/lz4.h>
@@ -23,11 +25,6 @@ NroProcess::~NroProcess()
 
 void NroProcess::process()
 {
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
 	importHeader();
 	importCodeSegments();
 
@@ -99,6 +96,12 @@ const RoMetadataProcess& NroProcess::getRoMetadataProcess() const
 void NroProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
+
+	if (mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
 	if (mFile->size() < sizeof(nn::hac::sNroHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt NRO: file too small");
@@ -134,41 +137,34 @@ void NroProcess::importCodeSegments()
 
 void NroProcess::displayHeader()
 {
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
-	printf("[NRO Header]\n");
-	printf("  RoCrt:       ");
-	_HEXDUMP_L(mHdr.getRoCrt().data, nn::hac::nro::kRoCrtSize);
-	printf("\n");
-	printf("  ModuleId:    ");
-	_HEXDUMP_L(mHdr.getModuleId().data, nn::hac::nro::kModuleIdSize);
-	printf("\n");
-	printf("  NroSize:     0x%" PRIx32 "\n", mHdr.getNroSize());
-	printf("  Program Sections:\n");
-	printf("     .text:\n");
-	printf("      Offset:     0x%" PRIx32 "\n", mHdr.getTextInfo().memory_offset);
-	printf("      Size:       0x%" PRIx32 "\n", mHdr.getTextInfo().size);
-	printf("    .ro:\n");
-	printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoInfo().memory_offset);
-	printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoInfo().size);
+	std::cout << "[NRO Header]" << std::endl;
+	std::cout << "  RoCrt:       " << fnd::SimpleTextOutput::arrayToString(mHdr.getRoCrt().data, nn::hac::nro::kRoCrtSize, false, "") << std::endl;
+	std::cout << "  ModuleId:    " << fnd::SimpleTextOutput::arrayToString(mHdr.getModuleId().data, nn::hac::nro::kModuleIdSize, false, "") << std::endl;
+	std::cout << "  NroSize:     0x" << std::hex << mHdr.getNroSize() << std::endl;
+	std::cout << "  Program Sections:" << std::endl;
+	std::cout << "     .text:" << std::endl;
+	std::cout << "      Offset:     0x" << std::hex << mHdr.getTextInfo().memory_offset << std::endl;
+	std::cout << "      Size:       0x" << std::hex << mHdr.getTextInfo().size << std::endl;
+	std::cout << "    .ro:" << std::endl;
+	std::cout << "      Offset:     0x" << std::hex << mHdr.getRoInfo().memory_offset << std::endl;
+	std::cout << "      Size:       0x" << std::hex << mHdr.getRoInfo().size << std::endl;
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
-		printf("    .api_info:\n");
-		printf("      Offset:     0x%" PRIx32 "\n",  mHdr.getRoEmbeddedInfo().memory_offset);
-		printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoEmbeddedInfo().size);
-		printf("    .dynstr:\n");
-		printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().memory_offset);
-		printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoDynStrInfo().size);
-		printf("    .dynsym:\n");
-		printf("      Offset:     0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().memory_offset);
-		printf("      Size:       0x%" PRIx32 "\n", mHdr.getRoDynSymInfo().size);
+		std::cout << "    .api_info:" << std::endl;
+		std::cout << "      Offset:     0x" << std::hex <<  mHdr.getRoEmbeddedInfo().memory_offset << std::endl;
+		std::cout << "      Size:       0x" << std::hex << mHdr.getRoEmbeddedInfo().size << std::endl;
+		std::cout << "    .dynstr:" << std::endl;
+		std::cout << "      Offset:     0x" << std::hex << mHdr.getRoDynStrInfo().memory_offset << std::endl;
+		std::cout << "      Size:       0x" << std::hex << mHdr.getRoDynStrInfo().size << std::endl;
+		std::cout << "    .dynsym:" << std::endl;
+		std::cout << "      Offset:     0x" << std::hex << mHdr.getRoDynSymInfo().memory_offset << std::endl;
+		std::cout << "      Size:       0x" << std::hex << mHdr.getRoDynSymInfo().size << std::endl;
 	}
-	printf("    .data:\n");
-	printf("      Offset:     0x%" PRIx32 "\n", mHdr.getDataInfo().memory_offset);
-	printf("      Size:       0x%" PRIx32 "\n", mHdr.getDataInfo().size);
-	printf("    .bss:\n");
-	printf("      Size:       0x%" PRIx32 "\n", mHdr.getBssSize());
-	
-#undef _HEXDUMP_L
+	std::cout << "    .data:" << std::endl;
+	std::cout << "      Offset:     0x" << std::hex << mHdr.getDataInfo().memory_offset << std::endl;
+	std::cout << "      Size:       0x" << std::hex << mHdr.getDataInfo().size << std::endl;
+	std::cout << "    .bss:" << std::endl;
+	std::cout << "      Size:       0x" << std::hex << mHdr.getBssSize() << std::endl;
 }
 
 void NroProcess::processRoMeta()
