@@ -56,6 +56,28 @@ namespace fnd
 				return !operator==(other);
 			}
 		};
+
+		struct sEcdsa240Key
+		{
+			sEcdsa240Point pub;
+			sEcdsa240PrivateKey pvt;
+
+			void operator=(const sEcdsa240Key& other)
+			{
+				this->pub = other.pub;
+				this->pvt = other.pvt;
+			}
+
+			bool operator==(const sEcdsa240Key& other) const
+			{
+				return this->pub == other.pub && this->pvt == other.pvt;
+			}
+
+			bool operator!=(const sEcdsa240Key& other) const
+			{
+				return !operator==(other);
+			}
+		};
 #pragma pack (pop)
 	}
 }
