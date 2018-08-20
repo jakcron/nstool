@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include <string>
 #include <fnd/types.h>
 #include <fnd/aes.h>
@@ -61,6 +60,9 @@ struct sOptional
 	inline T& operator*() { return var; }
 };
 
+const byte_t kDummyRightsIdForUserTitleKey[nn::hac::nca::kRightsIdLen] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+const byte_t kDummyRightsIdForUserBodyKey[nn::hac::nca::kRightsIdLen] = {0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe};
+
 struct sKeyset
 {
 	fnd::rsa::sRsa2048Key acid_sign_key;
@@ -97,14 +99,3 @@ struct sKeyset
 		fnd::rsa::sRsa4096Key root_sign_key;
 	} pki;
 };
-
-inline byte_t charToByte(char chr)
-{
-	if (chr >= 'a' && chr <= 'f')
-		return (chr - 'a') + 0xa;
-	else if (chr >= 'A' && chr <= 'F')
-		return (chr - 'A') + 0xa; 
-	else if (chr >= '0' && chr <= '9')
-		return chr - '0';
-	return 0;
-}
