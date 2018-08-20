@@ -43,7 +43,7 @@ namespace fnd
 
 			void operator=(const sEcdsa240PrivateKey& other)
 			{
-				memcpy(this->k, k, kEcdsa240Size);
+				memcpy(this->k, other.k, kEcdsa240Size);
 			}
 
 			bool operator==(const sEcdsa240PrivateKey& other) const
