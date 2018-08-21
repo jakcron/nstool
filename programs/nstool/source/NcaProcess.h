@@ -88,8 +88,7 @@ private:
 		fnd::List<sKeyAreaKey> kak_list;
 
 		sOptional<fnd::aes::sAes128Key> aes_ctr;
-		sOptional<fnd::aes::sAesXts128Key> aes_xts;
-	} mBodyKeys;
+	} mContentKey;
 	
 	struct sPartitionInfo
 	{
