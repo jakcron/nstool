@@ -174,7 +174,7 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 			{
 				kak.decrypted = false;
 			}
-			mBodyKeys.keak_list.addElement(kak);
+			mBodyKeys.kak_list.addElement(kak);
 		}
 	}
 
@@ -205,19 +205,19 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	{
 		fnd::aes::sAes128Key keak_aesctr_key = zero_aesctr_key;
 		fnd::aes::sAesXts128Key keak_aesxts_key = zero_aesxts_key;
-		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
+		for (size_t i = 0; i < mBodyKeys.kak_list.size(); i++)
 		{
-			if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESCTR && mBodyKeys.keak_list[i].decrypted)
+			if (mBodyKeys.kak_list[i].index == nn::hac::nca::KEY_AESCTR && mBodyKeys.kak_list[i].decrypted)
 			{
-				keak_aesctr_key = mBodyKeys.keak_list[i].dec;
+				keak_aesctr_key = mBodyKeys.kak_list[i].dec;
 			}
-			else if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESXTS_0 && mBodyKeys.keak_list[i].decrypted)
+			else if (mBodyKeys.kak_list[i].index == nn::hac::nca::KEY_AESXTS_0 && mBodyKeys.kak_list[i].decrypted)
 			{
-				memcpy(keak_aesxts_key.key[0], mBodyKeys.keak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
+				memcpy(keak_aesxts_key.key[0], mBodyKeys.kak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
 			}
-			else if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESXTS_1 && mBodyKeys.keak_list[i].decrypted)
+			else if (mBodyKeys.kak_list[i].index == nn::hac::nca::KEY_AESXTS_1 && mBodyKeys.kak_list[i].decrypted)
 			{
-				memcpy(keak_aesxts_key.key[1], mBodyKeys.keak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
+				memcpy(keak_aesxts_key.key[1], mBodyKeys.kak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
 			}
 		}
 
@@ -441,21 +441,21 @@ void NcaProcess::displayHeader()
 		std::cout << "  RightsId:        " << fnd::SimpleTextOutput::arrayToString(mHdr.getRightsId(), nn::hac::nca::kRightsIdLen, true, "") << std::endl;
 	}
 	
-	if (mBodyKeys.keak_list.size() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
+	if (mBodyKeys.kak_list.size() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
 	{
 		std::cout << "  Key Area:" << std::endl;
 		std::cout << "    <--------------------------------------------------------------------------->" << std::endl;
 		std::cout << "    | IDX | ENCRYPTED KEY                    | DECRYPTED KEY                    |" << std::endl;
 		std::cout << "    |-----|----------------------------------|----------------------------------|" << std::endl;
-		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
+		for (size_t i = 0; i < mBodyKeys.kak_list.size(); i++)
 		{
-			std::cout << "    | " << std::dec << std::setw(3) << std::setfill(' ') << (uint32_t)mBodyKeys.keak_list[i].index << " | ";
+			std::cout << "    | " << std::dec << std::setw(3) << std::setfill(' ') << (uint32_t)mBodyKeys.kak_list[i].index << " | ";
 			
-			std::cout << fnd::SimpleTextOutput::arrayToString(mBodyKeys.keak_list[i].enc.key, 16, false, "") << " | ";
+			std::cout << fnd::SimpleTextOutput::arrayToString(mBodyKeys.kak_list[i].enc.key, 16, false, "") << " | ";
 			
 			
-			if (mBodyKeys.keak_list[i].decrypted)
-				std::cout << fnd::SimpleTextOutput::arrayToString(mBodyKeys.keak_list[i].dec.key, 16, false, "");
+			if (mBodyKeys.kak_list[i].decrypted)
+				std::cout << fnd::SimpleTextOutput::arrayToString(mBodyKeys.kak_list[i].dec.key, 16, false, "");
 			else
 				std::cout << "<unable to decrypt>             ";
 			
