@@ -41,9 +41,9 @@ void EsTikProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void EsTikProcess::setKeyset(const sKeyset* keyset)
+void EsTikProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
-	mKeyset = keyset;
+	mKeyCfg = keycfg;
 }
 
 void EsTikProcess::setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs)
@@ -95,7 +95,7 @@ void EsTikProcess::verifyTicket()
 
 	try 
 	{
-		pki_validator.setRootKey(mKeyset->pki.root_sign_key);
+		pki_validator.setKeyCfg(mKeyCfg);
 		pki_validator.addCertificates(mCerts);
 		pki_validator.validateSignature(mTik.getBody().getIssuer(), mTik.getSignature().getSignType(), mTik.getSignature().getSignature(), tik_hash);
 	}

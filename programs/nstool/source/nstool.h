@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include <string>
 #include <fnd/types.h>
 #include <fnd/aes.h>
@@ -61,50 +60,5 @@ struct sOptional
 	inline T& operator*() { return var; }
 };
 
-struct sKeyset
-{
-	fnd::rsa::sRsa2048Key acid_sign_key;
-	fnd::aes::sAes128Key package1_key[kMasterKeyNum];
-	fnd::rsa::sRsa2048Key package2_sign_key;
-	fnd::aes::sAes128Key package2_key[kMasterKeyNum];
-
-	struct sNcaData
-	{
-		fnd::rsa::sRsa2048Key header_sign_key;
-		fnd::aes::sAesXts128Key header_key;
-		fnd::aes::sAes128Key key_area_key[kNcaKeakNum][kMasterKeyNum];
-
-		fnd::aes::sAes128Key manual_title_key_aesctr;
-		fnd::aes::sAesXts128Key manual_title_key_aesxts;
-		fnd::aes::sAes128Key manual_body_key_aesctr;
-		fnd::aes::sAesXts128Key manual_body_key_aesxts;
-	} nca;
-
-	struct sXciData
-	{
-		fnd::rsa::sRsa2048Key header_sign_key;
-		fnd::aes::sAes128Key header_key;
-	} xci;
-
-	struct sTicketData
-	{
-		fnd::rsa::sRsa2048Key sign_key;
-		fnd::aes::sAes128Key titlekey_kek[kMasterKeyNum];
-	} ticket;
-
-	struct sPkiData
-	{
-		fnd::rsa::sRsa4096Key root_sign_key;
-	} pki;
-};
-
-inline byte_t charToByte(char chr)
-{
-	if (chr >= 'a' && chr <= 'f')
-		return (chr - 'a') + 0xa;
-	else if (chr >= 'A' && chr <= 'F')
-		return (chr - 'A') + 0xa; 
-	else if (chr >= '0' && chr <= '9')
-		return chr - '0';
-	return 0;
-}
+const byte_t kDummyRightsIdForUserTitleKey[nn::hac::nca::kRightsIdLen] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+const byte_t kDummyRightsIdForUserBodyKey[nn::hac::nca::kRightsIdLen] = {0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe};

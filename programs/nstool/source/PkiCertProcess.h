@@ -6,6 +6,7 @@
 #include <fnd/Vec.h>
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
+#include "KeyConfiguration.h"
 #include "nstool.h"
 
 class PkiCertProcess
@@ -17,7 +18,7 @@ public:
 	void process();
 
 	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setKeyset(const sKeyset* keyset);
+	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -27,7 +28,7 @@ private:
 
 	fnd::IFile* mFile;
 	bool mOwnIFile;
-	const sKeyset* mKeyset;
+	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 

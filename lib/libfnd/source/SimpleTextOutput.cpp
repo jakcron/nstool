@@ -88,3 +88,30 @@ std::string fnd::SimpleTextOutput::arrayToString(const byte_t* data, size_t len,
 	}
 	return ss.str();
 }
+
+inline byte_t charToByte(char chr)
+{
+	if (chr >= 'a' && chr <= 'f')
+		return (chr - 'a') + 0xa;
+	else if (chr >= 'A' && chr <= 'F')
+		return (chr - 'A') + 0xa; 
+	else if (chr >= '0' && chr <= '9')
+		return chr - '0';
+	return 0;
+}
+
+void fnd::SimpleTextOutput::stringToArray(const std::string& str, fnd::Vec<byte_t>& array)
+{
+	size_t size = str.size();
+	if ((size % 2))
+	{
+		return;
+	}
+
+	array.alloc(size/2);
+
+	for (size_t i = 0; i < array.size(); i++)
+	{
+		array[i] = (charToByte(str[i * 2]) << 4) | charToByte(str[(i * 2) + 1]);
+	}
+}

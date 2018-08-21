@@ -15,7 +15,6 @@
 NcaProcess::NcaProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
-	mKeyset(nullptr),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mListFs(false)
@@ -72,9 +71,9 @@ void NcaProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void NcaProcess::setKeyset(const sKeyset* keyset)
+void NcaProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
-	mKeyset = keyset;
+	mKeyCfg = keycfg;
 }
 
 void NcaProcess::setCliOutputMode(CliOutputMode type)
@@ -127,7 +126,9 @@ void NcaProcess::importHeader()
 	mFile->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
 	
 	// decrypt header block
-	nn::hac::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyset->nca.header_key);
+	fnd::aes::sAesXts128Key header_key;
+	mKeyCfg.getNcaHeaderKey(header_key);
+	nn::hac::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, header_key);
 
 	// generate header hash
 	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader), mHdrHash.bytes);
@@ -141,112 +142,93 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	// create zeros key
 	fnd::aes::sAes128Key zero_aesctr_key;
 	memset(zero_aesctr_key.key, 0, sizeof(zero_aesctr_key));
-	fnd::aes::sAesXts128Key zero_aesxts_key;
-	memset(zero_aesxts_key.key, 0, sizeof(zero_aesxts_key));
 	
 	// get key data from header
 	byte_t masterkey_rev = nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
 	byte_t keak_index = mHdr.getKaekIndex();
 
 	// process key area
-	sKeys::sKeyAreaKey keak;
+	sKeys::sKeyAreaKey kak;
+	fnd::aes::sAes128Key key_area_enc_key;
 	for (size_t i = 0; i < nn::hac::nca::kAesKeyNum; i++)
 	{
 		if (mHdr.getEncAesKeys()[i] != zero_aesctr_key)
 		{
-			keak.index = (byte_t)i;
-			keak.enc = mHdr.getEncAesKeys()[i];
-			if (i < 4 && mKeyset->nca.key_area_key[keak_index][masterkey_rev] != zero_aesctr_key)
+			kak.index = (byte_t)i;
+			kak.enc = mHdr.getEncAesKeys()[i];
+			// key[0-3]
+			if (i < 4 && mKeyCfg.getNcaKeyAreaEncryptionKey(masterkey_rev, keak_index, key_area_enc_key) == true)
 			{
-				keak.decrypted = true;
-				nn::hac::AesKeygen::generateKey(keak.dec.key, keak.enc.key, mKeyset->nca.key_area_key[keak_index][masterkey_rev].key);
+				kak.decrypted = true;
+				nn::hac::AesKeygen::generateKey(kak.dec.key, kak.enc.key, key_area_enc_key.key);
+			}
+			// key[4]
+			else if (i == 4 && mKeyCfg.getNcaKeyAreaEncryptionKeyHw(masterkey_rev, keak_index, key_area_enc_key) == true)
+			{
+				kak.decrypted = true;
+				nn::hac::AesKeygen::generateKey(kak.dec.key, kak.enc.key, key_area_enc_key.key);
 			}
 			else
 			{
-				keak.decrypted = false;
+				kak.decrypted = false;
 			}
-			mBodyKeys.keak_list.addElement(keak);
+			mContentKey.kak_list.addElement(kak);
 		}
 	}
 
 	// set flag to indicate that the keys are not available
-	mBodyKeys.aes_ctr.isSet = false;
-	mBodyKeys.aes_xts.isSet = false;
+	mContentKey.aes_ctr.isSet = false;
 
 	// if this has a rights id, the key needs to be sourced from a ticket
 	if (mHdr.hasRightsId() == true)
 	{
-		// if the titlekey_kek is available
-		if (mKeyset->ticket.titlekey_kek[masterkey_rev] != zero_aesctr_key)
+		fnd::aes::sAes128Key tmp_key;
+		if (mKeyCfg.getNcaExternalContentKey(mHdr.getRightsId(), tmp_key) == true)
 		{
-			// the title key is provided (sourced from ticket)
-			if (mKeyset->nca.manual_title_key_aesctr != zero_aesctr_key)
+			mContentKey.aes_ctr = tmp_key;
+		}
+		else if (mKeyCfg.getNcaExternalContentKey(kDummyRightsIdForUserTitleKey, tmp_key) == true)
+		{
+			fnd::aes::sAes128Key common_key;
+			if (mKeyCfg.getETicketCommonKey(masterkey_rev, common_key) == true)
 			{
-				nn::hac::AesKeygen::generateKey(mBodyKeys.aes_ctr.var.key, mKeyset->nca.manual_title_key_aesctr.key, mKeyset->ticket.titlekey_kek[masterkey_rev].key);
-				mBodyKeys.aes_ctr.isSet = true;
+				nn::hac::AesKeygen::generateKey(tmp_key.key, tmp_key.key, common_key.key);
 			}
-			if (mKeyset->nca.manual_title_key_aesxts != zero_aesxts_key)
-			{
-				nn::hac::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[0], mKeyset->nca.manual_title_key_aesxts.key[0], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
-				nn::hac::AesKeygen::generateKey(mBodyKeys.aes_xts.var.key[1], mKeyset->nca.manual_title_key_aesxts.key[1], mKeyset->ticket.titlekey_kek[masterkey_rev].key);
-				mBodyKeys.aes_xts.isSet = true;
-			}
+			mContentKey.aes_ctr = tmp_key;
 		}
 	}
 	// otherwise decrypt key area
 	else
 	{
-		fnd::aes::sAes128Key keak_aesctr_key = zero_aesctr_key;
-		fnd::aes::sAesXts128Key keak_aesxts_key = zero_aesxts_key;
-		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
+		fnd::aes::sAes128Key kak_aes_ctr = zero_aesctr_key;
+		for (size_t i = 0; i < mContentKey.kak_list.size(); i++)
 		{
-			if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESCTR && mBodyKeys.keak_list[i].decrypted)
+			if (mContentKey.kak_list[i].index == nn::hac::nca::KEY_AESCTR && mContentKey.kak_list[i].decrypted)
 			{
-				keak_aesctr_key = mBodyKeys.keak_list[i].dec;
-			}
-			else if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESXTS_0 && mBodyKeys.keak_list[i].decrypted)
-			{
-				memcpy(keak_aesxts_key.key[0], mBodyKeys.keak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
-			}
-			else if (mBodyKeys.keak_list[i].index == nn::hac::nca::KEY_AESXTS_1 && mBodyKeys.keak_list[i].decrypted)
-			{
-				memcpy(keak_aesxts_key.key[1], mBodyKeys.keak_list[i].dec.key, sizeof(fnd::aes::sAes128Key));
+				kak_aes_ctr = mContentKey.kak_list[i].dec;
 			}
 		}
 
-		if (keak_aesctr_key != zero_aesctr_key)
+		if (kak_aes_ctr != zero_aesctr_key)
 		{
-			mBodyKeys.aes_ctr = keak_aesctr_key;
-		}
-		if (keak_aesxts_key != zero_aesxts_key)
-		{
-			mBodyKeys.aes_xts = keak_aesxts_key;
+			mContentKey.aes_ctr = kak_aes_ctr;
 		}
 	}
 
 	// if the keys weren't generated, check if the keys were supplied by the user
-	if (mBodyKeys.aes_ctr.isSet == false && mKeyset->nca.manual_body_key_aesctr != zero_aesctr_key)
+	if (mContentKey.aes_ctr.isSet == false)
 	{
-		mBodyKeys.aes_ctr = mKeyset->nca.manual_body_key_aesctr;
+		if (mKeyCfg.getNcaExternalContentKey(kDummyRightsIdForUserBodyKey, mContentKey.aes_ctr.var) == true)
+			mContentKey.aes_ctr.isSet = true;
 	}
-	if (mBodyKeys.aes_xts.isSet == false && mKeyset->nca.manual_body_key_aesxts != zero_aesxts_key)
-	{
-		mBodyKeys.aes_xts = mKeyset->nca.manual_body_key_aesxts;
-	}
+	
 	
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
 	{
-		if (mBodyKeys.aes_ctr.isSet)
+		if (mContentKey.aes_ctr.isSet)
 		{
-			std::cout << "[NCA Body Key]" << std::endl;
-			std::cout << "  AES-CTR Key: " << fnd::SimpleTextOutput::arrayToString(mBodyKeys.aes_ctr.var.key, sizeof(mBodyKeys.aes_ctr.var), true, "") << std::endl;
-		}
-		
-		if (mBodyKeys.aes_xts.isSet)
-		{
-			std::cout << "[NCA Body Key]" << std::endl;
-			std::cout << "  AES-XTS Key0: " << fnd::SimpleTextOutput::arrayToString(mBodyKeys.aes_xts.var.key[0], sizeof(mBodyKeys.aes_ctr.var), true, "") << std::endl;
-			std::cout << "  AES-XTS Key1: " << fnd::SimpleTextOutput::arrayToString(mBodyKeys.aes_xts.var.key[1], sizeof(mBodyKeys.aes_ctr.var), true, "") << std::endl;
+			std::cout << "[NCA Content Key]" << std::endl;
+			std::cout << "  AES-CTR Key: " << fnd::SimpleTextOutput::arrayToString(mContentKey.aes_ctr.var.key, sizeof(mContentKey.aes_ctr.var), true, "") << std::endl;
 		}
 	}
 	
@@ -321,9 +303,9 @@ void NcaProcess::generatePartitionConfiguration()
 			}
 			else if (info.enc_type == nn::hac::nca::CRYPT_AESCTR)
 			{
-				if (mBodyKeys.aes_ctr.isSet == false)
+				if (mContentKey.aes_ctr.isSet == false)
 					throw fnd::Exception(kModuleName, "AES-CTR Key was not determined");
-				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mFile, SHARED_IFILE, mBodyKeys.aes_ctr.var, info.aes_ctr), OWN_IFILE, info.offset, info.size);
+				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mFile, SHARED_IFILE, mContentKey.aes_ctr.var, info.aes_ctr), OWN_IFILE, info.offset, info.size);
 			}
 			else if (info.enc_type == nn::hac::nca::CRYPT_AESXTS || info.enc_type == nn::hac::nca::CRYPT_AESCTREX)
 			{
@@ -365,7 +347,9 @@ void NcaProcess::generatePartitionConfiguration()
 void NcaProcess::validateNcaSignatures()
 {
 	// validate signature[0]
-	if (fnd::rsa::pss::rsaVerify(mKeyset->nca.header_sign_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
+	fnd::rsa::sRsa2048Key sign0_key;
+	mKeyCfg.getNcaHeader0SignKey(sign0_key);
+	if (fnd::rsa::pss::rsaVerify(sign0_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
 	{
 		std::cout << "[WARNING] NCA Header Main Signature: FAIL" << std::endl;
 	}
@@ -434,21 +418,21 @@ void NcaProcess::displayHeader()
 		std::cout << "  RightsId:        " << fnd::SimpleTextOutput::arrayToString(mHdr.getRightsId(), nn::hac::nca::kRightsIdLen, true, "") << std::endl;
 	}
 	
-	if (mBodyKeys.keak_list.size() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
+	if (mContentKey.kak_list.size() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
 	{
 		std::cout << "  Key Area:" << std::endl;
 		std::cout << "    <--------------------------------------------------------------------------->" << std::endl;
 		std::cout << "    | IDX | ENCRYPTED KEY                    | DECRYPTED KEY                    |" << std::endl;
 		std::cout << "    |-----|----------------------------------|----------------------------------|" << std::endl;
-		for (size_t i = 0; i < mBodyKeys.keak_list.size(); i++)
+		for (size_t i = 0; i < mContentKey.kak_list.size(); i++)
 		{
-			std::cout << "    | " << std::dec << std::setw(3) << std::setfill(' ') << (uint32_t)mBodyKeys.keak_list[i].index << " | ";
+			std::cout << "    | " << std::dec << std::setw(3) << std::setfill(' ') << (uint32_t)mContentKey.kak_list[i].index << " | ";
 			
-			std::cout << fnd::SimpleTextOutput::arrayToString(mBodyKeys.keak_list[i].enc.key, 16, false, "") << " | ";
+			std::cout << fnd::SimpleTextOutput::arrayToString(mContentKey.kak_list[i].enc.key, 16, false, "") << " | ";
 			
 			
-			if (mBodyKeys.keak_list[i].decrypted)
-				std::cout << fnd::SimpleTextOutput::arrayToString(mBodyKeys.keak_list[i].dec.key, 16, false, "");
+			if (mContentKey.kak_list[i].decrypted)
+				std::cout << fnd::SimpleTextOutput::arrayToString(mContentKey.kak_list[i].dec.key, 16, false, "");
 			else
 				std::cout << "<unable to decrypt>             ";
 			

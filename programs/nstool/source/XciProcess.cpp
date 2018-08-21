@@ -8,7 +8,6 @@
 XciProcess::XciProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
-	mKeyset(nullptr),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mListFs(false),
@@ -50,9 +49,9 @@ void XciProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void XciProcess::setKeyset(const sKeyset* keyset)
+void XciProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
-	mKeyset = keyset;
+	mKeyCfg = keycfg;
 }
 
 void XciProcess::setCliOutputMode(CliOutputMode type)
@@ -89,7 +88,10 @@ void XciProcess::importHeader()
 
 	// allocate memory for and decrypt sXciHeader
 	scratch.alloc(sizeof(nn::hac::sXciHeader));
-	nn::hac::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.data(), mKeyset->xci.header_key.key);
+
+	fnd::aes::sAes128Key header_key;
+	mKeyCfg.getXciHeaderKey(header_key);
+	nn::hac::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.data(), header_key.key);
 
 	// deserialise header
 	mHdr.fromBytes(scratch.data(), scratch.size());
@@ -198,9 +200,11 @@ bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* t
 
 void XciProcess::validateXciSignature()
 {
+	fnd::rsa::sRsa2048Key header_sign_key;
 	fnd::sha::sSha256Hash calc_hash;
 	fnd::sha::Sha256((byte_t*)&mHdrPage.header, sizeof(nn::hac::sXciHeader), calc_hash.bytes);
-	if (fnd::rsa::pkcs::rsaVerify(mKeyset->xci.header_sign_key, fnd::sha::HASH_SHA256, calc_hash.bytes, mHdrPage.signature) != 0)
+	mKeyCfg.getXciHeaderSignKey(header_sign_key);
+	if (fnd::rsa::pkcs::rsaVerify(header_sign_key, fnd::sha::HASH_SHA256, calc_hash.bytes, mHdrPage.signature) != 0)
 	{
 		std::cout << "[WARNING] XCI Header Signature: FAIL" << std::endl;
 	}

@@ -6,6 +6,7 @@
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include <nn/es/TicketBody_V2.h>
+#include "KeyConfiguration.h"
 #include "nstool.h"
 
 class EsTikProcess
@@ -17,7 +18,7 @@ public:
 	void process();
 
 	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setKeyset(const sKeyset* keyset);
+	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
 	void setCliOutputMode(CliOutputMode mode);
 	void setVerifyMode(bool verify);
@@ -27,7 +28,7 @@ private:
 
 	fnd::IFile* mFile;
 	bool mOwnIFile;
-	const sKeyset* mKeyset;
+	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	

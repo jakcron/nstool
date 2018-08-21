@@ -5,7 +5,6 @@
 NpdmProcess::NpdmProcess() :
 	mFile(nullptr),
 	mOwnIFile(false),
-	mKeyset(nullptr),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
@@ -57,9 +56,9 @@ void NpdmProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void NpdmProcess::setKeyset(const sKeyset* keyset)
+void NpdmProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
-	mKeyset = keyset;
+	mKeyCfg = keycfg;
 }
 
 void NpdmProcess::setCliOutputMode(CliOutputMode type)
@@ -95,7 +94,11 @@ void NpdmProcess::importNpdm()
 void NpdmProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid)
 {
 	try {
-		acid.validateSignature(mKeyset->acid_sign_key);
+		fnd::rsa::sRsa2048Key acid_sign_key;
+		if (mKeyCfg.getAcidSignKey(acid_sign_key) != true)
+			throw fnd::Exception();
+
+		acid.validateSignature(acid_sign_key);
 	}
 	catch (...) {
 		std::cout << "[WARNING] ACID Signature: FAIL" << std::endl;
