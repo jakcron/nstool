@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 
 			xci.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
 			
-			xci.setKeyset(&user_set.getKeyset());
+			xci.setKeyCfg(user_set.getKeyCfg());
 			xci.setCliOutputMode(user_set.getCliOutputMode());
 			xci.setVerifyMode(user_set.isVerifyFile());
 
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 			NcaProcess nca;
 
 			nca.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			nca.setKeyset(&user_set.getKeyset());
+			nca.setKeyCfg(user_set.getKeyCfg());
 			nca.setCliOutputMode(user_set.getCliOutputMode());
 			nca.setVerifyMode(user_set.isVerifyFile());
 
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 			NpdmProcess npdm;
 
 			npdm.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			npdm.setKeyset(&user_set.getKeyset());
+			npdm.setKeyCfg(user_set.getKeyCfg());
 			npdm.setCliOutputMode(user_set.getCliOutputMode());
 			npdm.setVerifyMode(user_set.isVerifyFile());
 
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 			PkiCertProcess cert;
 
 			cert.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			cert.setKeyset(&user_set.getKeyset());
+			cert.setKeyCfg(user_set.getKeyCfg());
 			cert.setCliOutputMode(user_set.getCliOutputMode());
 			cert.setVerifyMode(user_set.isVerifyFile());
 
@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 			EsTikProcess tik;
 
 			tik.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			tik.setKeyset(&user_set.getKeyset());
+			tik.setKeyCfg(user_set.getKeyCfg());
 			tik.setCertificateChain(user_set.getCertificateChain());
 			tik.setCliOutputMode(user_set.getCliOutputMode());
 			tik.setVerifyMode(user_set.isVerifyFile());

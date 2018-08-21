@@ -39,9 +39,9 @@ void PkiCertProcess::setInputFile(fnd::IFile* file, bool ownIFile)
 	mOwnIFile = ownIFile;
 }
 
-void PkiCertProcess::setKeyset(const sKeyset* keyset)
+void PkiCertProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
-	mKeyset = keyset;
+	mKeyCfg = keycfg;
 }
 
 void PkiCertProcess::setCliOutputMode(CliOutputMode mode)
@@ -80,7 +80,7 @@ void PkiCertProcess::validateCerts()
 	
 	try
 	{
-		pki.setRootKey(mKeyset->pki.root_sign_key);
+		pki.setKeyCfg(mKeyCfg);
 		pki.addCertificates(mCert);
 	}
 	catch (const fnd::Exception& e)

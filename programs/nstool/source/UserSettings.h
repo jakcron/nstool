@@ -21,7 +21,6 @@ public:
 	// generic options
 	const std::string getInputPath() const;
 	const KeyConfiguration& getKeyCfg() const;
-	const sKeyset& getKeyset() const;
 	FileType getFileType() const;
 	bool isVerifyFile() const;
 	CliOutputMode getCliOutputMode() const;
@@ -90,7 +89,6 @@ private:
 	
 	std::string mInputPath;
 	FileType mFileType;
-	sKeyset mKeyset;
 	KeyConfiguration mKeyCfg;
 	bool mVerifyFile;
 	CliOutputMode mOutputMode;

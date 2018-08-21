@@ -4,6 +4,7 @@
 #include <fnd/SimpleFile.h>
 #include <nn/hac/NcaHeader.h>
 #include "HashTreeMeta.h"
+#include "KeyConfiguration.h"
 
 
 #include "nstool.h"
@@ -18,7 +19,7 @@ public:
 
 	// generic
 	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setKeyset(const sKeyset* keyset);
+	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -36,7 +37,7 @@ private:
 	// user options
 	fnd::IFile* mFile;
 	bool mOwnIFile;
-	const sKeyset* mKeyset;
+	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 

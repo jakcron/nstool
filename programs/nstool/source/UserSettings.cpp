@@ -96,9 +96,9 @@ const std::string UserSettings::getInputPath() const
 	return mInputPath;
 }
 
-const sKeyset& UserSettings::getKeyset() const
+const KeyConfiguration& UserSettings::getKeyCfg() const
 {
-	return mKeyset;
+	return mKeyCfg;
 }
 
 FileType UserSettings::getFileType() const
@@ -386,8 +386,6 @@ void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCm
 
 void UserSettings::populateKeyset(sCmdArgs& args)
 {
-	memset((void*)&mKeyset, 0, sizeof(sKeyset));
-
 	if (args.keyset_path.isSet)
 	{
 		mKeyCfg.importHactoolGenericKeyfile(*args.keyset_path);
@@ -413,22 +411,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		
 	}
 
-	mKeyCfg.getPkiRootSignKey(nn::pki::sign::kRootIssuerStr, mKeyset.pki.root_sign_key);
-	mKeyCfg.getAcidSignKey(mKeyset.acid_sign_key);
-	mKeyCfg.getNcaHeader0SignKey(mKeyset.nca.header_sign_key);
-	mKeyCfg.getNcaHeaderKey(mKeyset.nca.header_key);
-	mKeyCfg.getXciHeaderSignKey(mKeyset.xci.header_sign_key);
-	mKeyCfg.getXciHeaderKey(mKeyset.xci.header_key);
-	mKeyCfg.getPkg2SignKey(mKeyset.package2_sign_key);
-	for (size_t mkeyidx = 0; mkeyidx < 32; mkeyidx++)
-	{
-		mKeyCfg.getPkg1Key(mkeyidx, mKeyset.package1_key[mkeyidx]);
-		mKeyCfg.getPkg2Key(mkeyidx, mKeyset.package1_key[mkeyidx]);
-		mKeyCfg.getNcaKeyAreaEncryptionKey(mkeyidx, 0, mKeyset.nca.key_area_key[0][mkeyidx]);
-		mKeyCfg.getNcaKeyAreaEncryptionKey(mkeyidx, 1, mKeyset.nca.key_area_key[1][mkeyidx]);
-		mKeyCfg.getNcaKeyAreaEncryptionKey(mkeyidx, 2, mKeyset.nca.key_area_key[2][mkeyidx]);
-		mKeyCfg.getETicketCommonKey(mkeyidx, mKeyset.ticket.titlekey_kek[mkeyidx]);
-	}
+	
 
 	if (args.nca_bodykey.isSet)
 	{
@@ -503,7 +486,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 			try 
 			{
-				pki_validator.setRootKey(mKeyset.pki.root_sign_key);
+				pki_validator.setKeyCfg(mKeyCfg);
 				pki_validator.addCertificates(mCertChain);
 				pki_validator.validateSignature(tik.getBody().getIssuer(), tik.getSignature().getSignType(), tik.getSignature().getSignature(), tik_hash);
 			}
@@ -519,7 +502,6 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		{
 			fnd::aes::sAes128Key enc_title_key;
 			memcpy(enc_title_key.key, tik.getBody().getEncTitleKey(), 16);
-			mKeyCfg.addNcaExternalContentKey(kDummyRightsIdForUserTitleKey, enc_title_key);
 			fnd::aes::sAes128Key common_key, external_content_key;
 			if (mKeyCfg.getETicketCommonKey(nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(tik.getBody().getCommonKeyId()), common_key) == true)
 			{
@@ -536,10 +518,6 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 			std::cout << "[WARNING] Titlekey not imported from ticket because it is personalised" << std::endl;
 		}
 	}
-
-	// replicate keys into old keyset
-	mKeyCfg.getNcaExternalContentKey(kDummyRightsIdForUserBodyKey, mKeyset.nca.manual_body_key_aesctr);
-	mKeyCfg.getNcaExternalContentKey(kDummyRightsIdForUserTitleKey, mKeyset.nca.manual_title_key_aesctr);
 }
 
 void UserSettings::populateUserSettings(sCmdArgs& args)
@@ -721,7 +699,9 @@ bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) c
 	if (sample.size() < nn::hac::nca::kHeaderSize)
 		return false;
 
-	nn::hac::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, mKeyset.nca.header_key);
+	fnd::aes::sAesXts128Key header_key;
+	mKeyCfg.getNcaHeaderKey(header_key);
+	nn::hac::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, header_key);
 
 	if (nca_header->st_magic.get() != nn::hac::nca::kNca2StructMagic && nca_header->st_magic.get() != nn::hac::nca::kNca3StructMagic)
 		return false;

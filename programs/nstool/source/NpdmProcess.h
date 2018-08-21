@@ -3,6 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <nn/hac/NpdmBinary.h>
+#include "KeyConfiguration.h"
 
 #include "nstool.h"
 
@@ -15,7 +16,7 @@ public:
 	void process();
 
 	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setKeyset(const sKeyset* keyset);
+	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -26,7 +27,7 @@ private:
 
 	fnd::IFile* mFile;
 	bool mOwnIFile;
-	const sKeyset* mKeyset;
+	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 

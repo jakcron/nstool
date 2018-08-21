@@ -13,6 +13,9 @@ class KeyConfiguration
 {
 public:
 	KeyConfiguration();
+	KeyConfiguration(const KeyConfiguration& other);
+
+	void operator=(const KeyConfiguration& other);
 
 	void importHactoolGenericKeyfile(const std::string& path);
 	//void importHactoolTitleKeyfile(const std::string& path);

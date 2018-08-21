@@ -10,6 +10,39 @@ KeyConfiguration::KeyConfiguration()
 	clearNcaExternalKeys();
 }
 
+KeyConfiguration::KeyConfiguration(const KeyConfiguration& other)
+{
+	*this = other;
+}
+
+void KeyConfiguration::operator=(const KeyConfiguration& other)
+{
+	mAcidSignKey = other.mAcidSignKey;	
+	mPkg2SignKey = other.mPkg2SignKey;
+	mNcaHeader0SignKey = other.mNcaHeader0SignKey;
+	mXciHeaderSignKey = other.mXciHeaderSignKey;
+
+	mNcaHeaderKey = other.mNcaHeaderKey;
+	mXciHeaderKey = other.mXciHeaderKey;
+
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		mPkg2Key[i] = other.mPkg2Key[i];
+		mPkg1Key[i] = other.mPkg1Key[i];
+		mNcaKeyAreaEncryptionKey[0][i] = other.mNcaKeyAreaEncryptionKey[0][i];
+		mNcaKeyAreaEncryptionKey[1][i] = other.mNcaKeyAreaEncryptionKey[1][i];
+		mNcaKeyAreaEncryptionKey[2][i] = other.mNcaKeyAreaEncryptionKey[2][i];
+		mNcaKeyAreaEncryptionKeyHw[0][i] = other.mNcaKeyAreaEncryptionKeyHw[0][i];
+		mNcaKeyAreaEncryptionKeyHw[1][i] = other.mNcaKeyAreaEncryptionKeyHw[1][i];
+		mNcaKeyAreaEncryptionKeyHw[2][i] = other.mNcaKeyAreaEncryptionKeyHw[2][i];
+		mETicketCommonKey[i] = other.mETicketCommonKey[i];
+	}
+
+	mPkiRootKeyList = other.mPkiRootKeyList;
+	
+	mNcaExternalContentKeyList = other.mNcaExternalContentKeyList;
+}
+
 void KeyConfiguration::importHactoolGenericKeyfile(const std::string& path)
 {
 	clearGeneralKeyConfiguration();
