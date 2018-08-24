@@ -228,7 +228,7 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 		if (mContentKey.aes_ctr.isSet)
 		{
 			std::cout << "[NCA Content Key]" << std::endl;
-			std::cout << "  AES-CTR Key: " << fnd::SimpleTextOutput::arrayToString(mContentKey.aes_ctr.var.key, sizeof(mContentKey.aes_ctr.var), true, "") << std::endl;
+			std::cout << "  AES-CTR Key: " << fnd::SimpleTextOutput::arrayToString(mContentKey.aes_ctr.var.key, sizeof(mContentKey.aes_ctr.var), true, ":") << std::endl;
 		}
 	}
 	
@@ -421,24 +421,24 @@ void NcaProcess::displayHeader()
 	if (mContentKey.kak_list.size() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
 	{
 		std::cout << "  Key Area:" << std::endl;
-		std::cout << "    <--------------------------------------------------------------------------->" << std::endl;
-		std::cout << "    | IDX | ENCRYPTED KEY                    | DECRYPTED KEY                    |" << std::endl;
-		std::cout << "    |-----|----------------------------------|----------------------------------|" << std::endl;
+		std::cout << "    <--------------------------------------------------------------------------------------------------------->" << std::endl;
+		std::cout << "    | IDX | ENCRYPTED KEY                                   | DECRYPTED KEY                                   |" << std::endl;
+		std::cout << "    |-----|-------------------------------------------------|-------------------------------------------------|" << std::endl;
 		for (size_t i = 0; i < mContentKey.kak_list.size(); i++)
 		{
 			std::cout << "    | " << std::dec << std::setw(3) << std::setfill(' ') << (uint32_t)mContentKey.kak_list[i].index << " | ";
 			
-			std::cout << fnd::SimpleTextOutput::arrayToString(mContentKey.kak_list[i].enc.key, 16, false, "") << " | ";
+			std::cout << fnd::SimpleTextOutput::arrayToString(mContentKey.kak_list[i].enc.key, 16, true, ":") << " | ";
 			
 			
 			if (mContentKey.kak_list[i].decrypted)
-				std::cout << fnd::SimpleTextOutput::arrayToString(mContentKey.kak_list[i].dec.key, 16, false, "");
+				std::cout << fnd::SimpleTextOutput::arrayToString(mContentKey.kak_list[i].dec.key, 16, true, ":");
 			else
 				std::cout << "<unable to decrypt>             ";
 			
 			std::cout << " |" << std::endl;
 		}
-		std::cout << "    <--------------------------------------------------------------------------->" << std::endl;
+		std::cout << "    <--------------------------------------------------------------------------------------------------------->" << std::endl;
 	}
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
@@ -459,7 +459,8 @@ void NcaProcess::displayHeader()
 			{
 				fnd::aes::sAesIvCtr ctr;
 				fnd::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
-				std::cout << "        AES-CTR:     " << fnd::SimpleTextOutput::arrayToString(ctr.iv, sizeof(fnd::aes::sAesIvCtr), true, "") << std::endl;
+				std::cout << "      AesCtr Counter:" << std::endl;
+				std::cout << "        " << fnd::SimpleTextOutput::arrayToString(ctr.iv, sizeof(fnd::aes::sAesIvCtr), true, ":") << std::endl;
 			}
 			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{
@@ -479,14 +480,18 @@ void NcaProcess::displayHeader()
 				std::cout << "          BlockSize:       0x" << std::hex << (uint32_t)hash_hdr.getDataLayer().block_size << std::endl;
 				for (size_t j = 0; j < hash_hdr.getMasterHashList().size(); j++)
 				{
-					std::cout << "        Master Hash " << std::dec << j << ":     " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[j].bytes, sizeof(fnd::sha::sSha256Hash), true, "") << std::endl;
+					std::cout << "        Master Hash " << std::dec << j << ":" << std::endl;
+					std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[j].bytes, 0x10, true, ":") << std::endl;
+					std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[j].bytes+0x10, 0x10, true, ":") << std::endl;
 				}
 			}
 			else if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256)
 			{
 				HashTreeMeta& hash_hdr = info.hash_tree_meta;
 				std::cout << "      HierarchicalSha256 Header:" << std::endl;
-				std::cout << "        Master Hash:       " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[0].bytes, sizeof(fnd::sha::sSha256Hash), true, "") << std::endl;
+				std::cout << "        Master Hash:" << std::endl;
+				std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[0].bytes, 0x10, true, ":") << std::endl;
+				std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[0].bytes+0x10, 0x10, true, ":") << std::endl;
 				std::cout << "        HashBlockSize:     0x" << std::hex << (uint32_t)hash_hdr.getDataLayer().block_size << std::endl;
 				std::cout << "        Hash Layer:" << std::endl;
 				std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[0].offset << std::endl;
