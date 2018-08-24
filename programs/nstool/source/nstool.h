@@ -48,6 +48,8 @@ struct sOptional
 	bool isSet;
 	T var;
 	inline sOptional() : isSet(false) {}
+	inline sOptional(const T& other) : isSet(true), var(other) {}
+	inline sOptional(const sOptional& other) : isSet(other.isSet), var(other.var) {}
 	inline const T& operator=(const T& other) { isSet = true; var = other; return var; }
 	inline const sOptional<T>& operator=(const sOptional<T>& other) 
 	{

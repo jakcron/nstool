@@ -75,8 +75,8 @@ private:
 	const std::string kAcidBase[kNameVariantNum] = { "acid", "acid", "acid" };
 	const std::string kPkiRootBase[kNameVariantNum] = { "pki_root", "pki_root", "pki_root" };
 	const std::string kTicketCommonKeyBase[kNameVariantNum] = { "ticket_commonkey", "titlekek", "ticket_commonkey" };
-	const std::string kNcaKeyAreaEncKeyBase[kNameVariantNum] = { "nca_body_keak", "key_area_key", "nca_body_keak" };
-	const std::string kNcaKeyAreaEncKeyHwBase[kNameVariantNum] = { "nca_body_keakhw", "key_area_hw_key", "nca_body_keakhw" };
+	const std::string kNcaKeyAreaEncKeyBase[kNameVariantNum] = { "nca_key_area_key", "key_area_key", "nca_body_keak" };
+	const std::string kNcaKeyAreaEncKeyHwBase[kNameVariantNum] = { "nca_key_area_key_hw", "key_area_hw_key", "nca_key_area_key_hw" };
 	const std::string kKekGenBase[kNameVariantNum] = { "aes_kek_generation", "aes_kek_generation", "aes_kek_generation" };
 	const std::string kKeyGenBase[kNameVariantNum] = { "aes_key_generation", "aes_key_generation", "aes_key_generation" };
 
