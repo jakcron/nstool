@@ -45,8 +45,6 @@ public:
 	const sOptional<std::string>& getAssetNacpPath() const;
 	const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& getCertificateChain() const;
 
-	void dumpKeys() const;
-
 private:
 	const std::string kModuleName = "UserSettings";
 
@@ -127,4 +125,10 @@ private:
 	nn::hac::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
 	void getHomePath(std::string& path) const;
 	void getSwitchPath(std::string& path) const;
+
+	void dumpKeyConfig() const;
+	void dumpRsa2048Key(const fnd::rsa::sRsa2048Key& key, const std::string& name, size_t indent) const;
+	void dumpRsa4096Key(const fnd::rsa::sRsa4096Key& key, const std::string& name, size_t indent) const;
+	void dumpAesKey(const fnd::aes::sAes128Key& key, const std::string& name, size_t indent) const;
+	void dumpAesXtsKey(const fnd::aes::sAesXts128Key& key, const std::string& name, size_t indent) const;
 };

@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <fnd/io.h>
 #include <fnd/SimpleFile.h>
@@ -38,6 +39,8 @@ void UserSettings::parseCmdArgs(const std::vector<std::string>& arg_list)
 	populateCmdArgs(arg_list, args);
 	populateKeyset(args);
 	populateUserSettings(args);
+	if (_HAS_BIT(mOutputMode, OUTPUT_KEY_DATA))
+		dumpKeyConfig();
 }
 
 void UserSettings::showHelp()
@@ -861,4 +864,165 @@ void UserSettings::getSwitchPath(std::string& path) const
 	path.clear();
 	fnd::io::appendToPath(path, home);
 	fnd::io::appendToPath(path, kHomeSwitchDirStr);
+}
+
+void UserSettings::dumpKeyConfig() const
+{
+	fnd::aes::sAes128Key aes_key;
+		fnd::aes::sAesXts128Key aesxts_key;
+		fnd::rsa::sRsa2048Key rsa2048_key;
+		fnd::rsa::sRsa4096Key rsa4096_key;
+
+		const std::string kKeyIndex[kMasterKeyNum] = {"00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f","10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f"};
+
+
+		std::cout << "[KeyConfiguration]" << std::endl;
+		std::cout << "  NCA Keys:" << std::endl;
+		if (mKeyCfg.getNcaHeader0SignKey(rsa2048_key) == true)
+			dumpRsa2048Key(rsa2048_key, "Header Signature[0] Key", 2);
+		if (mKeyCfg.getNcaHeaderKey(aesxts_key) == true)
+			dumpAesXtsKey(aesxts_key, "Header Encryption Key", 2);
+		
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,0, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKey-Application-" + kKeyIndex[i], 2);
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,1, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKey-Ocean-" + kKeyIndex[i], 2);
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,2, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKey-System-" + kKeyIndex[i], 2);
+		}
+
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,0, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Application-" + kKeyIndex[i], 2);
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,1, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Ocean-" + kKeyIndex[i], 2);
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,2, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-System-" + kKeyIndex[i], 2);
+		}
+		
+		std::cout << "  XCI Keys:" << std::endl;
+		if (mKeyCfg.getXciHeaderSignKey(rsa2048_key) == true)
+			dumpRsa2048Key(rsa2048_key, "Header Signature Key", 2);
+		if (mKeyCfg.getXciHeaderKey(aes_key) == true)
+			dumpAesKey(aes_key, "Extended Header Encryption Key", 2);
+		
+		
+		if (mKeyCfg.getAcidSignKey(rsa2048_key) == true)
+			dumpRsa2048Key(rsa2048_key, "ACID Signer Key", 1);
+		
+		
+		std::cout << "  Package1 Keys:" << std::endl;
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getPkg1Key(i, aes_key) == true)
+				dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
+		}
+
+		std::cout << "  Package2 Keys:" << std::endl;
+		if (mKeyCfg.getPkg2SignKey(rsa2048_key) == true)
+			dumpRsa2048Key(rsa2048_key, "Signature Key", 2);
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getPkg2Key(i, aes_key) == true)
+				dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
+		}
+
+		std::cout << "  ETicket Keys:" << std::endl;
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getETicketCommonKey(i, aes_key) == true)
+				dumpAesKey(aes_key, "CommonKey-" + kKeyIndex[i], 2);
+		}
+		
+		if (mKeyCfg.getPkiRootSignKey("Root", rsa4096_key) == true)
+			dumpRsa4096Key(rsa4096_key, "NNPKI Root Key", 1);
+}
+
+void UserSettings::dumpRsa2048Key(const fnd::rsa::sRsa2048Key& key, const std::string& name, size_t indent) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += "  ";
+	}
+	
+	std::cout << indent_str << name << ":" << std::endl;
+	if (key.modulus[0] != 0x00 && key.modulus[1] != 0x00)
+	{
+		std::cout << indent_str << "  Modulus:" << std::endl;
+		for (size_t i = 0; i < 0x10; i++)
+		{
+			std::cout << indent_str << "    " << fnd::SimpleTextOutput::arrayToString(key.modulus + i * 0x10, 0x10, true, ":") << std::endl;
+		}
+	}
+	if (key.priv_exponent[0] != 0x00 && key.priv_exponent[1] != 0x00)
+	{
+		std::cout << indent_str << "  Private Exponent:" << std::endl;
+		for (size_t i = 0; i < 0x10; i++)
+		{
+			std::cout << indent_str << "    " << fnd::SimpleTextOutput::arrayToString(key.priv_exponent + i * 0x10, 0x10, true, ":") << std::endl;
+		}
+	}
+}
+
+void UserSettings::dumpRsa4096Key(const fnd::rsa::sRsa4096Key& key, const std::string& name, size_t indent) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += "  ";
+	}
+	
+	std::cout << indent_str << name << ":" << std::endl;
+	if (key.modulus[0] != 0x00 && key.modulus[1] != 0x00)
+	{
+		std::cout << indent_str << "  Modulus:" << std::endl;
+		for (size_t i = 0; i < 0x20; i++)
+		{
+			std::cout << indent_str << "    " << fnd::SimpleTextOutput::arrayToString(key.modulus + i * 0x10, 0x10, true, ":") << std::endl;
+		}
+	}
+	if (key.priv_exponent[0] != 0x00 && key.priv_exponent[1] != 0x00)
+	{
+		std::cout << indent_str << "  Private Exponent:" << std::endl;
+		for (size_t i = 0; i < 0x20; i++)
+		{
+			std::cout << indent_str << "    " << fnd::SimpleTextOutput::arrayToString(key.priv_exponent + i * 0x10, 0x10, true, ":") << std::endl;
+		}
+	}
+}
+
+void UserSettings::dumpAesKey(const fnd::aes::sAes128Key& key, const std::string& name, size_t indent) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += "  ";
+	}
+	
+	std::cout << indent_str << name << ":" << std::endl;
+	std::cout << indent_str << "  " << fnd::SimpleTextOutput::arrayToString(key.key, 0x10, true, ":") << std::endl;
+}
+
+void UserSettings::dumpAesXtsKey(const fnd::aes::sAesXts128Key& key, const std::string& name, size_t indent) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += "  ";
+	}
+
+	std::cout << indent_str << name << ":" << std::endl;
+	std::cout << indent_str << "  " << fnd::SimpleTextOutput::arrayToString(key.key[0], 0x20, true, ":") << std::endl;
 }
