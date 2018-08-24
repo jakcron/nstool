@@ -122,9 +122,21 @@ void EsTikProcess::displayTicket()
 	std::cout << "  Title Key:" << std::endl;
 	std::cout << "    EncMode:        " << getTitleKeyPersonalisationStr(body.getTitleKeyEncType()) << std::endl;
 	std::cout << "    KeyGeneration:  " << std::dec << (uint32_t)body.getCommonKeyId() << std::endl;
-	std::cout << "    Data:" << std::endl;
-	size_t size = body.getTitleKeyEncType() == nn::es::ticket::RSA2048 ? fnd::rsa::kRsa2048Size : fnd::aes::kAes128KeySize;
-	fnd::SimpleTextOutput::hexDump(body.getEncTitleKey(), size, 0x10, 6);
+	if (body.getTitleKeyEncType() == nn::es::ticket::RSA2048)
+	{
+		std::cout << "    Data:" << std::endl;
+		for (size_t i = 0; i < 0x10; i++)
+			std::cout << "      " << fnd::SimpleTextOutput::arrayToString(body.getEncTitleKey() + 0x10*i, 0x10, true, ":") << std::endl;
+	}
+	else if (body.getTitleKeyEncType() == nn::es::ticket::AES128_CBC)
+	{
+		std::cout << "    Data:" << std::endl;
+		std::cout << "      " << fnd::SimpleTextOutput::arrayToString(body.getEncTitleKey(), 0x10, true, ":") << std::endl;
+	}
+	else
+	{
+		std::cout << "    Data:           <cannot display>" << std::endl;
+	}
 
 	std::cout << "  Version:          v" << _SPLIT_VER(body.getTicketVersion());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))

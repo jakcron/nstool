@@ -431,7 +431,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 	{
 		fnd::aes::sAes128Key tmp_key;
 		fnd::Vec<byte_t> tmp_raw;
-		fnd::SimpleTextOutput::stringToArray(args.nca_bodykey.var, tmp_raw);
+		fnd::SimpleTextOutput::stringToArray(args.nca_titlekey.var, tmp_raw);
 		if (tmp_raw.size() != sizeof(fnd::aes::sAes128Key))
 			throw fnd::Exception(kModuleName, "Key: \"--titlekey\" has incorrect length");
 		memcpy(tmp_key.key, tmp_raw.data(), 16);
