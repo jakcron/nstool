@@ -11,6 +11,7 @@ nn::hac::KernelCapabilityBinary::KernelCapabilityBinary(const KernelCapabilityBi
 void nn::hac::KernelCapabilityBinary::operator=(const KernelCapabilityBinary & other)
 {
 	clear();
+	mRawBinary = other.mRawBinary;
 	mThreadInfo = other.mThreadInfo;
 	mSystemCalls = other.mSystemCalls;
 	mMemoryMap = other.mMemoryMap;
