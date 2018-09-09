@@ -626,7 +626,7 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 
 FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 {
-	static const size_t kMaxReadSize = 0x4000;
+	static const size_t kMaxReadSize = 0x5000;
 	FileType file_type = FILE_INVALID;
 	fnd::SimpleFile file;
 	fnd::Vec<byte_t> scratch;
@@ -639,6 +639,8 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	file.read(scratch.data(), 0, scratch.size());
 	// close file
 	file.close();
+
+	fnd::SimpleTextOutput::hxdStyleDump(scratch.data(), 0x100);
 
 	// _TYPE_PTR resolves to a pointer of type 'st' located at scratch.data()
 #define _TYPE_PTR(st) ((st*)(scratch.data()))
@@ -662,12 +664,6 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test nca
 	else if (determineValidNcaFromSample(scratch))
 		file_type = FILE_NCA;
-	// test cnmt
-	else if (determineValidCnmtFromSample(scratch))
-		file_type = FILE_CNMT;
-	// test nacp
-	else if (determineValidNacpFromSample(scratch))
-		file_type = FILE_NACP;
 	// test nso
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sNsoHeader)) && _TYPE_PTR(nn::hac::sNsoHeader)->st_magic.get() == nn::hac::nso::kNsoStructMagic)
 		file_type = FILE_NSO;
@@ -683,6 +679,16 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test hb asset
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sAssetHeader)) && _TYPE_PTR(nn::hac::sAssetHeader)->st_magic.get() == nn::hac::aset::kAssetStructMagic)
 		file_type = FILE_HB_ASSET;
+	
+	// do heuristics
+	// test cnmt
+	else if (determineValidCnmtFromSample(scratch))
+		file_type = FILE_CNMT;
+	// test nacp
+	else if (determineValidNacpFromSample(scratch))
+		file_type = FILE_NACP;
+
+
 	// else unrecognised
 	else
 		file_type = FILE_INVALID;
