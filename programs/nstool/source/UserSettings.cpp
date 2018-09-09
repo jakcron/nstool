@@ -640,8 +640,6 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// close file
 	file.close();
 
-	fnd::SimpleTextOutput::hxdStyleDump(scratch.data(), 0x100);
-
 	// _TYPE_PTR resolves to a pointer of type 'st' located at scratch.data()
 #define _TYPE_PTR(st) ((st*)(scratch.data()))
 #define _ASSERT_SIZE(sz) (scratch.size() >= (sz))
