@@ -1,6 +1,8 @@
 #include <fnd/rsa.h>
 #include <polarssl/rsa.h>
 #include <polarssl/md.h>
+#include <polarssl/entropy.h>
+#include <polarssl/ctr_drbg.h>
 
 using namespace fnd::rsa;
 using namespace fnd::sha;
@@ -164,6 +166,33 @@ int fnd::rsa::pkcs::rsaVerify(const sRsa4096Key & key, HashType hash_type, const
 
 	return ret;
 }
+
+int fnd::rsa::pss::rsaSign(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, uint8_t signature[kRsa2048Size])
+{
+	int ret;
+	const char* pers = "fnd::rsa::pss::rsaSign";
+
+	// rsa
+	rsa_context rsa;
+	rsa_init(&rsa, RSA_PKCS_V21, getMdWrappedHashType(hash_type));
+	rsa.len = kRsa2048Size;
+	mpi_read_binary(&rsa.D, key.priv_exponent, rsa.len);
+	mpi_read_binary(&rsa.N, key.modulus, rsa.len);
+
+	entropy_context entropy;
+	entropy_init(&entropy);
+	
+	ctr_drbg_context ctr_drbg;
+	ctr_drbg_init(&ctr_drbg, entropy_func, &entropy, (const uint8_t*)pers, strlen(pers));
+
+	ret = rsa_rsassa_pss_sign(&rsa, ctr_drbg_random, &ctr_drbg, RSA_PRIVATE, getWrappedHashType(hash_type), getWrappedHashSize(hash_type), hash, signature);
+
+	rsa_free(&rsa);
+	
+
+	return ret;
+}
+
 
 int fnd::rsa::pss::rsaVerify(const sRsa2048Key & key, HashType hash_type, const uint8_t * hash, const uint8_t signature[kRsa2048Size])
 {

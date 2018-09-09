@@ -114,7 +114,7 @@ namespace fnd
 			//int rsaSign(const sRsa1024Key& key, sha::HashType hash_type, const uint8_t* hash, uint8_t signature[kRsa1024Size]);
 			//int rsaVerify(const sRsa1024Key& key, sha::HashType hash_type, const uint8_t* hash, const uint8_t signature[kRsa1024Size]);
 			// rsa2048
-			//int rsaSign(const sRsa2048Key& key, sha::HashType hash_type, const uint8_t* hash, uint8_t signature[kRsa2048Size]);
+			int rsaSign(const sRsa2048Key& key, sha::HashType hash_type, const uint8_t* hash, uint8_t signature[kRsa2048Size]);
 			int rsaVerify(const sRsa2048Key& key, sha::HashType hash_type, const uint8_t* hash, const uint8_t signature[kRsa2048Size]);
 			// rsa4096
 			//int rsaSign(const sRsa4096Key& key, sha::HashType hash_type, const uint8_t* hash, uint8_t signature[kRsa4096Size]);

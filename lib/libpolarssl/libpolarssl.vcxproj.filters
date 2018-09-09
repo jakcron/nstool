@@ -15,6 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="include\polarssl\aes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -30,6 +33,21 @@
     <ClInclude Include="include\polarssl\config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\polarssl\ctr_drbg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\polarssl\entropy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\polarssl\entropy_poll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\polarssl\md.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\polarssl\md_wrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\polarssl\rsa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -39,10 +57,7 @@
     <ClInclude Include="include\polarssl\sha2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\polarssl\md.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\polarssl\md_wrap.h">
+    <ClInclude Include="include\polarssl\sha4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -54,6 +69,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\bignum.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ctr_drbg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\entropy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\entropy_poll.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\md.c">
@@ -71,8 +95,8 @@
     <ClCompile Include="source\sha2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="makefile" />
+    <ClCompile Include="source\sha4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
