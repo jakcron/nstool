@@ -22,7 +22,6 @@ bool ElfSymbolParser::operator!=(const ElfSymbolParser& other) const
 
 void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, const byte_t *dyn_str, size_t dyn_str_size, bool is64Bit)
 {
-	//printf("ElfSymbolParser::parseData()");
 	size_t dynSymSize = is64Bit ? sizeof(fnd::Elf64_Sym) : sizeof(fnd::Elf32_Sym);
 
 	sElfSymbol symbol;
@@ -50,7 +49,7 @@ void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, cons
 			throw fnd::Exception(kModuleName, "Out of bounds symbol name offset");
 		}
 
-		for (; dyn_str[name_pos] == 0x00 && name_pos < dyn_str_size; name_pos++);
+		//for (; dyn_str[name_pos] == 0x00 && name_pos < dyn_str_size; name_pos++);
 		
 		symbol.name = std::string((char*)&dyn_str[name_pos]);
 		mSymbolList.addElement(symbol);
