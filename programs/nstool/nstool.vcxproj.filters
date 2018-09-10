@@ -40,6 +40,9 @@
     <ClInclude Include="source\HashTreeWrappedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\KeyConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="source\NacpProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -109,6 +112,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\HashTreeWrappedIFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\KeyConfiguration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\main.cpp">
