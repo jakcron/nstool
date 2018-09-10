@@ -39,6 +39,7 @@
     <ClInclude Include="include\nn\hac\HierarchicalIntegrityHeader.h" />
     <ClInclude Include="include\nn\hac\hierarchicalsha256.h" />
     <ClInclude Include="include\nn\hac\HierarchicalSha256Header.h" />
+    <ClInclude Include="include\nn\hac\IdConverter.h" />
     <ClInclude Include="include\nn\hac\IKernelCapabilityHandler.h" />
     <ClInclude Include="include\nn\hac\InteruptEntry.h" />
     <ClInclude Include="include\nn\hac\InteruptHandler.h" />
@@ -90,6 +91,7 @@
     <ClCompile Include="source\HandleTableSizeHandler.cpp" />
     <ClCompile Include="source\HierarchicalIntegrityHeader.cpp" />
     <ClCompile Include="source\HierarchicalSha256Header.cpp" />
+    <ClCompile Include="source\IdConverter.cpp" />
     <ClCompile Include="source\InteruptEntry.cpp" />
     <ClCompile Include="source\InteruptHandler.cpp" />
     <ClCompile Include="source\KernelCapabilityBinary.cpp" />
