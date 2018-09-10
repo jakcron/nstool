@@ -68,6 +68,7 @@
     <ClInclude Include="include\nn\hac\NsoHeader.h" />
     <ClInclude Include="include\nn\hac\pfs.h" />
     <ClInclude Include="include\nn\hac\PfsHeader.h" />
+    <ClInclude Include="include\nn\hac\Result.h" />
     <ClInclude Include="include\nn\hac\romfs.h" />
     <ClInclude Include="include\nn\hac\ServiceAccessControlBinary.h" />
     <ClInclude Include="include\nn\hac\ServiceAccessControlEntry.h" />
@@ -110,6 +111,7 @@
     <ClCompile Include="source\NroHeader.cpp" />
     <ClCompile Include="source\NsoHeader.cpp" />
     <ClCompile Include="source\PfsHeader.cpp" />
+    <ClCompile Include="source\Result.cpp" />
     <ClCompile Include="source\ServiceAccessControlBinary.cpp" />
     <ClCompile Include="source\ServiceAccessControlEntry.cpp" />
     <ClCompile Include="source\SystemCallEntry.cpp" />
