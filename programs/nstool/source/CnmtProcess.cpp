@@ -90,7 +90,7 @@ void CnmtProcess::displayCnmt()
 			break;
 		case (nn::hac::cnmt::METATYPE_ADD_ON_CONTENT):
 			std::cout << "  AddOnContentMetaExtendedHeader:" << std::endl;
-			std::cout << "    RequiredSystemVersion: v" << std::dec << mCnmt.getAddOnContentMetaExtendedHeader().required_system_version << " (" << _SPLIT_VER(mCnmt.getAddOnContentMetaExtendedHeader().required_system_version) << ")"<< std::endl;
+			std::cout << "    RequiredApplicationVersion: v" << std::dec << mCnmt.getAddOnContentMetaExtendedHeader().required_application_version << " (" << _SPLIT_VER(mCnmt.getAddOnContentMetaExtendedHeader().required_application_version) << ")" << std::endl;
 			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getAddOnContentMetaExtendedHeader().application_id << std::endl;
 			break;
 		case (nn::hac::cnmt::METATYPE_DELTA):
