@@ -5,7 +5,7 @@
 #include <nn/hac/NpdmBinary.h>
 #include "KeyConfiguration.h"
 
-#include "nstool.h"
+#include "common.h"
 
 class NpdmProcess
 {

@@ -7,7 +7,7 @@
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include "KeyConfiguration.h"
-#include "nstool.h"
+#include "common.h"
 
 class PkiCertProcess
 {

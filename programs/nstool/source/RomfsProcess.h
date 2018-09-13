@@ -6,7 +6,7 @@
 #include <fnd/List.h>
 #include <nn/hac/romfs.h>
 
-#include "nstool.h"
+#include "common.h"
 
 class RomfsProcess
 {

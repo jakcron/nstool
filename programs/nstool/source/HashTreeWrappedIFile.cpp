@@ -1,4 +1,4 @@
-#include "nstool.h"
+#include "common.h"
 #include "HashTreeWrappedIFile.h"
 #include "OffsetAdjustedIFile.h"
 

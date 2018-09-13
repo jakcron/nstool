@@ -6,7 +6,7 @@
 #include <nn/hac/npdm.h>
 #include <nn/hac/NsoHeader.h>
 
-#include "nstool.h"
+#include "common.h"
 #include "RoMetadataProcess.h"
 
 class NsoProcess

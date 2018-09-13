@@ -7,7 +7,7 @@
 #include <nn/pki/CertificateBody.h>
 #include <nn/es/TicketBody_V2.h>
 #include "KeyConfiguration.h"
-#include "nstool.h"
+#include "common.h"
 
 class EsTikProcess
 {

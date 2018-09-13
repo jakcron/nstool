@@ -6,7 +6,7 @@
 #include "NacpProcess.h"
 #include "RomfsProcess.h"
 
-#include "nstool.h"
+#include "common.h"
 
 class AssetProcess
 {

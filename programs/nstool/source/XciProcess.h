@@ -7,7 +7,7 @@
 #include "KeyConfiguration.h"
 #include "PfsProcess.h"
 
-#include "nstool.h"
+#include "common.h"
 
 class XciProcess
 {

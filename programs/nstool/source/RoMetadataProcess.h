@@ -6,7 +6,7 @@
 
 #include <nn/hac/npdm.h>
 
-#include "nstool.h"
+#include "common.h"
 #include "SdkApiString.h"
 #include "ElfSymbolParser.h"
 

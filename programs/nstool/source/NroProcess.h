@@ -7,7 +7,7 @@
 #include <nn/hac/NroHeader.h>
 #include "AssetProcess.h"
 
-#include "nstool.h"
+#include "common.h"
 #include "RoMetadataProcess.h"
 
 class NroProcess
