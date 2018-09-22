@@ -4,7 +4,7 @@
 #include <fnd/IFile.h>
 #include <nn/hac/ContentMetaBinary.h>
 
-#include "nstool.h"
+#include "common.h"
 
 class CnmtProcess
 {

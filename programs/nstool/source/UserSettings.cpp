@@ -45,10 +45,10 @@ void UserSettings::parseCmdArgs(const std::vector<std::string>& arg_list)
 
 void UserSettings::showHelp()
 {
-	printf("NSTool v%d.%d.%d (C) %s\n", VER_MAJOR, VER_MINOR, VER_PATCH, AUTHORS);
+	printf("%s v%d.%d.%d (C) %s\n", APP_NAME, VER_MAJOR, VER_MINOR, VER_PATCH, AUTHORS);
 	printf("Built: %s %s\n\n", __TIME__, __DATE__);
 	
-	printf("Usage: nstool [options... ] <file>\n");
+	printf("Usage: %s [options... ] <file>\n", BIN_NAME);
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset.\n");
 	printf("      -k, --keyset    Specify keyset file.\n");
@@ -59,18 +59,18 @@ void UserSettings::showHelp()
 	printf("      --showlayout    Show layout metadata.\n");
 	printf("      -v, --verbose   Verbose output.\n");
 	printf("\n  XCI (GameCard Image)\n");
-	printf("    nstool [--listfs] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>\n");
+	printf("    %s [--listfs] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>\n", BIN_NAME);
 	printf("      --listfs        Print file system in embedded partitions.\n");
 	printf("      --update        Extract \"update\" partition to directory.\n");
 	printf("      --logo          Extract \"logo\" partition to directory.\n");
 	printf("      --normal        Extract \"normal\" partition to directory.\n");
 	printf("      --secure        Extract \"secure\" partition to directory.\n");
 	printf("\n  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)\n");
-	printf("    nstool [--listfs] [--fsdir <dir>] <file>\n");
+	printf("    %s [--listfs] [--fsdir <dir>] <file>\n", BIN_NAME);
 	printf("      --listfs        Print file system.\n");
 	printf("      --fsdir         Extract file system to directory.\n");
 	printf("\n  NCA (Nintendo Content Archive)\n");
-	printf("    nstool [--listfs] [--bodykey <key> --titlekey <key>] [--part0 <dir> ...] <.nca file>\n");
+	printf("    %s [--listfs] [--bodykey <key> --titlekey <key>] [--part0 <dir> ...] <.nca file>\n", BIN_NAME);
 	printf("      --listfs        Print file system in embedded partitions.\n");
 	printf("      --titlekey      Specify title key extracted from ticket.\n");
 	printf("      --bodykey       Specify body encryption key.\n");
@@ -81,12 +81,12 @@ void UserSettings::showHelp()
 	printf("      --part2         Extract \"partition 2\" to directory.\n");
 	printf("      --part3         Extract \"partition 3\" to directory.\n");
 	printf("\n  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)\n");
-	printf("    nstool [--listapi --listsym] [--insttype <inst. type>] <file>\n");
+	printf("    %s [--listapi --listsym] [--insttype <inst. type>] <file>\n", BIN_NAME);
 	printf("      --listapi       Print SDK API List.\n");
 	printf("      --listsym       Print Code Symbols.\n");
 	printf("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
 	printf("\n  ASET (Homebrew Asset Blob)\n");
-	printf("    nstool [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n");
+	printf("    %s [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n", BIN_NAME);
 	printf("      --listfs        Print filesystem in embedded RomFS partition.\n");
 	printf("      --icon          Extract icon partition to file.\n");
 	printf("      --nacp          Extract NACP partition to file.\n");

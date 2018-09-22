@@ -7,7 +7,7 @@
 #include "KeyConfiguration.h"
 
 
-#include "nstool.h"
+#include "common.h"
 
 class NcaProcess
 {

@@ -7,7 +7,7 @@
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include <nn/hac/npdm.h>
-#include "nstool.h"
+#include "common.h"
 #include "KeyConfiguration.h"
 
 class UserSettings

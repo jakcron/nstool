@@ -4,7 +4,7 @@
 #include <fnd/IFile.h>
 #include <nn/hac/PfsHeader.h>
 
-#include "nstool.h"
+#include "common.h"
 
 class PfsProcess
 {
