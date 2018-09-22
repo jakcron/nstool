@@ -1,0 +1,28 @@
+Proposed classes
+NcchHeader
+NcsdHeader
+CiaHeader
+CiaFooter
+ExtendedHeader
+
+ncch:
+	NcchHeader
+	ExtendedHeader
+		SystemControlInfo
+		Arm11SystemCaps
+		Arm11KernelCaps
+		Arm9Caps
+	ExefsHeader
+	IvfcHeader
+		RomfsHeader
+		RomfsNodes**
+
+ncsd:
+	NcsdHeader
+	CardInfoHeader
+
+cia:
+	CiaHeader
+	CiaFooter
+	es::Ticket?
+	es::Tmd?

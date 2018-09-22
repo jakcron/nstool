@@ -3,8 +3,8 @@ LIB_DIR = $(PROJECT_DIR)/lib
 PROGRAM_DIR = $(PROJECT_DIR)/programs
 BIN_DIR = $(PROJECT_DIR)/bin
 
-LIBS = libpolarssl liblz4 libfnd libes libpki libhac libhac-hb
-PROGS = nstool
+LIBS = libpolarssl liblz4 libfnd libes libpki libctr libhac libhac-hb
+PROGS = nstool ctr-test
 
 main: build
 
