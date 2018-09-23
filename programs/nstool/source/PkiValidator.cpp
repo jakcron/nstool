@@ -1,15 +1,15 @@
-#include "PkiValidator.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <nn/pki/SignUtils.h>
+#include "PkiValidator.h"
 
 PkiValidator::PkiValidator()
 {
 	clearCertificates();
 }
 
-void PkiValidator::setRootKey(const fnd::rsa::sRsa4096Key& root_key)
+void PkiValidator::setKeyCfg(const KeyConfiguration& keycfg)
 {
 	// save a copy of the certificate bank
 	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> old_certs = mCertificateBank;
@@ -18,7 +18,7 @@ void PkiValidator::setRootKey(const fnd::rsa::sRsa4096Key& root_key)
 	mCertificateBank.clear();
 
 	// overwrite the root key
-	mRootKey = root_key;
+	mKeyCfg = keycfg;
 
 	// if there were certificates before, reimport them (so they are checked against the new root key)
 	if (old_certs.size() > 0)
@@ -96,13 +96,28 @@ void PkiValidator::validateSignature(const std::string& issuer, nn::pki::sign::S
 	int sig_validate_res = -1;
 
 	// special case if signed by Root
-	if (issuer == nn::pki::sign::kRootIssuerStr)
+	if (issuer.find('-', 0) == std::string::npos)
 	{
-		if (sign_algo != nn::pki::sign::SIGN_ALGO_RSA4096)
+		fnd::rsa::sRsa4096Key rsa4096_pub;
+		fnd::rsa::sRsa2048Key rsa2048_pub;
+		fnd::ecdsa::sEcdsa240Key ecdsa_pub;
+
+		if (mKeyCfg.getPkiRootSignKey(issuer, rsa4096_pub) == true && sign_algo == nn::pki::sign::SIGN_ALGO_RSA4096)
 		{
-			throw fnd::Exception(kModuleName, "Issued by Root, but does not have a RSA4096 signature");
+			sig_validate_res = fnd::rsa::pkcs::rsaVerify(rsa4096_pub, getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
 		}
-		sig_validate_res = fnd::rsa::pkcs::rsaVerify(mRootKey, getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+		else if (mKeyCfg.getPkiRootSignKey(issuer, rsa2048_pub) == true && sign_algo == nn::pki::sign::SIGN_ALGO_RSA2048)
+		{
+			sig_validate_res = fnd::rsa::pkcs::rsaVerify(rsa2048_pub, getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+		}
+		else if (mKeyCfg.getPkiRootSignKey(issuer, ecdsa_pub) == true && sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
+		{
+			throw fnd::Exception(kModuleName, "ECDSA signatures are not supported");
+		}
+		else
+		{
+			throw fnd::Exception(kModuleName, "Public key for issuer \"" + issuer + "\" does not exist.");
+		}
 	}
 	else
 	{

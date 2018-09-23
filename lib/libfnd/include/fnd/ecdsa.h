@@ -21,8 +21,8 @@ namespace fnd
 
 			void operator=(const sEcdsa240Point& other)
 			{
-				memcpy(this->r, r, kEcdsa240Size);
-				memcpy(this->s, s, kEcdsa240Size);
+				memcpy(this->r, other.r, kEcdsa240Size);
+				memcpy(this->s, other.s, kEcdsa240Size);
 			}
 
 			bool operator==(const sEcdsa240Point& other) const
@@ -43,7 +43,7 @@ namespace fnd
 
 			void operator=(const sEcdsa240PrivateKey& other)
 			{
-				memcpy(this->k, k, kEcdsa240Size);
+				memcpy(this->k, other.k, kEcdsa240Size);
 			}
 
 			bool operator==(const sEcdsa240PrivateKey& other) const
@@ -52,6 +52,28 @@ namespace fnd
 			}
 
 			bool operator!=(const sEcdsa240PrivateKey& other) const
+			{
+				return !operator==(other);
+			}
+		};
+
+		struct sEcdsa240Key
+		{
+			sEcdsa240Point pub;
+			sEcdsa240PrivateKey pvt;
+
+			void operator=(const sEcdsa240Key& other)
+			{
+				this->pub = other.pub;
+				this->pvt = other.pvt;
+			}
+
+			bool operator==(const sEcdsa240Key& other) const
+			{
+				return this->pub == other.pub && this->pvt == other.pvt;
+			}
+
+			bool operator!=(const sEcdsa240Key& other) const
 			{
 				return !operator==(other);
 			}

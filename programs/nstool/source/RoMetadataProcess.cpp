@@ -1,4 +1,6 @@
 #include <sstream>
+#include <iostream>
+#include <iomanip>
 #include <fnd/types.h>
 
 #include "RoMetadataProcess.h"
@@ -23,12 +25,8 @@ RoMetadataProcess::RoMetadataProcess() :
 
 void RoMetadataProcess::process()
 {
-	if (mRoBlob.size() == 0)
-	{
-		throw fnd::Exception(kModuleName, "No ro binary set.");
-	}
-
 	importApiList();
+	
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 		displayRoMetaData();
 }
@@ -101,6 +99,11 @@ const fnd::List<ElfSymbolParser::sElfSymbol>& RoMetadataProcess::getSymbolList()
 
 void RoMetadataProcess::importApiList()
 {
+	if (mRoBlob.size() == 0)
+	{
+		throw fnd::Exception(kModuleName, "No ro binary set.");
+	}
+
 	if (mApiInfo.size > 0)
 	{
 		std::stringstream list_stream(std::string((char*)mRoBlob.data() + mApiInfo.offset, mApiInfo.size));
@@ -133,71 +136,71 @@ void RoMetadataProcess::displayRoMetaData()
 	
 	if (api_num > 0 && (mListApi || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
-		printf("[SDK API List]\n");
+		std::cout << "[SDK API List]" << std::endl;
 		if (mSdkVerApiList.size() > 0)
 		{
-			printf("  Sdk Revision: %s\n", mSdkVerApiList[0].getModuleName().c_str());
+			std::cout << "  Sdk Revision: " << mSdkVerApiList[0].getModuleName() << std::endl;
 		}
 		if (mPublicApiList.size() > 0)
 		{
-			printf("  Public APIs:\n");
+			std::cout << "  Public APIs:" << std::endl;
 			for (size_t i = 0; i < mPublicApiList.size(); i++)
 			{
-				printf("    %s (vender: %s)\n", mPublicApiList[i].getModuleName().c_str(), mPublicApiList[i].getVenderName().c_str());
+				std::cout << "    " << mPublicApiList[i].getModuleName() << " (vender: " << mPublicApiList[i].getVenderName() << ")" << std::endl;
 			}
 		}
 		if (mDebugApiList.size() > 0)
 		{
-			printf("  Debug APIs:\n");
+			std::cout << "  Debug APIs:" << std::endl;
 			for (size_t i = 0; i < mDebugApiList.size(); i++)
 			{
-				printf("    %s (vender: %s)\n", mDebugApiList[i].getModuleName().c_str(), mDebugApiList[i].getVenderName().c_str());
+				std::cout << "    " << mDebugApiList[i].getModuleName() << " (vender: " << mDebugApiList[i].getVenderName() << ")" << std::endl;
 			}
 		}
 		if (mPrivateApiList.size() > 0)
 		{
-			printf("  Private APIs:\n");
+			std::cout << "  Private APIs:" << std::endl;
 			for (size_t i = 0; i < mPrivateApiList.size(); i++)
 			{
-				printf("    %s (vender: %s)\n", mPrivateApiList[i].getModuleName().c_str(), mPrivateApiList[i].getVenderName().c_str());
+				std::cout << "    " << mPrivateApiList[i].getModuleName() << " (vender: " << mPrivateApiList[i].getVenderName() << ")" << std::endl;
 			}
 		}
 	}
 	if (mSymbolList.getSymbolList().size() > 0 && (mListSymbols || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
 	{
-		printf("[Symbol List]\n");
+		std::cout << "[Symbol List]" << std::endl;
 		for (size_t i = 0; i < mSymbolList.getSymbolList().size(); i++)
 		{
 			const ElfSymbolParser::sElfSymbol& symbol = mSymbolList.getSymbolList()[i];
-			printf("  %s [SHN=%s (%04x)][STT=%s][STB=%s]\n", symbol.name.c_str(), getSectionIndexStr(symbol.shn_index), symbol.shn_index, getSymbolTypeStr(symbol.symbol_type), getSymbolBindingStr(symbol.symbol_binding));
+			std::cout << "  " << symbol.name << " [SHN=" << getSectionIndexStr(symbol.shn_index) << " (" << std::hex << std::setw(4) << std::setfill('0') << symbol.shn_index << ")][STT=" << getSymbolTypeStr(symbol.symbol_type) << "][STB=" << getSymbolBindingStr(symbol.symbol_binding) << "]" << std::endl;
 		}
 	}
 }
 
-const char* RoMetadataProcess::getSectionIndexStr(nn::hac::elf::SpecialSectionIndex shn_index) const
+const char* RoMetadataProcess::getSectionIndexStr(uint16_t shn_index) const
 {
 	const char* str;
 	switch (shn_index)
 	{
-		case (nn::hac::elf::SHN_UNDEF):
+		case (fnd::elf::SHN_UNDEF):
 			str = "UNDEF";
 			break;
-		case (nn::hac::elf::SHN_LOPROC):
+		case (fnd::elf::SHN_LOPROC):
 			str = "LOPROC";
 			break;
-		case (nn::hac::elf::SHN_HIPROC):
+		case (fnd::elf::SHN_HIPROC):
 			str = "HIPROC";
 			break;
-		case (nn::hac::elf::SHN_LOOS):
+		case (fnd::elf::SHN_LOOS):
 			str = "LOOS";
 			break;
-		case (nn::hac::elf::SHN_HIOS):
+		case (fnd::elf::SHN_HIOS):
 			str = "HIOS";
 			break;
-		case (nn::hac::elf::SHN_ABS):
+		case (fnd::elf::SHN_ABS):
 			str = "ABS";
 			break;
-		case (nn::hac::elf::SHN_COMMON):
+		case (fnd::elf::SHN_COMMON):
 			str = "COMMON";
 			break;
 		default:
@@ -207,36 +210,36 @@ const char* RoMetadataProcess::getSectionIndexStr(nn::hac::elf::SpecialSectionIn
 	return str;
 }
 
-const char* RoMetadataProcess::getSymbolTypeStr(nn::hac::elf::SymbolType symbol_type) const
+const char* RoMetadataProcess::getSymbolTypeStr(byte_t symbol_type) const
 {
 	const char* str;
 	switch (symbol_type)
 	{
-		case (nn::hac::elf::STT_NOTYPE):
+		case (fnd::elf::STT_NOTYPE):
 			str = "NOTYPE";
 			break;
-		case (nn::hac::elf::STT_OBJECT):
+		case (fnd::elf::STT_OBJECT):
 			str = "OBJECT";
 			break;
-		case (nn::hac::elf::STT_FUNC):
+		case (fnd::elf::STT_FUNC):
 			str = "FUNC";
 			break;
-		case (nn::hac::elf::STT_SECTION):
+		case (fnd::elf::STT_SECTION):
 			str = "SECTION";
 			break;
-		case (nn::hac::elf::STT_FILE):
+		case (fnd::elf::STT_FILE):
 			str = "FILE";
 			break;
-		case (nn::hac::elf::STT_LOOS):
+		case (fnd::elf::STT_LOOS):
 			str = "LOOS";
 			break;
-		case (nn::hac::elf::STT_HIOS):
+		case (fnd::elf::STT_HIOS):
 			str = "HIOS";
 			break;
-		case (nn::hac::elf::STT_LOPROC):
+		case (fnd::elf::STT_LOPROC):
 			str = "LOPROC";
 			break;
-		case (nn::hac::elf::STT_HIPROC):
+		case (fnd::elf::STT_HIPROC):
 			str = "HIPROC";
 			break;
 		default:
@@ -246,30 +249,30 @@ const char* RoMetadataProcess::getSymbolTypeStr(nn::hac::elf::SymbolType symbol_
 	return str;
 }
 
-const char* RoMetadataProcess::getSymbolBindingStr(nn::hac::elf::SymbolBinding symbol_binding) const
+const char* RoMetadataProcess::getSymbolBindingStr(byte_t symbol_binding) const
 {
 	const char* str;
 	switch (symbol_binding)
 	{
-		case (nn::hac::elf::STB_LOCAL):
+		case (fnd::elf::STB_LOCAL):
 			str = "LOCAL";
 			break;
-		case (nn::hac::elf::STB_GLOBAL):
+		case (fnd::elf::STB_GLOBAL):
 			str = "GLOBAL";
 			break;
-		case (nn::hac::elf::STB_WEAK):
+		case (fnd::elf::STB_WEAK):
 			str = "WEAK";
 			break;
-		case (nn::hac::elf::STB_LOOS):
+		case (fnd::elf::STB_LOOS):
 			str = "LOOS";
 			break;
-		case (nn::hac::elf::STB_HIOS):
+		case (fnd::elf::STB_HIOS):
 			str = "HIOS";
 			break;
-		case (nn::hac::elf::STB_LOPROC):
+		case (fnd::elf::STB_LOPROC):
 			str = "LOPROC";
 			break;
-		case (nn::hac::elf::STB_HIPROC):
+		case (fnd::elf::STB_HIPROC):
 			str = "HIPROC";
 			break;
 		default:

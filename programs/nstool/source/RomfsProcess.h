@@ -2,11 +2,12 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <fnd/Vec.h>
 #include <fnd/List.h>
 #include <nn/hac/romfs.h>
 
-#include "nstool.h"
+#include "common.h"
 
 class RomfsProcess
 {
@@ -77,12 +78,11 @@ public:
 	};
 
 	RomfsProcess();
-	~RomfsProcess();
 
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -96,8 +96,7 @@ private:
 	const std::string kModuleName = "RomfsProcess";
 	static const size_t kCacheSize = 0x10000;
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
+	fnd::SharedPtr<fnd::IFile> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 

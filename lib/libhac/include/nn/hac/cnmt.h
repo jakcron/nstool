@@ -118,7 +118,7 @@ namespace hac
 	struct sAddOnContentMetaExtendedHeader
 	{
 		le_uint64_t application_id;
-		le_uint32_t required_system_version;
+		le_uint32_t required_application_version;
 		byte_t reserved[4];
 	};
 

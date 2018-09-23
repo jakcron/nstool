@@ -54,7 +54,7 @@ void nn::hac::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapa
 	if (isSet() == false)
 		return;
 
-	fnd::List<SystemCallEntry> entries;
+	SystemCallEntry entries[kSyscallTotalEntryNum];
 	for (size_t i = 0; i < kSyscallTotalEntryNum; i++)
 	{
 		entries[i].setSystemCallUpperBits((uint32_t)i);
@@ -71,7 +71,7 @@ void nn::hac::SystemCallHandler::exportKernelCapabilityList(fnd::List<KernelCapa
 		entries[mSystemCalls[i] / 24].setSystemCallLowerBits(entries[mSystemCalls[i] / 24].getSystemCallLowerBits() | BIT(mSystemCalls[i] % 24));
 	}
 
-	for (size_t i = 0; i < entries.size(); i++)
+	for (size_t i = 0; i < kSyscallTotalEntryNum; i++)
 	{
 		if (entries[i].getSystemCallLowerBits() != 0)
 		{

@@ -2,25 +2,24 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <fnd/List.h>
 #include <nn/hac/XciHeader.h>
-
-#include "nstool.h"
-
+#include "KeyConfiguration.h"
 #include "PfsProcess.h"
 
+#include "common.h"
 
 class XciProcess
 {
 public:
 	XciProcess();
-	~XciProcess();
 
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setKeyset(const sKeyset* keyset);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -32,9 +31,8 @@ private:
 	const std::string kModuleName = "XciProcess";
 	const std::string kXciMountPointName = "gamecard:/";
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
-	const sKeyset* mKeyset;
+	fnd::SharedPtr<fnd::IFile> mFile;
+	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
@@ -62,6 +60,7 @@ private:
 	PfsProcess mRootPfs;
 	fnd::List<sExtractInfo> mExtractInfo;
 
+	void importHeader();
 	void displayHeader();
 	bool validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash);
 	void validateXciSignature();

@@ -100,7 +100,7 @@ void nn::hac::ContentMetaBinary::fromBytes(const byte_t* data, size_t len)
 				break;
 			case (cnmt::METATYPE_ADD_ON_CONTENT):
 				mAddOnContentMetaExtendedHeader.application_id = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.data())->application_id.get();
-				mAddOnContentMetaExtendedHeader.required_system_version = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.data())->required_system_version.get();
+				mAddOnContentMetaExtendedHeader.required_application_version = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.data())->required_application_version.get();
 				break;
 			case (cnmt::METATYPE_DELTA):
 				mDeltaMetaExtendedHeader.application_id = ((sDeltaMetaExtendedHeader*)mExtendedHeader.data())->application_id.get();

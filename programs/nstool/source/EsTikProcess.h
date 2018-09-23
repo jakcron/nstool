@@ -2,22 +2,23 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <fnd/Vec.h>
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include <nn/es/TicketBody_V2.h>
-#include "nstool.h"
+#include "KeyConfiguration.h"
+#include "common.h"
 
 class EsTikProcess
 {
 public:
 	EsTikProcess();
-	~EsTikProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setKeyset(const sKeyset* keyset);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
 	void setCliOutputMode(CliOutputMode mode);
 	void setVerifyMode(bool verify);
@@ -25,9 +26,8 @@ public:
 private:
 	const std::string kModuleName = "EsTikProcess";
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
-	const sKeyset* mKeyset;
+	fnd::SharedPtr<fnd::IFile> mFile;
+	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	

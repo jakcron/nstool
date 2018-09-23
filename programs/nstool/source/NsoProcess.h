@@ -3,21 +3,21 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <nn/hac/npdm.h>
 #include <nn/hac/NsoHeader.h>
 
-#include "nstool.h"
+#include "common.h"
 #include "RoMetadataProcess.h"
 
 class NsoProcess
 {
 public:
 	NsoProcess();
-	~NsoProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -29,9 +29,7 @@ public:
 private:
 	const std::string kModuleName = "NsoProcess";
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
-
+	fnd::SharedPtr<fnd::IFile> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	nn::hac::npdm::InstructionType mInstructionType;

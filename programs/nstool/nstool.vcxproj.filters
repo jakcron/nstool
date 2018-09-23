@@ -40,6 +40,9 @@
     <ClInclude Include="source\HashTreeWrappedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\KeyConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="source\NacpProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -53,9 +56,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\NsoProcess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\nstool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\OffsetAdjustedIFile.h">
@@ -88,6 +88,9 @@
     <ClInclude Include="source\XciProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AesCtrWrappedIFile.cpp">
@@ -109,6 +112,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\HashTreeWrappedIFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\KeyConfiguration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\main.cpp">

@@ -1,24 +1,25 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/SimpleFile.h>
+#include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <nn/hac/NcaHeader.h>
 #include "HashTreeMeta.h"
+#include "KeyConfiguration.h"
 
 
-#include "nstool.h"
+#include "common.h"
 
 class NcaProcess
 {
 public:
 	NcaProcess();
-	~NcaProcess();
 
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* file, bool ownIFile);
-	void setKeyset(const sKeyset* keyset);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -34,9 +35,8 @@ private:
 	const std::string kNpdmExefsPath = "main.npdm";
 
 	// user options
-	fnd::IFile* mFile;
-	bool mOwnIFile;
-	const sKeyset* mKeyset;
+	fnd::SharedPtr<fnd::IFile> mFile;
+	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
@@ -84,15 +84,14 @@ private:
 				return !(*this == other);
 			}
 		};
-		fnd::List<sKeyAreaKey> keak_list;
+		fnd::List<sKeyAreaKey> kak_list;
 
 		sOptional<fnd::aes::sAes128Key> aes_ctr;
-		sOptional<fnd::aes::sAesXts128Key> aes_xts;
-	} mBodyKeys;
+	} mContentKey;
 	
 	struct sPartitionInfo
 	{
-		fnd::IFile* reader;
+		fnd::SharedPtr<fnd::IFile> reader;
 		std::string fail_reason;
 		size_t offset;
 		size_t size;
@@ -105,9 +104,20 @@ private:
 		fnd::aes::sAesIvCtr aes_ctr;
 	} mPartitions[nn::hac::nca::kPartitionNum];
 
+	void importHeader();
 	void generateNcaBodyEncryptionKeys();
 	void generatePartitionConfiguration();
 	void validateNcaSignatures();
 	void displayHeader();
 	void processPartitions();
+
+	const char* getFormatVersionStr(nn::hac::NcaHeader::FormatVersion format_ver) const;
+	const char* getDistributionTypeStr(nn::hac::nca::DistributionType dist_type) const;
+	const char* getContentTypeStr(nn::hac::nca::ContentType cont_type) const;
+	const char* getEncryptionTypeStr(nn::hac::nca::EncryptionType enc_type) const;
+	const char* getHashTypeStr(nn::hac::nca::HashType hash_type) const;
+	const char* getFormatTypeStr(nn::hac::nca::FormatType format_type) const;
+	const char* getKaekIndexStr(nn::hac::nca::KeyAreaEncryptionKeyIndex keak_index) const;
+	const char* getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const;
+	const char* getProgramPartitionNameStr(size_t i) const;
 };

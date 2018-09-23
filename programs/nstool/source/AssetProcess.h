@@ -2,21 +2,21 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <nn/hac/AssetHeader.h>
 #include "NacpProcess.h"
 #include "RomfsProcess.h"
 
-#include "nstool.h"
+#include "common.h"
 
 class AssetProcess
 {
 public:
 	AssetProcess();
-	~AssetProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -30,8 +30,7 @@ public:
 private:
 	const std::string kModuleName = "AssetProcess";
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
+	fnd::SharedPtr<fnd::IFile> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 

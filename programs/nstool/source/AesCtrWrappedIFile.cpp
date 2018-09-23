@@ -1,7 +1,6 @@
 #include "AesCtrWrappedIFile.h"
 
-AesCtrWrappedIFile::AesCtrWrappedIFile(fnd::IFile* file, bool ownIfile, const fnd::aes::sAes128Key& key, const fnd::aes::sAesIvCtr& ctr) :
-	mOwnIFile(ownIfile),
+AesCtrWrappedIFile::AesCtrWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const fnd::aes::sAes128Key& key, const fnd::aes::sAesIvCtr& ctr) :
 	mFile(file),
 	mKey(key),
 	mBaseCtr(ctr),
@@ -10,17 +9,9 @@ AesCtrWrappedIFile::AesCtrWrappedIFile(fnd::IFile* file, bool ownIfile, const fn
 	mCache.alloc(kCacheSizeAllocSize);
 }
 
-AesCtrWrappedIFile::~AesCtrWrappedIFile()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
-}
-
 size_t AesCtrWrappedIFile::size()
 {
-	return mFile->size();
+	return (*mFile)->size();
 }
 
 void AesCtrWrappedIFile::seek(size_t offset)
@@ -44,8 +35,8 @@ void AesCtrWrappedIFile::read(byte_t* out, size_t len)
 
 		//printf("[%x] AesCtrWrappedIFile::read() CACHE READ: readlen=%" PRIx64 "\n", this, read_len);
 		
-		mFile->seek(read_pos);
-		mFile->read(mCache.data(), kCacheSizeAllocSize);
+		(*mFile)->seek(read_pos);
+		(*mFile)->read(mCache.data(), kCacheSizeAllocSize);
 
 		fnd::aes::AesIncrementCounter(mBaseCtr.iv, read_pos>>4, mCurrentCtr.iv);
 		fnd::aes::AesCtr(mCache.data(), kCacheSizeAllocSize, mKey.key, mCurrentCtr.iv, mCache.data());
@@ -81,8 +72,8 @@ void AesCtrWrappedIFile::write(const byte_t* in, size_t len)
 		fnd::aes::AesIncrementCounter(mBaseCtr.iv, write_pos>>4, mCurrentCtr.iv);
 		fnd::aes::AesCtr(mCache.data(), kCacheSizeAllocSize, mKey.key, mCurrentCtr.iv, mCache.data());
 
-		mFile->seek(write_pos);
-		mFile->write(mCache.data(), kCacheSizeAllocSize);
+		(*mFile)->seek(write_pos);
+		(*mFile)->write(mCache.data(), kCacheSizeAllocSize);
 	}
 
 	seek(mFileOffset + len);
@@ -92,7 +83,7 @@ void AesCtrWrappedIFile::write(const byte_t* in, size_t len)
 	{
 		memcpy(mScratch.data() + mBlockOffset, out + (i * kAesCtrScratchSize), kAesCtrScratchSize);
 		fnd::aes::AesCtr(mScratch.data(), kAesCtrScratchAllocSize, mKey.key, mCurrentCtr.iv, mScratch.data());
-		mFile->write(mScratch.data() + mBlockOffset, kAesCtrScratchSize);
+		(*mFile)->write(mScratch.data() + mBlockOffset, kAesCtrScratchSize);
 	}
 
 	if (len % kAesCtrScratchSize)
@@ -101,7 +92,7 @@ void AesCtrWrappedIFile::write(const byte_t* in, size_t len)
 		size_t write_pos = ((len / kAesCtrScratchSize) * kAesCtrScratchSize); 
 		memcpy(mScratch.data() + mBlockOffset, out + write_pos, write_len);
 		fnd::aes::AesCtr(mScratch.data(), kAesCtrScratchAllocSize, mKey.key, mCurrentCtr.iv, mScratch.data());
-		mFile->write(mScratch.data() + mBlockOffset, write_len);
+		(*mFile)->write(mScratch.data() + mBlockOffset, write_len);
 	}
 	*/
 	seek(mFileOffset + len);

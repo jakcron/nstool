@@ -41,9 +41,17 @@ void nn::hac::FileSystemAccessControlBinary::toBytes()
 	} content, savedata;
 
 	content.offset = (uint32_t)align(sizeof(sFacHeader), fac::kSectionAlignSize);
-	content.size = (uint32_t)(sizeof(uint32_t) + mContentOwnerIdList.size() * sizeof(uint64_t));
+	if (mContentOwnerIdList.size() > 0)
+		content.size = (uint32_t)(sizeof(uint32_t) + mContentOwnerIdList.size() * sizeof(uint64_t));
+	else
+		content.size = 0;
+
 	savedata.offset = (uint32_t)(content.offset + (content.size > 0 ? align(content.size, fac::kSectionAlignSize) : 0));
-	savedata.size = (uint32_t)(sizeof(uint32_t) + align(mSaveDataOwnerIdList.size(), fac::kSectionAlignSize) + mSaveDataOwnerIdList.size() * sizeof(uint64_t));
+	if (mSaveDataOwnerIdList.size() > 0)
+		savedata.size = (uint32_t)(sizeof(uint32_t) + align(mSaveDataOwnerIdList.size(), fac::kSectionAlignSize) + mSaveDataOwnerIdList.size() * sizeof(uint64_t));
+	else
+		savedata.size = 0;
+	
 
 	// get total size
 	size_t total_size = _MAX(_MAX(content.offset + content.size, savedata.offset + savedata.size), align(sizeof(sFacHeader), fac::kSectionAlignSize)); 

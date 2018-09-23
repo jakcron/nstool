@@ -183,6 +183,12 @@
     <ClInclude Include="include\nn\hac\XciUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nn\hac\IdConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\Result.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AccessControlInfoBinary.cpp">
@@ -294,6 +300,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\XciUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\IdConverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Result.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -63,6 +63,9 @@
     <ClInclude Include="include\fnd\sha.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\fnd\SharedPtr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\fnd\SimpleFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>

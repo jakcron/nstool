@@ -120,18 +120,18 @@ namespace hac
 		struct AddOnContentMetaExtendedHeader
 		{
 			uint64_t application_id;
-			uint32_t required_system_version;
+			uint32_t required_application_version;
 
 			void operator=(const AddOnContentMetaExtendedHeader& other)
 			{
 				application_id = other.application_id;
-				required_system_version = other.required_system_version;
+				required_application_version = other.required_application_version;
 			}
 
 			bool operator==(const AddOnContentMetaExtendedHeader& other) const
 			{
 				return (application_id == other.application_id) \
-					&& (required_system_version == other.required_system_version);
+					&& (required_application_version == other.required_application_version);
 			}
 
 			bool operator!=(const AddOnContentMetaExtendedHeader& other) const

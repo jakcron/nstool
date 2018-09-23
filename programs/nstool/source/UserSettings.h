@@ -7,7 +7,8 @@
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include <nn/hac/npdm.h>
-#include "nstool.h"
+#include "common.h"
+#include "KeyConfiguration.h"
 
 class UserSettings
 {
@@ -19,7 +20,7 @@ public:
 
 	// generic options
 	const std::string getInputPath() const;
-	const sKeyset& getKeyset() const;
+	const KeyConfiguration& getKeyCfg() const;
 	FileType getFileType() const;
 	bool isVerifyFile() const;
 	CliOutputMode getCliOutputMode() const;
@@ -46,6 +47,11 @@ public:
 
 private:
 	const std::string kModuleName = "UserSettings";
+
+	const std::string kHomeSwitchDirStr = ".switch";
+	const std::string kGeneralKeyfileName[2] = { "prod.keys", "dev.keys" };
+	const std::string kTitleKeyfileName = "title.keys";
+	
 	
 	struct sCmdArgs
 	{
@@ -81,7 +87,7 @@ private:
 	
 	std::string mInputPath;
 	FileType mFileType;
-	sKeyset mKeyset;
+	KeyConfiguration mKeyCfg;
 	bool mVerifyFile;
 	CliOutputMode mOutputMode;
 
@@ -109,7 +115,6 @@ private:
 	void populateCmdArgs(const std::vector<std::string>& arg_list, sCmdArgs& cmd_args);
 	void populateKeyset(sCmdArgs& args);
 	void populateUserSettings(sCmdArgs& args);
-	void decodeHexStringToBytes(const std::string& name, const std::string& str, byte_t* out, size_t out_len);
 	FileType getFileTypeFromString(const std::string& type_str);
 	FileType determineFileTypeFromFile(const std::string& path);
 	bool determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) const;
@@ -118,4 +123,12 @@ private:
 	bool determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const;
 	nn::hac::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
+	void getHomePath(std::string& path) const;
+	void getSwitchPath(std::string& path) const;
+
+	void dumpKeyConfig() const;
+	void dumpRsa2048Key(const fnd::rsa::sRsa2048Key& key, const std::string& name, size_t indent) const;
+	void dumpRsa4096Key(const fnd::rsa::sRsa4096Key& key, const std::string& name, size_t indent) const;
+	void dumpAesKey(const fnd::aes::sAes128Key& key, const std::string& name, size_t indent) const;
+	void dumpAesXtsKey(const fnd::aes::sAesXts128Key& key, const std::string& name, size_t indent) const;
 };

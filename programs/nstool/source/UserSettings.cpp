@@ -1,10 +1,12 @@
 #include "UserSettings.h"
 #include "version.h"
 #include "PkiValidator.h"
+#include "KeyConfiguration.h"
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <fnd/io.h>
 #include <fnd/SimpleFile.h>
@@ -37,14 +39,16 @@ void UserSettings::parseCmdArgs(const std::vector<std::string>& arg_list)
 	populateCmdArgs(arg_list, args);
 	populateKeyset(args);
 	populateUserSettings(args);
+	if (_HAS_BIT(mOutputMode, OUTPUT_KEY_DATA))
+		dumpKeyConfig();
 }
 
 void UserSettings::showHelp()
 {
-	printf("NSTool v%d.%d.%d (C) %s\n", VER_MAJOR, VER_MINOR, VER_PATCH, AUTHORS);
+	printf("%s v%d.%d.%d (C) %s\n", APP_NAME, VER_MAJOR, VER_MINOR, VER_PATCH, AUTHORS);
 	printf("Built: %s %s\n\n", __TIME__, __DATE__);
 	
-	printf("Usage: nstool [options... ] <file>\n");
+	printf("Usage: %s [options... ] <file>\n", BIN_NAME);
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset.\n");
 	printf("      -k, --keyset    Specify keyset file.\n");
@@ -55,18 +59,18 @@ void UserSettings::showHelp()
 	printf("      --showlayout    Show layout metadata.\n");
 	printf("      -v, --verbose   Verbose output.\n");
 	printf("\n  XCI (GameCard Image)\n");
-	printf("    nstool [--listfs] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>\n");
+	printf("    %s [--listfs] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>\n", BIN_NAME);
 	printf("      --listfs        Print file system in embedded partitions.\n");
 	printf("      --update        Extract \"update\" partition to directory.\n");
 	printf("      --logo          Extract \"logo\" partition to directory.\n");
 	printf("      --normal        Extract \"normal\" partition to directory.\n");
 	printf("      --secure        Extract \"secure\" partition to directory.\n");
 	printf("\n  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)\n");
-	printf("    nstool [--listfs] [--fsdir <dir>] <file>\n");
+	printf("    %s [--listfs] [--fsdir <dir>] <file>\n", BIN_NAME);
 	printf("      --listfs        Print file system.\n");
 	printf("      --fsdir         Extract file system to directory.\n");
 	printf("\n  NCA (Nintendo Content Archive)\n");
-	printf("    nstool [--listfs] [--bodykey <key> --titlekey <key>] [--part0 <dir> ...] <.nca file>\n");
+	printf("    %s [--listfs] [--bodykey <key> --titlekey <key>] [--part0 <dir> ...] <.nca file>\n", BIN_NAME);
 	printf("      --listfs        Print file system in embedded partitions.\n");
 	printf("      --titlekey      Specify title key extracted from ticket.\n");
 	printf("      --bodykey       Specify body encryption key.\n");
@@ -77,12 +81,12 @@ void UserSettings::showHelp()
 	printf("      --part2         Extract \"partition 2\" to directory.\n");
 	printf("      --part3         Extract \"partition 3\" to directory.\n");
 	printf("\n  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)\n");
-	printf("    nstool [--listapi --listsym] [--insttype <inst. type>] <file>\n");
+	printf("    %s [--listapi --listsym] [--insttype <inst. type>] <file>\n", BIN_NAME);
 	printf("      --listapi       Print SDK API List.\n");
 	printf("      --listsym       Print Code Symbols.\n");
 	printf("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
 	printf("\n  ASET (Homebrew Asset Blob)\n");
-	printf("    nstool [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n");
+	printf("    %s [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n", BIN_NAME);
 	printf("      --listfs        Print filesystem in embedded RomFS partition.\n");
 	printf("      --icon          Extract icon partition to file.\n");
 	printf("      --nacp          Extract NACP partition to file.\n");
@@ -95,9 +99,9 @@ const std::string UserSettings::getInputPath() const
 	return mInputPath;
 }
 
-const sKeyset& UserSettings::getKeyset() const
+const KeyConfiguration& UserSettings::getKeyCfg() const
 {
-	return mKeyset;
+	return mKeyCfg;
 }
 
 FileType UserSettings::getFileType() const
@@ -385,36 +389,23 @@ void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCm
 
 void UserSettings::populateKeyset(sCmdArgs& args)
 {
-	fnd::aes::sAes128Key zeros_aes_key;
-	fnd::aes::sAesXts128Key zeros_aes_xts_key;
-	memset((void*)&zeros_aes_key, 0, sizeof(fnd::aes::sAes128Key));
-	memset((void*)&zeros_aes_xts_key, 0, sizeof(fnd::aes::sAesXts128Key));
-	memset((void*)&mKeyset, 0, sizeof(sKeyset));
-
-	fnd::ResourceFileReader res;
 	if (args.keyset_path.isSet)
 	{
-		res.processFile(*args.keyset_path);
+		mKeyCfg.importHactoolGenericKeyfile(*args.keyset_path);
  	}
 	else
 	{
 		// open other resource files in $HOME/.switch/prod.keys (or $HOME/.switch/dev.keys if -d/--dev is set).
-		std::string home;
-		if (home.empty()) fnd::io::getEnvironVar(home, "HOME");
-		if (home.empty()) fnd::io::getEnvironVar(home, "USERPROFILE");
-		if (home.empty()) return;
-
-		const std::string kKeysetNameStr[2] = {"prod.keys", "dev.keys"};
-		const std::string kHomeSwitchDirStr = ".switch";
-		
 		std::string keyset_path;
-		fnd::io::appendToPath(keyset_path, home);
-		fnd::io::appendToPath(keyset_path, kHomeSwitchDirStr);
-		fnd::io::appendToPath(keyset_path, kKeysetNameStr[args.devkit_keys.isSet ? *args.devkit_keys : 0]);
+		getSwitchPath(keyset_path);
+		if (keyset_path.empty())
+			return;
+		
+		fnd::io::appendToPath(keyset_path, kGeneralKeyfileName[args.devkit_keys.isSet]);
 
 		try
 		{
-			res.processFile(keyset_path);
+			mKeyCfg.importHactoolGenericKeyfile(keyset_path);
 		}
 		catch (const fnd::Exception&)
 		{
@@ -422,132 +413,29 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		}
 		
 	}
+
 	
-	// suffix
-	const std::string kKeyStr = "key";
-	const std::string kKekStr = "kek";
-	const std::string kSourceStr = "source";
-	const std::string kRsaKeySuffix[2] = {"sign_key_private", "sign_key_modulus"};
-	const std::string kKeyIndex[kMasterKeyNum] = {"00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f","10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f"};
 
-	// keyname bases
-	const std::string kMasterBase = "master";
-	const std::string kPackage1Base = "package1";
-	const std::string kPackage2Base = "package2";
-	const std::string kXciHeaderBase = "xci_header";
-	const std::string kNcaHeaderBase[2] = {"header", "nca_header"};
-	const std::string kKekGenSource = "aes_kek_generation";
-	const std::string kKeyGenSource = "aes_key_generation";
-	const std::string kAcidBase = "acid";
-	const std::string kPkiRootBase = "pki_root";
-	const std::string kTicketCommonKeyBase[2] = { "titlekek", "ticket_commonkey" };
-	const std::string kNcaBodyBase[2] = {"key_area_key", "nca_body_keak"};
-	const std::string kNcaBodyKeakIndexName[3] = {"application", "ocean", "system"};
-
-
-	// sources
-	fnd::aes::sAes128Key master_key[kMasterKeyNum] = { zeros_aes_key };
-	fnd::aes::sAes128Key package2_key_source = zeros_aes_key;
-	fnd::aes::sAes128Key ticket_titlekek_source = zeros_aes_key;
-	fnd::aes::sAes128Key key_area_key_source[3] = { zeros_aes_key, zeros_aes_key, zeros_aes_key };
-	fnd::aes::sAes128Key aes_kek_generation_source = zeros_aes_key;
-	fnd::aes::sAes128Key aes_key_generation_source = zeros_aes_key;
-	fnd::aes::sAes128Key nca_header_kek_source = zeros_aes_key;
-	fnd::aes::sAesXts128Key nca_header_key_source = zeros_aes_xts_key;
-
-
-#define _CONCAT_2_STRINGS(str1, str2) ((str1) + "_" + (str2))
-#define _CONCAT_3_STRINGS(str1, str2, str3) ((str1) + "_"+ (str2) + "_" + (str3))
-
-	std::string key,val;
-
-#define _SAVE_KEYDATA(key_name, array, len) \
-	key = (key_name); \
-	val = res[key]; \
-	if (val.empty() == false) { \
-		decodeHexStringToBytes(key, val, (byte_t*)array, len); \
-	}
-	
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage2Base, kKeyStr, kSourceStr), package2_key_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[0], kSourceStr), ticket_titlekek_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[1], kSourceStr), ticket_titlekek_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[0], kSourceStr), key_area_key_source[0].key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[1], kSourceStr), key_area_key_source[1].key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[2], kSourceStr), key_area_key_source[2].key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[0], kSourceStr), key_area_key_source[0].key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[1], kSourceStr), key_area_key_source[1].key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[2], kSourceStr), key_area_key_source[2].key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kKekGenSource, kSourceStr), aes_kek_generation_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kKeyGenSource, kSourceStr), aes_key_generation_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[0], kKekStr, kSourceStr), nca_header_kek_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[0], kKeyStr, kSourceStr), nca_header_key_source.key, 0x20);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[1], kKekStr, kSourceStr), nca_header_kek_source.key, 0x10);
-	_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaHeaderBase[1], kKeyStr, kSourceStr), nca_header_key_source.key, 0x20);
-
-	// Store Key Variants/Derivatives
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kMasterBase, kKeyStr, kKeyIndex[i]), master_key[i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage1Base, kKeyStr, kKeyIndex[i]), mKeyset.package1_key[i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPackage2Base, kKeyStr, kKeyIndex[i]), mKeyset.package2_key[i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[0], kKeyIndex[i]), mKeyset.ticket.titlekey_kek[i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kTicketCommonKeyBase[1], kKeyIndex[i]), mKeyset.ticket.titlekey_kek[i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[0], kKeyIndex[i]), mKeyset.nca.key_area_key[0][i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[1], kKeyIndex[i]), mKeyset.nca.key_area_key[1][i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[0], kNcaBodyKeakIndexName[2], kKeyIndex[i]), mKeyset.nca.key_area_key[2][i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[0], kKeyIndex[i]), mKeyset.nca.key_area_key[0][i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[1], kKeyIndex[i]), mKeyset.nca.key_area_key[1][i].key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaBodyBase[1], kNcaBodyKeakIndexName[2], kKeyIndex[i]), mKeyset.nca.key_area_key[2][i].key, 0x10);
-	}
-	
-	// store nca header key
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[0], kKeyStr), mKeyset.nca.header_key.key[0], 0x20);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kKeyStr), mKeyset.nca.header_key.key[0], 0x20);
-
-	// store xci header key
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kKeyStr), mKeyset.xci.header_key.key, 0x10);
-
-	// store rsa keys
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[0]), mKeyset.nca.header_sign_key.priv_exponent, fnd::rsa::kRsa2048Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[1], kRsaKeySuffix[1]), mKeyset.nca.header_sign_key.modulus, fnd::rsa::kRsa2048Size);
-	
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[0]), mKeyset.xci.header_sign_key.priv_exponent, fnd::rsa::kRsa2048Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase, kRsaKeySuffix[1]), mKeyset.xci.header_sign_key.modulus, fnd::rsa::kRsa2048Size);
-
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[0]), mKeyset.acid_sign_key.priv_exponent, fnd::rsa::kRsa2048Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase, kRsaKeySuffix[1]), mKeyset.acid_sign_key.modulus, fnd::rsa::kRsa2048Size);
-
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[0]), mKeyset.package2_sign_key.priv_exponent, fnd::rsa::kRsa2048Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPackage2Base, kRsaKeySuffix[1]), mKeyset.package2_sign_key.modulus, fnd::rsa::kRsa2048Size);
-
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[0]), mKeyset.pki.root_sign_key.priv_exponent, fnd::rsa::kRsa4096Size);
-	_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase, kRsaKeySuffix[1]), mKeyset.pki.root_sign_key.modulus, fnd::rsa::kRsa4096Size);
-
-
-	// save keydata from input args
 	if (args.nca_bodykey.isSet)
 	{
-		if (args.nca_bodykey.var.length() == (sizeof(fnd::aes::sAes128Key)*2))
-		{
-			decodeHexStringToBytes("--bodykey", args.nca_bodykey.var, mKeyset.nca.manual_body_key_aesctr.key, sizeof(fnd::aes::sAes128Key));
-		}
-		else
-		{
-			decodeHexStringToBytes("--bodykey", args.nca_bodykey.var, mKeyset.nca.manual_body_key_aesxts.key[0], sizeof(fnd::aes::sAesXts128Key));
-		}
+		fnd::aes::sAes128Key tmp_key;
+		fnd::Vec<byte_t> tmp_raw;
+		fnd::SimpleTextOutput::stringToArray(args.nca_bodykey.var, tmp_raw);
+		if (tmp_raw.size() != sizeof(fnd::aes::sAes128Key))
+			throw fnd::Exception(kModuleName, "Key: \"--bodykey\" has incorrect length");
+		memcpy(tmp_key.key, tmp_raw.data(), 16);
+		mKeyCfg.addNcaExternalContentKey(kDummyRightsIdForUserBodyKey, tmp_key);
 	}
 
 	if (args.nca_titlekey.isSet)
 	{
-		if (args.nca_titlekey.var.length() == (sizeof(fnd::aes::sAes128Key)*2))
-		{
-			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesctr.key, sizeof(fnd::aes::sAes128Key));
-		}
-		else
-		{
-			decodeHexStringToBytes("--titlekey", args.nca_titlekey.var, mKeyset.nca.manual_title_key_aesxts.key[0], sizeof(fnd::aes::sAesXts128Key));
-		}
+		fnd::aes::sAes128Key tmp_key;
+		fnd::Vec<byte_t> tmp_raw;
+		fnd::SimpleTextOutput::stringToArray(args.nca_titlekey.var, tmp_raw);
+		if (tmp_raw.size() != sizeof(fnd::aes::sAes128Key))
+			throw fnd::Exception(kModuleName, "Key: \"--titlekey\" has incorrect length");
+		memcpy(tmp_key.key, tmp_raw.data(), 16);
+		mKeyCfg.addNcaExternalContentKey(kDummyRightsIdForUserTitleKey, tmp_key);
 	}
 
 	// import certificate chain
@@ -601,7 +489,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 
 			try 
 			{
-				pki_validator.setRootKey(mKeyset.pki.root_sign_key);
+				pki_validator.setKeyCfg(mKeyCfg);
 				pki_validator.addCertificates(mCertChain);
 				pki_validator.validateSignature(tik.getBody().getIssuer(), tik.getSignature().getSignType(), tik.getSignature().getSignature(), tik_hash);
 			}
@@ -615,74 +503,23 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 		// extract title key
 		if (tik.getBody().getTitleKeyEncType() == nn::es::ticket::AES128_CBC)
 		{
-			memcpy(mKeyset.nca.manual_title_key_aesctr.key, tik.getBody().getEncTitleKey(), fnd::aes::kAes128KeySize);
+			fnd::aes::sAes128Key enc_title_key;
+			memcpy(enc_title_key.key, tik.getBody().getEncTitleKey(), 16);
+			fnd::aes::sAes128Key common_key, external_content_key;
+			if (mKeyCfg.getETicketCommonKey(nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(tik.getBody().getCommonKeyId()), common_key) == true)
+			{
+				nn::hac::AesKeygen::generateKey(external_content_key.key, tik.getBody().getEncTitleKey(), common_key.key);
+				mKeyCfg.addNcaExternalContentKey(tik.getBody().getRightsId(), external_content_key);
+			}
+			else
+			{
+				std::cout << "[WARNING] Titlekey not imported from ticket because commonkey was not available" << std::endl;
+			}
 		}
 		else
 		{
 			std::cout << "[WARNING] Titlekey not imported from ticket because it is personalised" << std::endl;
 		}
-	}
-
-#undef _SAVE_KEYDATA
-#undef _CONCAT_3_STRINGS
-#undef _CONCAT_2_STRINGS
-	
-	// Derive keys 
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (master_key[i] != zeros_aes_key)
-		{
-			if (aes_kek_generation_source != zeros_aes_key && aes_key_generation_source != zeros_aes_key)
-			{
-				if (i == 0 && nca_header_kek_source != zeros_aes_key && nca_header_key_source != zeros_aes_xts_key)
-				{
-					if (mKeyset.nca.header_key == zeros_aes_xts_key)
-					{
-						fnd::aes::sAes128Key nca_header_kek;
-						nn::hac::AesKeygen::generateKey(nca_header_kek.key, aes_kek_generation_source.key, nca_header_kek_source.key, aes_key_generation_source.key, master_key[i].key);
-						nn::hac::AesKeygen::generateKey(mKeyset.nca.header_key.key[0], nca_header_key_source.key[0], nca_header_kek.key);
-						nn::hac::AesKeygen::generateKey(mKeyset.nca.header_key.key[1], nca_header_key_source.key[1], nca_header_kek.key);
-						//printf("nca header key[0] ");
-						//fnd::SimpleTextOutput::hexDump(mKeyset.nca.header_key.key[0], 0x10);
-						//printf("nca header key[1] ");
-						//fnd::SimpleTextOutput::hexDump(mKeyset.nca.header_key.key[1], 0x10);
-					}
-				}
-
-				for (size_t j = 0; j < nn::hac::nca::kKeyAreaEncryptionKeyNum; j++)
-				{
-					if (key_area_key_source[j] != zeros_aes_key && mKeyset.nca.key_area_key[j][i] == zeros_aes_key)
-					{
-						nn::hac::AesKeygen::generateKey(mKeyset.nca.key_area_key[j][i].key, aes_kek_generation_source.key, key_area_key_source[j].key, aes_key_generation_source.key, master_key[i].key);
-						//printf("nca keak %d/%02d ", j, i);
-						//fnd::SimpleTextOutput::hexDump(mKeyset.nca.key_area_key[j][i].key, 0x10);
-					}
-				}
-			}
-
-			if (ticket_titlekek_source != zeros_aes_key && mKeyset.ticket.titlekey_kek[i] == zeros_aes_key)
-			{
-				nn::hac::AesKeygen::generateKey(mKeyset.ticket.titlekey_kek[i].key, ticket_titlekek_source.key, master_key[i].key);
-				//printf("ticket titlekek %02d ", i);
-				//fnd::SimpleTextOutput::hexDump(mKeyset.ticket.titlekey_kek[i].key, 0x10);
-			}
-			if (package2_key_source != zeros_aes_key && mKeyset.package2_key[i] == zeros_aes_key)
-			{
-				nn::hac::AesKeygen::generateKey(mKeyset.package2_key[i].key, package2_key_source.key, master_key[i].key);
-				//printf("package2 key %02d ", i);
-				//fnd::SimpleTextOutput::hexDump(mKeyset.package2_key[i].key, 0x10);
-			}
-		}
-		/*
-		for (size_t j = 0; j < nn::hac::nca::kKeyAreaEncryptionKeyNum; j++)
-		{
-			if (mKeyset.nca.key_area_key[j][i] != zeros_aes_key)
-			{
-				printf("nca body keak %d/%02d ", j, i);
-				fnd::SimpleTextOutput::hexDump(mKeyset.nca.key_area_key[j][i].key, 0x10);
-			}
-		}
-		*/
 	}
 }
 
@@ -747,21 +584,6 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 		throw fnd::Exception(kModuleName, "Unknown file type.");
 }
 
-
-void UserSettings::decodeHexStringToBytes(const std::string& name, const std::string& str, byte_t* out, size_t out_len)
-{
-	size_t size = str.size();
-	if ((size % 2) || ((size / 2) != out_len))
-	{
-		throw fnd::Exception(kModuleName, "Key: \"" + name + "\" has incorrect length");
-	}
-
-	for (size_t i = 0; i < out_len; i++)
-	{
-		out[i] = (charToByte(str[i * 2]) << 4) | charToByte(str[(i * 2) + 1]);
-	}
-}
-
 FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 {
 	std::string str = type_str;
@@ -804,7 +626,7 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 
 FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 {
-	static const size_t kMaxReadSize = 0x4000;
+	static const size_t kMaxReadSize = 0x5000;
 	FileType file_type = FILE_INVALID;
 	fnd::SimpleFile file;
 	fnd::Vec<byte_t> scratch;
@@ -840,12 +662,6 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test nca
 	else if (determineValidNcaFromSample(scratch))
 		file_type = FILE_NCA;
-	// test cnmt
-	else if (determineValidCnmtFromSample(scratch))
-		file_type = FILE_CNMT;
-	// test nacp
-	else if (determineValidNacpFromSample(scratch))
-		file_type = FILE_NACP;
 	// test nso
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sNsoHeader)) && _TYPE_PTR(nn::hac::sNsoHeader)->st_magic.get() == nn::hac::nso::kNsoStructMagic)
 		file_type = FILE_NSO;
@@ -861,6 +677,16 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test hb asset
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sAssetHeader)) && _TYPE_PTR(nn::hac::sAssetHeader)->st_magic.get() == nn::hac::aset::kAssetStructMagic)
 		file_type = FILE_HB_ASSET;
+	
+	// do heuristics
+	// test cnmt
+	else if (determineValidCnmtFromSample(scratch))
+		file_type = FILE_CNMT;
+	// test nacp
+	else if (determineValidNacpFromSample(scratch))
+		file_type = FILE_NACP;
+
+
 	// else unrecognised
 	else
 		file_type = FILE_INVALID;
@@ -880,7 +706,9 @@ bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) c
 	if (sample.size() < nn::hac::nca::kHeaderSize)
 		return false;
 
-	nn::hac::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, mKeyset.nca.header_key);
+	fnd::aes::sAesXts128Key header_key;
+	mKeyCfg.getNcaHeaderKey(header_key);
+	nn::hac::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, header_key);
 
 	if (nca_header->st_magic.get() != nn::hac::nca::kNca2StructMagic && nca_header->st_magic.get() != nn::hac::nca::kNca3StructMagic)
 		return false;
@@ -1018,4 +846,187 @@ nn::hac::npdm::InstructionType UserSettings::getInstructionTypeFromString(const 
 		throw fnd::Exception(kModuleName, "Unsupported instruction type: " + str);
 
 	return type;
+}
+
+void UserSettings::getHomePath(std::string& path) const
+{
+	// open other resource files in $HOME/.switch/prod.keys (or $HOME/.switch/dev.keys if -d/--dev is set).
+	path.clear();
+	if (path.empty()) fnd::io::getEnvironVar(path, "HOME");
+	if (path.empty()) fnd::io::getEnvironVar(path, "USERPROFILE");
+	if (path.empty()) return;
+}
+
+void UserSettings::getSwitchPath(std::string& path) const
+{
+	std::string home;
+	home.clear();
+	getHomePath(home);
+	if (home.empty())
+		return;
+	
+	path.clear();
+	fnd::io::appendToPath(path, home);
+	fnd::io::appendToPath(path, kHomeSwitchDirStr);
+}
+
+void UserSettings::dumpKeyConfig() const
+{
+	fnd::aes::sAes128Key aes_key;
+		fnd::aes::sAesXts128Key aesxts_key;
+		fnd::rsa::sRsa2048Key rsa2048_key;
+		fnd::rsa::sRsa4096Key rsa4096_key;
+
+		const std::string kKeyIndex[kMasterKeyNum] = {"00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f","10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f"};
+
+
+		std::cout << "[KeyConfiguration]" << std::endl;
+		std::cout << "  NCA Keys:" << std::endl;
+		if (mKeyCfg.getNcaHeader0SignKey(rsa2048_key) == true)
+			dumpRsa2048Key(rsa2048_key, "Header Signature[0] Key", 2);
+		if (mKeyCfg.getNcaHeaderKey(aesxts_key) == true)
+			dumpAesXtsKey(aesxts_key, "Header Encryption Key", 2);
+		
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,0, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKey-Application-" + kKeyIndex[i], 2);
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,1, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKey-Ocean-" + kKeyIndex[i], 2);
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,2, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKey-System-" + kKeyIndex[i], 2);
+		}
+
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,0, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Application-" + kKeyIndex[i], 2);
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,1, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Ocean-" + kKeyIndex[i], 2);
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,2, aes_key) == true)
+				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-System-" + kKeyIndex[i], 2);
+		}
+		
+		std::cout << "  XCI Keys:" << std::endl;
+		if (mKeyCfg.getXciHeaderSignKey(rsa2048_key) == true)
+			dumpRsa2048Key(rsa2048_key, "Header Signature Key", 2);
+		if (mKeyCfg.getXciHeaderKey(aes_key) == true)
+			dumpAesKey(aes_key, "Extended Header Encryption Key", 2);
+		
+		
+		if (mKeyCfg.getAcidSignKey(rsa2048_key) == true)
+			dumpRsa2048Key(rsa2048_key, "ACID Signer Key", 1);
+		
+		
+		std::cout << "  Package1 Keys:" << std::endl;
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getPkg1Key(i, aes_key) == true)
+				dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
+		}
+
+		std::cout << "  Package2 Keys:" << std::endl;
+		if (mKeyCfg.getPkg2SignKey(rsa2048_key) == true)
+			dumpRsa2048Key(rsa2048_key, "Signature Key", 2);
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getPkg2Key(i, aes_key) == true)
+				dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
+		}
+
+		std::cout << "  ETicket Keys:" << std::endl;
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getETicketCommonKey(i, aes_key) == true)
+				dumpAesKey(aes_key, "CommonKey-" + kKeyIndex[i], 2);
+		}
+		
+		if (mKeyCfg.getPkiRootSignKey("Root", rsa4096_key) == true)
+			dumpRsa4096Key(rsa4096_key, "NNPKI Root Key", 1);
+}
+
+void UserSettings::dumpRsa2048Key(const fnd::rsa::sRsa2048Key& key, const std::string& name, size_t indent) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += "  ";
+	}
+	
+	std::cout << indent_str << name << ":" << std::endl;
+	if (key.modulus[0] != 0x00 && key.modulus[1] != 0x00)
+	{
+		std::cout << indent_str << "  Modulus:" << std::endl;
+		for (size_t i = 0; i < 0x10; i++)
+		{
+			std::cout << indent_str << "    " << fnd::SimpleTextOutput::arrayToString(key.modulus + i * 0x10, 0x10, true, ":") << std::endl;
+		}
+	}
+	if (key.priv_exponent[0] != 0x00 && key.priv_exponent[1] != 0x00)
+	{
+		std::cout << indent_str << "  Private Exponent:" << std::endl;
+		for (size_t i = 0; i < 0x10; i++)
+		{
+			std::cout << indent_str << "    " << fnd::SimpleTextOutput::arrayToString(key.priv_exponent + i * 0x10, 0x10, true, ":") << std::endl;
+		}
+	}
+}
+
+void UserSettings::dumpRsa4096Key(const fnd::rsa::sRsa4096Key& key, const std::string& name, size_t indent) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += "  ";
+	}
+	
+	std::cout << indent_str << name << ":" << std::endl;
+	if (key.modulus[0] != 0x00 && key.modulus[1] != 0x00)
+	{
+		std::cout << indent_str << "  Modulus:" << std::endl;
+		for (size_t i = 0; i < 0x20; i++)
+		{
+			std::cout << indent_str << "    " << fnd::SimpleTextOutput::arrayToString(key.modulus + i * 0x10, 0x10, true, ":") << std::endl;
+		}
+	}
+	if (key.priv_exponent[0] != 0x00 && key.priv_exponent[1] != 0x00)
+	{
+		std::cout << indent_str << "  Private Exponent:" << std::endl;
+		for (size_t i = 0; i < 0x20; i++)
+		{
+			std::cout << indent_str << "    " << fnd::SimpleTextOutput::arrayToString(key.priv_exponent + i * 0x10, 0x10, true, ":") << std::endl;
+		}
+	}
+}
+
+void UserSettings::dumpAesKey(const fnd::aes::sAes128Key& key, const std::string& name, size_t indent) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += "  ";
+	}
+	
+	std::cout << indent_str << name << ":" << std::endl;
+	std::cout << indent_str << "  " << fnd::SimpleTextOutput::arrayToString(key.key, 0x10, true, ":") << std::endl;
+}
+
+void UserSettings::dumpAesXtsKey(const fnd::aes::sAesXts128Key& key, const std::string& name, size_t indent) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += "  ";
+	}
+
+	std::cout << indent_str << name << ":" << std::endl;
+	std::cout << indent_str << "  " << fnd::SimpleTextOutput::arrayToString(key.key[0], 0x20, true, ":") << std::endl;
 }

@@ -6,13 +6,14 @@
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include <string>
+#include "KeyConfiguration.h"
 
 class PkiValidator
 {
 public:
 	PkiValidator();
 
-	void setRootKey(const fnd::rsa::sRsa4096Key& root_key);
+	void setKeyCfg(const KeyConfiguration& keycfg);
 	void addCertificates(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
 	void addCertificate(const nn::pki::SignedData<nn::pki::CertificateBody>& cert);
 	void clearCertificates();
@@ -22,8 +23,7 @@ public:
 private:
 	const std::string kModuleName = "NNPkiValidator";
 
-
-	fnd::rsa::sRsa4096Key mRootKey;
+	KeyConfiguration mKeyCfg;
 	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> mCertificateBank;
 
 	void makeCertIdent(const nn::pki::SignedData<nn::pki::CertificateBody>& cert, std::string& ident) const;

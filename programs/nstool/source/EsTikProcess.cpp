@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-
 #include <fnd/SimpleTextOutput.h>
 #include <nn/pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
@@ -10,19 +9,10 @@
 
 
 EsTikProcess::EsTikProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
-}
-
-EsTikProcess::~EsTikProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void EsTikProcess::process()
@@ -36,15 +26,14 @@ void EsTikProcess::process()
 		displayTicket();
 }
 
-void EsTikProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void EsTikProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
-void EsTikProcess::setKeyset(const sKeyset* keyset)
+void EsTikProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
-	mKeyset = keyset;
+	mKeyCfg = keycfg;
 }
 
 void EsTikProcess::setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs)
@@ -64,14 +53,16 @@ void EsTikProcess::setVerifyMode(bool verify)
 
 void EsTikProcess::importTicket()
 {
-	if (mFile == nullptr)
+	fnd::Vec<byte_t> scratch;
+
+
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	fnd::Vec<byte_t> scratch;
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
+	scratch.alloc((*mFile)->size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 	mTik.fromBytes(scratch.data(), scratch.size());
 }
 
@@ -94,7 +85,7 @@ void EsTikProcess::verifyTicket()
 
 	try 
 	{
-		pki_validator.setRootKey(mKeyset->pki.root_sign_key);
+		pki_validator.setKeyCfg(mKeyCfg);
 		pki_validator.addCertificates(mCerts);
 		pki_validator.validateSignature(mTik.getBody().getIssuer(), mTik.getSignature().getSignType(), mTik.getSignature().getSignature(), tik_hash);
 	}
@@ -106,9 +97,7 @@ void EsTikProcess::verifyTicket()
 
 void EsTikProcess::displayTicket()
 {
-#define _SPLIT_VER(ver) ( (ver>>10) & 0x3f), ( (ver>>4) & 0x3f), ( (ver>>0) & 0xf)
-#define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
+#define _SPLIT_VER(ver) (uint32_t)((ver>>10) & 0x3f) << "." << (uint32_t)((ver>>4) & 0x3f) << "." << (uint32_t)((ver>>0) & 0xf)
 
 	const nn::es::TicketBody_V2& body = mTik.getBody();	
 
@@ -123,14 +112,26 @@ void EsTikProcess::displayTicket()
 	std::cout << "  Title Key:" << std::endl;
 	std::cout << "    EncMode:        " << getTitleKeyPersonalisationStr(body.getTitleKeyEncType()) << std::endl;
 	std::cout << "    KeyGeneration:  " << std::dec << (uint32_t)body.getCommonKeyId() << std::endl;
-	std::cout << "    Data:" << std::endl;
-	size_t size = body.getTitleKeyEncType() == nn::es::ticket::RSA2048 ? fnd::rsa::kRsa2048Size : fnd::aes::kAes128KeySize;
-	fnd::SimpleTextOutput::hexDump(body.getEncTitleKey(), size, 0x10, 6);
+	if (body.getTitleKeyEncType() == nn::es::ticket::RSA2048)
+	{
+		std::cout << "    Data:" << std::endl;
+		for (size_t i = 0; i < 0x10; i++)
+			std::cout << "      " << fnd::SimpleTextOutput::arrayToString(body.getEncTitleKey() + 0x10*i, 0x10, true, ":") << std::endl;
+	}
+	else if (body.getTitleKeyEncType() == nn::es::ticket::AES128_CBC)
+	{
+		std::cout << "    Data:" << std::endl;
+		std::cout << "      " << fnd::SimpleTextOutput::arrayToString(body.getEncTitleKey(), 0x10, true, ":") << std::endl;
+	}
+	else
+	{
+		std::cout << "    Data:           <cannot display>" << std::endl;
+	}
 
-	printf("  Version:          v%d.%d.%d", _SPLIT_VER(body.getTicketVersion()));
+	std::cout << "  Version:          v" << _SPLIT_VER(body.getTicketVersion());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-		printf(" (%d)", body.getTicketVersion());
-	printf("\n");
+		std::cout << " (" << (uint32_t)body.getTicketVersion() << ")";
+	std::cout << std::endl;
 	
 	std::cout << "  License Type:     " << getLicenseTypeStr(body.getLicenseType()) << std::endl; 
 	
@@ -163,9 +164,6 @@ void EsTikProcess::displayTicket()
 	std::cout << "  SectionNum:             0x" << std::hex << body.getSectionNum() << std::endl;
 	std::cout << "  SectionEntrySize:       0x" << std::hex << body.getSectionEntrySize() << std::endl;
 
-	
-#undef _HEXDUMP_L
-#undef _HEXDUMP_U
 #undef _SPLIT_VER
 }
 

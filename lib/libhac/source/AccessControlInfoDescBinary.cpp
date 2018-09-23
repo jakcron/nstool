@@ -38,14 +38,10 @@ bool nn::hac::AccessControlInfoDescBinary::operator!=(const AccessControlInfoDes
 
 void nn::hac::AccessControlInfoDescBinary::toBytes()
 {
-	if (mFileSystemAccessControl.getBytes().size() == 0)
-		mFileSystemAccessControl.toBytes();
-
-	if (mServiceAccessControl.getBytes().size() == 0)
-		mServiceAccessControl.toBytes();
-
-	if (mKernelCapabilities.getBytes().size() == 0)
-		mKernelCapabilities.toBytes();
+	// serialise the sections
+	mFileSystemAccessControl.toBytes();
+	mServiceAccessControl.toBytes();
+	mKernelCapabilities.toBytes();
 
 	// determine section layout
 	struct sLayout {
@@ -91,6 +87,11 @@ void nn::hac::AccessControlInfoDescBinary::toBytes()
 	hdr->sac.size = sac.size;
 	hdr->kc.offset = kc.offset;
 	hdr->kc.size = kc.size;
+
+	// write data
+	memcpy(mRawBinary.data() + fac.offset, mFileSystemAccessControl.getBytes().data(), fac.size);
+	memcpy(mRawBinary.data() + sac.offset, mServiceAccessControl.getBytes().data(), sac.size);
+	memcpy(mRawBinary.data() + kc.offset, mKernelCapabilities.getBytes().data(), kc.size);
 }
 
 void nn::hac::AccessControlInfoDescBinary::fromBytes(const byte_t* data, size_t len)
@@ -157,7 +158,7 @@ void nn::hac::AccessControlInfoDescBinary::generateSignature(const fnd::rsa::sRs
 	byte_t hash[fnd::sha::kSha256HashLen];
 	fnd::sha::Sha256(mRawBinary.data() + fnd::rsa::kRsa2048Size, mRawBinary.size() - fnd::rsa::kRsa2048Size, hash);
 
-	if (fnd::rsa::pkcs::rsaSign(key, fnd::sha::HASH_SHA256, hash, mRawBinary.data()) != 0)
+	if (fnd::rsa::pss::rsaSign(key, fnd::sha::HASH_SHA256, hash, mRawBinary.data()) != 0)
 	{
 		throw fnd::Exception(kModuleName, "Failed to sign Access Control Info Desc");
 	}

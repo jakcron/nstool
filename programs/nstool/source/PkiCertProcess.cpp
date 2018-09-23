@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-
 #include <fnd/SimpleTextOutput.h>
 #include <nn/pki/SignUtils.h>
 #include "OffsetAdjustedIFile.h"
@@ -8,29 +7,16 @@
 #include "PkiValidator.h"
 
 PkiCertProcess::PkiCertProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
 }
 
-PkiCertProcess::~PkiCertProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
-}
-
 void PkiCertProcess::process()
 {
-	if (mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
 	importCerts();
+
 	if (mVerify)
 		validateCerts();
 
@@ -38,15 +24,14 @@ void PkiCertProcess::process()
 		displayCerts();
 }
 
-void PkiCertProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void PkiCertProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
-void PkiCertProcess::setKeyset(const sKeyset* keyset)
+void PkiCertProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
-	mKeyset = keyset;
+	mKeyCfg = keycfg;
 }
 
 void PkiCertProcess::setCliOutputMode(CliOutputMode mode)
@@ -63,8 +48,13 @@ void PkiCertProcess::importCerts()
 {
 	fnd::Vec<byte_t> scratch;
 
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
+	if (*mFile == nullptr)
+	{
+		throw fnd::Exception(kModuleName, "No file reader set.");
+	}
+
+	scratch.alloc((*mFile)->size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 
 	nn::pki::SignedData<nn::pki::CertificateBody> cert;
 	for (size_t f_pos = 0; f_pos < scratch.size(); f_pos += cert.getBytes().size())
@@ -80,7 +70,7 @@ void PkiCertProcess::validateCerts()
 	
 	try
 	{
-		pki.setRootKey(mKeyset->pki.root_sign_key);
+		pki.setKeyCfg(mKeyCfg);
 		pki.addCertificates(mCert);
 	}
 	catch (const fnd::Exception& e)
@@ -100,15 +90,11 @@ void PkiCertProcess::displayCerts()
 
 void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
 {
-#define _SPLIT_VER(ver) ( (ver>>26) & 0x3f), ( (ver>>20) & 0x3f), ( (ver>>16) & 0xf), (ver & 0xffff)
-#define _HEXDUMP_U(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02X", var[a__a__A]); } while(0)
-#define _HEXDUMP_L(var, len) do { for (size_t a__a__A = 0; a__a__A < len; a__a__A++) printf("%02x", var[a__a__A]); } while(0)
-
 	std::cout << "[NNPKI Certificate]" << std::endl;
 
 	std::cout << "  SignType       " << getSignTypeStr(cert.getSignature().getSignType());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-		std::cout << " (0x" << std::hex << cert.getSignature().getSignType() << ") (" << getEndiannessStr(cert.getSignature().isLittleEndian());
+		std::cout << " (0x" << std::hex << cert.getSignature().getSignType() << ") (" << getEndiannessStr(cert.getSignature().isLittleEndian()) << ")";
 	std::cout << std::endl;
 
 	std::cout << "  Issuer:        " << cert.getBody().getIssuer() << std::endl;
@@ -130,9 +116,9 @@ void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateB
 	else if (cert.getBody().getPublicKeyType() == nn::pki::cert::RSA2048)
 	{
 		std::cout << "  PublicKey:" << std::endl;
-		std::cout << "    Public Exponent:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, getHexDumpLen(fnd::rsa::kRsa2048Size), 0x10, 6);
 		std::cout << "    Modulus:" << std::endl;
+		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().modulus, getHexDumpLen(fnd::rsa::kRsa2048Size), 0x10, 6);
+		std::cout << "    Public Exponent:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getRsa2048PublicKey().public_exponent, fnd::rsa::kRsaPublicExponentSize, 0x10, 6);
 	}
 	else if (cert.getBody().getPublicKeyType() == nn::pki::cert::ECDSA240)
@@ -143,12 +129,6 @@ void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateB
 		std::cout << "    S:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(cert.getBody().getEcdsa240PublicKey().s, getHexDumpLen(fnd::ecdsa::kEcdsa240Size), 0x10, 6);
 	}
-	
-
-
-#undef _HEXDUMP_L
-#undef _HEXDUMP_U
-#undef _SPLIT_VER
 }
 
 size_t PkiCertProcess::getHexDumpLen(size_t max_size) const

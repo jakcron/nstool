@@ -1,8 +1,6 @@
 /*
 BitMath.h
 (c) 2018 Jakcron
-
-This is a 0x40 byte header to prepend to raw EXEFS .code binaries that provide enough data to be equivalent to an ELF.
 */
 #pragma once
 
@@ -12,3 +10,5 @@ This is a 0x40 byte header to prepend to raw EXEFS .code binaries that provide e
 // Bit math macros
 #define _BIT(n) BIT(n)
 #define _HAS_BIT(val, bit) (((val) & _BIT(bit)) != 0)
+#define _SET_BIT(val, bit) ((val) |= _BIT(bit))
+#define _BITMASK(width) (_BIT(width)-1)

@@ -506,7 +506,7 @@
  *
  * This module provides the CTR_DRBG AES-256 random number generator.
  */
-//#define POLARSSL_CTR_DRBG_C
+#define POLARSSL_CTR_DRBG_C
 
 /**
  * \def POLARSSL_DEBUG_C
@@ -578,7 +578,7 @@
  *
  * This module provides a generic entropy pool
  */
-//#define POLARSSL_ENTROPY_C
+#define POLARSSL_ENTROPY_C
 
 /**
  * \def POLARSSL_ERROR_C
@@ -838,7 +838,7 @@
  *
  * This module adds support for SHA-384 and SHA-512.
  */
-//#define POLARSSL_SHA4_C
+#define POLARSSL_SHA4_C
 
 /**
  * \def POLARSSL_SSL_CACHE_C

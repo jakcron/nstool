@@ -1,12 +1,12 @@
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <fnd/Vec.h>
 #include <fnd/aes.h>
 
 class AesCtrWrappedIFile : public fnd::IFile
 {
 public:
-	AesCtrWrappedIFile(fnd::IFile* file, bool ownIfile, const fnd::aes::sAes128Key& key, const fnd::aes::sAesIvCtr& ctr);
-	~AesCtrWrappedIFile();
+	AesCtrWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const fnd::aes::sAes128Key& key, const fnd::aes::sAesIvCtr& ctr);
 
 	size_t size();
 	void seek(size_t offset);
@@ -19,8 +19,7 @@ private:
 	static const size_t kCacheSize = 0x10000;
 	static const size_t kCacheSizeAllocSize = kCacheSize + fnd::aes::kAesBlockSize;
 
-	bool mOwnIFile;
-	fnd::IFile* mFile;
+	fnd::SharedPtr<fnd::IFile> mFile;
 	fnd::aes::sAes128Key mKey;
 	fnd::aes::sAesIvCtr mBaseCtr, mCurrentCtr;
 	size_t mFileOffset;

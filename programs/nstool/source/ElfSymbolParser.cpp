@@ -22,38 +22,38 @@ bool ElfSymbolParser::operator!=(const ElfSymbolParser& other) const
 
 void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, const byte_t *dyn_str, size_t dyn_str_size, bool is64Bit)
 {
-	//printf("ElfSymbolParser::parseData()");
-	size_t dynSymSize = is64Bit ? sizeof(nn::hac::sElfSymbol64Bit) : sizeof(nn::hac::sElfSymbol32Bit);
+	size_t dynSymSize = is64Bit ? sizeof(fnd::Elf64_Sym) : sizeof(fnd::Elf32_Sym);
 
 	sElfSymbol symbol;
 	for (size_t i = 0; i < dyn_sym_size; i += dynSymSize)
 	{
-		//printf("pos %x\n", i);
-
 		uint32_t name_pos;
 
 		if (is64Bit)
 		{
-			name_pos = ((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->name.get();
-			symbol.shn_index = (nn::hac::elf::SpecialSectionIndex)((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->special_section_index.get();
-			symbol.symbol_type = (nn::hac::elf::SymbolType)((((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->info) & nn::hac::elf::STT_HIPROC);
-			symbol.symbol_binding = (nn::hac::elf::SymbolBinding)(((((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->info) >> 4) & nn::hac::elf::STB_HIPROC);
+			name_pos = le_word(((fnd::Elf64_Sym*)(dyn_sym + i))->st_name);
+			symbol.shn_index = le_hword(((fnd::Elf64_Sym*)(dyn_sym + i))->st_shndx);
+			symbol.symbol_type = fnd::elf::get_elf_st_type(((fnd::Elf64_Sym*)(dyn_sym + i))->st_info);
+			symbol.symbol_binding = fnd::elf::get_elf_st_bind(((fnd::Elf64_Sym*)(dyn_sym + i))->st_info);
 		}
 		else
 		{
-			name_pos = ((nn::hac::sElfSymbol64Bit*)(dyn_sym + i))->name.get();
-			symbol.shn_index = (nn::hac::elf::SpecialSectionIndex)((nn::hac::sElfSymbol32Bit*)(dyn_sym + i))->special_section_index.get();
-			symbol.symbol_type = (nn::hac::elf::SymbolType)((((nn::hac::sElfSymbol32Bit*)(dyn_sym + i))->info.get()) & nn::hac::elf::STT_HIPROC);
-			symbol.symbol_binding = (nn::hac::elf::SymbolBinding)(((((nn::hac::sElfSymbol32Bit*)(dyn_sym + i))->info.get()) >> 4) & nn::hac::elf::STB_HIPROC);
+			name_pos = le_word(((fnd::Elf32_Sym*)(dyn_sym + i))->st_name);
+			symbol.shn_index = le_hword(((fnd::Elf32_Sym*)(dyn_sym + i))->st_shndx);
+			symbol.symbol_type = fnd::elf::get_elf_st_type(((fnd::Elf32_Sym*)(dyn_sym + i))->st_info);
+			symbol.symbol_binding = fnd::elf::get_elf_st_bind(((fnd::Elf32_Sym*)(dyn_sym + i))->st_info);
 		}
 
-		for (; dyn_str[name_pos] == 0x00 && name_pos < dyn_str_size; name_pos++);
+		if (name_pos >= dyn_str_size)
+		{
+			throw fnd::Exception(kModuleName, "Out of bounds symbol name offset");
+		}
+
+		//for (; dyn_str[name_pos] == 0x00 && name_pos < dyn_str_size; name_pos++);
 		
-		//printf("name_pos = 0x%x\n", name_pos);
 		symbol.name = std::string((char*)&dyn_str[name_pos]);
 		mSymbolList.addElement(symbol);
 	}
-	//printf("ElfSymbolParser::parseData() end\n");
 }
 
 const fnd::List<ElfSymbolParser::sElfSymbol>& ElfSymbolParser::getSymbolList() const

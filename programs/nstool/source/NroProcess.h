@@ -3,22 +3,22 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <nn/hac/npdm.h>
 #include <nn/hac/NroHeader.h>
 #include "AssetProcess.h"
 
-#include "nstool.h"
+#include "common.h"
 #include "RoMetadataProcess.h"
 
 class NroProcess
 {
 public:
 	NroProcess();
-	~NroProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -36,9 +36,7 @@ public:
 private:
 	const std::string kModuleName = "NroProcess";
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
-
+	fnd::SharedPtr<fnd::IFile> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 

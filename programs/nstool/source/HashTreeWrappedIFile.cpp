@@ -1,9 +1,8 @@
-#include "nstool.h"
+#include "common.h"
 #include "HashTreeWrappedIFile.h"
 #include "OffsetAdjustedIFile.h"
 
-HashTreeWrappedIFile::HashTreeWrappedIFile(fnd::IFile* file, bool ownIFile, const HashTreeMeta& hdr) :
-	mOwnIFile(ownIFile),
+HashTreeWrappedIFile::HashTreeWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const HashTreeMeta& hdr) :
 	mFile(file),
 	mData(nullptr),
 	mDataHashLayer(),
@@ -12,18 +11,9 @@ HashTreeWrappedIFile::HashTreeWrappedIFile(fnd::IFile* file, bool ownIFile, cons
 	initialiseDataLayer(hdr);
 }
 
-HashTreeWrappedIFile::~HashTreeWrappedIFile()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}	
-	delete mData;
-}
-
 size_t HashTreeWrappedIFile::size()
 {
-	return mData->size();
+	return (*mData)->size();
 }
 
 void HashTreeWrappedIFile::seek(size_t offset)
@@ -118,7 +108,7 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 		cur.alloc(align(layer.size, layer.block_size));
 
 		// read layer
-		mFile->read(cur.data(), layer.offset, layer.size);
+		(*mFile)->read(cur.data(), layer.offset, layer.size);
 		
 		// validate blocks
 		size_t validate_size;
@@ -145,7 +135,7 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 	}
 
 	// generate reader for data layer
-	mData = new OffsetAdjustedIFile(mFile, SHARED_IFILE, hdr.getDataLayer().offset, hdr.getDataLayer().size);
+	mData = new OffsetAdjustedIFile(mFile, hdr.getDataLayer().offset, hdr.getDataLayer().size);
 	mDataOffset = 0;
 	mDataBlockSize = hdr.getDataLayer().block_size;
 
@@ -160,17 +150,17 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 
 void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 {
-	mData->seek(block_offset * mDataBlockSize);
+	(*mData)->seek(block_offset * mDataBlockSize);
 	fnd::sha::sSha256Hash hash;
 
 	// determine read size
 	size_t read_len = 0;
-	if ((block_offset + block_num) == getBlockNum(mData->size()))
+	if ((block_offset + block_num) == getBlockNum((*mData)->size()))
 	{
-		read_len = (block_num-1) * mDataBlockSize + getRemanderBlockReadSize(mData->size());
+		read_len = (block_num-1) * mDataBlockSize + getRemanderBlockReadSize((*mData)->size());
 		memset(mCache.data(), 0, block_num * mDataBlockSize);
 	}
-	else if ((block_offset + block_num) < getBlockNum(mData->size()))
+	else if ((block_offset + block_num) < getBlockNum((*mData)->size()))
 	{
 		read_len = block_num * mDataBlockSize;
 	}
@@ -180,7 +170,7 @@ void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 	}
 
 	// read
-	mData->read(mCache.data(), block_offset * mDataBlockSize, read_len);
+	(*mData)->read(mCache.data(), block_offset * mDataBlockSize, read_len);
 
 	if (block_num > mCacheBlockNum)
 	{

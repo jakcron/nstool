@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <fnd/SimpleFile.h>
+#include <fnd/SharedPtr.h>
 #include <fnd/StringConv.h>
 #include "UserSettings.h"
 #include "XciProcess.h"
@@ -35,13 +36,15 @@ int main(int argc, char** argv)
 	try {
 		user_set.parseCmdArgs(args);
 
+		fnd::SharedPtr<fnd::IFile> inputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read));
+
 		if (user_set.getFileType() == FILE_XCI)
 		{	
 			XciProcess xci;
 
-			xci.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			xci.setInputFile(inputFile);
 			
-			xci.setKeyset(&user_set.getKeyset());
+			xci.setKeyCfg(user_set.getKeyCfg());
 			xci.setCliOutputMode(user_set.getCliOutputMode());
 			xci.setVerifyMode(user_set.isVerifyFile());
 
@@ -61,7 +64,7 @@ int main(int argc, char** argv)
 		{
 			PfsProcess pfs;
 
-			pfs.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			pfs.setInputFile(inputFile);
 			pfs.setCliOutputMode(user_set.getCliOutputMode());
 			pfs.setVerifyMode(user_set.isVerifyFile());
 
@@ -75,7 +78,7 @@ int main(int argc, char** argv)
 		{
 			RomfsProcess romfs;
 
-			romfs.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			romfs.setInputFile(inputFile);
 			romfs.setCliOutputMode(user_set.getCliOutputMode());
 			romfs.setVerifyMode(user_set.isVerifyFile());
 
@@ -89,8 +92,8 @@ int main(int argc, char** argv)
 		{
 			NcaProcess nca;
 
-			nca.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			nca.setKeyset(&user_set.getKeyset());
+			nca.setInputFile(inputFile);
+			nca.setKeyCfg(user_set.getKeyCfg());
 			nca.setCliOutputMode(user_set.getCliOutputMode());
 			nca.setVerifyMode(user_set.isVerifyFile());
 
@@ -111,8 +114,8 @@ int main(int argc, char** argv)
 		{
 			NpdmProcess npdm;
 
-			npdm.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			npdm.setKeyset(&user_set.getKeyset());
+			npdm.setInputFile(inputFile);
+			npdm.setKeyCfg(user_set.getKeyCfg());
 			npdm.setCliOutputMode(user_set.getCliOutputMode());
 			npdm.setVerifyMode(user_set.isVerifyFile());
 
@@ -122,7 +125,7 @@ int main(int argc, char** argv)
 		{
 			CnmtProcess cnmt;
 
-			cnmt.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			cnmt.setInputFile(inputFile);
 			cnmt.setCliOutputMode(user_set.getCliOutputMode());
 			cnmt.setVerifyMode(user_set.isVerifyFile());
 
@@ -132,7 +135,7 @@ int main(int argc, char** argv)
 		{
 			NsoProcess obj;
 
-			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			obj.setInputFile(inputFile);
 			obj.setCliOutputMode(user_set.getCliOutputMode());
 			obj.setVerifyMode(user_set.isVerifyFile());
 			
@@ -146,7 +149,7 @@ int main(int argc, char** argv)
 		{
 			NroProcess obj;
 
-			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			obj.setInputFile(inputFile);
 			obj.setCliOutputMode(user_set.getCliOutputMode());
 			obj.setVerifyMode(user_set.isVerifyFile());
 			
@@ -169,7 +172,7 @@ int main(int argc, char** argv)
 		{
 			NacpProcess nacp;
 
-			nacp.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			nacp.setInputFile(inputFile);
 			nacp.setCliOutputMode(user_set.getCliOutputMode());
 			nacp.setVerifyMode(user_set.isVerifyFile());
 
@@ -179,8 +182,8 @@ int main(int argc, char** argv)
 		{
 			PkiCertProcess cert;
 
-			cert.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			cert.setKeyset(&user_set.getKeyset());
+			cert.setInputFile(inputFile);
+			cert.setKeyCfg(user_set.getKeyCfg());
 			cert.setCliOutputMode(user_set.getCliOutputMode());
 			cert.setVerifyMode(user_set.isVerifyFile());
 
@@ -190,8 +193,8 @@ int main(int argc, char** argv)
 		{
 			EsTikProcess tik;
 
-			tik.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
-			tik.setKeyset(&user_set.getKeyset());
+			tik.setInputFile(inputFile);
+			tik.setKeyCfg(user_set.getKeyCfg());
 			tik.setCertificateChain(user_set.getCertificateChain());
 			tik.setCliOutputMode(user_set.getCliOutputMode());
 			tik.setVerifyMode(user_set.isVerifyFile());
@@ -202,7 +205,7 @@ int main(int argc, char** argv)
 		{
 			AssetProcess obj;
 
-			obj.setInputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read), OWN_IFILE);
+			obj.setInputFile(inputFile);
 			obj.setCliOutputMode(user_set.getCliOutputMode());
 			obj.setVerifyMode(user_set.isVerifyFile());
 
