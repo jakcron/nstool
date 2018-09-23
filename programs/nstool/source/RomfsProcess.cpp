@@ -6,8 +6,7 @@
 #include "RomfsProcess.h"
 
 RomfsProcess::RomfsProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mExtractPath(),
@@ -20,14 +19,6 @@ RomfsProcess::RomfsProcess() :
 	mRootDir.name.clear();
 	mRootDir.dir_list.clear();
 	mRootDir.file_list.clear();
-}
-
-RomfsProcess::~RomfsProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void RomfsProcess::process()
@@ -45,10 +36,9 @@ void RomfsProcess::process()
 		extractFs();	
 }
 
-void RomfsProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void RomfsProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void RomfsProcess::setCliOutputMode(CliOutputMode type)
@@ -163,10 +153,10 @@ void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
 			std::cout << "extract=[" << file_path << "]" << std::endl;	
 		
 		outFile.open(file_path, outFile.Create);
-		mFile->seek(dir.file_list[i].offset);
+		(*mFile)->seek(dir.file_list[i].offset);
 		for (size_t j = 0; j < ((dir.file_list[i].size / kCacheSize) + ((dir.file_list[i].size % kCacheSize) != 0)); j++)
 		{
-			mFile->read(mCache.data(), _MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
+			(*mFile)->read(mCache.data(), _MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
 			outFile.write(mCache.data(), _MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
 		}	
 		outFile.close();
@@ -258,13 +248,13 @@ void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
 
 void RomfsProcess::resolveRomfs()
 {
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
 	// read header
-	mFile->read((byte_t*)&mHdr, 0, sizeof(nn::hac::sRomfsHeader));
+	(*mFile)->read((byte_t*)&mHdr, 0, sizeof(nn::hac::sRomfsHeader));
 
 	// logic check on the header layout
 	if (validateHeaderLayout(&mHdr) == false)
@@ -274,13 +264,13 @@ void RomfsProcess::resolveRomfs()
 
 	// read directory nodes
 	mDirNodes.alloc(mHdr.sections[nn::hac::romfs::DIR_NODE_TABLE].size.get());
-	mFile->read(mDirNodes.data(), mHdr.sections[nn::hac::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.size());
+	(*mFile)->read(mDirNodes.data(), mHdr.sections[nn::hac::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.size());
 	//printf("[RAW DIR NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mDirNodes.data(), mDirNodes.size());
 
 	// read file nodes
 	mFileNodes.alloc(mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].size.get());
-	mFile->read(mFileNodes.data(), mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.size());
+	(*mFile)->read(mFileNodes.data(), mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.size());
 	//printf("[RAW FILE NODES]\n");
 	//fnd::SimpleTextOutput::hxdStyleDump(mFileNodes.data(), mFileNodes.size());
 	

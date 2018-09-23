@@ -3,19 +3,10 @@
 #include "NpdmProcess.h"
 
 NpdmProcess::NpdmProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
-}
-
-NpdmProcess::~NpdmProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void NpdmProcess::process()
@@ -50,10 +41,9 @@ void NpdmProcess::process()
 	}
 }
 
-void NpdmProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void NpdmProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void NpdmProcess::setKeyCfg(const KeyConfiguration& keycfg)
@@ -80,13 +70,13 @@ void NpdmProcess::importNpdm()
 {
 	fnd::Vec<byte_t> scratch;
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
+	scratch.alloc((*mFile)->size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 
 	mNpdm.fromBytes(scratch.data(), scratch.size());
 }

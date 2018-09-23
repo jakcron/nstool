@@ -6,22 +6,13 @@
 #include "XciProcess.h"
 
 XciProcess::XciProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mListFs(false),
 	mRootPfs(),
 	mExtractInfo()
 {
-}
-
-XciProcess::~XciProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void XciProcess::process()
@@ -43,10 +34,9 @@ void XciProcess::process()
 	processPartitionPfs();
 }
 
-void XciProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void XciProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void XciProcess::setKeyCfg(const KeyConfiguration& keycfg)
@@ -78,13 +68,13 @@ void XciProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 	
 	// read header page
-	mFile->read((byte_t*)&mHdrPage, 0, sizeof(nn::hac::sXciHeaderPage));
+	(*mFile)->read((byte_t*)&mHdrPage, 0, sizeof(nn::hac::sXciHeaderPage));
 
 	// allocate memory for and decrypt sXciHeader
 	scratch.alloc(sizeof(nn::hac::sXciHeader));
@@ -193,7 +183,7 @@ bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* t
 	fnd::Vec<byte_t> scratch;
 	fnd::sha::sSha256Hash calc_hash;
 	scratch.alloc(len);
-	mFile->read(scratch.data(), offset, scratch.size());
+	(*mFile)->read(scratch.data(), offset, scratch.size());
 	fnd::sha::Sha256(scratch.data(), scratch.size(), calc_hash.bytes);
 	return calc_hash.compare(test_hash);
 }
@@ -216,7 +206,7 @@ void XciProcess::processRootPfs()
 	{
 		std::cout << "[WARNING] XCI Root HFS0: FAIL (bad hash)" << std::endl;
 	}
-	mRootPfs.setInputFile(new OffsetAdjustedIFile(mFile, SHARED_IFILE, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize()), OWN_IFILE);
+	mRootPfs.setInputFile(new OffsetAdjustedIFile(mFile, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize()));
 	mRootPfs.setListFs(mListFs);
 	mRootPfs.setVerifyMode(false);
 	mRootPfs.setCliOutputMode(mCliOutputMode);
@@ -236,7 +226,7 @@ void XciProcess::processPartitionPfs()
 		}
 
 		PfsProcess tmp;
-		tmp.setInputFile(new OffsetAdjustedIFile(mFile, SHARED_IFILE, mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].size), OWN_IFILE);
+		tmp.setInputFile(new OffsetAdjustedIFile(mFile, mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].size));
 		tmp.setListFs(mListFs);
 		tmp.setVerifyMode(mVerify);
 		tmp.setCliOutputMode(mCliOutputMode);

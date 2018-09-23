@@ -5,19 +5,10 @@
 #include "CnmtProcess.h"
 
 CnmtProcess::CnmtProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
-}
-
-CnmtProcess::~CnmtProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void CnmtProcess::process()
@@ -28,10 +19,9 @@ void CnmtProcess::process()
 		displayCnmt();
 }
 
-void CnmtProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void CnmtProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void CnmtProcess::setCliOutputMode(CliOutputMode type)
@@ -53,13 +43,13 @@ void CnmtProcess::importCnmt()
 {
 	fnd::Vec<byte_t> scratch;
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
+	scratch.alloc((*mFile)->size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 
 	mCnmt.fromBytes(scratch.data(), scratch.size());
 }

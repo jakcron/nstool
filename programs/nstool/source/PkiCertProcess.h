@@ -2,6 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <fnd/List.h>
 #include <fnd/Vec.h>
 #include <nn/pki/SignedData.h>
@@ -13,11 +14,10 @@ class PkiCertProcess
 {
 public:
 	PkiCertProcess();
-	~PkiCertProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
@@ -26,8 +26,7 @@ private:
 	const std::string kModuleName = "PkiCertProcess";
 	static const size_t kSmallHexDumpLen = 0x10;
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
+	fnd::SharedPtr<fnd::IFile> mFile;
 	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;

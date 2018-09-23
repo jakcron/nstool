@@ -5,8 +5,7 @@
 #include "PfsProcess.h"
 
 PfsProcess::PfsProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mExtractPath(),
@@ -15,14 +14,6 @@ PfsProcess::PfsProcess() :
 	mListFs(false),
 	mPfs()
 {
-}
-
-PfsProcess::~PfsProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void PfsProcess::process()
@@ -41,10 +32,9 @@ void PfsProcess::process()
 		extractFs();
 }
 
-void PfsProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void PfsProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void PfsProcess::setCliOutputMode(CliOutputMode type)
@@ -82,14 +72,14 @@ void PfsProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 	
 	// open minimum header to get full header size
 	scratch.alloc(sizeof(nn::hac::sPfsHeader));
-	mFile->read(scratch.data(), 0, scratch.size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 	if (validateHeaderMagic(((nn::hac::sPfsHeader*)scratch.data())) == false)
 	{
 		throw fnd::Exception(kModuleName, "Corrupt Header");
@@ -98,7 +88,7 @@ void PfsProcess::importHeader()
 	
 	// open minimum header to get full header size
 	scratch.alloc(pfsHeaderSize);
-	mFile->read(scratch.data(), 0, scratch.size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 	mPfs.fromBytes(scratch.data(), scratch.size());
 }
 
@@ -162,7 +152,7 @@ void PfsProcess::validateHfs()
 	for (size_t i = 0; i < file.size(); i++)
 	{
 		mCache.alloc(file[i].hash_protected_size);
-		mFile->read(mCache.data(), file[i].offset, file[i].hash_protected_size);
+		(*mFile)->read(mCache.data(), file[i].offset, file[i].hash_protected_size);
 		fnd::sha::Sha256(mCache.data(), file[i].hash_protected_size, hash.bytes);
 		if (hash != file[i].hash)
 		{
@@ -193,10 +183,10 @@ void PfsProcess::extractFs()
 			printf("extract=[%s]\n", file_path.c_str());
 
 		outFile.open(file_path, outFile.Create);
-		mFile->seek(file[i].offset);
+		(*mFile)->seek(file[i].offset);
 		for (size_t j = 0; j < ((file[i].size / kCacheSize) + ((file[i].size % kCacheSize) != 0)); j++)
 		{
-			mFile->read(mCache.data(), _MIN(file[i].size - (kCacheSize * j),kCacheSize));
+			(*mFile)->read(mCache.data(), _MIN(file[i].size - (kCacheSize * j),kCacheSize));
 			outFile.write(mCache.data(), _MIN(file[i].size - (kCacheSize * j),kCacheSize));
 		}		
 		outFile.close();

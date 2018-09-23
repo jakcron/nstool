@@ -1,21 +1,11 @@
 #include "OffsetAdjustedIFile.h"
 
-OffsetAdjustedIFile::OffsetAdjustedIFile(fnd::IFile* file, bool ownIFile, size_t offset, size_t size) :
-	mOwnIFile(ownIFile),
+OffsetAdjustedIFile::OffsetAdjustedIFile(const fnd::SharedPtr<fnd::IFile>& file, size_t offset, size_t size) :
 	mFile(file),
 	mBaseOffset(offset),
 	mCurrentOffset(0),
 	mSize(size)
 {
-
-}
-
-OffsetAdjustedIFile::~OffsetAdjustedIFile()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 size_t OffsetAdjustedIFile::size()
@@ -31,8 +21,8 @@ void OffsetAdjustedIFile::seek(size_t offset)
 void OffsetAdjustedIFile::read(byte_t* out, size_t len)
 {
 	// assert proper position in file
-	mFile->seek(mCurrentOffset + mBaseOffset);
-	mFile->read(out, len);
+	(*mFile)->seek(mCurrentOffset + mBaseOffset);
+	(*mFile)->read(out, len);
 	seek(mCurrentOffset + len);
 }
 
@@ -45,8 +35,8 @@ void OffsetAdjustedIFile::read(byte_t* out, size_t offset, size_t len)
 void OffsetAdjustedIFile::write(const byte_t* out, size_t len)
 {
 	// assert proper position in file
-	mFile->seek(mCurrentOffset + mBaseOffset);
-	mFile->write(out, len);
+	(*mFile)->seek(mCurrentOffset + mBaseOffset);
+	(*mFile)->write(out, len);
 	seek(mCurrentOffset + len);
 }
 

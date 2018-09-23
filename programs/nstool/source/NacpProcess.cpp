@@ -6,19 +6,10 @@
 #include "NacpProcess.h"
 
 NacpProcess::NacpProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
-}
-
-NacpProcess::~NacpProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void NacpProcess::process()
@@ -29,10 +20,9 @@ void NacpProcess::process()
 		displayNacp();
 }
 
-void NacpProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void NacpProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void NacpProcess::setCliOutputMode(CliOutputMode type)
@@ -54,13 +44,13 @@ void NacpProcess::importNacp()
 {
 	fnd::Vec<byte_t> scratch;
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
+	scratch.alloc((*mFile)->size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 
 	mNacp.fromBytes(scratch.data(), scratch.size());
 }

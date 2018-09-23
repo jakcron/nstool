@@ -13,8 +13,7 @@
 #include "HashTreeWrappedIFile.h"
 
 NcaProcess::NcaProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mListFs(false)
@@ -22,23 +21,6 @@ NcaProcess::NcaProcess() :
 	for (size_t i = 0; i < nn::hac::nca::kPartitionNum; i++)
 	{
 		mPartitionPath[i].doExtract = false;
-		mPartitions[i].reader = nullptr;
-	}
-}
-
-NcaProcess::~NcaProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
-
-	for (size_t i = 0; i < nn::hac::nca::kPartitionNum; i++)
-	{
-		if (mPartitions[i].reader != nullptr)
-		{
-			delete mPartitions[i].reader;
-		}
 	}
 }
 
@@ -65,10 +47,9 @@ void NcaProcess::process()
 	processPartitions();
 }
 
-void NcaProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void NcaProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void NcaProcess::setKeyCfg(const KeyConfiguration& keycfg)
@@ -117,13 +98,13 @@ void NcaProcess::setListFs(bool list_fs)
 
 void NcaProcess::importHeader()
 {
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 	
 	// read header block
-	mFile->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
+	(*mFile)->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
 	
 	// decrypt header block
 	fnd::aes::sAesXts128Key header_key;
@@ -299,13 +280,13 @@ void NcaProcess::generatePartitionConfiguration()
 			// create reader based on encryption type0
 			if (info.enc_type == nn::hac::nca::CRYPT_NONE)
 			{
-				info.reader = new OffsetAdjustedIFile(mFile, SHARED_IFILE, info.offset, info.size);
+				info.reader = new OffsetAdjustedIFile(mFile, info.offset, info.size);
 			}
 			else if (info.enc_type == nn::hac::nca::CRYPT_AESCTR)
 			{
 				if (mContentKey.aes_ctr.isSet == false)
 					throw fnd::Exception(kModuleName, "AES-CTR Key was not determined");
-				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mFile, SHARED_IFILE, mContentKey.aes_ctr.var, info.aes_ctr), OWN_IFILE, info.offset, info.size);
+				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mFile, mContentKey.aes_ctr.var, info.aes_ctr), info.offset, info.size);
 			}
 			else if (info.enc_type == nn::hac::nca::CRYPT_AESXTS || info.enc_type == nn::hac::nca::CRYPT_AESCTREX)
 			{
@@ -323,9 +304,7 @@ void NcaProcess::generatePartitionConfiguration()
 			// filter out unrecognised hash types, and hash based readers
 			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256 || info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{	
-				fnd::IFile* tmp = info.reader;
-				info.reader = nullptr;
-				info.reader = new HashTreeWrappedIFile(tmp, OWN_IFILE, info.hash_tree_meta);
+				info.reader = new HashTreeWrappedIFile(info.reader, info.hash_tree_meta);
 			}
 			else if (info.hash_type != nn::hac::nca::HASH_NONE)
 			{
@@ -337,9 +316,6 @@ void NcaProcess::generatePartitionConfiguration()
 		catch (const fnd::Exception& e)
 		{
 			info.fail_reason = std::string(e.error());
-			if (info.reader != nullptr)
-				delete info.reader;
-			info.reader = nullptr;
 		}
 	}
 }
@@ -359,10 +335,10 @@ void NcaProcess::validateNcaSignatures()
 	{
 		if (mPartitions[nn::hac::nca::PARTITION_CODE].format_type == nn::hac::nca::FORMAT_PFS0)
 		{
-			if (mPartitions[nn::hac::nca::PARTITION_CODE].reader != nullptr)
+			if (*mPartitions[nn::hac::nca::PARTITION_CODE].reader != nullptr)
 			{
 				PfsProcess exefs;
-				exefs.setInputFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, SHARED_IFILE);
+				exefs.setInputFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader);
 				exefs.setCliOutputMode(0);
 				exefs.process();
 
@@ -372,7 +348,7 @@ void NcaProcess::validateNcaSignatures()
 					const nn::hac::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
 
 					NpdmProcess npdm;
-					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, SHARED_IFILE, file.offset, file.size), OWN_IFILE);
+					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
@@ -513,7 +489,7 @@ void NcaProcess::processPartitions()
 		struct sPartitionInfo& partition = mPartitions[index];
 
 		// if the reader is null, skip
-		if (partition.reader == nullptr)
+		if (*partition.reader == nullptr)
 		{
 			std::cout << "[WARNING] NCA Partition " << std::dec << index << " not readable.";
 			if (partition.fail_reason.empty() == false)
@@ -527,7 +503,7 @@ void NcaProcess::processPartitions()
 		if (partition.format_type == nn::hac::nca::FORMAT_PFS0)
 		{
 			PfsProcess pfs;
-			pfs.setInputFile(partition.reader, SHARED_IFILE);
+			pfs.setInputFile(partition.reader);
 			pfs.setCliOutputMode(mCliOutputMode);
 			pfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nn::hac::nca::TYPE_PROGRAM)
@@ -546,7 +522,7 @@ void NcaProcess::processPartitions()
 		else if (partition.format_type == nn::hac::nca::FORMAT_ROMFS)
 		{
 			RomfsProcess romfs;
-			romfs.setInputFile(partition.reader, SHARED_IFILE);
+			romfs.setInputFile(partition.reader);
 			romfs.setCliOutputMode(mCliOutputMode);
 			romfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nn::hac::nca::TYPE_PROGRAM)

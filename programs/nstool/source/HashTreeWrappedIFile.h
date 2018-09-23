@@ -1,6 +1,7 @@
 #pragma once
 #include <sstream>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <fnd/Vec.h>
 #include <fnd/sha.h>
 #include "HashTreeMeta.h"
@@ -9,8 +10,7 @@
 class HashTreeWrappedIFile : public fnd::IFile
 {
 public:
-	HashTreeWrappedIFile(fnd::IFile* file, bool ownIFile, const HashTreeMeta& hdr);
-	~HashTreeWrappedIFile();
+	HashTreeWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const HashTreeMeta& hdr);
 
 	size_t size();
 	void seek(size_t offset);
@@ -23,11 +23,10 @@ private:
 	static const size_t kDefaultCacheSize = 0x10000;
 	std::stringstream mErrorSs;
 
-	bool mOwnIFile;
-	fnd::IFile* mFile;	
+	fnd::SharedPtr<fnd::IFile> mFile;	
 
 	// data file
-	fnd::IFile* mData;
+	fnd::SharedPtr<fnd::IFile> mData;
 	size_t mDataOffset;
 	size_t mDataBlockSize;
 	fnd::List<fnd::sha::sSha256Hash> mDataHashLayer;

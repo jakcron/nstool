@@ -2,6 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <fnd/Vec.h>
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
@@ -13,11 +14,10 @@ class EsTikProcess
 {
 public:
 	EsTikProcess();
-	~EsTikProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
 	void setCliOutputMode(CliOutputMode mode);
@@ -26,8 +26,7 @@ public:
 private:
 	const std::string kModuleName = "EsTikProcess";
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
+	fnd::SharedPtr<fnd::IFile> mFile;
 	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;

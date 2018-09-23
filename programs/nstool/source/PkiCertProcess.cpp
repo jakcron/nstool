@@ -7,19 +7,10 @@
 #include "PkiValidator.h"
 
 PkiCertProcess::PkiCertProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
-}
-
-PkiCertProcess::~PkiCertProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void PkiCertProcess::process()
@@ -33,10 +24,9 @@ void PkiCertProcess::process()
 		displayCerts();
 }
 
-void PkiCertProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void PkiCertProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void PkiCertProcess::setKeyCfg(const KeyConfiguration& keycfg)
@@ -58,13 +48,13 @@ void PkiCertProcess::importCerts()
 {
 	fnd::Vec<byte_t> scratch;
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
+	scratch.alloc((*mFile)->size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 
 	nn::pki::SignedData<nn::pki::CertificateBody> cert;
 	for (size_t f_pos = 0; f_pos < scratch.size(); f_pos += cert.getBytes().size())
