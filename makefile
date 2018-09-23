@@ -4,7 +4,7 @@ PROGRAM_DIR = $(PROJECT_DIR)/programs
 BIN_DIR = $(PROJECT_DIR)/bin
 
 LIBS = libpolarssl liblz4 libfnd libes libpki libhac libhac-hb
-PROGS = nstool
+PROGS = nstool hexdmp
 
 main: build
 
