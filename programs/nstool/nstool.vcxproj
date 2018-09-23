@@ -181,6 +181,7 @@
     <ClInclude Include="source\AesCtrWrappedIFile.h" />
     <ClInclude Include="source\AssetProcess.h" />
     <ClInclude Include="source\CnmtProcess.h" />
+    <ClInclude Include="source\common.h" />
     <ClInclude Include="source\ElfSymbolParser.h" />
     <ClInclude Include="source\EsTikProcess.h" />
     <ClInclude Include="source\HashTreeMeta.h" />
@@ -191,7 +192,6 @@
     <ClInclude Include="source\NpdmProcess.h" />
     <ClInclude Include="source\NroProcess.h" />
     <ClInclude Include="source\NsoProcess.h" />
-    <ClInclude Include="source\nstool.h" />
     <ClInclude Include="source\OffsetAdjustedIFile.h" />
     <ClInclude Include="source\PfsProcess.h" />
     <ClInclude Include="source\PkiCertProcess.h" />

@@ -58,9 +58,6 @@
     <ClInclude Include="source\NsoProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\nstool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\OffsetAdjustedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -89,6 +86,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\XciProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
