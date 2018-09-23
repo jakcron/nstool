@@ -136,6 +136,7 @@
     <ClInclude Include="include\fnd\ResourceFileReader.h" />
     <ClInclude Include="include\fnd\rsa.h" />
     <ClInclude Include="include\fnd\sha.h" />
+    <ClInclude Include="include\fnd\SharedPtr.h" />
     <ClInclude Include="include\fnd\SimpleFile.h" />
     <ClInclude Include="include\fnd\SimpleTextOutput.h" />
     <ClInclude Include="include\fnd\StringConv.h" />
