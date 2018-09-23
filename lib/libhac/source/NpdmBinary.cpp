@@ -132,16 +132,8 @@ void nn::hac::NpdmBinary::fromBytes(const byte_t* data, size_t len)
 	mMainThreadCpuId = hdr.main_thread_cpu_id;
 	mVersion = hdr.version.get();
 	mMainThreadStackSize = hdr.main_thread_stack_size.get();
-	mName = std::string(hdr.name, npdm::kNameMaxLen);
-	if (mName[0] == '\0')
-	{
-		mName.clear();
-	}
-	mProductCode = std::string(hdr.product_code, npdm::kProductCodeMaxLen);
-	if (mProductCode[0] == '\0')
-	{
-		mProductCode.clear();
-	}
+	mName = std::string(hdr.name, _MIN(strlen(hdr.name), npdm::kNameMaxLen));
+	mProductCode = std::string(hdr.product_code, _MIN(strlen(hdr.product_code), npdm::kProductCodeMaxLen));
 
 	// total size
 	size_t total_size = _MAX(_MAX(hdr.acid.offset.get() + hdr.acid.size.get(), hdr.aci.offset.get() + hdr.aci.size.get()), sizeof(sNpdmHeader));
