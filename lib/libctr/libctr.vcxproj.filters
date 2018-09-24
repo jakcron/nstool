@@ -35,6 +35,9 @@
     <Text Include="notes.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\nn\ctr\cia.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\ctr\code.h">
       <Filter>Header Files</Filter>
     </ClInclude>

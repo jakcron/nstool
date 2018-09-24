@@ -135,6 +135,7 @@
     <Text Include="notes.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\nn\ctr\cia.h" />
     <ClInclude Include="include\nn\ctr\code.h" />
     <ClInclude Include="include\nn\ctr\CodeBinaryHeader.h" />
     <ClInclude Include="include\nn\ctr\CodeSegment.h" />
