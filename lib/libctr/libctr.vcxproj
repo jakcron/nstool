@@ -141,8 +141,9 @@
     <ClInclude Include="include\nn\ctr\macro.h" />
     <ClInclude Include="include\nn\ctr\ncch.h" />
     <ClInclude Include="include\nn\ctr\NcchHeader.h" />
-    <ClInclude Include="include\nn\ctr\ProgramId.h" />
     <ClInclude Include="include\nn\ctr\prog_id.h" />
+    <ClInclude Include="include\nn\ctr\ProgramId.h" />
+    <ClInclude Include="include\nn\ctr\smdh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

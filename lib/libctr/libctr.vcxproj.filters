@@ -35,28 +35,31 @@
     <Text Include="notes.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\nn\ctr\code.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\ctr\CodeBinaryHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\ctr\CodeSegment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\ctr\NcchHeader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\ctr\ProgramId.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\ctr\code.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\nn\ctr\macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\ctr\ncch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\ctr\NcchHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\ctr\prog_id.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\ctr\ncch.h">
+    <ClInclude Include="include\nn\ctr\ProgramId.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\ctr\smdh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
