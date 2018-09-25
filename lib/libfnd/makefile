@@ -33,7 +33,7 @@ else
 endif
 
 # Output
-OUTPUT = $(shell basename $(CURDIR)).a
+OUTPUT = $(shell basename "$(CURDIR)").a
 
 main: build
 
