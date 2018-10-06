@@ -1,25 +1,16 @@
 #include <iostream>
 #include <iomanip>
 #include <fnd/SimpleTextOutput.h>
+#include <fnd/OffsetAdjustedIFile.h>
 #include <fnd/Vec.h>
 #include <fnd/lz4.h>
-#include "OffsetAdjustedIFile.h"
 #include "NsoProcess.h"
 
 NsoProcess::NsoProcess():
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
-}
-
-NsoProcess::~NsoProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void NsoProcess::process()
@@ -32,10 +23,9 @@ void NsoProcess::process()
 	processRoMeta();
 }
 
-void NsoProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void NsoProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void NsoProcess::setCliOutputMode(CliOutputMode type)
@@ -72,18 +62,18 @@ void NsoProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	if (mFile->size() < sizeof(nn::hac::sNsoHeader))
+	if ((*mFile)->size() < sizeof(nn::hac::sNsoHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt NSO: file too small");
 	}
 
 	scratch.alloc(sizeof(nn::hac::sNsoHeader));
-	mFile->read(scratch.data(), 0, scratch.size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 
 	mHdr.fromBytes(scratch.data(), scratch.size());
 }
@@ -98,7 +88,7 @@ void NsoProcess::importCodeSegments()
 	if (mHdr.getTextSegmentInfo().is_compressed)
 	{
 		scratch.alloc(mHdr.getTextSegmentInfo().file_layout.size);
-		mFile->read(scratch.data(), mHdr.getTextSegmentInfo().file_layout.offset, scratch.size());
+		(*mFile)->read(scratch.data(), mHdr.getTextSegmentInfo().file_layout.offset, scratch.size());
 		mTextBlob.alloc(mHdr.getTextSegmentInfo().memory_layout.size);
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mTextBlob.data(), (uint32_t)mTextBlob.size(), decompressed_len);
 		if (decompressed_len != mTextBlob.size())
@@ -109,7 +99,7 @@ void NsoProcess::importCodeSegments()
 	else
 	{
 		mTextBlob.alloc(mHdr.getTextSegmentInfo().file_layout.size);
-		mFile->read(mTextBlob.data(), mHdr.getTextSegmentInfo().file_layout.offset, mTextBlob.size());
+		(*mFile)->read(mTextBlob.data(), mHdr.getTextSegmentInfo().file_layout.offset, mTextBlob.size());
 	}
 	if (mHdr.getTextSegmentInfo().is_hashed)
 	{
@@ -124,7 +114,7 @@ void NsoProcess::importCodeSegments()
 	if (mHdr.getRoSegmentInfo().is_compressed)
 	{
 		scratch.alloc(mHdr.getRoSegmentInfo().file_layout.size);
-		mFile->read(scratch.data(), mHdr.getRoSegmentInfo().file_layout.offset, scratch.size());
+		(*mFile)->read(scratch.data(), mHdr.getRoSegmentInfo().file_layout.offset, scratch.size());
 		mRoBlob.alloc(mHdr.getRoSegmentInfo().memory_layout.size);
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mRoBlob.data(), (uint32_t)mRoBlob.size(), decompressed_len);
 		if (decompressed_len != mRoBlob.size())
@@ -135,7 +125,7 @@ void NsoProcess::importCodeSegments()
 	else
 	{
 		mRoBlob.alloc(mHdr.getRoSegmentInfo().file_layout.size);
-		mFile->read(mRoBlob.data(), mHdr.getRoSegmentInfo().file_layout.offset, mRoBlob.size());
+		(*mFile)->read(mRoBlob.data(), mHdr.getRoSegmentInfo().file_layout.offset, mRoBlob.size());
 	}
 	if (mHdr.getRoSegmentInfo().is_hashed)
 	{
@@ -150,7 +140,7 @@ void NsoProcess::importCodeSegments()
 	if (mHdr.getDataSegmentInfo().is_compressed)
 	{
 		scratch.alloc(mHdr.getDataSegmentInfo().file_layout.size);
-		mFile->read(scratch.data(), mHdr.getDataSegmentInfo().file_layout.offset, scratch.size());
+		(*mFile)->read(scratch.data(), mHdr.getDataSegmentInfo().file_layout.offset, scratch.size());
 		mDataBlob.alloc(mHdr.getDataSegmentInfo().memory_layout.size);
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mDataBlob.data(), (uint32_t)mDataBlob.size(), decompressed_len);
 		if (decompressed_len != mDataBlob.size())
@@ -161,7 +151,7 @@ void NsoProcess::importCodeSegments()
 	else
 	{
 		mDataBlob.alloc(mHdr.getDataSegmentInfo().file_layout.size);
-		mFile->read(mDataBlob.data(), mHdr.getDataSegmentInfo().file_layout.offset, mDataBlob.size());
+		(*mFile)->read(mDataBlob.data(), mHdr.getDataSegmentInfo().file_layout.offset, mDataBlob.size());
 	}
 	if (mHdr.getDataSegmentInfo().is_hashed)
 	{

@@ -1,26 +1,17 @@
 #include <iostream>
 #include <iomanip>
 #include <fnd/SimpleTextOutput.h>
+#include <fnd/OffsetAdjustedIFile.h>
 #include <fnd/Vec.h>
 #include <fnd/lz4.h>
 #include <nn/hac/nro-hb.h>
-#include "OffsetAdjustedIFile.h"
 #include "NroProcess.h"
 
 NroProcess::NroProcess():
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
-}
-
-NroProcess::~NroProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void NroProcess::process()
@@ -37,10 +28,9 @@ void NroProcess::process()
 		mAssetProc.process();
 }
 
-void NroProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void NroProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void NroProcess::setCliOutputMode(CliOutputMode type)
@@ -97,27 +87,27 @@ void NroProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	if (mFile->size() < sizeof(nn::hac::sNroHeader))
+	if ((*mFile)->size() < sizeof(nn::hac::sNroHeader))
 	{
 		throw fnd::Exception(kModuleName, "Corrupt NRO: file too small");
 	}
 
 	scratch.alloc(sizeof(nn::hac::sNroHeader));
-	mFile->read(scratch.data(), 0, scratch.size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 
 	mHdr.fromBytes(scratch.data(), scratch.size());
 
 	// setup homebrew extension
 	nn::hac::sNroHeader* raw_hdr = (nn::hac::sNroHeader*)scratch.data();
-	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nn::hac::nro::kNroHomebrewStructMagic && mFile->size() > mHdr.getNroSize())
+	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nn::hac::nro::kNroHomebrewStructMagic && (*mFile)->size() > mHdr.getNroSize())
 	{
 		mIsHomebrewNro = true;
-		mAssetProc.setInputFile(new OffsetAdjustedIFile(mFile, false, mHdr.getNroSize(), mFile->size() - mHdr.getNroSize()), true);
+		mAssetProc.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getNroSize(), (*mFile)->size() - mHdr.getNroSize()));
 		mAssetProc.setCliOutputMode(mCliOutputMode);
 		mAssetProc.setVerifyMode(mVerify);
 	}
@@ -128,11 +118,11 @@ void NroProcess::importHeader()
 void NroProcess::importCodeSegments()
 {
 	mTextBlob.alloc(mHdr.getTextInfo().size);
-	mFile->read(mTextBlob.data(), mHdr.getTextInfo().memory_offset, mTextBlob.size());
+	(*mFile)->read(mTextBlob.data(), mHdr.getTextInfo().memory_offset, mTextBlob.size());
 	mRoBlob.alloc(mHdr.getRoInfo().size);
-	mFile->read(mRoBlob.data(), mHdr.getRoInfo().memory_offset, mRoBlob.size());
+	(*mFile)->read(mRoBlob.data(), mHdr.getRoInfo().memory_offset, mRoBlob.size());
 	mDataBlob.alloc(mHdr.getDataInfo().size);
-	mFile->read(mDataBlob.data(), mHdr.getDataInfo().memory_offset, mDataBlob.size());
+	(*mFile)->read(mDataBlob.data(), mHdr.getDataInfo().memory_offset, mDataBlob.size());
 }
 
 void NroProcess::displayHeader()

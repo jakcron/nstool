@@ -21,6 +21,9 @@
     <ClInclude Include="include\fnd\aes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\fnd\AesCtrWrappedIFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\fnd\base64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,10 +51,19 @@
     <ClInclude Include="include\fnd\ISerialisable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\fnd\LayeredIntegrityMetadata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fnd\LayeredIntegrityWrappedIFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\fnd\List.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\fnd\lz4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fnd\OffsetAdjustedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\fnd\ResourceFileReader.h">
@@ -61,6 +73,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\fnd\sha.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fnd\SharedPtr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\fnd\SimpleFile.h">
@@ -83,6 +98,9 @@
     <ClCompile Include="source\aes_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\AesCtrWrappedIFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\base64_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -92,7 +110,16 @@
     <ClCompile Include="source\io.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\LayeredIntegrityMetadata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\LayeredIntegrityWrappedIFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\lz4_wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\OffsetAdjustedIFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ResourceFileReader.cpp">

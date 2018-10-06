@@ -1,27 +1,18 @@
 #include <iostream>
 #include <iomanip>
 #include <fnd/SimpleTextOutput.h>
+#include <fnd/OffsetAdjustedIFile.h>
 #include <nn/pki/SignUtils.h>
-#include "OffsetAdjustedIFile.h"
 #include "EsTikProcess.h"
 #include "PkiValidator.h"
 
 
 
 EsTikProcess::EsTikProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
-}
-
-EsTikProcess::~EsTikProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
 }
 
 void EsTikProcess::process()
@@ -35,10 +26,9 @@ void EsTikProcess::process()
 		displayTicket();
 }
 
-void EsTikProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void EsTikProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void EsTikProcess::setKeyCfg(const KeyConfiguration& keycfg)
@@ -66,13 +56,13 @@ void EsTikProcess::importTicket()
 	fnd::Vec<byte_t> scratch;
 
 
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 
-	scratch.alloc(mFile->size());
-	mFile->read(scratch.data(), 0, scratch.size());
+	scratch.alloc((*mFile)->size());
+	(*mFile)->read(scratch.data(), 0, scratch.size());
 	mTik.fromBytes(scratch.data(), scratch.size());
 }
 

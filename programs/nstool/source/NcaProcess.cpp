@@ -2,19 +2,21 @@
 #include <iomanip>
 #include <sstream>
 #include <fnd/SimpleTextOutput.h>
+#include <fnd/OffsetAdjustedIFile.h>
+#include <fnd/AesCtrWrappedIFile.h>
+#include <fnd/LayeredIntegrityWrappedIFile.h>
 #include <nn/hac/NcaUtils.h>
 #include <nn/hac/AesKeygen.h>
+#include <nn/hac/HierarchicalSha256Header.h>
+#include <nn/hac/HierarchicalIntegrityHeader.h>
 #include "NcaProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
 #include "NpdmProcess.h"
-#include "OffsetAdjustedIFile.h"
-#include "AesCtrWrappedIFile.h"
-#include "HashTreeWrappedIFile.h"
+
 
 NcaProcess::NcaProcess() :
-	mFile(nullptr),
-	mOwnIFile(false),
+	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mListFs(false)
@@ -22,23 +24,6 @@ NcaProcess::NcaProcess() :
 	for (size_t i = 0; i < nn::hac::nca::kPartitionNum; i++)
 	{
 		mPartitionPath[i].doExtract = false;
-		mPartitions[i].reader = nullptr;
-	}
-}
-
-NcaProcess::~NcaProcess()
-{
-	if (mOwnIFile)
-	{
-		delete mFile;
-	}
-
-	for (size_t i = 0; i < nn::hac::nca::kPartitionNum; i++)
-	{
-		if (mPartitions[i].reader != nullptr)
-		{
-			delete mPartitions[i].reader;
-		}
 	}
 }
 
@@ -65,10 +50,9 @@ void NcaProcess::process()
 	processPartitions();
 }
 
-void NcaProcess::setInputFile(fnd::IFile* file, bool ownIFile)
+void NcaProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
-	mOwnIFile = ownIFile;
 }
 
 void NcaProcess::setKeyCfg(const KeyConfiguration& keycfg)
@@ -117,13 +101,13 @@ void NcaProcess::setListFs(bool list_fs)
 
 void NcaProcess::importHeader()
 {
-	if (mFile == nullptr)
+	if (*mFile == nullptr)
 	{
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 	
 	// read header block
-	mFile->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
+	(*mFile)->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
 	
 	// decrypt header block
 	fnd::aes::sAesXts128Key header_key;
@@ -277,9 +261,69 @@ void NcaProcess::generatePartitionConfiguration()
 		info.hash_type = (nn::hac::nca::HashType)fs_header.hash_type;
 		info.enc_type = (nn::hac::nca::EncryptionType)fs_header.encryption_type;
 		if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256)
-			info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, HashTreeMeta::HASH_TYPE_SHA256);
+		{
+			// info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, LayeredIntegrityMetadata::HASH_TYPE_SHA256);
+			nn::hac::HierarchicalSha256Header hdr;
+			fnd::List<fnd::LayeredIntegrityMetadata::sLayer> hash_layers;
+			fnd::LayeredIntegrityMetadata::sLayer data_layer;
+			fnd::List<fnd::sha::sSha256Hash> master_hash_list;
+
+			// import raw data
+			hdr.fromBytes(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen);
+			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
+			{
+				fnd::LayeredIntegrityMetadata::sLayer layer;
+				layer.offset = hdr.getLayerInfo()[i].offset;
+				layer.size = hdr.getLayerInfo()[i].size;
+				layer.block_size = hdr.getHashBlockSize();
+				if (i + 1 == hdr.getLayerInfo().size())
+				{
+					data_layer = layer;
+				}
+				else
+				{
+					hash_layers.addElement(layer);
+				}
+			}
+			master_hash_list.addElement(hdr.getMasterHash());
+
+			// write data into metadata
+			info.layered_intergrity_metadata.setAlignHashToBlock(false);
+			info.layered_intergrity_metadata.setHashLayerInfo(hash_layers);
+			info.layered_intergrity_metadata.setDataLayerInfo(data_layer);
+			info.layered_intergrity_metadata.setMasterHashList(master_hash_list);
+		}	
 		else if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
-			info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, HashTreeMeta::HASH_TYPE_INTEGRITY);
+		{
+			// info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, LayeredIntegrityMetadata::HASH_TYPE_INTEGRITY);
+			nn::hac::HierarchicalIntegrityHeader hdr;
+			fnd::List<fnd::LayeredIntegrityMetadata::sLayer> hash_layers;
+			fnd::LayeredIntegrityMetadata::sLayer data_layer;
+			fnd::List<fnd::sha::sSha256Hash> master_hash_list;
+
+			hdr.fromBytes(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen);
+			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
+			{
+				fnd::LayeredIntegrityMetadata::sLayer layer;
+				layer.offset = hdr.getLayerInfo()[i].offset;
+				layer.size = hdr.getLayerInfo()[i].size;
+				layer.block_size = _BIT(hdr.getLayerInfo()[i].block_size);
+				if (i + 1 == hdr.getLayerInfo().size())
+				{
+					data_layer = layer;
+				}
+				else
+				{
+					hash_layers.addElement(layer);
+				}
+			}
+
+			// write data into metadata
+			info.layered_intergrity_metadata.setAlignHashToBlock(true);
+			info.layered_intergrity_metadata.setHashLayerInfo(hash_layers);
+			info.layered_intergrity_metadata.setDataLayerInfo(data_layer);
+			info.layered_intergrity_metadata.setMasterHashList(hdr.getMasterHashList());
+		}
 
 		// create reader
 		try 
@@ -299,13 +343,13 @@ void NcaProcess::generatePartitionConfiguration()
 			// create reader based on encryption type0
 			if (info.enc_type == nn::hac::nca::CRYPT_NONE)
 			{
-				info.reader = new OffsetAdjustedIFile(mFile, SHARED_IFILE, info.offset, info.size);
+				info.reader = new fnd::OffsetAdjustedIFile(mFile, info.offset, info.size);
 			}
 			else if (info.enc_type == nn::hac::nca::CRYPT_AESCTR)
 			{
 				if (mContentKey.aes_ctr.isSet == false)
 					throw fnd::Exception(kModuleName, "AES-CTR Key was not determined");
-				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mFile, SHARED_IFILE, mContentKey.aes_ctr.var, info.aes_ctr), OWN_IFILE, info.offset, info.size);
+				info.reader = new fnd::OffsetAdjustedIFile(new fnd::AesCtrWrappedIFile(mFile, mContentKey.aes_ctr.var, info.aes_ctr), info.offset, info.size);
 			}
 			else if (info.enc_type == nn::hac::nca::CRYPT_AESXTS || info.enc_type == nn::hac::nca::CRYPT_AESCTREX)
 			{
@@ -323,9 +367,7 @@ void NcaProcess::generatePartitionConfiguration()
 			// filter out unrecognised hash types, and hash based readers
 			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256 || info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{	
-				fnd::IFile* tmp = info.reader;
-				info.reader = nullptr;
-				info.reader = new HashTreeWrappedIFile(tmp, OWN_IFILE, info.hash_tree_meta);
+				info.reader = new fnd::LayeredIntegrityWrappedIFile(info.reader, info.layered_intergrity_metadata);
 			}
 			else if (info.hash_type != nn::hac::nca::HASH_NONE)
 			{
@@ -337,9 +379,6 @@ void NcaProcess::generatePartitionConfiguration()
 		catch (const fnd::Exception& e)
 		{
 			info.fail_reason = std::string(e.error());
-			if (info.reader != nullptr)
-				delete info.reader;
-			info.reader = nullptr;
 		}
 	}
 }
@@ -359,10 +398,10 @@ void NcaProcess::validateNcaSignatures()
 	{
 		if (mPartitions[nn::hac::nca::PARTITION_CODE].format_type == nn::hac::nca::FORMAT_PFS0)
 		{
-			if (mPartitions[nn::hac::nca::PARTITION_CODE].reader != nullptr)
+			if (*mPartitions[nn::hac::nca::PARTITION_CODE].reader != nullptr)
 			{
 				PfsProcess exefs;
-				exefs.setInputFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, SHARED_IFILE);
+				exefs.setInputFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader);
 				exefs.setCliOutputMode(0);
 				exefs.process();
 
@@ -372,7 +411,7 @@ void NcaProcess::validateNcaSignatures()
 					const nn::hac::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
 
 					NpdmProcess npdm;
-					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, SHARED_IFILE, file.offset, file.size), OWN_IFILE);
+					npdm.setInputFile(new fnd::OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
@@ -464,7 +503,7 @@ void NcaProcess::displayHeader()
 			}
 			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{
-				HashTreeMeta& hash_hdr = info.hash_tree_meta;
+				fnd::LayeredIntegrityMetadata& hash_hdr = info.layered_intergrity_metadata;
 				std::cout << "      HierarchicalIntegrity Header:" << std::endl;
 				for (size_t j = 0; j < hash_hdr.getHashLayerInfo().size(); j++)
 				{
@@ -487,7 +526,7 @@ void NcaProcess::displayHeader()
 			}
 			else if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256)
 			{
-				HashTreeMeta& hash_hdr = info.hash_tree_meta;
+				fnd::LayeredIntegrityMetadata& hash_hdr = info.layered_intergrity_metadata;
 				std::cout << "      HierarchicalSha256 Header:" << std::endl;
 				std::cout << "        Master Hash:" << std::endl;
 				std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[0].bytes, 0x10, true, ":") << std::endl;
@@ -513,7 +552,7 @@ void NcaProcess::processPartitions()
 		struct sPartitionInfo& partition = mPartitions[index];
 
 		// if the reader is null, skip
-		if (partition.reader == nullptr)
+		if (*partition.reader == nullptr)
 		{
 			std::cout << "[WARNING] NCA Partition " << std::dec << index << " not readable.";
 			if (partition.fail_reason.empty() == false)
@@ -527,7 +566,7 @@ void NcaProcess::processPartitions()
 		if (partition.format_type == nn::hac::nca::FORMAT_PFS0)
 		{
 			PfsProcess pfs;
-			pfs.setInputFile(partition.reader, SHARED_IFILE);
+			pfs.setInputFile(partition.reader);
 			pfs.setCliOutputMode(mCliOutputMode);
 			pfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nn::hac::nca::TYPE_PROGRAM)
@@ -546,7 +585,7 @@ void NcaProcess::processPartitions()
 		else if (partition.format_type == nn::hac::nca::FORMAT_ROMFS)
 		{
 			RomfsProcess romfs;
-			romfs.setInputFile(partition.reader, SHARED_IFILE);
+			romfs.setInputFile(partition.reader);
 			romfs.setCliOutputMode(mCliOutputMode);
 			romfs.setListFs(mListFs);
 			if (mHdr.getContentType() == nn::hac::nca::TYPE_PROGRAM)

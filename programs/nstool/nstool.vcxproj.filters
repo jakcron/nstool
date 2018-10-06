@@ -19,25 +19,19 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\AesCtrWrappedIFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\AssetProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\CnmtProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="source\ElfSymbolParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\EsTikProcess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\HashTreeMeta.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\HashTreeWrappedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\KeyConfiguration.h">
@@ -56,12 +50,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\NsoProcess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\nstool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\OffsetAdjustedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\PfsProcess.h">
@@ -93,9 +81,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\AesCtrWrappedIFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\AssetProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -106,12 +91,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\EsTikProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\HashTreeMeta.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\HashTreeWrappedIFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\KeyConfiguration.cpp">
@@ -133,9 +112,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NsoProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\OffsetAdjustedIFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\PfsProcess.cpp">

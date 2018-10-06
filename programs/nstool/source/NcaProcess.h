@@ -1,9 +1,10 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/SimpleFile.h>
+#include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
+#include <fnd/LayeredIntegrityMetadata.h>
 #include <nn/hac/NcaHeader.h>
-#include "HashTreeMeta.h"
 #include "KeyConfiguration.h"
 
 
@@ -13,12 +14,11 @@ class NcaProcess
 {
 public:
 	NcaProcess();
-	~NcaProcess();
 
 	void process();
 
 	// generic
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
@@ -35,8 +35,7 @@ private:
 	const std::string kNpdmExefsPath = "main.npdm";
 
 	// user options
-	fnd::IFile* mFile;
-	bool mOwnIFile;
+	fnd::SharedPtr<fnd::IFile> mFile;
 	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
@@ -92,7 +91,7 @@ private:
 	
 	struct sPartitionInfo
 	{
-		fnd::IFile* reader;
+		fnd::SharedPtr<fnd::IFile> reader;
 		std::string fail_reason;
 		size_t offset;
 		size_t size;
@@ -101,7 +100,7 @@ private:
 		nn::hac::nca::FormatType format_type;
 		nn::hac::nca::HashType hash_type;
 		nn::hac::nca::EncryptionType enc_type;
-		HashTreeMeta hash_tree_meta;
+		fnd::LayeredIntegrityMetadata layered_intergrity_metadata;
 		fnd::aes::sAesIvCtr aes_ctr;
 	} mPartitions[nn::hac::nca::kPartitionNum];
 

@@ -2,6 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <nn/hac/ApplicationControlPropertyBinary.h>
 
 #include "common.h"
@@ -10,11 +11,10 @@ class NacpProcess
 {
 public:
 	NacpProcess();
-	~NacpProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -23,8 +23,7 @@ public:
 private:
 	const std::string kModuleName = "NacpProcess";
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
+	fnd::SharedPtr<fnd::IFile> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 

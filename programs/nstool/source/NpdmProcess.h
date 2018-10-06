@@ -2,6 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IFile.h>
+#include <fnd/SharedPtr.h>
 #include <nn/hac/NpdmBinary.h>
 #include "KeyConfiguration.h"
 
@@ -11,11 +12,10 @@ class NpdmProcess
 {
 public:
 	NpdmProcess();
-	~NpdmProcess();
 
 	void process();
 
-	void setInputFile(fnd::IFile* file, bool ownIFile);
+	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
 	void setKeyCfg(const KeyConfiguration& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
@@ -25,8 +25,7 @@ public:
 private:
 	const std::string kModuleName = "NpdmProcess";
 
-	fnd::IFile* mFile;
-	bool mOwnIFile;
+	fnd::SharedPtr<fnd::IFile> mFile;
 	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
