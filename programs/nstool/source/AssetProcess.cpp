@@ -1,9 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <fnd/SimpleFile.h>
+#include <fnd/OffsetAdjustedIFile.h>
 #include <fnd/Vec.h>
 #include "AssetProcess.h"
-#include "OffsetAdjustedIFile.h"
 
 
 AssetProcess::AssetProcess() :
@@ -109,7 +109,7 @@ void AssetProcess::processSections()
 			outfile.close();
 		}
 		
-		mNacp.setInputFile(new OffsetAdjustedIFile(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size));
+		mNacp.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size));
 		mNacp.setCliOutputMode(mCliOutputMode);
 		mNacp.setVerifyMode(mVerify);
 
@@ -121,7 +121,7 @@ void AssetProcess::processSections()
 		if ((mHdr.getRomfsInfo().size + mHdr.getRomfsInfo().offset) > (*mFile)->size()) 
 			throw fnd::Exception(kModuleName, "ASET geometry for romfs beyond file size");
 
-		mRomfs.setInputFile(new OffsetAdjustedIFile(mFile, mHdr.getRomfsInfo().offset, mHdr.getRomfsInfo().size));
+		mRomfs.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getRomfsInfo().offset, mHdr.getRomfsInfo().size));
 		mRomfs.setCliOutputMode(mCliOutputMode);
 		mRomfs.setVerifyMode(mVerify);
 

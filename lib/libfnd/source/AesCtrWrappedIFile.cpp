@@ -1,6 +1,6 @@
-#include "AesCtrWrappedIFile.h"
+#include <fnd/AesCtrWrappedIFile.h>
 
-AesCtrWrappedIFile::AesCtrWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const fnd::aes::sAes128Key& key, const fnd::aes::sAesIvCtr& ctr) :
+fnd::AesCtrWrappedIFile::AesCtrWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const fnd::aes::sAes128Key& key, const fnd::aes::sAesIvCtr& ctr) :
 	mFile(file),
 	mKey(key),
 	mBaseCtr(ctr),
@@ -9,17 +9,17 @@ AesCtrWrappedIFile::AesCtrWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, c
 	mCache.alloc(kCacheSizeAllocSize);
 }
 
-size_t AesCtrWrappedIFile::size()
+size_t fnd::AesCtrWrappedIFile::size()
 {
 	return (*mFile)->size();
 }
 
-void AesCtrWrappedIFile::seek(size_t offset)
+void fnd::AesCtrWrappedIFile::seek(size_t offset)
 {
 	mFileOffset = offset;
 }
 
-void AesCtrWrappedIFile::read(byte_t* out, size_t len)
+void fnd::AesCtrWrappedIFile::read(byte_t* out, size_t len)
 {
 	size_t read_len;
 	size_t read_pos; 
@@ -43,13 +43,13 @@ void AesCtrWrappedIFile::read(byte_t* out, size_t len)
 	seek(mFileOffset + len);
 }
 
-void AesCtrWrappedIFile::read(byte_t* out, size_t offset, size_t len)
+void fnd::AesCtrWrappedIFile::read(byte_t* out, size_t offset, size_t len)
 {
 	seek(offset);
 	read(out, len);
 }
 
-void AesCtrWrappedIFile::write(const byte_t* in, size_t len)
+void fnd::AesCtrWrappedIFile::write(const byte_t* in, size_t len)
 {
 	size_t write_len;
 	size_t write_pos; 
@@ -73,7 +73,7 @@ void AesCtrWrappedIFile::write(const byte_t* in, size_t len)
 	seek(mFileOffset + len);
 }
 
-void AesCtrWrappedIFile::write(const byte_t* in, size_t offset, size_t len)
+void fnd::AesCtrWrappedIFile::write(const byte_t* in, size_t offset, size_t len)
 {
 	seek(offset);
 	write(in, len);

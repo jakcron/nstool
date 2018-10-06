@@ -1,10 +1,10 @@
 #include <iostream>
 #include <iomanip>
 #include <fnd/SimpleTextOutput.h>
+#include <fnd/OffsetAdjustedIFile.h>
 #include <fnd/Vec.h>
 #include <fnd/lz4.h>
 #include <nn/hac/nro-hb.h>
-#include "OffsetAdjustedIFile.h"
 #include "NroProcess.h"
 
 NroProcess::NroProcess():
@@ -107,7 +107,7 @@ void NroProcess::importHeader()
 	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nn::hac::nro::kNroHomebrewStructMagic && (*mFile)->size() > mHdr.getNroSize())
 	{
 		mIsHomebrewNro = true;
-		mAssetProc.setInputFile(new OffsetAdjustedIFile(mFile, mHdr.getNroSize(), (*mFile)->size() - mHdr.getNroSize()));
+		mAssetProc.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getNroSize(), (*mFile)->size() - mHdr.getNroSize()));
 		mAssetProc.setCliOutputMode(mCliOutputMode);
 		mAssetProc.setVerifyMode(mVerify);
 	}

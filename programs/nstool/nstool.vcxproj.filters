@@ -19,9 +19,6 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\AesCtrWrappedIFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\AssetProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -40,12 +37,6 @@
     <ClInclude Include="source\KeyConfiguration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\LayeredIntegrityMetadata.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\LayeredIntegrityWrappedIFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\NacpProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -59,9 +50,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\NsoProcess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\OffsetAdjustedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\PfsProcess.h">
@@ -93,9 +81,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\AesCtrWrappedIFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\AssetProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -109,12 +94,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\KeyConfiguration.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\LayeredIntegrityMetadata.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\LayeredIntegrityWrappedIFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\main.cpp">
@@ -133,9 +112,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NsoProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\OffsetAdjustedIFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\PfsProcess.cpp">

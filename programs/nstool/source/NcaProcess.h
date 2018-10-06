@@ -3,8 +3,8 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
+#include <fnd/LayeredIntegrityMetadata.h>
 #include <nn/hac/NcaHeader.h>
-#include "LayeredIntegrityMetadata.h"
 #include "KeyConfiguration.h"
 
 
@@ -100,7 +100,7 @@ private:
 		nn::hac::nca::FormatType format_type;
 		nn::hac::nca::HashType hash_type;
 		nn::hac::nca::EncryptionType enc_type;
-		LayeredIntegrityMetadata layered_intergrity_metadata;
+		fnd::LayeredIntegrityMetadata layered_intergrity_metadata;
 		fnd::aes::sAesIvCtr aes_ctr;
 	} mPartitions[nn::hac::nca::kPartitionNum];
 

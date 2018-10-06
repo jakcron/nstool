@@ -2,15 +2,18 @@
 #include <iomanip>
 #include <sstream>
 #include <fnd/SimpleTextOutput.h>
+#include <fnd/OffsetAdjustedIFile.h>
+#include <fnd/AesCtrWrappedIFile.h>
+#include <fnd/LayeredIntegrityWrappedIFile.h>
 #include <nn/hac/NcaUtils.h>
 #include <nn/hac/AesKeygen.h>
+#include <nn/hac/HierarchicalSha256Header.h>
+#include <nn/hac/HierarchicalIntegrityHeader.h>
 #include "NcaProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
 #include "NpdmProcess.h"
-#include "OffsetAdjustedIFile.h"
-#include "AesCtrWrappedIFile.h"
-#include "LayeredIntegrityWrappedIFile.h"
+
 
 NcaProcess::NcaProcess() :
 	mFile(),
@@ -261,15 +264,15 @@ void NcaProcess::generatePartitionConfiguration()
 		{
 			// info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, LayeredIntegrityMetadata::HASH_TYPE_SHA256);
 			nn::hac::HierarchicalSha256Header hdr;
-			fnd::List<LayeredIntegrityMetadata::sLayer> hash_layers;
-			LayeredIntegrityMetadata::sLayer data_layer;
+			fnd::List<fnd::LayeredIntegrityMetadata::sLayer> hash_layers;
+			fnd::LayeredIntegrityMetadata::sLayer data_layer;
 			fnd::List<fnd::sha::sSha256Hash> master_hash_list;
 
 			// import raw data
 			hdr.fromBytes(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen);
 			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
 			{
-				LayeredIntegrityMetadata::sLayer layer;
+				fnd::LayeredIntegrityMetadata::sLayer layer;
 				layer.offset = hdr.getLayerInfo()[i].offset;
 				layer.size = hdr.getLayerInfo()[i].size;
 				layer.block_size = hdr.getHashBlockSize();
@@ -294,14 +297,14 @@ void NcaProcess::generatePartitionConfiguration()
 		{
 			// info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, LayeredIntegrityMetadata::HASH_TYPE_INTEGRITY);
 			nn::hac::HierarchicalIntegrityHeader hdr;
-			fnd::List<LayeredIntegrityMetadata::sLayer> hash_layers;
-			LayeredIntegrityMetadata::sLayer data_layer;
+			fnd::List<fnd::LayeredIntegrityMetadata::sLayer> hash_layers;
+			fnd::LayeredIntegrityMetadata::sLayer data_layer;
 			fnd::List<fnd::sha::sSha256Hash> master_hash_list;
 
 			hdr.fromBytes(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen);
 			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
 			{
-				LayeredIntegrityMetadata::sLayer layer;
+				fnd::LayeredIntegrityMetadata::sLayer layer;
 				layer.offset = hdr.getLayerInfo()[i].offset;
 				layer.size = hdr.getLayerInfo()[i].size;
 				layer.block_size = _BIT(hdr.getLayerInfo()[i].block_size);
@@ -340,13 +343,13 @@ void NcaProcess::generatePartitionConfiguration()
 			// create reader based on encryption type0
 			if (info.enc_type == nn::hac::nca::CRYPT_NONE)
 			{
-				info.reader = new OffsetAdjustedIFile(mFile, info.offset, info.size);
+				info.reader = new fnd::OffsetAdjustedIFile(mFile, info.offset, info.size);
 			}
 			else if (info.enc_type == nn::hac::nca::CRYPT_AESCTR)
 			{
 				if (mContentKey.aes_ctr.isSet == false)
 					throw fnd::Exception(kModuleName, "AES-CTR Key was not determined");
-				info.reader = new OffsetAdjustedIFile(new AesCtrWrappedIFile(mFile, mContentKey.aes_ctr.var, info.aes_ctr), info.offset, info.size);
+				info.reader = new fnd::OffsetAdjustedIFile(new fnd::AesCtrWrappedIFile(mFile, mContentKey.aes_ctr.var, info.aes_ctr), info.offset, info.size);
 			}
 			else if (info.enc_type == nn::hac::nca::CRYPT_AESXTS || info.enc_type == nn::hac::nca::CRYPT_AESCTREX)
 			{
@@ -364,7 +367,7 @@ void NcaProcess::generatePartitionConfiguration()
 			// filter out unrecognised hash types, and hash based readers
 			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256 || info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{	
-				info.reader = new LayeredIntegrityWrappedIFile(info.reader, info.layered_intergrity_metadata);
+				info.reader = new fnd::LayeredIntegrityWrappedIFile(info.reader, info.layered_intergrity_metadata);
 			}
 			else if (info.hash_type != nn::hac::nca::HASH_NONE)
 			{
@@ -408,7 +411,7 @@ void NcaProcess::validateNcaSignatures()
 					const nn::hac::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
 
 					NpdmProcess npdm;
-					npdm.setInputFile(new OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));
+					npdm.setInputFile(new fnd::OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
@@ -500,7 +503,7 @@ void NcaProcess::displayHeader()
 			}
 			if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_INTERGRITY)
 			{
-				LayeredIntegrityMetadata& hash_hdr = info.layered_intergrity_metadata;
+				fnd::LayeredIntegrityMetadata& hash_hdr = info.layered_intergrity_metadata;
 				std::cout << "      HierarchicalIntegrity Header:" << std::endl;
 				for (size_t j = 0; j < hash_hdr.getHashLayerInfo().size(); j++)
 				{
@@ -523,7 +526,7 @@ void NcaProcess::displayHeader()
 			}
 			else if (info.hash_type == nn::hac::nca::HASH_HIERARCHICAL_SHA256)
 			{
-				LayeredIntegrityMetadata& hash_hdr = info.layered_intergrity_metadata;
+				fnd::LayeredIntegrityMetadata& hash_hdr = info.layered_intergrity_metadata;
 				std::cout << "      HierarchicalSha256 Header:" << std::endl;
 				std::cout << "        Master Hash:" << std::endl;
 				std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[0].bytes, 0x10, true, ":") << std::endl;

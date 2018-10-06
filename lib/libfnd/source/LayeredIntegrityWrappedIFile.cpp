@@ -1,8 +1,7 @@
-#include "common.h"
-#include "LayeredIntegrityWrappedIFile.h"
-#include "OffsetAdjustedIFile.h"
+#include <fnd/LayeredIntegrityWrappedIFile.h>
+#include <fnd/OffsetAdjustedIFile.h>
 
-LayeredIntegrityWrappedIFile::LayeredIntegrityWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const LayeredIntegrityMetadata& hdr) :
+fnd::LayeredIntegrityWrappedIFile::LayeredIntegrityWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const fnd::LayeredIntegrityMetadata& hdr) :
 	mFile(file),
 	mData(nullptr),
 	mDataHashLayer(),
@@ -11,17 +10,17 @@ LayeredIntegrityWrappedIFile::LayeredIntegrityWrappedIFile(const fnd::SharedPtr<
 	initialiseDataLayer(hdr);
 }
 
-size_t LayeredIntegrityWrappedIFile::size()
+size_t fnd::LayeredIntegrityWrappedIFile::size()
 {
 	return (*mData)->size();
 }
 
-void LayeredIntegrityWrappedIFile::seek(size_t offset)
+void fnd::LayeredIntegrityWrappedIFile::seek(size_t offset)
 {
 	mDataOffset = offset;	
 }
 
-void LayeredIntegrityWrappedIFile::read(byte_t* out, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::read(byte_t* out, size_t len)
 {
 	struct sBlockPosition 
 	{
@@ -72,23 +71,23 @@ void LayeredIntegrityWrappedIFile::read(byte_t* out, size_t len)
 	seek(mDataOffset + len);
 }
 
-void LayeredIntegrityWrappedIFile::read(byte_t* out, size_t offset, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::read(byte_t* out, size_t offset, size_t len)
 {
 	seek(offset);
 	read(out, len);
 }
 
-void LayeredIntegrityWrappedIFile::write(const byte_t* out, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::write(const byte_t* out, size_t len)
 {
 	throw fnd::Exception(kModuleName, "write() not supported");
 }
 
-void LayeredIntegrityWrappedIFile::write(const byte_t* out, size_t offset, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::write(const byte_t* out, size_t offset, size_t len)
 {
 	throw fnd::Exception(kModuleName, "write() not supported");
 }
 
-void LayeredIntegrityWrappedIFile::initialiseDataLayer(const LayeredIntegrityMetadata& hdr)
+void fnd::LayeredIntegrityWrappedIFile::initialiseDataLayer(const fnd::LayeredIntegrityMetadata& hdr)
 {
 	fnd::sha::sSha256Hash hash;
 	fnd::Vec<byte_t> cur, prev;
@@ -106,7 +105,7 @@ void LayeredIntegrityWrappedIFile::initialiseDataLayer(const LayeredIntegrityMet
 	for (size_t i = 0; i < hdr.getHashLayerInfo().size(); i++)
 	{
 		// get block size
-		const LayeredIntegrityMetadata::sLayer& layer = hdr.getHashLayerInfo()[i];
+		const fnd::LayeredIntegrityMetadata::sLayer& layer = hdr.getHashLayerInfo()[i];
 
 		// allocate layer
 		cur.alloc(align(layer.size, layer.block_size));
@@ -139,7 +138,7 @@ void LayeredIntegrityWrappedIFile::initialiseDataLayer(const LayeredIntegrityMet
 	}
 
 	// generate reader for data layer
-	mData = new OffsetAdjustedIFile(mFile, hdr.getDataLayer().offset, hdr.getDataLayer().size);
+	mData = new fnd::OffsetAdjustedIFile(mFile, hdr.getDataLayer().offset, hdr.getDataLayer().size);
 	mDataOffset = 0;
 	mDataBlockSize = hdr.getDataLayer().block_size;
 
@@ -149,7 +148,7 @@ void LayeredIntegrityWrappedIFile::initialiseDataLayer(const LayeredIntegrityMet
 	mCache.alloc(cache_size);
 }
 
-void LayeredIntegrityWrappedIFile::readData(size_t block_offset, size_t block_num)
+void fnd::LayeredIntegrityWrappedIFile::readData(size_t block_offset, size_t block_num)
 {
 	fnd::sha::sSha256Hash hash;
 
