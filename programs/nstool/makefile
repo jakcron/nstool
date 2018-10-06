@@ -34,7 +34,7 @@ else
 endif
 
 BIN_DIR = bin
-OUTPUT = $(BIN_DIR)/$(shell basename $(CURDIR))
+OUTPUT = $(BIN_DIR)/$(shell basename "$(CURDIR)")
 
 all: build
 

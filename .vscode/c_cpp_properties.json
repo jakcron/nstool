@@ -65,7 +65,14 @@
             "name": "Win32",
             "includePath": [
                 "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include",
-                "${workspaceRoot}"
+                "${workspaceRoot}",
+                "${workspaceRoot}/lib/libfnd/include",
+                "${workspaceRoot}/lib/libpolarssl/include",
+                "${workspaceRoot}/lib/liblz4/include",
+                "${workspaceRoot}/lib/libes/include",
+                "${workspaceRoot}/lib/libpki/include",
+                "${workspaceRoot}/lib/libhac/include",
+                "${workspaceRoot}/lib/libhac-hb/include"
             ],
             "defines": [
                 "_DEBUG",

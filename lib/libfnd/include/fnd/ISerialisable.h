@@ -7,6 +7,8 @@ namespace fnd
 	class ISerialisable
 	{
 	public:
+		virtual ~ISerialisable() = default;
+
 		// serialise
 		virtual void toBytes() = 0;
 		// deserialise

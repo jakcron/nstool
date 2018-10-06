@@ -1,8 +1,7 @@
-#include "common.h"
-#include "HashTreeWrappedIFile.h"
-#include "OffsetAdjustedIFile.h"
+#include <fnd/LayeredIntegrityWrappedIFile.h>
+#include <fnd/OffsetAdjustedIFile.h>
 
-HashTreeWrappedIFile::HashTreeWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const HashTreeMeta& hdr) :
+fnd::LayeredIntegrityWrappedIFile::LayeredIntegrityWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const fnd::LayeredIntegrityMetadata& hdr) :
 	mFile(file),
 	mData(nullptr),
 	mDataHashLayer(),
@@ -11,80 +10,84 @@ HashTreeWrappedIFile::HashTreeWrappedIFile(const fnd::SharedPtr<fnd::IFile>& fil
 	initialiseDataLayer(hdr);
 }
 
-size_t HashTreeWrappedIFile::size()
+size_t fnd::LayeredIntegrityWrappedIFile::size()
 {
 	return (*mData)->size();
 }
 
-void HashTreeWrappedIFile::seek(size_t offset)
+void fnd::LayeredIntegrityWrappedIFile::seek(size_t offset)
 {
 	mDataOffset = offset;	
 }
 
-void HashTreeWrappedIFile::read(byte_t* out, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::read(byte_t* out, size_t len)
 {
-	size_t offset_in_start_block = getOffsetInBlock(mDataOffset);
-	size_t offset_in_end_block = getOffsetInBlock(offset_in_start_block + len);
-
-	size_t start_block = getOffsetBlock(mDataOffset);
-	size_t block_num = align(offset_in_start_block + len, mDataBlockSize) / mDataBlockSize;
-
-	size_t partial_last_block_num = block_num % mCacheBlockNum;
-	bool has_partial_block_num = partial_last_block_num > 0;
-	size_t read_iterations = (block_num / mCacheBlockNum) + has_partial_block_num;
-
-	size_t block_read_len;
-	size_t block_export_offset;
-	size_t block_export_size;
-	size_t block_export_pos = 0;
-	for (size_t i = 0; i < read_iterations; i++)
+	struct sBlockPosition 
 	{
-		// how many blocks to read from source file
-		block_read_len = (i+1 == read_iterations && has_partial_block_num) ? partial_last_block_num : mCacheBlockNum;
+		size_t index;
+		size_t pos;
+	} start_blk, end_blk;
 
-		// offset in this current read to copy from
-		block_export_offset = (i == 0) ? offset_in_start_block : 0;
+	start_blk.index = getOffsetBlock(mDataOffset);
+	start_blk.pos = getOffsetInBlock(mDataOffset);
 
-		// size of current read to copy
-		block_export_size = (block_read_len * mDataBlockSize) - block_export_offset;
+	end_blk.index = getOffsetBlock(mDataOffset + len);
+	end_blk.pos = getOffsetInBlock(mDataOffset + len);
+	if (end_blk.pos == 0 && len != 0)
+	{
+		end_blk.index -= 1;
+		end_blk.pos = mDataBlockSize;
+	}
 
-		// if last read, reduce the export size by one block less offset_in_end_block
-		if (i+1 == read_iterations)
-		{
-			block_export_size -= (mDataBlockSize - offset_in_end_block);
-		}
+	size_t total_blk_num = (end_blk.index - start_blk.index) + 1;
 
-		// read the blocks
-		readData(start_block + (i * mCacheBlockNum), block_read_len);
+	size_t read_blk_num = 0;
+	size_t cache_export_start_pos, cache_export_end_pos, cache_export_size;
+	size_t export_pos = 0;
+	for (size_t i = 0; i < total_blk_num; i += read_blk_num, export_pos += cache_export_size)
+	{
+		read_blk_num = _MIN(mCacheBlockNum, (total_blk_num - i));
+		readData(start_blk.index + i, read_blk_num);
 
-		// export the section of data that is relevant
-		memcpy(out + block_export_pos, mCache.data() + block_export_offset, block_export_size);
+		// if this is the first read, adjust offset
+		if (i == 0)
+			cache_export_start_pos = start_blk.pos;
+		else
+			cache_export_start_pos = 0;
+		
+		// if this is the last block, adjust end offset
+		if ((i + read_blk_num) == total_blk_num)
+			cache_export_end_pos = ((read_blk_num - 1) * mDataBlockSize) + end_blk.pos;
+		else
+			cache_export_end_pos = read_blk_num * mDataBlockSize;
 
-		// update export position
-		block_export_pos += block_export_size;
+		// determine cache export size
+		cache_export_size = cache_export_end_pos - cache_export_start_pos;
+
+		memcpy(out + export_pos, mCache.data() + cache_export_start_pos, cache_export_size);
 	}
 
 	// update offset
 	seek(mDataOffset + len);
 }
 
-void HashTreeWrappedIFile::read(byte_t* out, size_t offset, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::read(byte_t* out, size_t offset, size_t len)
 {
 	seek(offset);
 	read(out, len);
 }
 
-void HashTreeWrappedIFile::write(const byte_t* out, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::write(const byte_t* out, size_t len)
 {
 	throw fnd::Exception(kModuleName, "write() not supported");
 }
 
-void HashTreeWrappedIFile::write(const byte_t* out, size_t offset, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::write(const byte_t* out, size_t offset, size_t len)
 {
 	throw fnd::Exception(kModuleName, "write() not supported");
 }
 
-void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
+void fnd::LayeredIntegrityWrappedIFile::initialiseDataLayer(const fnd::LayeredIntegrityMetadata& hdr)
 {
 	fnd::sha::sSha256Hash hash;
 	fnd::Vec<byte_t> cur, prev;
@@ -102,7 +105,7 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 	for (size_t i = 0; i < hdr.getHashLayerInfo().size(); i++)
 	{
 		// get block size
-		const HashTreeMeta::sLayer& layer = hdr.getHashLayerInfo()[i];
+		const fnd::LayeredIntegrityMetadata::sLayer& layer = hdr.getHashLayerInfo()[i];
 
 		// allocate layer
 		cur.alloc(align(layer.size, layer.block_size));
@@ -135,22 +138,18 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 	}
 
 	// generate reader for data layer
-	mData = new OffsetAdjustedIFile(mFile, hdr.getDataLayer().offset, hdr.getDataLayer().size);
+	mData = new fnd::OffsetAdjustedIFile(mFile, hdr.getDataLayer().offset, hdr.getDataLayer().size);
 	mDataOffset = 0;
 	mDataBlockSize = hdr.getDataLayer().block_size;
 
-	// allocate scratchpad
-	//mScratch.alloc(mDataBlockSize * 0x10);
+	// allocate cache
 	size_t cache_size = align(kDefaultCacheSize, mDataBlockSize);
 	mCacheBlockNum = cache_size / mDataBlockSize;
-	//printf("Block Size: 0x%" PRIx64 "\n", mDataBlockSize);
-	//printf("Cache size: 0x%" PRIx64 ", (block_num: %" PRId64 ")\n", cache_size, mCacheBlockNum);
 	mCache.alloc(cache_size);
 }
 
-void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
+void fnd::LayeredIntegrityWrappedIFile::readData(size_t block_offset, size_t block_num)
 {
-	(*mData)->seek(block_offset * mDataBlockSize);
 	fnd::sha::sSha256Hash hash;
 
 	// determine read size
@@ -176,8 +175,6 @@ void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 	{
 		throw fnd::Exception(kModuleName, "Read excessive of cache size");
 	}
-
-	//printf("readlen=0x%" PRIx64 "\n", read_len);
 
 	// validate blocks
 	size_t validate_size;
