@@ -1,8 +1,7 @@
-#include "common.h"
-#include "HashTreeWrappedIFile.h"
-#include "OffsetAdjustedIFile.h"
+#include <fnd/LayeredIntegrityWrappedIFile.h>
+#include <fnd/OffsetAdjustedIFile.h>
 
-HashTreeWrappedIFile::HashTreeWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const HashTreeMeta& hdr) :
+fnd::LayeredIntegrityWrappedIFile::LayeredIntegrityWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const fnd::LayeredIntegrityMetadata& hdr) :
 	mFile(file),
 	mData(nullptr),
 	mDataHashLayer(),
@@ -11,17 +10,17 @@ HashTreeWrappedIFile::HashTreeWrappedIFile(const fnd::SharedPtr<fnd::IFile>& fil
 	initialiseDataLayer(hdr);
 }
 
-size_t HashTreeWrappedIFile::size()
+size_t fnd::LayeredIntegrityWrappedIFile::size()
 {
 	return (*mData)->size();
 }
 
-void HashTreeWrappedIFile::seek(size_t offset)
+void fnd::LayeredIntegrityWrappedIFile::seek(size_t offset)
 {
 	mDataOffset = offset;	
 }
 
-void HashTreeWrappedIFile::read(byte_t* out, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::read(byte_t* out, size_t len)
 {
 	struct sBlockPosition 
 	{
@@ -72,23 +71,23 @@ void HashTreeWrappedIFile::read(byte_t* out, size_t len)
 	seek(mDataOffset + len);
 }
 
-void HashTreeWrappedIFile::read(byte_t* out, size_t offset, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::read(byte_t* out, size_t offset, size_t len)
 {
 	seek(offset);
 	read(out, len);
 }
 
-void HashTreeWrappedIFile::write(const byte_t* out, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::write(const byte_t* out, size_t len)
 {
 	throw fnd::Exception(kModuleName, "write() not supported");
 }
 
-void HashTreeWrappedIFile::write(const byte_t* out, size_t offset, size_t len)
+void fnd::LayeredIntegrityWrappedIFile::write(const byte_t* out, size_t offset, size_t len)
 {
 	throw fnd::Exception(kModuleName, "write() not supported");
 }
 
-void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
+void fnd::LayeredIntegrityWrappedIFile::initialiseDataLayer(const fnd::LayeredIntegrityMetadata& hdr)
 {
 	fnd::sha::sSha256Hash hash;
 	fnd::Vec<byte_t> cur, prev;
@@ -106,7 +105,7 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 	for (size_t i = 0; i < hdr.getHashLayerInfo().size(); i++)
 	{
 		// get block size
-		const HashTreeMeta::sLayer& layer = hdr.getHashLayerInfo()[i];
+		const fnd::LayeredIntegrityMetadata::sLayer& layer = hdr.getHashLayerInfo()[i];
 
 		// allocate layer
 		cur.alloc(align(layer.size, layer.block_size));
@@ -139,20 +138,17 @@ void HashTreeWrappedIFile::initialiseDataLayer(const HashTreeMeta& hdr)
 	}
 
 	// generate reader for data layer
-	mData = new OffsetAdjustedIFile(mFile, hdr.getDataLayer().offset, hdr.getDataLayer().size);
+	mData = new fnd::OffsetAdjustedIFile(mFile, hdr.getDataLayer().offset, hdr.getDataLayer().size);
 	mDataOffset = 0;
 	mDataBlockSize = hdr.getDataLayer().block_size;
 
-	// allocate scratchpad
-	//mScratch.alloc(mDataBlockSize * 0x10);
+	// allocate cache
 	size_t cache_size = align(kDefaultCacheSize, mDataBlockSize);
 	mCacheBlockNum = cache_size / mDataBlockSize;
-	//printf("Block Size: 0x%" PRIx64 "\n", mDataBlockSize);
-	//printf("Cache size: 0x%" PRIx64 ", (block_num: %" PRId64 ")\n", cache_size, mCacheBlockNum);
 	mCache.alloc(cache_size);
 }
 
-void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
+void fnd::LayeredIntegrityWrappedIFile::readData(size_t block_offset, size_t block_num)
 {
 	fnd::sha::sSha256Hash hash;
 
@@ -179,8 +175,6 @@ void HashTreeWrappedIFile::readData(size_t block_offset, size_t block_num)
 	{
 		throw fnd::Exception(kModuleName, "Read excessive of cache size");
 	}
-
-	//printf("readlen=0x%" PRIx64 "\n", read_len);
 
 	// validate blocks
 	size_t validate_size;

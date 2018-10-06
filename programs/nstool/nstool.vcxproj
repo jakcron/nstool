@@ -178,21 +178,17 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\AesCtrWrappedIFile.h" />
     <ClInclude Include="source\AssetProcess.h" />
     <ClInclude Include="source\CnmtProcess.h" />
     <ClInclude Include="source\common.h" />
     <ClInclude Include="source\ElfSymbolParser.h" />
     <ClInclude Include="source\EsTikProcess.h" />
-    <ClInclude Include="source\HashTreeMeta.h" />
-    <ClInclude Include="source\HashTreeWrappedIFile.h" />
     <ClInclude Include="source\KeyConfiguration.h" />
     <ClInclude Include="source\NacpProcess.h" />
     <ClInclude Include="source\NcaProcess.h" />
     <ClInclude Include="source\NpdmProcess.h" />
     <ClInclude Include="source\NroProcess.h" />
     <ClInclude Include="source\NsoProcess.h" />
-    <ClInclude Include="source\OffsetAdjustedIFile.h" />
     <ClInclude Include="source\PfsProcess.h" />
     <ClInclude Include="source\PkiCertProcess.h" />
     <ClInclude Include="source\PkiValidator.h" />
@@ -204,13 +200,10 @@
     <ClInclude Include="source\XciProcess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\AesCtrWrappedIFile.cpp" />
     <ClCompile Include="source\AssetProcess.cpp" />
     <ClCompile Include="source\CnmtProcess.cpp" />
     <ClCompile Include="source\ElfSymbolParser.cpp" />
     <ClCompile Include="source\EsTikProcess.cpp" />
-    <ClCompile Include="source\HashTreeMeta.cpp" />
-    <ClCompile Include="source\HashTreeWrappedIFile.cpp" />
     <ClCompile Include="source\KeyConfiguration.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\NacpProcess.cpp" />
@@ -218,7 +211,6 @@
     <ClCompile Include="source\NpdmProcess.cpp" />
     <ClCompile Include="source\NroProcess.cpp" />
     <ClCompile Include="source\NsoProcess.cpp" />
-    <ClCompile Include="source\OffsetAdjustedIFile.cpp" />
     <ClCompile Include="source\PfsProcess.cpp" />
     <ClCompile Include="source\PkiCertProcess.cpp" />
     <ClCompile Include="source\PkiValidator.cpp" />
