@@ -28,19 +28,22 @@
     <ClInclude Include="source\CnmtProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="source\ElfSymbolParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\EsTikProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\HashTreeMeta.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\HashTreeWrappedIFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\KeyConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\LayeredIntegrityMetadata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\LayeredIntegrityWrappedIFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\NacpProcess.h">
@@ -88,9 +91,6 @@
     <ClInclude Include="source\XciProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AesCtrWrappedIFile.cpp">
@@ -108,13 +108,13 @@
     <ClCompile Include="source\EsTikProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\HashTreeMeta.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\HashTreeWrappedIFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\KeyConfiguration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\LayeredIntegrityMetadata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\LayeredIntegrityWrappedIFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\main.cpp">

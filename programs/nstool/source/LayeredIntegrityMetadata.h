@@ -2,15 +2,9 @@
 #include <nn/hac/HierarchicalIntegrityHeader.h>
 #include <nn/hac/HierarchicalSha256Header.h>
 
-class HashTreeMeta
+class LayeredIntegrityMetadata
 {
 public:
-	enum HashTreeType
-	{
-		HASH_TYPE_INTEGRITY,
-		HASH_TYPE_SHA256
-	};
-
 	struct sLayer
 	{
 		size_t offset;
@@ -35,20 +29,17 @@ public:
 		}
 	};
 
-	HashTreeMeta();
-	HashTreeMeta(const byte_t* data, size_t len, HashTreeType type);
+	LayeredIntegrityMetadata();
 
-	void operator=(const HashTreeMeta& other);
-	bool operator==(const HashTreeMeta& other) const;
-	bool operator!=(const HashTreeMeta& other) const;
-
-	void importData(const byte_t* data, size_t len, HashTreeType type);
+	void operator=(const LayeredIntegrityMetadata& other);
+	bool operator==(const LayeredIntegrityMetadata& other) const;
+	bool operator!=(const LayeredIntegrityMetadata& other) const;
 
 	const fnd::List<sLayer>& getHashLayerInfo() const;
 	void setHashLayerInfo(const fnd::List<sLayer>& layer_info);
 
 	const sLayer& getDataLayer() const;
-	void setDataLayer(const sLayer& data_info);
+	void setDataLayerInfo(const sLayer& data_info);
 
 	const fnd::List<fnd::sha::sSha256Hash>& getMasterHashList() const;
 	void setMasterHashList(const fnd::List<fnd::sha::sSha256Hash>& master_hash_list);
@@ -56,13 +47,9 @@ public:
 	bool getAlignHashToBlock() const;
 	void setAlignHashToBlock(bool doAlign);
 private:
-
 	// data
 	fnd::List<sLayer> mLayerInfo;
 	sLayer mDataLayer;
 	fnd::List<fnd::sha::sSha256Hash> mMasterHashList;
 	bool mDoAlignHashToBlock;
-
-	void importHierarchicalIntergityHeader(const nn::hac::HierarchicalIntegrityHeader& hdr);
-	void importHierarchicalSha256Header(const nn::hac::HierarchicalSha256Header& hdr);
 };

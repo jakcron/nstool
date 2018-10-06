@@ -184,9 +184,9 @@
     <ClInclude Include="source\common.h" />
     <ClInclude Include="source\ElfSymbolParser.h" />
     <ClInclude Include="source\EsTikProcess.h" />
-    <ClInclude Include="source\HashTreeMeta.h" />
-    <ClInclude Include="source\HashTreeWrappedIFile.h" />
     <ClInclude Include="source\KeyConfiguration.h" />
+    <ClInclude Include="source\LayeredIntegrityMetadata.h" />
+    <ClInclude Include="source\LayeredIntegrityWrappedIFile.h" />
     <ClInclude Include="source\NacpProcess.h" />
     <ClInclude Include="source\NcaProcess.h" />
     <ClInclude Include="source\NpdmProcess.h" />
@@ -209,9 +209,9 @@
     <ClCompile Include="source\CnmtProcess.cpp" />
     <ClCompile Include="source\ElfSymbolParser.cpp" />
     <ClCompile Include="source\EsTikProcess.cpp" />
-    <ClCompile Include="source\HashTreeMeta.cpp" />
-    <ClCompile Include="source\HashTreeWrappedIFile.cpp" />
     <ClCompile Include="source\KeyConfiguration.cpp" />
+    <ClCompile Include="source\LayeredIntegrityMetadata.cpp" />
+    <ClCompile Include="source\LayeredIntegrityWrappedIFile.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\NacpProcess.cpp" />
     <ClCompile Include="source\NcaProcess.cpp" />

@@ -4,13 +4,13 @@
 #include <fnd/SharedPtr.h>
 #include <fnd/Vec.h>
 #include <fnd/sha.h>
-#include "HashTreeMeta.h"
+#include "LayeredIntegrityMetadata.h"
 
 
-class HashTreeWrappedIFile : public fnd::IFile
+class LayeredIntegrityWrappedIFile : public fnd::IFile
 {
 public:
-	HashTreeWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const HashTreeMeta& hdr);
+	LayeredIntegrityWrappedIFile(const fnd::SharedPtr<fnd::IFile>& file, const LayeredIntegrityMetadata& hdr);
 
 	size_t size();
 	void seek(size_t offset);
@@ -19,7 +19,7 @@ public:
 	void write(const byte_t* out, size_t len);
 	void write(const byte_t* out, size_t offset, size_t len);
 private:
-	const std::string kModuleName = "HashTreeWrappedIFile";
+	const std::string kModuleName = "LayeredIntegrityWrappedIFile";
 	static const size_t kDefaultCacheSize = 0x10000;
 	std::stringstream mErrorSs;
 
@@ -40,6 +40,6 @@ private:
 	inline size_t getRemanderBlockReadSize(size_t total_size) const { return total_size % mDataBlockSize; }
 	inline size_t getBlockNum(size_t total_size) const { return (total_size / mDataBlockSize) + (getRemanderBlockReadSize(total_size) > 0); }
 
-	void initialiseDataLayer(const HashTreeMeta& hdr);
+	void initialiseDataLayer(const LayeredIntegrityMetadata& hdr);
 	void readData(size_t block_offset, size_t block_num);
 };
