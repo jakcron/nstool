@@ -143,12 +143,9 @@ void LayeredIntegrityWrappedIFile::initialiseDataLayer(const LayeredIntegrityMet
 	mDataOffset = 0;
 	mDataBlockSize = hdr.getDataLayer().block_size;
 
-	// allocate scratchpad
-	//mScratch.alloc(mDataBlockSize * 0x10);
+	// allocate cache
 	size_t cache_size = align(kDefaultCacheSize, mDataBlockSize);
 	mCacheBlockNum = cache_size / mDataBlockSize;
-	//printf("Block Size: 0x%" PRIx64 "\n", mDataBlockSize);
-	//printf("Cache size: 0x%" PRIx64 ", (block_num: %" PRId64 ")\n", cache_size, mCacheBlockNum);
 	mCache.alloc(cache_size);
 }
 
@@ -179,8 +176,6 @@ void LayeredIntegrityWrappedIFile::readData(size_t block_offset, size_t block_nu
 	{
 		throw fnd::Exception(kModuleName, "Read excessive of cache size");
 	}
-
-	//printf("readlen=0x%" PRIx64 "\n", read_len);
 
 	// validate blocks
 	size_t validate_size;

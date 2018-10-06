@@ -21,8 +21,6 @@ void AesCtrWrappedIFile::seek(size_t offset)
 
 void AesCtrWrappedIFile::read(byte_t* out, size_t len)
 {
-	//printf("[%x] AesCtrWrappedIFile::read(offset=0x%" PRIx64 ", size=0x%" PRIx64 ")\n", this, mFileOffset, len);
-
 	size_t read_len;
 	size_t read_pos; 
 
@@ -32,8 +30,6 @@ void AesCtrWrappedIFile::read(byte_t* out, size_t len)
 	{
 		read_len = _MIN(len - (i * kCacheSize), kCacheSize);
 		read_pos = ((mFileOffset >> 4) << 4) + (i * kCacheSize);
-
-		//printf("[%x] AesCtrWrappedIFile::read() CACHE READ: readlen=%" PRIx64 "\n", this, read_len);
 		
 		(*mFile)->seek(read_pos);
 		(*mFile)->read(mCache.data(), kCacheSizeAllocSize);
@@ -64,8 +60,6 @@ void AesCtrWrappedIFile::write(const byte_t* in, size_t len)
 	{
 		write_len = _MIN(len - (i * kCacheSize), kCacheSize);
 		write_pos = ((mFileOffset >> 4) << 4) + (i * kCacheSize);
-
-		//printf("[%x] AesCtrWrappedIFile::read() CACHE READ: readlen=%" PRIx64 "\n", this, read_len);
 		
 		memcpy(mCache.data() + (mFileOffset & 0xf), in + (i * kCacheSize), write_len);
 
@@ -76,25 +70,6 @@ void AesCtrWrappedIFile::write(const byte_t* in, size_t len)
 		(*mFile)->write(mCache.data(), kCacheSizeAllocSize);
 	}
 
-	seek(mFileOffset + len);
-
-	/*
-	for (size_t i = 0; i < (len / kAesCtrScratchSize); i++)
-	{
-		memcpy(mScratch.data() + mBlockOffset, out + (i * kAesCtrScratchSize), kAesCtrScratchSize);
-		fnd::aes::AesCtr(mScratch.data(), kAesCtrScratchAllocSize, mKey.key, mCurrentCtr.iv, mScratch.data());
-		(*mFile)->write(mScratch.data() + mBlockOffset, kAesCtrScratchSize);
-	}
-
-	if (len % kAesCtrScratchSize)
-	{
-		size_t write_len = len % kAesCtrScratchSize;
-		size_t write_pos = ((len / kAesCtrScratchSize) * kAesCtrScratchSize); 
-		memcpy(mScratch.data() + mBlockOffset, out + write_pos, write_len);
-		fnd::aes::AesCtr(mScratch.data(), kAesCtrScratchAllocSize, mKey.key, mCurrentCtr.iv, mScratch.data());
-		(*mFile)->write(mScratch.data() + mBlockOffset, write_len);
-	}
-	*/
 	seek(mFileOffset + len);
 }
 
