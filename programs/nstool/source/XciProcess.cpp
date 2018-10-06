@@ -1,8 +1,8 @@
 #include <iostream>
 #include <iomanip>
 #include <fnd/SimpleTextOutput.h>
+#include <fnd/OffsetAdjustedIFile.h>
 #include <nn/hac/XciUtils.h>
-#include "OffsetAdjustedIFile.h"
 #include "XciProcess.h"
 
 XciProcess::XciProcess() :
@@ -206,7 +206,7 @@ void XciProcess::processRootPfs()
 	{
 		std::cout << "[WARNING] XCI Root HFS0: FAIL (bad hash)" << std::endl;
 	}
-	mRootPfs.setInputFile(new OffsetAdjustedIFile(mFile, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize()));
+	mRootPfs.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize()));
 	mRootPfs.setListFs(mListFs);
 	mRootPfs.setVerifyMode(false);
 	mRootPfs.setCliOutputMode(mCliOutputMode);
@@ -226,7 +226,7 @@ void XciProcess::processPartitionPfs()
 		}
 
 		PfsProcess tmp;
-		tmp.setInputFile(new OffsetAdjustedIFile(mFile, mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].size));
+		tmp.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].size));
 		tmp.setListFs(mListFs);
 		tmp.setVerifyMode(mVerify);
 		tmp.setCliOutputMode(mCliOutputMode);
