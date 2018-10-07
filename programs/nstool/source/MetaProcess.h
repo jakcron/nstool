@@ -3,15 +3,15 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
-#include <nn/hac/NpdmBinary.h>
+#include <nn/hac/MetaBinary.h>
 #include "KeyConfiguration.h"
 
 #include "common.h"
 
-class NpdmProcess
+class MetaProcess
 {
 public:
-	NpdmProcess();
+	MetaProcess();
 
 	void process();
 
@@ -20,32 +20,32 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	const nn::hac::NpdmBinary& getNpdmBinary() const;
+	const nn::hac::MetaBinary& getMetaBinary() const;
 
 private:
-	const std::string kModuleName = "NpdmProcess";
+	const std::string kModuleName = "MetaProcess";
 
 	fnd::SharedPtr<fnd::IFile> mFile;
 	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nn::hac::NpdmBinary mNpdm;
+	nn::hac::MetaBinary mMeta;
 
-	void importNpdm();
+	void importMeta();
 
 	void validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid);
 	void validateAciFromAcid(const nn::hac::AccessControlInfoBinary& aci, const nn::hac::AccessControlInfoDescBinary& acid);
 
-	void displayNpdmHeader(const nn::hac::NpdmBinary& hdr);
+	void displayMetaHeader(const nn::hac::MetaBinary& hdr);
 	void displayAciHdr(const nn::hac::AccessControlInfoBinary& aci);
 	void displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& aci);
 	void displayFac(const nn::hac::FileSystemAccessControlBinary& fac);
 	void displaySac(const nn::hac::ServiceAccessControlBinary& sac);
 	void displayKernelCap(const nn::hac::KernelCapabilityBinary& kern);
 
-	const char* getInstructionTypeStr(nn::hac::npdm::InstructionType type) const;
-	const char* getProcAddressSpaceTypeStr(nn::hac::npdm::ProcAddrSpaceType type) const;
+	const char* getInstructionTypeStr(nn::hac::meta::InstructionType type) const;
+	const char* getProcAddressSpaceTypeStr(nn::hac::meta::ProcAddrSpaceType type) const;
 	const char* getAcidFlagStr(nn::hac::aci::Flag flag) const;
 	const char* getMiscFlagStr(nn::hac::MiscFlagsHandler::Flags flag) const;
 	const char* getFsaRightStr(nn::hac::fac::FsAccessFlag flag) const;

@@ -129,7 +129,7 @@
     <ClInclude Include="include\nn\hac\npdm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\NpdmBinary.h">
+    <ClInclude Include="include\nn\hac\MetaBinary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\nro.h">
@@ -266,7 +266,7 @@
     <ClCompile Include="source\NcaUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\NpdmBinary.cpp">
+    <ClCompile Include="source\MetaBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NroHeader.cpp">

@@ -18,7 +18,7 @@
 #include <nn/hac/xci.h>
 #include <nn/hac/pfs.h>
 #include <nn/hac/nca.h>
-#include <nn/hac/npdm.h>
+#include <nn/hac/meta.h>
 #include <nn/hac/romfs.h>
 #include <nn/hac/cnmt.h>
 #include <nn/hac/nacp.h>
@@ -52,7 +52,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset.\n");
 	printf("      -k, --keyset    Specify keyset file.\n");
-	printf("      -t, --type      Specify input file type. [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset, cert, tik]\n");
+	printf("      -t, --type      Specify input file type. [xci, pfs, romfs, nca, meta, cnmt, nso, nro, nacp, aset, cert, tik]\n");
 	printf("      -y, --verify    Verify file.\n");
 	printf("\n  Output Options:\n");
 	printf("      --showkeys      Show keys generated.\n");
@@ -133,7 +133,7 @@ bool UserSettings::isListSymbols() const
 	return mListSymbols;
 }
 
-nn::hac::npdm::InstructionType UserSettings::getInstType() const
+nn::hac::meta::InstructionType UserSettings::getInstType() const
 {
 	return mInstructionType;
 }
@@ -548,7 +548,7 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	if (args.inst_type.isSet)
 		mInstructionType = getInstructionTypeFromString(*args.inst_type);
 	else
-		mInstructionType = nn::hac::npdm::INSTR_64BIT; // default 64bit
+		mInstructionType = nn::hac::meta::INSTR_64BIT; // default 64bit
 	
 	mListApi = args.list_api.isSet;
 	mListSymbols = args.list_sym.isSet;
@@ -602,8 +602,8 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_ROMFS;
 	else if (str == "nca")
 		type = FILE_NCA;
-	else if (str == "npdm")
-		type = FILE_NPDM;
+	else if (str == "meta")
+		type = FILE_META;
 	else if (str == "cnmt")
 		type = FILE_CNMT;
 	else if (str == "nso")
@@ -657,8 +657,8 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sRomfsHeader)) && _TYPE_PTR(nn::hac::sRomfsHeader)->header_size.get() == sizeof(nn::hac::sRomfsHeader) && _TYPE_PTR(nn::hac::sRomfsHeader)->sections[1].offset.get() == (_TYPE_PTR(nn::hac::sRomfsHeader)->sections[0].offset.get() + _TYPE_PTR(nn::hac::sRomfsHeader)->sections[0].size.get()))
 		file_type = FILE_ROMFS;
 	// test npdm
-	else if (_ASSERT_SIZE(sizeof(nn::hac::sNpdmHeader)) && _TYPE_PTR(nn::hac::sNpdmHeader)->st_magic.get() == nn::hac::npdm::kNpdmStructMagic)
-		file_type = FILE_NPDM;
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sMetaHeader)) && _TYPE_PTR(nn::hac::sMetaHeader)->st_magic.get() == nn::hac::meta::kMetaStructMagic)
+		file_type = FILE_META;
 	// test nca
 	else if (determineValidNcaFromSample(scratch))
 		file_type = FILE_NCA;
@@ -832,16 +832,16 @@ bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample)
 	return true;
 }
 
-nn::hac::npdm::InstructionType UserSettings::getInstructionTypeFromString(const std::string & type_str)
+nn::hac::meta::InstructionType UserSettings::getInstructionTypeFromString(const std::string & type_str)
 {
 	std::string str = type_str;
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 
-	nn::hac::npdm::InstructionType type;
+	nn::hac::meta::InstructionType type;
 	if (str == "32bit")
-		type = nn::hac::npdm::INSTR_32BIT;
+		type = nn::hac::meta::INSTR_32BIT;
 	else if (str == "64bit")
-		type = nn::hac::npdm::INSTR_64BIT;
+		type = nn::hac::meta::INSTR_64BIT;
 	else
 		throw fnd::Exception(kModuleName, "Unsupported instruction type: " + str);
 

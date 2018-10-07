@@ -4,7 +4,7 @@
 #include <fnd/types.h>
 #include <fnd/Vec.h>
 
-#include <nn/hac/npdm.h>
+#include <nn/hac/meta.h>
 
 #include "common.h"
 #include "SdkApiString.h"
@@ -24,7 +24,7 @@ public:
 
 	void setCliOutputMode(CliOutputMode type);
 
-	void setInstructionType(nn::hac::npdm::InstructionType type);
+	void setInstructionType(nn::hac::meta::InstructionType type);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
@@ -37,7 +37,7 @@ private:
 	const std::string kModuleName = "RoMetadataProcess";
 
 	CliOutputMode mCliOutputMode;
-	nn::hac::npdm::InstructionType mInstructionType;
+	nn::hac::meta::InstructionType mInstructionType;
 	bool mListApi;
 	bool mListSymbols;	
 

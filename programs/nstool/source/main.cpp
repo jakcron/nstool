@@ -7,7 +7,7 @@
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
 #include "NcaProcess.h"
-#include "NpdmProcess.h"
+#include "MetaProcess.h"
 #include "CnmtProcess.h"
 #include "NsoProcess.h"
 #include "NroProcess.h"
@@ -110,9 +110,9 @@ int main(int argc, char** argv)
 
 			nca.process();
 		}
-		else if (user_set.getFileType() == FILE_NPDM)
+		else if (user_set.getFileType() == FILE_META)
 		{
-			NpdmProcess npdm;
+			MetaProcess npdm;
 
 			npdm.setInputFile(inputFile);
 			npdm.setKeyCfg(user_set.getKeyCfg());

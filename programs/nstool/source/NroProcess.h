@@ -4,7 +4,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
-#include <nn/hac/npdm.h>
+#include <nn/hac/meta.h>
 #include <nn/hac/NroHeader.h>
 #include "AssetProcess.h"
 
@@ -22,7 +22,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	void setInstructionType(nn::hac::npdm::InstructionType type);
+	void setInstructionType(nn::hac::meta::InstructionType type);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 

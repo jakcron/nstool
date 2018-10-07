@@ -51,6 +51,8 @@
     <ClInclude Include="include\nn\hac\macro.h" />
     <ClInclude Include="include\nn\hac\MemoryMappingHandler.h" />
     <ClInclude Include="include\nn\hac\MemoryPageEntry.h" />
+    <ClInclude Include="include\nn\hac\meta.h" />
+    <ClInclude Include="include\nn\hac\MetaBinary.h" />
     <ClInclude Include="include\nn\hac\MiscFlagsEntry.h" />
     <ClInclude Include="include\nn\hac\MiscFlagsHandler.h" />
     <ClInclude Include="include\nn\hac\MiscParamsEntry.h" />
@@ -59,8 +61,6 @@
     <ClInclude Include="include\nn\hac\nca.h" />
     <ClInclude Include="include\nn\hac\NcaHeader.h" />
     <ClInclude Include="include\nn\hac\NcaUtils.h" />
-    <ClInclude Include="include\nn\hac\npdm.h" />
-    <ClInclude Include="include\nn\hac\NpdmBinary.h" />
     <ClInclude Include="include\nn\hac\nro.h" />
     <ClInclude Include="include\nn\hac\NroHeader.h" />
     <ClInclude Include="include\nn\hac\nrr.h" />
@@ -101,13 +101,13 @@
     <ClCompile Include="source\KernelVersionHandler.cpp" />
     <ClCompile Include="source\MemoryMappingHandler.cpp" />
     <ClCompile Include="source\MemoryPageEntry.cpp" />
+    <ClCompile Include="source\MetaBinary.cpp" />
     <ClCompile Include="source\MiscFlagsEntry.cpp" />
     <ClCompile Include="source\MiscFlagsHandler.cpp" />
     <ClCompile Include="source\MiscParamsEntry.cpp" />
     <ClCompile Include="source\MiscParamsHandler.cpp" />
     <ClCompile Include="source\NcaHeader.cpp" />
     <ClCompile Include="source\NcaUtils.cpp" />
-    <ClCompile Include="source\NpdmBinary.cpp" />
     <ClCompile Include="source\NroHeader.cpp" />
     <ClCompile Include="source\NsoHeader.cpp" />
     <ClCompile Include="source\PfsHeader.cpp" />

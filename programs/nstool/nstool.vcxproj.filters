@@ -37,13 +37,13 @@
     <ClInclude Include="source\KeyConfiguration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\MetaProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="source\NacpProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\NcaProcess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\NpdmProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\NroProcess.h">
@@ -99,13 +99,13 @@
     <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\MetaProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\NacpProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NcaProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\NpdmProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NroProcess.cpp">
