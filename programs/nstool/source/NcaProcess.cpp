@@ -12,7 +12,7 @@
 #include "NcaProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
-#include "NpdmProcess.h"
+#include "MetaProcess.h"
 
 
 NcaProcess::NcaProcess() :
@@ -410,12 +410,12 @@ void NcaProcess::validateNcaSignatures()
 				{
 					const nn::hac::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
 
-					NpdmProcess npdm;
+					MetaProcess npdm;
 					npdm.setInputFile(new fnd::OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
-					if (fnd::rsa::pss::rsaVerify(npdm.getNpdmBinary().getAcid().getNcaHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					if (fnd::rsa::pss::rsaVerify(npdm.getMetaBinary().getAcid().getNcaHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
 						std::cout << "[WARNING] NCA Header ACID Signature: FAIL" << std::endl;
 					}

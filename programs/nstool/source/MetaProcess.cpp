@@ -1,72 +1,72 @@
 #include <iostream>
 #include <iomanip>
-#include "NpdmProcess.h"
+#include "MetaProcess.h"
 
-NpdmProcess::NpdmProcess() :
+MetaProcess::MetaProcess() :
 	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false)
 {
 }
 
-void NpdmProcess::process()
+void MetaProcess::process()
 {
-	importNpdm();
+	importMeta();
 
 	if (mVerify)
 	{
-		validateAcidSignature(mNpdm.getAcid());
-		validateAciFromAcid(mNpdm.getAci(), mNpdm.getAcid());
+		validateAcidSignature(mMeta.getAcid());
+		validateAciFromAcid(mMeta.getAci(), mMeta.getAcid());
 	}
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
 	{
 		// npdm binary
-		displayNpdmHeader(mNpdm);
+		displayMetaHeader(mMeta);
 
 		// aci binary
-		displayAciHdr(mNpdm.getAci());
-		displayFac(mNpdm.getAci().getFileSystemAccessControl());
-		displaySac(mNpdm.getAci().getServiceAccessControl());
-		displayKernelCap(mNpdm.getAci().getKernelCapabilities());
+		displayAciHdr(mMeta.getAci());
+		displayFac(mMeta.getAci().getFileSystemAccessControl());
+		displaySac(mMeta.getAci().getServiceAccessControl());
+		displayKernelCap(mMeta.getAci().getKernelCapabilities());
 
 		// acid binary
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		{
-			displayAciDescHdr(mNpdm.getAcid());
-			displayFac(mNpdm.getAcid().getFileSystemAccessControl());
-			displaySac(mNpdm.getAcid().getServiceAccessControl());
-			displayKernelCap(mNpdm.getAcid().getKernelCapabilities());
+			displayAciDescHdr(mMeta.getAcid());
+			displayFac(mMeta.getAcid().getFileSystemAccessControl());
+			displaySac(mMeta.getAcid().getServiceAccessControl());
+			displayKernelCap(mMeta.getAcid().getKernelCapabilities());
 		}
 	}
 }
 
-void NpdmProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void MetaProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
 }
 
-void NpdmProcess::setKeyCfg(const KeyConfiguration& keycfg)
+void MetaProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
 	mKeyCfg = keycfg;
 }
 
-void NpdmProcess::setCliOutputMode(CliOutputMode type)
+void MetaProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void NpdmProcess::setVerifyMode(bool verify)
+void MetaProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-const nn::hac::NpdmBinary& NpdmProcess::getNpdmBinary() const
+const nn::hac::MetaBinary& MetaProcess::getMetaBinary() const
 {
-	return mNpdm;
+	return mMeta;
 }
 
-void NpdmProcess::importNpdm()
+void MetaProcess::importMeta()
 {
 	fnd::Vec<byte_t> scratch;
 
@@ -78,10 +78,10 @@ void NpdmProcess::importNpdm()
 	scratch.alloc((*mFile)->size());
 	(*mFile)->read(scratch.data(), 0, scratch.size());
 
-	mNpdm.fromBytes(scratch.data(), scratch.size());
+	mMeta.fromBytes(scratch.data(), scratch.size());
 }
 
-void NpdmProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid)
 {
 	try {
 		fnd::rsa::sRsa2048Key acid_sign_key;
@@ -96,7 +96,7 @@ void NpdmProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBina
 	
 }
 
-void NpdmProcess::validateAciFromAcid(const nn::hac::AccessControlInfoBinary& aci, const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfoBinary& aci, const nn::hac::AccessControlInfoDescBinary& acid)
 {
 	// check Program ID
 	if (acid.getProgramIdRestrict().min > 0 && aci.getProgramId() < acid.getProgramIdRestrict().min)
@@ -287,9 +287,9 @@ void NpdmProcess::validateAciFromAcid(const nn::hac::AccessControlInfoBinary& ac
 	}
 }
 
-void NpdmProcess::displayNpdmHeader(const nn::hac::NpdmBinary& hdr)
+void MetaProcess::displayMetaHeader(const nn::hac::MetaBinary& hdr)
 {
-	std::cout << "[NPDM HEADER]" << std::endl;
+	std::cout << "[Meta Header]" << std::endl;
 	std::cout << "  Process Architecture Params:" << std::endl;
 	std::cout << "    Ins. Type:     " << getInstructionTypeStr(hdr.getInstructionType()) << std::endl;
 	std::cout << "    Addr Space:    " << getProcAddressSpaceTypeStr(hdr.getProcAddressSpaceType()) << std::endl;
@@ -306,13 +306,13 @@ void NpdmProcess::displayNpdmHeader(const nn::hac::NpdmBinary& hdr)
 	}
 }
 
-void NpdmProcess::displayAciHdr(const nn::hac::AccessControlInfoBinary& aci)
+void MetaProcess::displayAciHdr(const nn::hac::AccessControlInfoBinary& aci)
 {
 	std::cout << "[Access Control Info]" << std::endl;
 	std::cout << "  ProgramID:       0x" << std::hex << std::setw(16) << std::setfill('0') << aci.getProgramId() << std::endl;
 }
 
-void NpdmProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& acid)
 {
 	std::cout << "[Access Control Info Desc]" << std::endl;
 	if (acid.getFlagList().size() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
@@ -328,7 +328,7 @@ void NpdmProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& 
 	std::cout << "    Max:           0x" << std::hex << std::setw(16) << std::setfill('0') << acid.getProgramIdRestrict().max << std::endl;
 }
 
-void NpdmProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
+void MetaProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
 {
 	std::cout << "[FS Access Control]" << std::endl;
 	std::cout << "  Format Version:  " << std::dec << (uint32_t)fac.getFormatVersion() << std::endl;
@@ -373,7 +373,7 @@ void NpdmProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
 	
 }
 
-void NpdmProcess::displaySac(const nn::hac::ServiceAccessControlBinary& sac)
+void MetaProcess::displaySac(const nn::hac::ServiceAccessControlBinary& sac)
 {
 	std::cout << "[Service Access Control]" << std::endl;
 	std::cout << "  Service List:" << std::endl;
@@ -394,7 +394,7 @@ void NpdmProcess::displaySac(const nn::hac::ServiceAccessControlBinary& sac)
 	std::cout << std::endl;
 }
 
-void NpdmProcess::displayKernelCap(const nn::hac::KernelCapabilityBinary& kern)
+void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityBinary& kern)
 {
 	std::cout << "[Kernel Capabilities]" << std::endl;
 	if (kern.getThreadInfo().isSet())
@@ -496,16 +496,16 @@ void NpdmProcess::displayKernelCap(const nn::hac::KernelCapabilityBinary& kern)
 	}
 }
 
-const char* NpdmProcess::getInstructionTypeStr(nn::hac::npdm::InstructionType type) const
+const char* MetaProcess::getInstructionTypeStr(nn::hac::meta::InstructionType type) const
 {
 	const char* str = nullptr;
 
 	switch(type)
 	{
-	case (nn::hac::npdm::INSTR_32BIT):
+	case (nn::hac::meta::INSTR_32BIT):
 		str = "32Bit";
 		break;
-	case (nn::hac::npdm::INSTR_64BIT):
+	case (nn::hac::meta::INSTR_64BIT):
 		str = "64Bit";
 		break;
 	default:
@@ -516,19 +516,19 @@ const char* NpdmProcess::getInstructionTypeStr(nn::hac::npdm::InstructionType ty
 	return str;
 }
 
-const char* NpdmProcess::getProcAddressSpaceTypeStr(nn::hac::npdm::ProcAddrSpaceType type) const
+const char* MetaProcess::getProcAddressSpaceTypeStr(nn::hac::meta::ProcAddrSpaceType type) const
 {
 	const char* str = nullptr;
 
 	switch(type)
 	{
-	case (nn::hac::npdm::ADDR_SPACE_64BIT):
+	case (nn::hac::meta::ADDR_SPACE_64BIT):
 		str = "64Bit";
 		break;
-	case (nn::hac::npdm::ADDR_SPACE_32BIT):
+	case (nn::hac::meta::ADDR_SPACE_32BIT):
 		str = "32Bit";
 		break;
-	case (nn::hac::npdm::ADDR_SPACE_32BIT_NO_RESERVED):
+	case (nn::hac::meta::ADDR_SPACE_32BIT_NO_RESERVED):
 		str = "32Bit no reserved";
 		break;
 	default:
@@ -539,7 +539,7 @@ const char* NpdmProcess::getProcAddressSpaceTypeStr(nn::hac::npdm::ProcAddrSpace
 	return str;
 }
 
-const char* NpdmProcess::getAcidFlagStr(nn::hac::aci::Flag flag) const
+const char* MetaProcess::getAcidFlagStr(nn::hac::aci::Flag flag) const
 {
 	const char* str = nullptr;
 
@@ -559,7 +559,7 @@ const char* NpdmProcess::getAcidFlagStr(nn::hac::aci::Flag flag) const
 	return str;
 }
 
-const char* NpdmProcess::getMiscFlagStr(nn::hac::MiscFlagsHandler::Flags flag) const
+const char* MetaProcess::getMiscFlagStr(nn::hac::MiscFlagsHandler::Flags flag) const
 {
 	const char* str = nullptr;
 
@@ -579,7 +579,7 @@ const char* NpdmProcess::getMiscFlagStr(nn::hac::MiscFlagsHandler::Flags flag) c
 	return str;
 }
 
-const char* NpdmProcess::getFsaRightStr(nn::hac::fac::FsAccessFlag flag) const
+const char* MetaProcess::getFsaRightStr(nn::hac::fac::FsAccessFlag flag) const
 {
 	const char* str = nullptr;
 
@@ -659,7 +659,7 @@ const char* NpdmProcess::getFsaRightStr(nn::hac::fac::FsAccessFlag flag) const
 	return str;
 }
 
-const char* NpdmProcess::getSaveDataOwnerAccessModeStr(nn::hac::fac::SaveDataOwnerIdAccessType type) const
+const char* MetaProcess::getSaveDataOwnerAccessModeStr(nn::hac::fac::SaveDataOwnerIdAccessType type) const
 {
 	const char* str = nullptr;
 
@@ -682,7 +682,7 @@ const char* NpdmProcess::getSaveDataOwnerAccessModeStr(nn::hac::fac::SaveDataOwn
 	return str;
 }
 
-const char* NpdmProcess::getSystemCallStr(byte_t syscall_id) const
+const char* MetaProcess::getSystemCallStr(byte_t syscall_id) const
 {
 	const char* str = nullptr;
 
@@ -1077,7 +1077,7 @@ const char* NpdmProcess::getSystemCallStr(byte_t syscall_id) const
 	return str;
 }
 
-const char* NpdmProcess::getMemMapPermStr(nn::hac::MemoryMappingHandler::MemoryPerm type) const
+const char* MetaProcess::getMemMapPermStr(nn::hac::MemoryMappingHandler::MemoryPerm type) const
 {
 	const char* str = nullptr;
 
@@ -1097,7 +1097,7 @@ const char* NpdmProcess::getMemMapPermStr(nn::hac::MemoryMappingHandler::MemoryP
 	return str;
 }
 
-const char* NpdmProcess::getMemMapTypeStr(nn::hac::MemoryMappingHandler::MappingType type) const
+const char* MetaProcess::getMemMapTypeStr(nn::hac::MemoryMappingHandler::MappingType type) const
 {
 	const char* str = nullptr;
 

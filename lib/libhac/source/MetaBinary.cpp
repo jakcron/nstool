@@ -1,19 +1,19 @@
-#include <nn/hac/NpdmBinary.h>
+#include <nn/hac/MetaBinary.h>
 
 #include <fnd/SimpleTextOutput.h>
 
-nn::hac::NpdmBinary::NpdmBinary()
+nn::hac::MetaBinary::MetaBinary()
 {
 	clear();
 }
 
-nn::hac::NpdmBinary::NpdmBinary(const NpdmBinary & other) :
-	NpdmBinary()
+nn::hac::MetaBinary::MetaBinary(const MetaBinary & other) :
+	MetaBinary()
 {
 	*this = other;
 }
 
-void nn::hac::NpdmBinary::operator=(const NpdmBinary & other)
+void nn::hac::MetaBinary::operator=(const MetaBinary & other)
 {
 	mRawBinary = other.mRawBinary;
 	mInstructionType = other.mInstructionType;
@@ -28,7 +28,7 @@ void nn::hac::NpdmBinary::operator=(const NpdmBinary & other)
 	mAcid = other.mAcid;
 }
 
-bool nn::hac::NpdmBinary::operator==(const NpdmBinary & other) const
+bool nn::hac::MetaBinary::operator==(const MetaBinary & other) const
 {
 	return (mInstructionType == other.mInstructionType) \
 		&& (mProcAddressSpaceType == other.mProcAddressSpaceType) \
@@ -42,12 +42,12 @@ bool nn::hac::NpdmBinary::operator==(const NpdmBinary & other) const
 		&& (mAcid == other.mAcid);
 }
 
-bool nn::hac::NpdmBinary::operator!=(const NpdmBinary & other) const
+bool nn::hac::MetaBinary::operator!=(const MetaBinary & other) const
 {
 	return !(*this == other);
 }
 
-void nn::hac::NpdmBinary::toBytes()
+void nn::hac::MetaBinary::toBytes()
 {
 	if (mAcid.getBytes().size() == 0)
 		mAcid.toBytes();
@@ -61,20 +61,20 @@ void nn::hac::NpdmBinary::toBytes()
 		uint32_t offset, size;
 	} acid, aci;
 
-	acid.offset = (uint32_t)align(sizeof(sNpdmHeader), npdm::kSectionAlignSize);
+	acid.offset = (uint32_t)align(sizeof(sMetaHeader), meta::kSectionAlignSize);
 	acid.size = (uint32_t)mAcid.getBytes().size();
-	aci.offset = (uint32_t)(acid.offset + align(acid.size, npdm::kSectionAlignSize));
+	aci.offset = (uint32_t)(acid.offset + align(acid.size, meta::kSectionAlignSize));
 	aci.size = (uint32_t)mAci.getBytes().size();
 	
 
 	// get total size
-	size_t total_size = _MAX(_MAX(acid.offset + acid.size, aci.offset + aci.size), align(sizeof(sNpdmHeader), npdm::kSectionAlignSize)); 
+	size_t total_size = _MAX(_MAX(acid.offset + acid.size, aci.offset + aci.size), align(sizeof(sMetaHeader), meta::kSectionAlignSize)); 
 
 	mRawBinary.alloc(total_size);
-	sNpdmHeader* hdr = (sNpdmHeader*)mRawBinary.data();
+	sMetaHeader* hdr = (sMetaHeader*)mRawBinary.data();
 
 	// set type
-	hdr->st_magic = npdm::kNpdmStructMagic;
+	hdr->st_magic = meta::kMetaStructMagic;
 
 	// set variables
 	byte_t flag = ((byte_t)(mInstructionType & 1) | (byte_t)((mProcAddressSpaceType & 3) << 1)) & 0xf;
@@ -83,8 +83,8 @@ void nn::hac::NpdmBinary::toBytes()
 	hdr->main_thread_cpu_id = mMainThreadCpuId;
 	hdr->version = mVersion;
 	hdr->main_thread_stack_size = mMainThreadStackSize;
-	strncpy(hdr->name, mName.c_str(), npdm::kNameMaxLen);
-	strncpy(hdr->product_code, mProductCode.c_str(), npdm::kProductCodeMaxLen);
+	strncpy(hdr->name, mName.c_str(), meta::kNameMaxLen);
+	strncpy(hdr->product_code, mProductCode.c_str(), meta::kProductCodeMaxLen);
 
 	// set offset/size
 	hdr->aci.offset = aci.offset;
@@ -103,45 +103,45 @@ void nn::hac::NpdmBinary::toBytes()
 	}
 }
 
-void nn::hac::NpdmBinary::fromBytes(const byte_t* data, size_t len)
+void nn::hac::MetaBinary::fromBytes(const byte_t* data, size_t len)
 {
 	// check size
-	if (len < sizeof(sNpdmHeader))
+	if (len < sizeof(sMetaHeader))
 	{
-		throw fnd::Exception(kModuleName, "NPDM binary is too small");
+		throw fnd::Exception(kModuleName, "META binary is too small");
 	}
 	
 	// clear variables
 	clear();
 
 	// save a copy of the header
-	sNpdmHeader hdr;
-	memcpy((void*)&hdr, data, sizeof(sNpdmHeader));
+	sMetaHeader hdr;
+	memcpy((void*)&hdr, data, sizeof(sMetaHeader));
 
 	// check magic
-	if (hdr.st_magic.get() != npdm::kNpdmStructMagic)
+	if (hdr.st_magic.get() != meta::kMetaStructMagic)
 	{
-		throw fnd::Exception(kModuleName, "NPDM header corrupt");
+		throw fnd::Exception(kModuleName, "META header corrupt (unrecognised struct signature)");
 	}
 
 	// save variables
 	byte_t flag = hdr.flags & 0xf;
-	mInstructionType = (npdm::InstructionType)(flag & 1);
-	mProcAddressSpaceType = (npdm::ProcAddrSpaceType)((flag >> 1) & 3);
+	mInstructionType = (meta::InstructionType)(flag & 1);
+	mProcAddressSpaceType = (meta::ProcAddrSpaceType)((flag >> 1) & 3);
 	mMainThreadPriority = hdr.main_thread_priority;
 	mMainThreadCpuId = hdr.main_thread_cpu_id;
 	mVersion = hdr.version.get();
 	mMainThreadStackSize = hdr.main_thread_stack_size.get();
-	mName = std::string(hdr.name, _MIN(strlen(hdr.name), npdm::kNameMaxLen));
-	mProductCode = std::string(hdr.product_code, _MIN(strlen(hdr.product_code), npdm::kProductCodeMaxLen));
+	mName = std::string(hdr.name, _MIN(strlen(hdr.name), meta::kNameMaxLen));
+	mProductCode = std::string(hdr.product_code, _MIN(strlen(hdr.product_code), meta::kProductCodeMaxLen));
 
 	// total size
-	size_t total_size = _MAX(_MAX(hdr.acid.offset.get() + hdr.acid.size.get(), hdr.aci.offset.get() + hdr.aci.size.get()), sizeof(sNpdmHeader));
+	size_t total_size = _MAX(_MAX(hdr.acid.offset.get() + hdr.acid.size.get(), hdr.aci.offset.get() + hdr.aci.size.get()), sizeof(sMetaHeader));
 
 	// check size
 	if (total_size > len)
 	{
-		throw fnd::Exception(kModuleName, "NPDM binary too small");
+		throw fnd::Exception(kModuleName, "META binary too small");
 	}
 
 	// save local copy
@@ -159,16 +159,16 @@ void nn::hac::NpdmBinary::fromBytes(const byte_t* data, size_t len)
 	}	
 }
 
-const fnd::Vec<byte_t>& nn::hac::NpdmBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::MetaBinary::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nn::hac::NpdmBinary::clear()
+void nn::hac::MetaBinary::clear()
 {
 	mRawBinary.clear();
-	mInstructionType = npdm::INSTR_64BIT;
-	mProcAddressSpaceType = npdm::ADDR_SPACE_64BIT;
+	mInstructionType = meta::INSTR_64BIT;
+	mProcAddressSpaceType = meta::ADDR_SPACE_64BIT;
 	mMainThreadPriority = 0;
 	mMainThreadCpuId = 0;
 	mVersion = 0;
@@ -179,34 +179,34 @@ void nn::hac::NpdmBinary::clear()
 	mAcid.clear();
 }
 
-nn::hac::npdm::InstructionType nn::hac::NpdmBinary::getInstructionType() const
+nn::hac::meta::InstructionType nn::hac::MetaBinary::getInstructionType() const
 {
 	return mInstructionType;
 }
 
-void nn::hac::NpdmBinary::setInstructionType(npdm::InstructionType type)
+void nn::hac::MetaBinary::setInstructionType(meta::InstructionType type)
 {
 	mInstructionType = type;
 }
 
-nn::hac::npdm::ProcAddrSpaceType nn::hac::NpdmBinary::getProcAddressSpaceType() const
+nn::hac::meta::ProcAddrSpaceType nn::hac::MetaBinary::getProcAddressSpaceType() const
 {
 	return mProcAddressSpaceType;
 }
 
-void nn::hac::NpdmBinary::setProcAddressSpaceType(npdm::ProcAddrSpaceType type)
+void nn::hac::MetaBinary::setProcAddressSpaceType(meta::ProcAddrSpaceType type)
 {
 	mProcAddressSpaceType = type;
 }
 
-byte_t nn::hac::NpdmBinary::getMainThreadPriority() const
+byte_t nn::hac::MetaBinary::getMainThreadPriority() const
 {
 	return mMainThreadPriority;
 }
 
-void nn::hac::NpdmBinary::setMainThreadPriority(byte_t priority)
+void nn::hac::MetaBinary::setMainThreadPriority(byte_t priority)
 {
-	if (priority > npdm::kMaxPriority)
+	if (priority > meta::kMaxPriority)
 	{
 		throw fnd::Exception(kModuleName, "Illegal main thread priority (range 0-63)");
 	}
@@ -214,44 +214,44 @@ void nn::hac::NpdmBinary::setMainThreadPriority(byte_t priority)
 	mMainThreadPriority = priority;
 }
 
-byte_t nn::hac::NpdmBinary::getMainThreadCpuId() const
+byte_t nn::hac::MetaBinary::getMainThreadCpuId() const
 {
 	return mMainThreadCpuId;
 }
 
-void nn::hac::NpdmBinary::setMainThreadCpuId(byte_t core_num)
+void nn::hac::MetaBinary::setMainThreadCpuId(byte_t core_num)
 {
 	mMainThreadCpuId = core_num;
 }
 
-uint32_t nn::hac::NpdmBinary::getVersion() const
+uint32_t nn::hac::MetaBinary::getVersion() const
 {
 	return mVersion;
 }
 
-void nn::hac::NpdmBinary::setVersion(uint32_t version)
+void nn::hac::MetaBinary::setVersion(uint32_t version)
 {
 	mVersion = version;
 }
 
-uint32_t nn::hac::NpdmBinary::getMainThreadStackSize() const
+uint32_t nn::hac::MetaBinary::getMainThreadStackSize() const
 {
 	return mMainThreadStackSize;
 }
 
-void nn::hac::NpdmBinary::setMainThreadStackSize(uint32_t size)
+void nn::hac::MetaBinary::setMainThreadStackSize(uint32_t size)
 {
 	mMainThreadStackSize = size;
 }
 
-const std::string & nn::hac::NpdmBinary::getName() const
+const std::string & nn::hac::MetaBinary::getName() const
 {
 	return mName;
 }
 
-void nn::hac::NpdmBinary::setName(const std::string & name)
+void nn::hac::MetaBinary::setName(const std::string & name)
 {
-	if (name.length() > npdm::kNameMaxLen)
+	if (name.length() > meta::kNameMaxLen)
 	{
 		throw fnd::Exception(kModuleName, "Name is too long");
 	}
@@ -259,14 +259,14 @@ void nn::hac::NpdmBinary::setName(const std::string & name)
 	mName = name;
 }
 
-const std::string & nn::hac::NpdmBinary::getProductCode() const
+const std::string & nn::hac::MetaBinary::getProductCode() const
 {
 	return mProductCode;
 }
 
-void nn::hac::NpdmBinary::setProductCode(const std::string & product_code)
+void nn::hac::MetaBinary::setProductCode(const std::string & product_code)
 {
-	if (product_code.length() > npdm::kProductCodeMaxLen)
+	if (product_code.length() > meta::kProductCodeMaxLen)
 	{
 		throw fnd::Exception(kModuleName, "Product Code is too long");
 	}
@@ -274,22 +274,22 @@ void nn::hac::NpdmBinary::setProductCode(const std::string & product_code)
 	mProductCode = product_code;
 }
 
-const nn::hac::AccessControlInfoBinary & nn::hac::NpdmBinary::getAci() const
+const nn::hac::AccessControlInfoBinary & nn::hac::MetaBinary::getAci() const
 {
 	return mAci;
 }
 
-void nn::hac::NpdmBinary::setAci(const AccessControlInfoBinary & aci)
+void nn::hac::MetaBinary::setAci(const AccessControlInfoBinary & aci)
 {
 	mAci = aci;
 }
 
-const nn::hac::AccessControlInfoDescBinary & nn::hac::NpdmBinary::getAcid() const
+const nn::hac::AccessControlInfoDescBinary & nn::hac::MetaBinary::getAcid() const
 {
 	return mAcid;
 }
 
-void nn::hac::NpdmBinary::setAcid(const AccessControlInfoDescBinary & acid)
+void nn::hac::MetaBinary::setAcid(const AccessControlInfoDescBinary & acid)
 {
 	mAcid = acid;
 }

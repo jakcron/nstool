@@ -7,7 +7,7 @@
 
 RoMetadataProcess::RoMetadataProcess() :
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
-	mInstructionType(nn::hac::npdm::INSTR_64BIT),
+	mInstructionType(nn::hac::meta::INSTR_64BIT),
 	mListApi(false),
 	mListSymbols(false),
 	mApiInfo(),
@@ -57,7 +57,7 @@ void RoMetadataProcess::setCliOutputMode(CliOutputMode type)
 	mCliOutputMode = type;
 }
 
-void RoMetadataProcess::setInstructionType(nn::hac::npdm::InstructionType type)
+void RoMetadataProcess::setInstructionType(nn::hac::meta::InstructionType type)
 {
 	mInstructionType = type;
 }
@@ -126,7 +126,7 @@ void RoMetadataProcess::importApiList()
 
 	if (mDynSym.size > 0)
 	{
-		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mInstructionType == nn::hac::npdm::INSTR_64BIT);
+		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mInstructionType == nn::hac::meta::INSTR_64BIT);
 	}
 }
 

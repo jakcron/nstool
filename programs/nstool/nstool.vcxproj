@@ -184,9 +184,9 @@
     <ClInclude Include="source\ElfSymbolParser.h" />
     <ClInclude Include="source\EsTikProcess.h" />
     <ClInclude Include="source\KeyConfiguration.h" />
+    <ClInclude Include="source\MetaProcess.h" />
     <ClInclude Include="source\NacpProcess.h" />
     <ClInclude Include="source\NcaProcess.h" />
-    <ClInclude Include="source\NpdmProcess.h" />
     <ClInclude Include="source\NroProcess.h" />
     <ClInclude Include="source\NsoProcess.h" />
     <ClInclude Include="source\PfsProcess.h" />
@@ -206,9 +206,9 @@
     <ClCompile Include="source\EsTikProcess.cpp" />
     <ClCompile Include="source\KeyConfiguration.cpp" />
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\MetaProcess.cpp" />
     <ClCompile Include="source\NacpProcess.cpp" />
     <ClCompile Include="source\NcaProcess.cpp" />
-    <ClCompile Include="source\NpdmProcess.cpp" />
     <ClCompile Include="source\NroProcess.cpp" />
     <ClCompile Include="source\NsoProcess.cpp" />
     <ClCompile Include="source\PfsProcess.cpp" />

@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/List.h>
 #include <fnd/ISerialisable.h>
-#include <nn/hac/npdm.h>
+#include <nn/hac/meta.h>
 #include <nn/hac/AccessControlInfoBinary.h>
 #include <nn/hac/AccessControlInfoDescBinary.h>
 
@@ -10,16 +10,16 @@ namespace nn
 {
 namespace hac
 {
-	class NpdmBinary :
+	class MetaBinary :
 		public fnd::ISerialisable
 	{
 	public:
-		NpdmBinary();
-		NpdmBinary(const NpdmBinary& other);
+		MetaBinary();
+		MetaBinary(const MetaBinary& other);
 
-		void operator=(const NpdmBinary& other);
-		bool operator==(const NpdmBinary& other) const;
-		bool operator!=(const NpdmBinary& other) const;
+		void operator=(const MetaBinary& other);
+		bool operator==(const MetaBinary& other) const;
+		bool operator!=(const MetaBinary& other) const;
 
 		// export/import binary
 		void toBytes();
@@ -29,11 +29,11 @@ namespace hac
 		// variables
 		void clear();
 
-		npdm::InstructionType getInstructionType() const;
-		void setInstructionType(npdm::InstructionType type);
+		meta::InstructionType getInstructionType() const;
+		void setInstructionType(meta::InstructionType type);
 
-		npdm::ProcAddrSpaceType getProcAddressSpaceType() const;
-		void setProcAddressSpaceType(npdm::ProcAddrSpaceType type);
+		meta::ProcAddrSpaceType getProcAddressSpaceType() const;
+		void setProcAddressSpaceType(meta::ProcAddrSpaceType type);
 
 		byte_t getMainThreadPriority() const;
 		void setMainThreadPriority(byte_t priority);
@@ -59,14 +59,14 @@ namespace hac
 		const AccessControlInfoDescBinary& getAcid() const;
 		void setAcid(const AccessControlInfoDescBinary& acid);
 	private:
-		const std::string kModuleName = "NPDM_BINARY";
+		const std::string kModuleName = "META_BINARY";
 
 		// raw binary
 		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
-		npdm::InstructionType mInstructionType;
-		npdm::ProcAddrSpaceType mProcAddressSpaceType;
+		meta::InstructionType mInstructionType;
+		meta::ProcAddrSpaceType mProcAddressSpaceType;
 		byte_t mMainThreadPriority;
 		byte_t mMainThreadCpuId;
 		uint32_t mVersion;

@@ -43,7 +43,7 @@ void NroProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void NroProcess::setInstructionType(nn::hac::npdm::InstructionType type)
+void NroProcess::setInstructionType(nn::hac::meta::InstructionType type)
 {
 	mRoMeta.setInstructionType(type);
 }

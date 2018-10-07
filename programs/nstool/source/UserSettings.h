@@ -6,7 +6,7 @@
 #include <fnd/List.h>
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
-#include <nn/hac/npdm.h>
+#include <nn/hac/meta.h>
 #include "common.h"
 #include "KeyConfiguration.h"
 
@@ -29,7 +29,7 @@ public:
 	bool isListFs() const;
 	bool isListApi() const;
 	bool isListSymbols() const;
-	nn::hac::npdm::InstructionType getInstType() const;
+	nn::hac::meta::InstructionType getInstType() const;
 
 	// specialised paths
 	const sOptional<std::string>& getXciUpdatePath() const;
@@ -110,7 +110,7 @@ private:
 
 	bool mListApi;
 	bool mListSymbols;
-	nn::hac::npdm::InstructionType mInstructionType;
+	nn::hac::meta::InstructionType mInstructionType;
 
 	void populateCmdArgs(const std::vector<std::string>& arg_list, sCmdArgs& cmd_args);
 	void populateKeyset(sCmdArgs& args);
@@ -122,7 +122,7 @@ private:
 	bool determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const;
-	nn::hac::npdm::InstructionType getInstructionTypeFromString(const std::string& type_str);
+	nn::hac::meta::InstructionType getInstructionTypeFromString(const std::string& type_str);
 	void getHomePath(std::string& path) const;
 	void getSwitchPath(std::string& path) const;
 
