@@ -2,7 +2,7 @@
 General purpose reading/extraction tool for Nintendo Switch file formats.
 
 ## Supported File Formats
-* NPDM (.npdm)
+* Meta (.npdm)
 * PartitionFS (and HashedPartitionFS) (includes raw .nsp)
 * RomFS
 * GameCard Image (.xci)
@@ -21,7 +21,7 @@ Usage: nstool [options... ] <file>
   General Options:
       -d, --dev       Use devkit keyset.
       -k, --keyset    Specify keyset file.
-      -t, --type      Specify input file type. [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset, cert, tik]
+      -t, --type      Specify input file type. [xci, pfs, romfs, nca, meta, cnmt, nso, nro, nacp, aset, cert, tik]
       -y, --verify    Verify file.
 
   Output Options:
