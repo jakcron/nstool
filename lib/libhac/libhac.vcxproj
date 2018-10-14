@@ -30,7 +30,7 @@
     <ClInclude Include="include\nn\hac\ApplicationControlPropertyUtils.h" />
     <ClInclude Include="include\nn\hac\cnmt.h" />
     <ClInclude Include="include\nn\hac\ContentMetaBinary.h" />
-    <ClInclude Include="include\nn\hac\elf.h" />
+    <ClInclude Include="include\nn\hac\delta.h" />
     <ClInclude Include="include\nn\hac\fac.h" />
     <ClInclude Include="include\nn\hac\FileSystemAccessControlBinary.h" />
     <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h" />

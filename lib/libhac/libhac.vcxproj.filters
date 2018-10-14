@@ -42,7 +42,7 @@
     <ClInclude Include="include\nn\hac\ContentMetaBinary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\elf.h">
+    <ClInclude Include="include\nn\hac\delta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\fac.h">
