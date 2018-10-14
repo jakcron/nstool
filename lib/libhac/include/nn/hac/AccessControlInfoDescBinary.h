@@ -2,7 +2,7 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/List.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <nn/hac/aci.h>
 #include <nn/hac/FileSystemAccessControlBinary.h>
 #include <nn/hac/ServiceAccessControlBinary.h>
@@ -12,7 +12,7 @@ namespace nn
 {
 namespace hac
 {
-	class AccessControlInfoDescBinary : public fnd::ISerialisable
+	class AccessControlInfoDescBinary : public fnd::IByteModel
 	{
 	public:
 		struct sProgramIdRestrict

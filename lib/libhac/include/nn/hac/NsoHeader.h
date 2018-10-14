@@ -1,7 +1,7 @@
 #pragma once
 #include <cstring>
 #include <nn/hac/nso.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 
 namespace nn
@@ -9,7 +9,7 @@ namespace nn
 namespace hac
 {
 	class NsoHeader : 
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct sModuleId

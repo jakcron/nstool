@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <nn/es/ticket.h>
 
 namespace nn
@@ -8,7 +8,7 @@ namespace nn
 namespace es
 {
 	class SectionHeader_V2 :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		SectionHeader_V2();

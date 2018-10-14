@@ -1,14 +1,14 @@
 #pragma once
 #include <nn/hac/aset.h>
 #include <fnd/List.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 
 namespace nn
 {
 namespace hac
 {
 	class AssetHeader : 
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct sSection

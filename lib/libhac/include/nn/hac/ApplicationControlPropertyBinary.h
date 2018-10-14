@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <nn/hac/nacp.h>
 
@@ -10,7 +10,7 @@ namespace nn
 namespace hac
 {
 	class ApplicationControlPropertyBinary :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct sTitle

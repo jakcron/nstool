@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <nn/pki/cert.h>
 
 namespace nn
@@ -8,7 +8,7 @@ namespace nn
 namespace pki
 {
 	class CertificateBody
-		: public fnd::ISerialisable
+		: public fnd::IByteModel
 	{
 	public:
 		CertificateBody();

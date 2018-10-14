@@ -1,6 +1,6 @@
 #pragma once
 #include <nn/hac/hierarchicalintegrity.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <fnd/sha.h>
 
@@ -9,7 +9,7 @@ namespace nn
 namespace hac
 {
 	class HierarchicalIntegrityHeader :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct sLayer

@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <nn/pki/sign.h>
 
 namespace nn
@@ -8,7 +8,7 @@ namespace nn
 namespace pki
 {
 	class SignatureBlock
-		: public fnd::ISerialisable
+		: public fnd::IByteModel
 	{
 	public:
 		SignatureBlock();

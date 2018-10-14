@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <nn/hac/ServiceAccessControlEntry.h>
 
@@ -10,7 +10,7 @@ namespace nn
 namespace hac
 {
 	class ServiceAccessControlBinary :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		ServiceAccessControlBinary();

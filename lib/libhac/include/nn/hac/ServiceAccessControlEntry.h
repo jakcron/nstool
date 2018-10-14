@@ -1,14 +1,14 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 
 namespace nn
 {
 namespace hac
 {
 	class ServiceAccessControlEntry : 
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		ServiceAccessControlEntry();

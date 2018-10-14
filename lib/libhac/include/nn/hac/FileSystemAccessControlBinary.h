@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <nn/hac/fac.h>
 
@@ -9,7 +9,7 @@ namespace nn
 {
 namespace hac
 {
-	class FileSystemAccessControlBinary : public fnd::ISerialisable
+	class FileSystemAccessControlBinary : public fnd::IByteModel
 	{
 	public:
 		struct sSaveDataOwnerId

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/types.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <nn/hac/aci.h>
 #include <nn/hac/FileSystemAccessControlBinary.h>
 #include <nn/hac/ServiceAccessControlBinary.h>
@@ -11,7 +11,7 @@ namespace nn
 {
 namespace hac
 {
-	class AccessControlInfoBinary : public fnd::ISerialisable
+	class AccessControlInfoBinary : public fnd::IByteModel
 	{
 	public:
 		AccessControlInfoBinary();

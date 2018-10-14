@@ -42,13 +42,13 @@
     <ClInclude Include="include\fnd\Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\fnd\IByteModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\fnd\IFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\fnd\io.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fnd\ISerialisable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\fnd\LayeredIntegrityMetadata.h">

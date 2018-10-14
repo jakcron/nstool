@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <cstring>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <nn/hac/cnmt.h>
 
@@ -10,7 +10,7 @@ namespace nn
 namespace hac
 {
 	class ContentMetaBinary :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct ContentInfo

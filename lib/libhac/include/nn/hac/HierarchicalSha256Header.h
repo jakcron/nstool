@@ -1,6 +1,6 @@
 #pragma once
 #include <nn/hac/hierarchicalsha256.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 
 namespace nn
@@ -8,7 +8,7 @@ namespace nn
 namespace hac
 {
 	class HierarchicalSha256Header :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct sLayer

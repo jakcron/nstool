@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <fnd/List.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <nn/hac/meta.h>
 #include <nn/hac/AccessControlInfoBinary.h>
 #include <nn/hac/AccessControlInfoDescBinary.h>
@@ -11,7 +11,7 @@ namespace nn
 namespace hac
 {
 	class MetaBinary :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		MetaBinary();

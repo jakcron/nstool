@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <nn/es/ticket.h>
 
@@ -9,7 +9,7 @@ namespace nn
 namespace es
 {
 	class TicketBody_V2 :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		TicketBody_V2();
