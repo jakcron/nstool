@@ -69,6 +69,9 @@
     <ClInclude Include="include\nn\hac\HierarchicalSha256Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nn\hac\IdConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\hac\IKernelCapabilityHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -102,6 +105,12 @@
     <ClInclude Include="include\nn\hac\MemoryPageEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nn\hac\meta.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\MetaBinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\hac\MiscFlagsEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -126,12 +135,6 @@
     <ClInclude Include="include\nn\hac\NcaUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\npdm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\MetaBinary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\nn\hac\nro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -151,6 +154,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\PfsHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\Result.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\romfs.h">
@@ -181,12 +187,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\XciUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\IdConverter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\Result.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
