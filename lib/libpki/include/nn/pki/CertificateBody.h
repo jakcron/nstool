@@ -18,7 +18,7 @@ namespace pki
 		bool operator==(const CertificateBody& other) const;
 		bool operator!=(const CertificateBody& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* src, size_t size);
 		const fnd::Vec<byte_t>& getBytes() const;
