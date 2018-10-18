@@ -18,7 +18,7 @@ namespace es
 		bool operator==(const SectionHeader_V2& other) const;
 		bool operator!=(const SectionHeader_V2& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* data, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

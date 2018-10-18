@@ -19,7 +19,7 @@ namespace es
 		bool operator==(const TicketBody_V2& other) const;
 		bool operator!=(const TicketBody_V2& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;
