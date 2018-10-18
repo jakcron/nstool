@@ -274,22 +274,22 @@ void nn::hac::MetaBinary::setProductCode(const std::string & product_code)
 	mProductCode = product_code;
 }
 
-const nn::hac::AccessControlInfoBinary & nn::hac::MetaBinary::getAci() const
+const nn::hac::AccessControlInfo & nn::hac::MetaBinary::getAci() const
 {
 	return mAci;
 }
 
-void nn::hac::MetaBinary::setAci(const AccessControlInfoBinary & aci)
+void nn::hac::MetaBinary::setAci(const AccessControlInfo & aci)
 {
 	mAci = aci;
 }
 
-const nn::hac::AccessControlInfoDescBinary & nn::hac::MetaBinary::getAcid() const
+const nn::hac::AccessControlInfoDesc & nn::hac::MetaBinary::getAcid() const
 {
 	return mAcid;
 }
 
-void nn::hac::MetaBinary::setAcid(const AccessControlInfoDescBinary & acid)
+void nn::hac::MetaBinary::setAcid(const AccessControlInfoDesc & acid)
 {
 	mAcid = acid;
 }

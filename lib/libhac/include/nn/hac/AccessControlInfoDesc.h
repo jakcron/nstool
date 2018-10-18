@@ -12,7 +12,8 @@ namespace nn
 {
 namespace hac
 {
-	class AccessControlInfoDescBinary : public fnd::IByteModel
+	class AccessControlInfoDesc :
+		public fnd::IByteModel
 	{
 	public:
 		struct sProgramIdRestrict
@@ -38,14 +39,14 @@ namespace hac
 			}
 		};
 
-		AccessControlInfoDescBinary();
-		AccessControlInfoDescBinary(const AccessControlInfoDescBinary& other);
+		AccessControlInfoDesc();
+		AccessControlInfoDesc(const AccessControlInfoDesc& other);
 
-		void operator=(const AccessControlInfoDescBinary& other);
-		bool operator==(const AccessControlInfoDescBinary& other) const;
-		bool operator!=(const AccessControlInfoDescBinary& other) const;
+		void operator=(const AccessControlInfoDesc& other);
+		bool operator==(const AccessControlInfoDesc& other) const;
+		bool operator!=(const AccessControlInfoDesc& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* data, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

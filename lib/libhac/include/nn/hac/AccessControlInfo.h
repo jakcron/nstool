@@ -11,17 +11,18 @@ namespace nn
 {
 namespace hac
 {
-	class AccessControlInfoBinary : public fnd::IByteModel
+	class AccessControlInfo :
+		public fnd::IByteModel
 	{
 	public:
-		AccessControlInfoBinary();
-		AccessControlInfoBinary(const AccessControlInfoBinary& other);
+		AccessControlInfo();
+		AccessControlInfo(const AccessControlInfo& other);
 
-		void operator=(const AccessControlInfoBinary& other);
-		bool operator==(const AccessControlInfoBinary& other) const;
-		bool operator!=(const AccessControlInfoBinary& other) const;
+		void operator=(const AccessControlInfo& other);
+		bool operator==(const AccessControlInfo& other) const;
+		bool operator!=(const AccessControlInfo& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* data, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

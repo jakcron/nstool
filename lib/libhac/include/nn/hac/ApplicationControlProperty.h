@@ -9,7 +9,7 @@ namespace nn
 {
 namespace hac
 {
-	class ApplicationControlPropertyBinary :
+	class ApplicationControlProperty :
 		public fnd::IByteModel
 	{
 	public:
@@ -85,14 +85,14 @@ namespace hac
 			}
 		};
 
-		ApplicationControlPropertyBinary();
-		ApplicationControlPropertyBinary(const ApplicationControlPropertyBinary& other);
+		ApplicationControlProperty();
+		ApplicationControlProperty(const ApplicationControlProperty& other);
 
-		void operator=(const ApplicationControlPropertyBinary& other);
-		bool operator==(const ApplicationControlPropertyBinary& other) const;
-		bool operator!=(const ApplicationControlPropertyBinary& other) const;
+		void operator=(const ApplicationControlProperty& other);
+		bool operator==(const ApplicationControlProperty& other) const;
+		bool operator!=(const ApplicationControlProperty& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

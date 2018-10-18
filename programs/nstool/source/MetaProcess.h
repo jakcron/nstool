@@ -34,12 +34,12 @@ private:
 
 	void importMeta();
 
-	void validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid);
-	void validateAciFromAcid(const nn::hac::AccessControlInfoBinary& aci, const nn::hac::AccessControlInfoDescBinary& acid);
+	void validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid);
+	void validateAciFromAcid(const nn::hac::AccessControlInfo& aci, const nn::hac::AccessControlInfoDesc& acid);
 
 	void displayMetaHeader(const nn::hac::MetaBinary& hdr);
-	void displayAciHdr(const nn::hac::AccessControlInfoBinary& aci);
-	void displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& aci);
+	void displayAciHdr(const nn::hac::AccessControlInfo& aci);
+	void displayAciDescHdr(const nn::hac::AccessControlInfoDesc& aci);
 	void displayFac(const nn::hac::FileSystemAccessControlBinary& fac);
 	void displaySac(const nn::hac::ServiceAccessControlBinary& sac);
 	void displayKernelCap(const nn::hac::KernelCapabilityBinary& kern);

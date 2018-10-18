@@ -81,7 +81,7 @@ void MetaProcess::importMeta()
 	mMeta.fromBytes(scratch.data(), scratch.size());
 }
 
-void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid)
 {
 	try {
 		fnd::rsa::sRsa2048Key acid_sign_key;
@@ -96,7 +96,7 @@ void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBina
 	
 }
 
-void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfoBinary& aci, const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, const nn::hac::AccessControlInfoDesc& acid)
 {
 	// check Program ID
 	if (acid.getProgramIdRestrict().min > 0 && aci.getProgramId() < acid.getProgramIdRestrict().min)
@@ -306,13 +306,13 @@ void MetaProcess::displayMetaHeader(const nn::hac::MetaBinary& hdr)
 	}
 }
 
-void MetaProcess::displayAciHdr(const nn::hac::AccessControlInfoBinary& aci)
+void MetaProcess::displayAciHdr(const nn::hac::AccessControlInfo& aci)
 {
 	std::cout << "[Access Control Info]" << std::endl;
 	std::cout << "  ProgramID:       0x" << std::hex << std::setw(16) << std::setfill('0') << aci.getProgramId() << std::endl;
 }
 
-void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
 {
 	std::cout << "[Access Control Info Desc]" << std::endl;
 	if (acid.getFlagList().size() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))

@@ -35,7 +35,7 @@ void NacpProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-const nn::hac::ApplicationControlPropertyBinary& NacpProcess::getApplicationControlPropertyBinary() const
+const nn::hac::ApplicationControlProperty& NacpProcess::getApplicationControlProperty() const
 {
 	return mNacp;
 }
