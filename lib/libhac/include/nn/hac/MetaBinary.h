@@ -3,8 +3,8 @@
 #include <fnd/List.h>
 #include <fnd/IByteModel.h>
 #include <nn/hac/meta.h>
-#include <nn/hac/AccessControlInfoBinary.h>
-#include <nn/hac/AccessControlInfoDescBinary.h>
+#include <nn/hac/AccessControlInfo.h>
+#include <nn/hac/AccessControlInfoDesc.h>
 
 namespace nn
 {
@@ -21,7 +21,7 @@ namespace hac
 		bool operator==(const MetaBinary& other) const;
 		bool operator!=(const MetaBinary& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;
@@ -53,11 +53,11 @@ namespace hac
 		const std::string& getProductCode() const;
 		void setProductCode(const std::string& product_code);
 
-		const AccessControlInfoBinary& getAci() const;
-		void setAci(const AccessControlInfoBinary& aci);
+		const AccessControlInfo& getAci() const;
+		void setAci(const AccessControlInfo& aci);
 
-		const AccessControlInfoDescBinary& getAcid() const;
-		void setAcid(const AccessControlInfoDescBinary& acid);
+		const AccessControlInfoDesc& getAcid() const;
+		void setAcid(const AccessControlInfoDesc& acid);
 	private:
 		const std::string kModuleName = "META_BINARY";
 
@@ -73,8 +73,8 @@ namespace hac
 		uint32_t mMainThreadStackSize;
 		std::string mName;
 		std::string mProductCode;
-		AccessControlInfoBinary mAci;
-		AccessControlInfoDescBinary mAcid;
+		AccessControlInfo mAci;
+		AccessControlInfoDesc mAcid;
 	};
 }
 }

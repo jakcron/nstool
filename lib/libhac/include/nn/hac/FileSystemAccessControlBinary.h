@@ -9,7 +9,8 @@ namespace nn
 {
 namespace hac
 {
-	class FileSystemAccessControlBinary : public fnd::IByteModel
+	class FileSystemAccessControlBinary :
+		public fnd::IByteModel
 	{
 	public:
 		struct sSaveDataOwnerId
@@ -42,7 +43,7 @@ namespace hac
 		bool operator==(const FileSystemAccessControlBinary& other) const;
 		bool operator!=(const FileSystemAccessControlBinary& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* data, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

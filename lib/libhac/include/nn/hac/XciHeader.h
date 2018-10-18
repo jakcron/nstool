@@ -7,7 +7,7 @@ namespace nn
 {
 namespace hac
 {
-	class XciHeader : 
+	class XciHeader :
 		public fnd::IByteModel
 	{
 	public:
@@ -18,7 +18,7 @@ namespace hac
 		bool operator==(const XciHeader& other) const;
 		bool operator!=(const XciHeader& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

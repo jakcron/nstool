@@ -27,7 +27,7 @@ namespace hac
 		bool operator==(const KernelCapabilityBinary& other) const;
 		bool operator!=(const KernelCapabilityBinary& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		virtual const fnd::Vec<byte_t>& getBytes() const;

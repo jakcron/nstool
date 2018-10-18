@@ -40,7 +40,7 @@ namespace hac
 		bool operator==(const HierarchicalSha256Header& other) const;
 		bool operator!=(const HierarchicalSha256Header& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>&  getBytes() const;
