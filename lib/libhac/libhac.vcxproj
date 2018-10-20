@@ -22,14 +22,16 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\nn\hac\AccessControlInfoBinary.h" />
-    <ClInclude Include="include\nn\hac\AccessControlInfoDescBinary.h" />
+    <ClInclude Include="include\nn\hac\AccessControlInfo.h" />
+    <ClInclude Include="include\nn\hac\AccessControlInfoDesc.h" />
     <ClInclude Include="include\nn\hac\aci.h" />
     <ClInclude Include="include\nn\hac\AesKeygen.h" />
-    <ClInclude Include="include\nn\hac\ApplicationControlPropertyBinary.h" />
+    <ClInclude Include="include\nn\hac\ApplicationControlProperty.h" />
     <ClInclude Include="include\nn\hac\ApplicationControlPropertyUtils.h" />
     <ClInclude Include="include\nn\hac\cnmt.h" />
-    <ClInclude Include="include\nn\hac\ContentMetaBinary.h" />
+    <ClInclude Include="include\nn\hac\ContentInfo.h" />
+    <ClInclude Include="include\nn\hac\ContentMeta.h" />
+    <ClInclude Include="include\nn\hac\ContentMetaInfo.h" />
     <ClInclude Include="include\nn\hac\delta.h" />
     <ClInclude Include="include\nn\hac\fac.h" />
     <ClInclude Include="include\nn\hac\FileSystemAccessControlBinary.h" />
@@ -81,12 +83,12 @@
     <ClInclude Include="include\nn\hac\XciUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\AccessControlInfoBinary.cpp" />
-    <ClCompile Include="source\AccessControlInfoDescBinary.cpp" />
+    <ClCompile Include="source\AccessControlInfo.cpp" />
+    <ClCompile Include="source\AccessControlInfoDesc.cpp" />
     <ClCompile Include="source\AesKeygen.cpp" />
-    <ClCompile Include="source\ApplicationControlPropertyBinary.cpp" />
+    <ClCompile Include="source\ApplicationControlProperty.cpp" />
     <ClCompile Include="source\ApplicationControlPropertyUtils.cpp" />
-    <ClCompile Include="source\ContentMetaBinary.cpp" />
+    <ClCompile Include="source\ContentMeta.cpp" />
     <ClCompile Include="source\FileSystemAccessControlBinary.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
     <ClCompile Include="source\HandleTableSizeHandler.cpp" />

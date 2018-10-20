@@ -18,10 +18,10 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\nn\hac\AccessControlInfoBinary.h">
+    <ClInclude Include="include\nn\hac\AccessControlInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\AccessControlInfoDescBinary.h">
+    <ClInclude Include="include\nn\hac\AccessControlInfoDesc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\aci.h">
@@ -30,7 +30,7 @@
     <ClInclude Include="include\nn\hac\AesKeygen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\ApplicationControlPropertyBinary.h">
+    <ClInclude Include="include\nn\hac\ApplicationControlProperty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\ApplicationControlPropertyUtils.h">
@@ -39,7 +39,13 @@
     <ClInclude Include="include\nn\hac\cnmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\ContentMetaBinary.h">
+    <ClInclude Include="include\nn\hac\ContentInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\ContentMeta.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\ContentMetaInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\delta.h">
@@ -191,22 +197,28 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\AccessControlInfoBinary.cpp">
+    <ClCompile Include="source\AccessControlInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\AccessControlInfoDescBinary.cpp">
+    <ClCompile Include="source\AccessControlInfoDesc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\AesKeygen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\ApplicationControlPropertyBinary.cpp">
+    <ClCompile Include="source\ApplicationControlProperty.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ApplicationControlPropertyUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\ContentMetaBinary.cpp">
+    <ClCompile Include="source\ContentInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ContentMeta.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ContentMetaInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\FileSystemAccessControlBinary.cpp">
