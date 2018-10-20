@@ -4,73 +4,17 @@
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <nn/hac/cnmt.h>
+#include <nn/hac/ContentInfo.h>
+#include <nn/hac/ContentMetaInfo.h>
 
 namespace nn
 {
 namespace hac
 {
-	class ContentMetaBinary :
+	class ContentMeta :
 		public fnd::IByteModel
 	{
 	public:
-		struct ContentInfo
-		{
-			fnd::sha::sSha256Hash hash;
-			byte_t nca_id[cnmt::kContentIdLen];
-			size_t size;
-			cnmt::ContentType type;
-
-			void operator=(const ContentInfo& other)
-			{
-				hash = other.hash;
-				memcpy(nca_id, other.nca_id, cnmt::kContentIdLen);
-				size = other.size;
-				type = other.type;
-			}
-
-			bool operator==(const ContentInfo& other) const
-			{
-				return (hash == other.hash) \
-					&& (memcmp(nca_id, other.nca_id, cnmt::kContentIdLen) == 0) \
-					&& (size == other.size) \
-					&& (type == other.type);
-			}
-
-			bool operator!=(const ContentInfo& other) const
-			{
-				return !operator==(other);
-			}
-		};
-
-		struct ContentMetaInfo
-		{
-			uint64_t id;
-			uint32_t version;
-			cnmt::ContentMetaType type;
-			byte_t attributes;
-
-			void operator=(const ContentMetaInfo& other)
-			{
-				id = other.id;
-				version = other.version;
-				type = other.type;
-				attributes = other.attributes;
-			}
-
-			bool operator==(const ContentMetaInfo& other) const
-			{
-				return (id == other.id) \
-					&& (version == other.version) \
-					&& (type == other.type) \
-					&& (attributes == other.attributes);
-			}
-
-			bool operator!=(const ContentMetaInfo& other) const
-			{
-				return !operator==(other);
-			}
-		};
-
 		struct ApplicationMetaExtendedHeader
 		{
 			uint64_t patch_id;
@@ -160,14 +104,14 @@ namespace hac
 			}
 		};
 
-		ContentMetaBinary();
-		ContentMetaBinary(const ContentMetaBinary& other);
+		ContentMeta();
+		ContentMeta(const ContentMeta& other);
 
-		void operator=(const ContentMetaBinary& other);
-		bool operator==(const ContentMetaBinary& other) const;
-		bool operator!=(const ContentMetaBinary& other) const;
+		void operator=(const ContentMeta& other);
+		bool operator==(const ContentMeta& other) const;
+		bool operator!=(const ContentMeta& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;
@@ -202,21 +146,21 @@ namespace hac
 		const DeltaMetaExtendedHeader& getDeltaMetaExtendedHeader() const;
 		void setDeltaMetaExtendedHeader(const DeltaMetaExtendedHeader& exhdr);
 
-		const fnd::List<nn::hac::ContentMetaBinary::ContentInfo>& getContentInfo() const;
-		void setContentInfo(const fnd::List<nn::hac::ContentMetaBinary::ContentInfo>& info);
+		const fnd::List<nn::hac::ContentInfo>& getContentInfo() const;
+		void setContentInfo(const fnd::List<nn::hac::ContentInfo>& info);
 
-		const fnd::List<nn::hac::ContentMetaBinary::ContentMetaInfo>& getContentMetaInfo() const;
-		void setContentMetaInfo(const fnd::List<nn::hac::ContentMetaBinary::ContentMetaInfo>& info);
+		const fnd::List<nn::hac::ContentMetaInfo>& getContentMetaInfo() const;
+		void setContentMetaInfo(const fnd::List<nn::hac::ContentMetaInfo>& info);
 
 		const fnd::Vec<byte_t>& getExtendedData() const;
 		void setExtendedData(const fnd::Vec<byte_t>& data);
 
-		const nn::hac::sDigest& getDigest() const;
-		void setDigest(const nn::hac::sDigest& digest);
+		const nn::hac::cnmt::sDigest& getDigest() const;
+		void setDigest(const nn::hac::cnmt::sDigest& digest);
 
 
 	private:
-		const std::string kModuleName = "CONTENT_META_BINARY";
+		const std::string kModuleName = "CONTENT_META";
 
 		// binary blob
 		fnd::Vec<byte_t> mRawBinary;
@@ -234,10 +178,10 @@ namespace hac
 		AddOnContentMetaExtendedHeader mAddOnContentMetaExtendedHeader;
 		DeltaMetaExtendedHeader mDeltaMetaExtendedHeader;
 
-		fnd::List<nn::hac::ContentMetaBinary::ContentInfo> mContentInfo;
-		fnd::List<nn::hac::ContentMetaBinary::ContentMetaInfo> mContentMetaInfo;
+		fnd::List<nn::hac::ContentInfo> mContentInfo;
+		fnd::List<nn::hac::ContentMetaInfo> mContentMetaInfo;
 		fnd::Vec<byte_t> mExtendedData;
-		nn::hac::sDigest mDigest;
+		nn::hac::cnmt::sDigest mDigest;
 
 		inline size_t getExtendedHeaderOffset() const { return sizeof(sContentMetaHeader); }
 		inline size_t getContentInfoOffset(size_t exhdrSize) const { return getExtendedHeaderOffset() + exhdrSize; }

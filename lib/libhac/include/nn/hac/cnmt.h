@@ -46,10 +46,58 @@ namespace hac
 			ATTRIBUTE_REBOOTLESS
 		};
 
-		static const uint32_t kRequiredSystemVersion = 335544320;
-		static const uint32_t kDefaultVersion = 335545344;
 		static const size_t kContentIdLen = 0x10;
 		static const size_t kDigestLen = 0x20;
+
+		struct sContentId
+		{
+			byte_t data[kContentIdLen];
+
+			void set(const byte_t content_id[kContentIdLen])
+			{
+				memcpy(this->data, content_id, kContentIdLen);
+			}
+
+			void operator=(const sContentId& other)
+			{
+				set(other.data);
+			}
+
+			bool operator==(const sContentId& other) const
+			{
+				return memcmp(this->data, other.data, kContentIdLen) == 0;
+			}
+
+			bool operator!=(const sContentId& other) const
+			{
+				return !(*this == other);
+			}
+		};
+
+		struct sDigest
+		{
+			byte_t data[kDigestLen];
+
+			void set(const byte_t digest[kDigestLen])
+			{
+				memcpy(this->data, digest, kDigestLen);
+			}
+
+			void operator=(const sDigest& other)
+			{
+				set(other.data);
+			}
+
+			bool operator==(const sDigest& other) const
+			{
+				return memcmp(this->data, other.data, kDigestLen) == 0;
+			}
+
+			bool operator!=(const sDigest& other) const
+			{
+				return !(*this == other);
+			}
+		};
 	}
 
 
@@ -84,7 +132,7 @@ namespace hac
 	struct sContentInfo
 	{
 		fnd::sha::sSha256Hash content_hash;
-		byte_t content_id[cnmt::kContentIdLen];
+		cnmt::sContentId content_id;
 		le_uint32_t size_lower;
 		le_uint16_t size_higher;
 		byte_t content_type;
@@ -127,11 +175,6 @@ namespace hac
 		le_uint64_t application_id;
 		le_uint32_t extended_data_size;
 		byte_t reserved[4];
-	};
-
-	struct sDigest
-	{
-		byte_t data[cnmt::kDigestLen];
 	};
 #pragma pack(pop)
 }

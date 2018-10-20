@@ -34,7 +34,7 @@ void CnmtProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-const nn::hac::ContentMetaBinary& CnmtProcess::getContentMetaBinary() const
+const nn::hac::ContentMeta& CnmtProcess::getContentMeta() const
 {
 	return mCnmt;
 }
@@ -95,12 +95,12 @@ void CnmtProcess::displayCnmt()
 		printf("  ContentInfo:\n");
 		for (size_t i = 0; i < mCnmt.getContentInfo().size(); i++)
 		{
-			const nn::hac::ContentMetaBinary::ContentInfo& info = mCnmt.getContentInfo()[i];
+			const nn::hac::ContentInfo& info = mCnmt.getContentInfo()[i];
 			std::cout << "    " << std::dec << i << std::endl;
-			std::cout << "      Type:         " << getContentTypeStr(info.type) << " (" << std::dec << info.type << ")" << std::endl;
-			std::cout << "      Id:           " << fnd::SimpleTextOutput::arrayToString(info.nca_id, nn::hac::cnmt::kContentIdLen, false, "") << std::endl;
-			std::cout << "      Size:         0x" << std::hex << info.size << std::endl;
-			std::cout << "      Hash:         " << fnd::SimpleTextOutput::arrayToString(info.hash.bytes, sizeof(info.hash), false, "") << std::endl;
+			std::cout << "      Type:         " << getContentTypeStr(info.getContentType()) << " (" << std::dec << info.getContentType() << ")" << std::endl;
+			std::cout << "      Id:           " << fnd::SimpleTextOutput::arrayToString(info.getContentId().data, nn::hac::cnmt::kContentIdLen, false, "") << std::endl;
+			std::cout << "      Size:         0x" << std::hex << info.getContentSize() << std::endl;
+			std::cout << "      Hash:         " << fnd::SimpleTextOutput::arrayToString(info.getContentHash().bytes, sizeof(info.getContentHash()), false, "") << std::endl;
 		}
 	}
 	if (mCnmt.getContentMetaInfo().size() > 0)
@@ -108,14 +108,14 @@ void CnmtProcess::displayCnmt()
 		std::cout << "  ContentMetaInfo:" << std::endl;
 		for (size_t i = 0; i < mCnmt.getContentMetaInfo().size(); i++)
 		{
-			const nn::hac::ContentMetaBinary::ContentMetaInfo& info = mCnmt.getContentMetaInfo()[i];
+			const nn::hac::ContentMetaInfo& info = mCnmt.getContentMetaInfo()[i];
 			std::cout << "    " << std::dec << i << std::endl;
-			std::cout << "      Id:           0x" << std::hex << std::setw(16) << std::setfill('0') << info.id << std::endl;
-			std::cout << "      Version:      v" << std::dec << info.version << " (" << _SPLIT_VER(info.version) << ")"<< std::endl;
-			std::cout << "      Type:         " << getContentMetaTypeStr(info.type) << " (" << std::dec << info.type << ")" << std::endl; 
-			std::cout << "      Attributes:   0x" << std::hex << (uint32_t)info.attributes << std::endl;
-			std::cout << "        IncludesExFatDriver: " << getBoolStr(_HAS_BIT(info.attributes, nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)) << std::endl;
-			std::cout << "        Rebootless:          " << getBoolStr(_HAS_BIT(info.attributes, nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)) << std::endl;
+			std::cout << "      Id:           0x" << std::hex << std::setw(16) << std::setfill('0') << info.getTitleId() << std::endl;
+			std::cout << "      Version:      v" << std::dec << info.getVersion() << " (" << _SPLIT_VER(info.getVersion()) << ")"<< std::endl;
+			std::cout << "      Type:         " << getContentMetaTypeStr(info.getContentMetaType()) << " (" << std::dec << info.getContentMetaType() << ")" << std::endl; 
+			std::cout << "      Attributes:   0x" << std::hex << (uint32_t)info.getAttributes() << std::endl;
+			std::cout << "        IncludesExFatDriver: " << getBoolStr(_HAS_BIT(info.getAttributes(), nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)) << std::endl;
+			std::cout << "        Rebootless:          " << getBoolStr(_HAS_BIT(info.getAttributes(), nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)) << std::endl;
 		}
 	}
 
