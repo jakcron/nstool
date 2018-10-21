@@ -88,7 +88,9 @@
     <ClCompile Include="source\AesKeygen.cpp" />
     <ClCompile Include="source\ApplicationControlProperty.cpp" />
     <ClCompile Include="source\ApplicationControlPropertyUtils.cpp" />
+    <ClCompile Include="source\ContentInfo.cpp" />
     <ClCompile Include="source\ContentMeta.cpp" />
+    <ClCompile Include="source\ContentMetaInfo.cpp" />
     <ClCompile Include="source\FileSystemAccessControlBinary.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
     <ClCompile Include="source\HandleTableSizeHandler.cpp" />
