@@ -1,5 +1,5 @@
 #pragma once
-#include <nn/hac/aset.h>
+#include <nn/hac/define/aset.h>
 #include <fnd/List.h>
 #include <fnd/IByteModel.h>
 

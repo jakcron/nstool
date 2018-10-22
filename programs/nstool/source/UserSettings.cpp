@@ -24,7 +24,7 @@
 #include <nn/hac/define/nacp.h>
 #include <nn/hac/define/nso.h>
 #include <nn/hac/define/nro.h>
-#include <nn/hac/aset.h>
+#include <nn/hac/define/aset.h>
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include <nn/pki/SignUtils.h>

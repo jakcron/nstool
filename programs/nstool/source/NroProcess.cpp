@@ -4,7 +4,7 @@
 #include <fnd/OffsetAdjustedIFile.h>
 #include <fnd/Vec.h>
 #include <fnd/lz4.h>
-#include <nn/hac/nro-hb.h>
+#include <nn/hac/define/nro-hb.h>
 #include "NroProcess.h"
 
 NroProcess::NroProcess():
