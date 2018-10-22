@@ -2,7 +2,6 @@
 #include <string>
 #include <cstring>
 #include <fnd/IByteModel.h>
-#include <fnd/List.h>
 #include <nn/hac/cnmt.h>
 
 namespace nn
@@ -31,8 +30,8 @@ namespace hac
 		uint64_t getTitleId() const;
 		void setTitleId(uint64_t title_id);
 		
-		uint32_t getVersion() const;
-		void setVersion(uint32_t ver);
+		uint32_t getTitleVersion() const;
+		void setTitleVersion(uint32_t ver);
 		
 		cnmt::ContentMetaType getContentMetaType() const;
 		void setContentMetaType(cnmt::ContentMetaType type);
@@ -48,7 +47,7 @@ namespace hac
 
 		// variables
 		uint64_t mTitleId;
-		uint32_t mVersion;
+		uint32_t mTitleVersion;
 		cnmt::ContentMetaType mType;
 		byte_t mAttributes;
 	};

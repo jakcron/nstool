@@ -24,7 +24,6 @@ void nn::hac::ContentMeta::operator=(const ContentMeta& other)
 		mType = other.mType;
 		mAttributes = other.mAttributes;
 		mRequiredDownloadSystemVersion = other.mRequiredDownloadSystemVersion;
-		mExtendedHeader = other.mExtendedHeader;
 		mApplicationMetaExtendedHeader = other.mApplicationMetaExtendedHeader;
 		mPatchMetaExtendedHeader = other.mPatchMetaExtendedHeader;
 		mAddOnContentMetaExtendedHeader = other.mAddOnContentMetaExtendedHeader;
@@ -43,7 +42,6 @@ bool nn::hac::ContentMeta::operator==(const ContentMeta& other) const
 		&& (mType == other.mType) \
 		&& (mAttributes == other.mAttributes) \
 		&& (mRequiredDownloadSystemVersion == other.mRequiredDownloadSystemVersion) \
-		&& (mExtendedHeader == other.mExtendedHeader) \
 		&& (mApplicationMetaExtendedHeader == other.mApplicationMetaExtendedHeader) \
 		&& (mPatchMetaExtendedHeader == other.mPatchMetaExtendedHeader) \
 		&& (mAddOnContentMetaExtendedHeader == other.mAddOnContentMetaExtendedHeader) \
@@ -61,7 +59,7 @@ bool nn::hac::ContentMeta::operator!=(const ContentMeta& other) const
 
 void nn::hac::ContentMeta::toBytes()
 {
-	throw fnd::Exception(kModuleName, "exportBinary() not implemented");
+	throw fnd::Exception(kModuleName, "toBytes() not implemented");
 }
 
 void nn::hac::ContentMeta::fromBytes(const byte_t* data, size_t len)
@@ -85,31 +83,29 @@ void nn::hac::ContentMeta::fromBytes(const byte_t* data, size_t len)
 	// save exheader
 	if (hdr->exhdr_size.get() > 0)
 	{
-		mExtendedHeader.alloc(hdr->exhdr_size.get());
-		memcpy(mExtendedHeader.data(), data + getExtendedHeaderOffset(), hdr->exhdr_size.get());
-
 		switch (mType)
 		{
 			case (cnmt::METATYPE_APPLICATION):
-				mApplicationMetaExtendedHeader.patch_id = ((sApplicationMetaExtendedHeader*)mExtendedHeader.data())->patch_id.get();
-				mApplicationMetaExtendedHeader.required_system_version = ((sApplicationMetaExtendedHeader*)mExtendedHeader.data())->required_system_version.get();
+				mApplicationMetaExtendedHeader.fromBytes(data + getExtendedHeaderOffset(), hdr->exhdr_size.get());
+				exdata_size = 0;
 				break;
 			case (cnmt::METATYPE_PATCH):
-				mPatchMetaExtendedHeader.application_id = ((sPatchMetaExtendedHeader*)mExtendedHeader.data())->application_id.get();
-				mPatchMetaExtendedHeader.required_system_version = ((sPatchMetaExtendedHeader*)mExtendedHeader.data())->required_system_version.get();
+				mPatchMetaExtendedHeader.fromBytes(data + getExtendedHeaderOffset(), hdr->exhdr_size.get());
+				exdata_size = mPatchMetaExtendedHeader.getExtendedDataSize();
 				break;
 			case (cnmt::METATYPE_ADD_ON_CONTENT):
-				mAddOnContentMetaExtendedHeader.application_id = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.data())->application_id.get();
-				mAddOnContentMetaExtendedHeader.required_application_version = ((sAddOnContentMetaExtendedHeader*)mExtendedHeader.data())->required_application_version.get();
+				mAddOnContentMetaExtendedHeader.fromBytes(data + getExtendedHeaderOffset(), hdr->exhdr_size.get());
+				exdata_size = 0;
 				break;
 			case (cnmt::METATYPE_DELTA):
-				mDeltaMetaExtendedHeader.application_id = ((sDeltaMetaExtendedHeader*)mExtendedHeader.data())->application_id.get();
+				mDeltaMetaExtendedHeader.fromBytes(data + getExtendedHeaderOffset(), hdr->exhdr_size.get());
+				exdata_size = mDeltaMetaExtendedHeader.getExtendedDataSize();
 				break;
 			default:
-				break;
+				throw fnd::Exception(kModuleName, "Unhandled extended header for ContentMeta");
+				//exdata_size = 0;
+				//break;
 		}
-
-		exdata_size = getExtendedDataSize(mType, mExtendedHeader.data());
 	}
 
 	// save content info
@@ -160,11 +156,10 @@ void nn::hac::ContentMeta::clear()
 	mType = cnmt::METATYPE_SYSTEM_PROGRAM;
 	mAttributes = 0;
 	mRequiredDownloadSystemVersion = 0;
-	mExtendedHeader.clear();
-	memset(&mApplicationMetaExtendedHeader, 0, sizeof(mApplicationMetaExtendedHeader));
-	memset(&mPatchMetaExtendedHeader, 0, sizeof(mPatchMetaExtendedHeader));
-	memset(&mAddOnContentMetaExtendedHeader, 0, sizeof(mAddOnContentMetaExtendedHeader));
-	memset(&mDeltaMetaExtendedHeader, 0, sizeof(mDeltaMetaExtendedHeader));
+	mApplicationMetaExtendedHeader.clear();
+	mPatchMetaExtendedHeader.clear();
+	mAddOnContentMetaExtendedHeader.clear();
+	mDeltaMetaExtendedHeader.clear();
 	mContentInfo.clear();
 	mContentMetaInfo.clear();
 	mExtendedData.clear();
@@ -191,12 +186,12 @@ void nn::hac::ContentMeta::setTitleVersion(uint32_t version)
 	mTitleVersion = version;
 }
 
-nn::hac::cnmt::ContentMetaType nn::hac::ContentMeta::getType() const
+nn::hac::cnmt::ContentMetaType nn::hac::ContentMeta::getContentMetaType() const
 {
 	return mType;
 }
 
-void nn::hac::ContentMeta::setType(cnmt::ContentMetaType type)
+void nn::hac::ContentMeta::setContentMetaType(cnmt::ContentMetaType type)
 {
 	mType = type;
 }
@@ -221,7 +216,7 @@ void nn::hac::ContentMeta::setRequiredDownloadSystemVersion(uint32_t version)
 	mRequiredDownloadSystemVersion = version;
 }
 
-const nn::hac::ContentMeta::ApplicationMetaExtendedHeader& nn::hac::ContentMeta::getApplicationMetaExtendedHeader() const
+const nn::hac::ApplicationMetaExtendedHeader& nn::hac::ContentMeta::getApplicationMetaExtendedHeader() const
 {
 	return mApplicationMetaExtendedHeader;
 }
@@ -231,7 +226,7 @@ void nn::hac::ContentMeta::setApplicationMetaExtendedHeader(const ApplicationMet
 	mApplicationMetaExtendedHeader = exhdr;
 }
 
-const nn::hac::ContentMeta::PatchMetaExtendedHeader& nn::hac::ContentMeta::getPatchMetaExtendedHeader() const
+const nn::hac::PatchMetaExtendedHeader& nn::hac::ContentMeta::getPatchMetaExtendedHeader() const
 {
 	return mPatchMetaExtendedHeader;
 }
@@ -241,7 +236,7 @@ void nn::hac::ContentMeta::setPatchMetaExtendedHeader(const PatchMetaExtendedHea
 	mPatchMetaExtendedHeader = exhdr;
 }
 
-const nn::hac::ContentMeta::AddOnContentMetaExtendedHeader& nn::hac::ContentMeta::getAddOnContentMetaExtendedHeader() const
+const nn::hac::AddOnContentMetaExtendedHeader& nn::hac::ContentMeta::getAddOnContentMetaExtendedHeader() const
 {
 	return mAddOnContentMetaExtendedHeader;
 }
@@ -251,7 +246,7 @@ void nn::hac::ContentMeta::setAddOnContentMetaExtendedHeader(const AddOnContentM
 	mAddOnContentMetaExtendedHeader = exhdr;
 }
 
-const nn::hac::ContentMeta::DeltaMetaExtendedHeader& nn::hac::ContentMeta::getDeltaMetaExtendedHeader() const
+const nn::hac::DeltaMetaExtendedHeader& nn::hac::ContentMeta::getDeltaMetaExtendedHeader() const
 {
 	return mDeltaMetaExtendedHeader;
 }

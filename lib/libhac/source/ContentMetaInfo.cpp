@@ -15,7 +15,7 @@ void nn::hac::ContentMetaInfo::operator=(const ContentMetaInfo& other)
 	clear();
 	mRawBinary = other.mRawBinary;
 	mTitleId = other.mTitleId;
-	mVersion = other.mVersion;
+	mTitleVersion = other.mTitleVersion;
 	mType = other.mType;
 	mAttributes = other.mAttributes;
 }
@@ -23,7 +23,7 @@ void nn::hac::ContentMetaInfo::operator=(const ContentMetaInfo& other)
 bool nn::hac::ContentMetaInfo::operator==(const ContentMetaInfo& other) const
 {
 	return (mTitleId == other.mTitleId) \
-		&& (mVersion == other.mVersion) \
+		&& (mTitleVersion == other.mTitleVersion) \
 		&& (mType == other.mType) \
 		&& (mAttributes == other.mAttributes);
 }
@@ -39,7 +39,7 @@ void nn::hac::ContentMetaInfo::toBytes()
 	sContentMetaInfo* info = (sContentMetaInfo*)mRawBinary.data();
 
 	info->id = mTitleId;
-	info->version = mVersion;
+	info->version = mTitleVersion;
 	info->type = mType;
 	info->attributes = mAttributes;
 }
@@ -54,7 +54,7 @@ void nn::hac::ContentMetaInfo::fromBytes(const byte_t* bytes, size_t len)
 	const sContentMetaInfo* info = (const sContentMetaInfo*)bytes;
 
 	mTitleId = info->id.get();
-	mVersion = info->version.get();
+	mTitleVersion = info->version.get();
 	mType = (cnmt::ContentMetaType)info->type;
 	mAttributes = info->attributes;
 }
@@ -68,7 +68,7 @@ void nn::hac::ContentMetaInfo::clear()
 {
 	mRawBinary.clear();
 	mTitleId = 0;
-	mVersion = 0;
+	mTitleVersion = 0;
 	mType = cnmt::ContentMetaType::METATYPE_APPLICATION;
 	mAttributes = 0;
 }
@@ -83,14 +83,14 @@ void nn::hac::ContentMetaInfo::setTitleId(uint64_t title_id)
 	mTitleId = title_id;
 }
 
-uint32_t nn::hac::ContentMetaInfo::getVersion() const
+uint32_t nn::hac::ContentMetaInfo::getTitleVersion() const
 {
-	return mVersion;
+	return mTitleVersion;
 }
 
-void nn::hac::ContentMetaInfo::setVersion(uint32_t ver)
+void nn::hac::ContentMetaInfo::setTitleVersion(uint32_t ver)
 {
-	mVersion = ver;
+	mTitleVersion = ver;
 }	
 
 nn::hac::cnmt::ContentMetaType nn::hac::ContentMetaInfo::getContentMetaType() const

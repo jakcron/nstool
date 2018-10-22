@@ -25,14 +25,17 @@
     <ClInclude Include="include\nn\hac\AccessControlInfo.h" />
     <ClInclude Include="include\nn\hac\AccessControlInfoDesc.h" />
     <ClInclude Include="include\nn\hac\aci.h" />
+    <ClInclude Include="include\nn\hac\AddOnContentMetaExtendedHeader.h" />
     <ClInclude Include="include\nn\hac\AesKeygen.h" />
     <ClInclude Include="include\nn\hac\ApplicationControlProperty.h" />
     <ClInclude Include="include\nn\hac\ApplicationControlPropertyUtils.h" />
+    <ClInclude Include="include\nn\hac\ApplicationMetaExtendedHeader.h" />
     <ClInclude Include="include\nn\hac\cnmt.h" />
     <ClInclude Include="include\nn\hac\ContentInfo.h" />
     <ClInclude Include="include\nn\hac\ContentMeta.h" />
     <ClInclude Include="include\nn\hac\ContentMetaInfo.h" />
     <ClInclude Include="include\nn\hac\delta.h" />
+	<ClInclude Include="include\nn\hac\DeltaMetaExtendedHeader.h" />
     <ClInclude Include="include\nn\hac\fac.h" />
     <ClInclude Include="include\nn\hac\FileSystemAccessControlBinary.h" />
     <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h" />
@@ -68,6 +71,7 @@
     <ClInclude Include="include\nn\hac\nrr.h" />
     <ClInclude Include="include\nn\hac\nso.h" />
     <ClInclude Include="include\nn\hac\NsoHeader.h" />
+    <ClInclude Include="include\nn\hac\PatchMetaExtendedHeader.h" />
     <ClInclude Include="include\nn\hac\pfs.h" />
     <ClInclude Include="include\nn\hac\PfsHeader.h" />
     <ClInclude Include="include\nn\hac\Result.h" />
@@ -85,12 +89,15 @@
   <ItemGroup>
     <ClCompile Include="source\AccessControlInfo.cpp" />
     <ClCompile Include="source\AccessControlInfoDesc.cpp" />
+    <ClCompile Include="source\AddOnContentMetaExtendedHeader.cpp" />	
     <ClCompile Include="source\AesKeygen.cpp" />
     <ClCompile Include="source\ApplicationControlProperty.cpp" />
     <ClCompile Include="source\ApplicationControlPropertyUtils.cpp" />
+    <ClCompile Include="source\ApplicationMetaExtendedHeader.cpp" />
     <ClCompile Include="source\ContentInfo.cpp" />
     <ClCompile Include="source\ContentMeta.cpp" />
     <ClCompile Include="source\ContentMetaInfo.cpp" />
+    <ClCompile Include="source\DeltaMetaExtendedHeader.cpp" />
     <ClCompile Include="source\FileSystemAccessControlBinary.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
     <ClCompile Include="source\HandleTableSizeHandler.cpp" />
@@ -114,6 +121,7 @@
     <ClCompile Include="source\NcaUtils.cpp" />
     <ClCompile Include="source\NroHeader.cpp" />
     <ClCompile Include="source\NsoHeader.cpp" />
+    <ClCompile Include="source\PatchMetaExtendedHeader.cpp" />
     <ClCompile Include="source\PfsHeader.cpp" />
     <ClCompile Include="source\Result.cpp" />
     <ClCompile Include="source\ServiceAccessControlBinary.cpp" />

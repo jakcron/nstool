@@ -27,6 +27,9 @@
     <ClInclude Include="include\nn\hac\aci.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nn\hac\AddOnContentMetaExtendedHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\hac\AesKeygen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -34,6 +37,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\ApplicationControlPropertyUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\ApplicationMetaExtendedHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\cnmt.h">
@@ -49,6 +55,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\delta.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\DeltaMetaExtendedHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\fac.h">
@@ -156,6 +165,9 @@
     <ClInclude Include="include\nn\hac\NsoHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nn\hac\PatchMetaExtendedHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\hac\pfs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -203,6 +215,9 @@
     <ClCompile Include="source\AccessControlInfoDesc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\AddOnContentMetaExtendedHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\AesKeygen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -212,6 +227,9 @@
     <ClCompile Include="source\ApplicationControlPropertyUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\ApplicationMetaExtendedHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\ContentInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -219,6 +237,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ContentMetaInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\DeltaMetaExtendedHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\FileSystemAccessControlBinary.cpp">
@@ -285,6 +306,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NsoHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PatchMetaExtendedHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\PfsHeader.cpp">

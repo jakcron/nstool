@@ -6,6 +6,10 @@
 #include <nn/hac/cnmt.h>
 #include <nn/hac/ContentInfo.h>
 #include <nn/hac/ContentMetaInfo.h>
+#include <nn/hac/ApplicationMetaExtendedHeader.h>
+#include <nn/hac/PatchMetaExtendedHeader.h>
+#include <nn/hac/AddOnContentMetaExtendedHeader.h>
+#include <nn/hac/DeltaMetaExtendedHeader.h>
 
 namespace nn
 {
@@ -15,95 +19,6 @@ namespace hac
 		public fnd::IByteModel
 	{
 	public:
-		struct ApplicationMetaExtendedHeader
-		{
-			uint64_t patch_id;
-			uint32_t required_system_version;
-
-			void operator=(const ApplicationMetaExtendedHeader& other)
-			{
-				patch_id = other.patch_id;
-				required_system_version = other.required_system_version;
-			}
-
-			bool operator==(const ApplicationMetaExtendedHeader& other) const
-			{
-				return (patch_id == other.patch_id) \
-					&& (required_system_version == other.required_system_version);
-			}
-
-			bool operator!=(const ApplicationMetaExtendedHeader& other) const
-			{
-				return !operator==(other);
-			}
-		};
-
-		struct PatchMetaExtendedHeader
-		{
-			uint64_t application_id;
-			uint32_t required_system_version;
-
-			void operator=(const PatchMetaExtendedHeader& other)
-			{
-				application_id = other.application_id;
-				required_system_version = other.required_system_version;
-			}
-
-			bool operator==(const PatchMetaExtendedHeader& other) const
-			{
-				return (application_id == other.application_id) \
-					&& (required_system_version == other.required_system_version);
-			}
-
-			bool operator!=(const PatchMetaExtendedHeader& other) const
-			{
-				return !operator==(other);
-			}
-		};
-
-		struct AddOnContentMetaExtendedHeader
-		{
-			uint64_t application_id;
-			uint32_t required_application_version;
-
-			void operator=(const AddOnContentMetaExtendedHeader& other)
-			{
-				application_id = other.application_id;
-				required_application_version = other.required_application_version;
-			}
-
-			bool operator==(const AddOnContentMetaExtendedHeader& other) const
-			{
-				return (application_id == other.application_id) \
-					&& (required_application_version == other.required_application_version);
-			}
-
-			bool operator!=(const AddOnContentMetaExtendedHeader& other) const
-			{
-				return !operator==(other);
-			}
-		};
-
-		struct DeltaMetaExtendedHeader
-		{
-			uint64_t application_id;
-
-			void operator=(const DeltaMetaExtendedHeader& other)
-			{
-				application_id = other.application_id;
-			}
-
-			bool operator==(const DeltaMetaExtendedHeader& other) const
-			{
-				return (application_id == other.application_id);
-			}
-
-			bool operator!=(const DeltaMetaExtendedHeader& other) const
-			{
-				return !operator==(other);
-			}
-		};
-
 		ContentMeta();
 		ContentMeta(const ContentMeta& other);
 
@@ -125,8 +40,8 @@ namespace hac
 		uint32_t getTitleVersion() const;
 		void setTitleVersion(uint32_t version);
 
-		cnmt::ContentMetaType getType() const;
-		void setType(cnmt::ContentMetaType type);
+		cnmt::ContentMetaType getContentMetaType() const;
+		void setContentMetaType(cnmt::ContentMetaType type);
 
 		byte_t getAttributes() const;
 		void setAttributes(byte_t attributes);
@@ -155,8 +70,8 @@ namespace hac
 		const fnd::Vec<byte_t>& getExtendedData() const;
 		void setExtendedData(const fnd::Vec<byte_t>& data);
 
-		const nn::hac::cnmt::sDigest& getDigest() const;
-		void setDigest(const nn::hac::cnmt::sDigest& digest);
+		const cnmt::sDigest& getDigest() const;
+		void setDigest(const cnmt::sDigest& digest);
 
 
 	private:
@@ -178,10 +93,10 @@ namespace hac
 		AddOnContentMetaExtendedHeader mAddOnContentMetaExtendedHeader;
 		DeltaMetaExtendedHeader mDeltaMetaExtendedHeader;
 
-		fnd::List<nn::hac::ContentInfo> mContentInfo;
-		fnd::List<nn::hac::ContentMetaInfo> mContentMetaInfo;
+		fnd::List<ContentInfo> mContentInfo;
+		fnd::List<ContentMetaInfo> mContentMetaInfo;
 		fnd::Vec<byte_t> mExtendedData;
-		nn::hac::cnmt::sDigest mDigest;
+		cnmt::sDigest mDigest;
 
 		inline size_t getExtendedHeaderOffset() const { return sizeof(sContentMetaHeader); }
 		inline size_t getContentInfoOffset(size_t exhdrSize) const { return getExtendedHeaderOffset() + exhdrSize; }
