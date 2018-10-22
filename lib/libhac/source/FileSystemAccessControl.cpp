@@ -1,17 +1,17 @@
 #include <cstring>
-#include <nn/hac/FileSystemAccessControlBinary.h>
+#include <nn/hac/FileSystemAccessControl.h>
 
-nn::hac::FileSystemAccessControlBinary::FileSystemAccessControlBinary()
+nn::hac::FileSystemAccessControl::FileSystemAccessControl()
 {
 	clear();
 }
 
-nn::hac::FileSystemAccessControlBinary::FileSystemAccessControlBinary(const FileSystemAccessControlBinary & other)
+nn::hac::FileSystemAccessControl::FileSystemAccessControl(const FileSystemAccessControl & other)
 {
 	*this = other;
 }
 
-void nn::hac::FileSystemAccessControlBinary::operator=(const FileSystemAccessControlBinary & other)
+void nn::hac::FileSystemAccessControl::operator=(const FileSystemAccessControl & other)
 {
 	mRawBinary = other.mRawBinary;
 	mVersion = other.mVersion;
@@ -20,7 +20,7 @@ void nn::hac::FileSystemAccessControlBinary::operator=(const FileSystemAccessCon
 	mSaveDataOwnerIdList = other.mSaveDataOwnerIdList;
 }
 
-bool nn::hac::FileSystemAccessControlBinary::operator==(const FileSystemAccessControlBinary & other) const
+bool nn::hac::FileSystemAccessControl::operator==(const FileSystemAccessControl & other) const
 {
 	return (mVersion == other.mVersion) \
 		&& (mFsaRights == other.mFsaRights) \
@@ -28,12 +28,12 @@ bool nn::hac::FileSystemAccessControlBinary::operator==(const FileSystemAccessCo
 		&& (mSaveDataOwnerIdList == other.mSaveDataOwnerIdList);
 }
 
-bool nn::hac::FileSystemAccessControlBinary::operator!=(const FileSystemAccessControlBinary & other) const
+bool nn::hac::FileSystemAccessControl::operator!=(const FileSystemAccessControl & other) const
 {
 	return !(*this == other);
 }
 
-void nn::hac::FileSystemAccessControlBinary::toBytes()
+void nn::hac::FileSystemAccessControl::toBytes()
 {
 	// determine section layout
 	struct sLayout {
@@ -98,7 +98,7 @@ void nn::hac::FileSystemAccessControlBinary::toBytes()
 	}
 }
 
-void nn::hac::FileSystemAccessControlBinary::fromBytes(const byte_t* data, size_t len)
+void nn::hac::FileSystemAccessControl::fromBytes(const byte_t* data, size_t len)
 {
 	// check size
 	if (len < sizeof(sFacHeader))
@@ -164,12 +164,12 @@ void nn::hac::FileSystemAccessControlBinary::fromBytes(const byte_t* data, size_
 	}
 }
 
-const fnd::Vec<byte_t>& nn::hac::FileSystemAccessControlBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::FileSystemAccessControl::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nn::hac::FileSystemAccessControlBinary::clear()
+void nn::hac::FileSystemAccessControl::clear()
 {
 	mRawBinary.clear();
 	mVersion = 0;
@@ -178,42 +178,42 @@ void nn::hac::FileSystemAccessControlBinary::clear()
 	mSaveDataOwnerIdList.clear();
 }
 
-uint32_t nn::hac::FileSystemAccessControlBinary::getFormatVersion() const
+uint32_t nn::hac::FileSystemAccessControl::getFormatVersion() const
 {
 	return mVersion;
 }
 
-void nn::hac::FileSystemAccessControlBinary::setFormatVersion(uint32_t format_version)
+void nn::hac::FileSystemAccessControl::setFormatVersion(uint32_t format_version)
 {
 	mVersion = format_version;
 }
 
-const fnd::List<nn::hac::fac::FsAccessFlag>& nn::hac::FileSystemAccessControlBinary::getFsaRightsList() const
+const fnd::List<nn::hac::fac::FsAccessFlag>& nn::hac::FileSystemAccessControl::getFsaRightsList() const
 {
 	return mFsaRights;
 }
 
-void nn::hac::FileSystemAccessControlBinary::setFsaRightsList(const fnd::List<fac::FsAccessFlag>& list)
+void nn::hac::FileSystemAccessControl::setFsaRightsList(const fnd::List<fac::FsAccessFlag>& list)
 {
 	mFsaRights = list;
 }
 
-const fnd::List<uint64_t>& nn::hac::FileSystemAccessControlBinary::getContentOwnerIdList() const
+const fnd::List<uint64_t>& nn::hac::FileSystemAccessControl::getContentOwnerIdList() const
 {
 	return mContentOwnerIdList;
 }
 
-void nn::hac::FileSystemAccessControlBinary::setContentOwnerIdList(const fnd::List<uint64_t>& list)
+void nn::hac::FileSystemAccessControl::setContentOwnerIdList(const fnd::List<uint64_t>& list)
 {
 	mContentOwnerIdList = list;
 }
 
-const fnd::List<nn::hac::FileSystemAccessControlBinary::sSaveDataOwnerId>& nn::hac::FileSystemAccessControlBinary::getSaveDataOwnerIdList() const
+const fnd::List<nn::hac::FileSystemAccessControl::sSaveDataOwnerId>& nn::hac::FileSystemAccessControl::getSaveDataOwnerIdList() const
 {
 	return mSaveDataOwnerIdList;
 }
 
-void nn::hac::FileSystemAccessControlBinary::setSaveDataOwnerIdList(const fnd::List<sSaveDataOwnerId>& list)
+void nn::hac::FileSystemAccessControl::setSaveDataOwnerIdList(const fnd::List<sSaveDataOwnerId>& list)
 {
 	mSaveDataOwnerIdList = list;
 }

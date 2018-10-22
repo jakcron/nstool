@@ -1,5 +1,5 @@
 #pragma once
-#include <nn/hac/xci.h>
+#include <nn/hac/define/xci.h>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
 

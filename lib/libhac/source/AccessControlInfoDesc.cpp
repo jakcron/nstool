@@ -220,32 +220,32 @@ void nn::hac::AccessControlInfoDesc::setProgramIdRestrict(const sProgramIdRestri
 	mProgramIdRestrict = pid_restrict;
 }
 
-const nn::hac::FileSystemAccessControlBinary& nn::hac::AccessControlInfoDesc::getFileSystemAccessControl() const
+const nn::hac::FileSystemAccessControl& nn::hac::AccessControlInfoDesc::getFileSystemAccessControl() const
 {
 	return mFileSystemAccessControl;
 }
 
-void nn::hac::AccessControlInfoDesc::setFileSystemAccessControl(const nn::hac::FileSystemAccessControlBinary& fac)
+void nn::hac::AccessControlInfoDesc::setFileSystemAccessControl(const nn::hac::FileSystemAccessControl& fac)
 {
 	mFileSystemAccessControl = fac;
 }
 
-const nn::hac::ServiceAccessControlBinary& nn::hac::AccessControlInfoDesc::getServiceAccessControl() const
+const nn::hac::ServiceAccessControl& nn::hac::AccessControlInfoDesc::getServiceAccessControl() const
 {
 	return mServiceAccessControl;
 }
 
-void nn::hac::AccessControlInfoDesc::setServiceAccessControl(const nn::hac::ServiceAccessControlBinary& sac)
+void nn::hac::AccessControlInfoDesc::setServiceAccessControl(const nn::hac::ServiceAccessControl& sac)
 {
 	mServiceAccessControl = sac;
 }
 
-const nn::hac::KernelCapabilityBinary& nn::hac::AccessControlInfoDesc::getKernelCapabilities() const
+const nn::hac::KernelCapabilityControl& nn::hac::AccessControlInfoDesc::getKernelCapabilities() const
 {
 	return mKernelCapabilities;
 }
 
-void nn::hac::AccessControlInfoDesc::setKernelCapabilities(const nn::hac::KernelCapabilityBinary& kc)
+void nn::hac::AccessControlInfoDesc::setKernelCapabilities(const nn::hac::KernelCapabilityControl& kc)
 {
 	mKernelCapabilities = kc;
 }

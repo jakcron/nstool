@@ -5,7 +5,7 @@
 #include <fnd/SharedPtr.h>
 #include <fnd/Vec.h>
 #include <fnd/List.h>
-#include <nn/hac/romfs.h>
+#include <nn/hac/define/romfs.h>
 
 #include "common.h"
 

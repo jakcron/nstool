@@ -1,7 +1,7 @@
 #pragma once
 #include <fnd/types.h>
 #include <fnd/rsa.h>
-#include <nn/hac/macro.h>
+#include <nn/hac/define/macro.h>
 
 namespace nn
 {

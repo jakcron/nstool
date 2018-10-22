@@ -1,5 +1,5 @@
 #pragma once
-#include <nn/hac/xci.h>
+#include <nn/hac/define/xci.h>
 
 namespace nn
 {

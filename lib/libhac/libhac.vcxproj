@@ -37,7 +37,7 @@
     <ClInclude Include="include\nn\hac\delta.h" />
 	<ClInclude Include="include\nn\hac\DeltaMetaExtendedHeader.h" />
     <ClInclude Include="include\nn\hac\fac.h" />
-    <ClInclude Include="include\nn\hac\FileSystemAccessControlBinary.h" />
+    <ClInclude Include="include\nn\hac\FileSystemAccessControl.h" />
     <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h" />
     <ClInclude Include="include\nn\hac\HandleTableSizeHandler.h" />
     <ClInclude Include="include\nn\hac\hierarchicalintegrity.h" />
@@ -49,7 +49,7 @@
     <ClInclude Include="include\nn\hac\InteruptEntry.h" />
     <ClInclude Include="include\nn\hac\InteruptHandler.h" />
     <ClInclude Include="include\nn\hac\kc.h" />
-    <ClInclude Include="include\nn\hac\KernelCapabilityBinary.h" />
+    <ClInclude Include="include\nn\hac\KernelCapabilityControl.h" />
     <ClInclude Include="include\nn\hac\KernelCapabilityEntry.h" />
     <ClInclude Include="include\nn\hac\KernelVersionEntry.h" />
     <ClInclude Include="include\nn\hac\KernelVersionHandler.h" />
@@ -57,7 +57,7 @@
     <ClInclude Include="include\nn\hac\MemoryMappingHandler.h" />
     <ClInclude Include="include\nn\hac\MemoryPageEntry.h" />
     <ClInclude Include="include\nn\hac\meta.h" />
-    <ClInclude Include="include\nn\hac\MetaBinary.h" />
+    <ClInclude Include="include\nn\hac\Meta.h" />
     <ClInclude Include="include\nn\hac\MiscFlagsEntry.h" />
     <ClInclude Include="include\nn\hac\MiscFlagsHandler.h" />
     <ClInclude Include="include\nn\hac\MiscParamsEntry.h" />
@@ -76,7 +76,7 @@
     <ClInclude Include="include\nn\hac\PfsHeader.h" />
     <ClInclude Include="include\nn\hac\Result.h" />
     <ClInclude Include="include\nn\hac\romfs.h" />
-    <ClInclude Include="include\nn\hac\ServiceAccessControlBinary.h" />
+    <ClInclude Include="include\nn\hac\ServiceAccessControl.h" />
     <ClInclude Include="include\nn\hac\ServiceAccessControlEntry.h" />
     <ClInclude Include="include\nn\hac\SystemCallEntry.h" />
     <ClInclude Include="include\nn\hac\SystemCallHandler.h" />
@@ -98,7 +98,7 @@
     <ClCompile Include="source\ContentMeta.cpp" />
     <ClCompile Include="source\ContentMetaInfo.cpp" />
     <ClCompile Include="source\DeltaMetaExtendedHeader.cpp" />
-    <ClCompile Include="source\FileSystemAccessControlBinary.cpp" />
+    <ClCompile Include="source\FileSystemAccessControl.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
     <ClCompile Include="source\HandleTableSizeHandler.cpp" />
     <ClCompile Include="source\HierarchicalIntegrityHeader.cpp" />
@@ -106,13 +106,13 @@
     <ClCompile Include="source\IdConverter.cpp" />
     <ClCompile Include="source\InteruptEntry.cpp" />
     <ClCompile Include="source\InteruptHandler.cpp" />
-    <ClCompile Include="source\KernelCapabilityBinary.cpp" />
+    <ClCompile Include="source\KernelCapabilityControl.cpp" />
     <ClCompile Include="source\KernelCapabilityEntry.cpp" />
     <ClCompile Include="source\KernelVersionEntry.cpp" />
     <ClCompile Include="source\KernelVersionHandler.cpp" />
     <ClCompile Include="source\MemoryMappingHandler.cpp" />
     <ClCompile Include="source\MemoryPageEntry.cpp" />
-    <ClCompile Include="source\MetaBinary.cpp" />
+    <ClCompile Include="source\Meta.cpp" />
     <ClCompile Include="source\MiscFlagsEntry.cpp" />
     <ClCompile Include="source\MiscFlagsHandler.cpp" />
     <ClCompile Include="source\MiscParamsEntry.cpp" />
@@ -124,7 +124,7 @@
     <ClCompile Include="source\PatchMetaExtendedHeader.cpp" />
     <ClCompile Include="source\PfsHeader.cpp" />
     <ClCompile Include="source\Result.cpp" />
-    <ClCompile Include="source\ServiceAccessControlBinary.cpp" />
+    <ClCompile Include="source\ServiceAccessControl.cpp" />
     <ClCompile Include="source\ServiceAccessControlEntry.cpp" />
     <ClCompile Include="source\SystemCallEntry.cpp" />
     <ClCompile Include="source\SystemCallHandler.cpp" />

@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
-#include <nn/hac/nacp.h>
+#include <nn/hac/define/nacp.h>
 
 namespace nn
 {

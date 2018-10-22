@@ -1,58 +1,80 @@
 #pragma once
-#include <fnd/types.h>
-#include <nn/hac/macro.h>
+#include <string>
+#include <fnd/List.h>
+#include <fnd/IByteModel.h>
+#include <nn/hac/define/meta.h>
+#include <nn/hac/AccessControlInfo.h>
+#include <nn/hac/AccessControlInfoDesc.h>
 
 namespace nn
 {
 namespace hac
 {
-	namespace meta
+	class Meta :
+		public fnd::IByteModel
 	{
-		static const uint32_t kMetaStructMagic = _MAKE_STRUCT_MAGIC_U32("META");
-		static const size_t kNameMaxLen = 0x10;
-		static const size_t kProductCodeMaxLen = 0x10;
-		static const uint32_t kMaxPriority = BIT(6) - 1;
-		static const size_t kSectionAlignSize = 0x10;
-		static const uint32_t kDefaultMainThreadStackSize = 4096;
+	public:
+		Meta();
+		Meta(const Meta& other);
 
-		enum InstructionType
-		{
-			INSTR_32BIT,
-			INSTR_64BIT,
-		};
+		void operator=(const Meta& other);
+		bool operator==(const Meta& other) const;
+		bool operator!=(const Meta& other) const;
 
-		enum ProcAddrSpaceType
-		{
-			ADDR_SPACE_64BIT = 1,
-			ADDR_SPACE_32BIT,
-			ADDR_SPACE_32BIT_NO_RESERVED,
-		};
-	}
-#pragma pack(push,1)
-	struct sMetaSection
-	{
-		le_uint32_t offset;
-		le_uint32_t size;
+		// IByteModel
+		void toBytes();
+		void fromBytes(const byte_t* bytes, size_t len);
+		const fnd::Vec<byte_t>& getBytes() const;
+
+		// variables
+		void clear();
+
+		meta::InstructionType getInstructionType() const;
+		void setInstructionType(meta::InstructionType type);
+
+		meta::ProcAddrSpaceType getProcAddressSpaceType() const;
+		void setProcAddressSpaceType(meta::ProcAddrSpaceType type);
+
+		byte_t getMainThreadPriority() const;
+		void setMainThreadPriority(byte_t priority);
+
+		byte_t getMainThreadCpuId() const;
+		void setMainThreadCpuId(byte_t cpu_id);
+
+		uint32_t getVersion() const;
+		void setVersion(uint32_t version);
+
+		uint32_t getMainThreadStackSize() const;
+		void setMainThreadStackSize(uint32_t size);
+
+		const std::string& getName() const;
+		void setName(const std::string& name);
+
+		const std::string& getProductCode() const;
+		void setProductCode(const std::string& product_code);
+
+		const AccessControlInfo& getAci() const;
+		void setAci(const AccessControlInfo& aci);
+
+		const AccessControlInfoDesc& getAcid() const;
+		void setAcid(const AccessControlInfoDesc& acid);
+	private:
+		const std::string kModuleName = "META";
+
+		// raw binary
+		fnd::Vec<byte_t> mRawBinary;
+
+		// variables
+		meta::InstructionType mInstructionType;
+		meta::ProcAddrSpaceType mProcAddressSpaceType;
+		byte_t mMainThreadPriority;
+		byte_t mMainThreadCpuId;
+		uint32_t mVersion;
+		uint32_t mMainThreadStackSize;
+		std::string mName;
+		std::string mProductCode;
+		AccessControlInfo mAci;
+		AccessControlInfoDesc mAcid;
 	};
-
-	struct sMetaHeader
-	{
-		le_uint32_t st_magic;
-		byte_t reserved_0[8];
-		byte_t flags;
-		byte_t reserved_1;
-		byte_t main_thread_priority;
-		byte_t main_thread_cpu_id;
-		byte_t reserved_2[8];
-		le_uint32_t version;
-		le_uint32_t main_thread_stack_size;
-		char name[meta::kNameMaxLen]; // important
-		char product_code[meta::kProductCodeMaxLen]; // can be empty
-		byte_t reserved_3[48];
-		sMetaSection aci;
-		sMetaSection acid;
-	};
-
-#pragma pack(pop)
 }
 }

@@ -5,7 +5,7 @@
 #include <fnd/aes.h>
 #include <fnd/rsa.h>
 #include <fnd/ecdsa.h>
-#include <nn/hac/nca.h>
+#include <nn/hac/define/nca.h>
 #include <nn/pki/SignedData.h>
 #include <nn/es/TicketBody_V2.h>
 

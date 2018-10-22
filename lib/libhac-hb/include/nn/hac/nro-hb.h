@@ -1,6 +1,6 @@
 #pragma once
-#include <nn/hac/nro.h>
-#include <nn/hac/macro.h>
+#include <nn/hac/define/nro.h>
+#include <nn/hac/define/macro.h>
 
 namespace nn
 {

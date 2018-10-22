@@ -61,7 +61,7 @@ void MetaProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-const nn::hac::MetaBinary& MetaProcess::getMetaBinary() const
+const nn::hac::Meta& MetaProcess::getMeta() const
 {
 	return mMeta;
 }
@@ -287,7 +287,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 	}
 }
 
-void MetaProcess::displayMetaHeader(const nn::hac::MetaBinary& hdr)
+void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 {
 	std::cout << "[Meta Header]" << std::endl;
 	std::cout << "  Process Architecture Params:" << std::endl;
@@ -328,7 +328,7 @@ void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
 	std::cout << "    Max:           0x" << std::hex << std::setw(16) << std::setfill('0') << acid.getProgramIdRestrict().max << std::endl;
 }
 
-void MetaProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
+void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 {
 	std::cout << "[FS Access Control]" << std::endl;
 	std::cout << "  Format Version:  " << std::dec << (uint32_t)fac.getFormatVersion() << std::endl;
@@ -373,7 +373,7 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
 	
 }
 
-void MetaProcess::displaySac(const nn::hac::ServiceAccessControlBinary& sac)
+void MetaProcess::displaySac(const nn::hac::ServiceAccessControl& sac)
 {
 	std::cout << "[Service Access Control]" << std::endl;
 	std::cout << "  Service List:" << std::endl;
@@ -394,7 +394,7 @@ void MetaProcess::displaySac(const nn::hac::ServiceAccessControlBinary& sac)
 	std::cout << std::endl;
 }
 
-void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityBinary& kern)
+void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 {
 	std::cout << "[Kernel Capabilities]" << std::endl;
 	if (kern.getThreadInfo().isSet())

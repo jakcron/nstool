@@ -1,6 +1,6 @@
 #pragma once
 #include <fnd/types.h>
-#include <nn/hac/kc.h>
+#include <nn/hac/define/kc.h>
 
 namespace nn
 {

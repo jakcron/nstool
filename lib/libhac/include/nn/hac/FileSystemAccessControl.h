@@ -3,13 +3,13 @@
 #include <fnd/types.h>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
-#include <nn/hac/fac.h>
+#include <nn/hac/define/fac.h>
 
 namespace nn
 {
 namespace hac
 {
-	class FileSystemAccessControlBinary :
+	class FileSystemAccessControl :
 		public fnd::IByteModel
 	{
 	public:
@@ -36,12 +36,12 @@ namespace hac
 			}
 		}; 
 
-		FileSystemAccessControlBinary();
-		FileSystemAccessControlBinary(const FileSystemAccessControlBinary& other);
+		FileSystemAccessControl();
+		FileSystemAccessControl(const FileSystemAccessControl& other);
 
-		void operator=(const FileSystemAccessControlBinary& other);
-		bool operator==(const FileSystemAccessControlBinary& other) const;
-		bool operator!=(const FileSystemAccessControlBinary& other) const;
+		void operator=(const FileSystemAccessControl& other);
+		bool operator==(const FileSystemAccessControl& other) const;
+		bool operator!=(const FileSystemAccessControl& other) const;
 
 		// IByteModel
 		void toBytes();
@@ -63,7 +63,7 @@ namespace hac
 		const fnd::List<sSaveDataOwnerId>& getSaveDataOwnerIdList() const;
 		void setSaveDataOwnerIdList(const fnd::List<sSaveDataOwnerId>& list);
 	private:
-		const std::string kModuleName = "FILE_SYSTEM_ACCESS_CONTROL_BINARY";
+		const std::string kModuleName = "FILE_SYSTEM_ACCESS_CONTROL";
 
 		// raw data
 		fnd::Vec<byte_t> mRawBinary;

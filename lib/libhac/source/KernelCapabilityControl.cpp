@@ -1,14 +1,14 @@
-#include <nn/hac/KernelCapabilityBinary.h>
+#include <nn/hac/KernelCapabilityControl.h>
 
-nn::hac::KernelCapabilityBinary::KernelCapabilityBinary()
+nn::hac::KernelCapabilityControl::KernelCapabilityControl()
 {}
 
-nn::hac::KernelCapabilityBinary::KernelCapabilityBinary(const KernelCapabilityBinary & other)
+nn::hac::KernelCapabilityControl::KernelCapabilityControl(const KernelCapabilityControl & other)
 {
 	*this = other;
 }
 
-void nn::hac::KernelCapabilityBinary::operator=(const KernelCapabilityBinary & other)
+void nn::hac::KernelCapabilityControl::operator=(const KernelCapabilityControl & other)
 {
 	clear();
 	mRawBinary = other.mRawBinary;
@@ -22,7 +22,7 @@ void nn::hac::KernelCapabilityBinary::operator=(const KernelCapabilityBinary & o
 	mMiscFlags = other.mMiscFlags;
 }
 
-bool nn::hac::KernelCapabilityBinary::operator==(const KernelCapabilityBinary & other) const
+bool nn::hac::KernelCapabilityControl::operator==(const KernelCapabilityControl & other) const
 {
 	return (mThreadInfo == other.mThreadInfo) \
 		&& (mSystemCalls == other.mSystemCalls) \
@@ -34,12 +34,12 @@ bool nn::hac::KernelCapabilityBinary::operator==(const KernelCapabilityBinary & 
 		&& (mMiscFlags == other.mMiscFlags);
 }
 
-bool nn::hac::KernelCapabilityBinary::operator!=(const KernelCapabilityBinary & other) const
+bool nn::hac::KernelCapabilityControl::operator!=(const KernelCapabilityControl & other) const
 {
 	return !(*this == other);
 }
 
-void nn::hac::KernelCapabilityBinary::toBytes()
+void nn::hac::KernelCapabilityControl::toBytes()
 {
 	fnd::List<KernelCapabilityEntry> caps;
 
@@ -64,14 +64,14 @@ void nn::hac::KernelCapabilityBinary::toBytes()
 	}
 }
 
-void nn::hac::KernelCapabilityBinary::fromBytes(const byte_t * data, size_t len)
+void nn::hac::KernelCapabilityControl::fromBytes(const byte_t * data, size_t len)
 {
 	if ((len % sizeof(uint32_t)) != 0)
 	{
 		throw fnd::Exception(kModuleName, "KernelCapabilityEntry list must be aligned to 4 bytes");
 	}
 
-	// save copy of KernelCapabilityBinary
+	// save copy of KernelCapabilityControl
 	mRawBinary.alloc(len);
 	memcpy(mRawBinary.data(), data, len);
 
@@ -132,12 +132,12 @@ void nn::hac::KernelCapabilityBinary::fromBytes(const byte_t * data, size_t len)
 	mMiscFlags.importKernelCapabilityList(miscFlagsCaps);
 }
 
-const fnd::Vec<byte_t>& nn::hac::KernelCapabilityBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::KernelCapabilityControl::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nn::hac::KernelCapabilityBinary::clear()
+void nn::hac::KernelCapabilityControl::clear()
 {
 	mRawBinary.clear();
 	mThreadInfo.clear();
@@ -150,82 +150,82 @@ void nn::hac::KernelCapabilityBinary::clear()
 	mMiscFlags.clear();
 }
 
-const nn::hac::ThreadInfoHandler & nn::hac::KernelCapabilityBinary::getThreadInfo() const
+const nn::hac::ThreadInfoHandler & nn::hac::KernelCapabilityControl::getThreadInfo() const
 {
 	return mThreadInfo;
 }
 
-nn::hac::ThreadInfoHandler & nn::hac::KernelCapabilityBinary::getThreadInfo()
+nn::hac::ThreadInfoHandler & nn::hac::KernelCapabilityControl::getThreadInfo()
 {
 	return mThreadInfo;
 }
 
-const nn::hac::SystemCallHandler & nn::hac::KernelCapabilityBinary::getSystemCalls() const
+const nn::hac::SystemCallHandler & nn::hac::KernelCapabilityControl::getSystemCalls() const
 {
 	return mSystemCalls;
 }
 
-nn::hac::SystemCallHandler & nn::hac::KernelCapabilityBinary::getSystemCalls()
+nn::hac::SystemCallHandler & nn::hac::KernelCapabilityControl::getSystemCalls()
 {
 	return mSystemCalls;
 }
 
-const nn::hac::MemoryMappingHandler & nn::hac::KernelCapabilityBinary::getMemoryMaps() const
+const nn::hac::MemoryMappingHandler & nn::hac::KernelCapabilityControl::getMemoryMaps() const
 {
 	return mMemoryMap;
 }
 
-nn::hac::MemoryMappingHandler & nn::hac::KernelCapabilityBinary::getMemoryMaps()
+nn::hac::MemoryMappingHandler & nn::hac::KernelCapabilityControl::getMemoryMaps()
 {
 	return mMemoryMap;
 }
 
-const nn::hac::InteruptHandler & nn::hac::KernelCapabilityBinary::getInterupts() const
+const nn::hac::InteruptHandler & nn::hac::KernelCapabilityControl::getInterupts() const
 {
 	return mInterupts;
 }
 
-nn::hac::InteruptHandler & nn::hac::KernelCapabilityBinary::getInterupts()
+nn::hac::InteruptHandler & nn::hac::KernelCapabilityControl::getInterupts()
 {
 	return mInterupts;
 }
 
-const nn::hac::MiscParamsHandler & nn::hac::KernelCapabilityBinary::getMiscParams() const
+const nn::hac::MiscParamsHandler & nn::hac::KernelCapabilityControl::getMiscParams() const
 {
 	return mMiscParams;
 }
 
-nn::hac::MiscParamsHandler & nn::hac::KernelCapabilityBinary::getMiscParams()
+nn::hac::MiscParamsHandler & nn::hac::KernelCapabilityControl::getMiscParams()
 {
 	return mMiscParams;
 }
 
-const nn::hac::KernelVersionHandler & nn::hac::KernelCapabilityBinary::getKernelVersion() const
+const nn::hac::KernelVersionHandler & nn::hac::KernelCapabilityControl::getKernelVersion() const
 {
 	return mKernelVersion;
 }
 
-nn::hac::KernelVersionHandler & nn::hac::KernelCapabilityBinary::getKernelVersion()
+nn::hac::KernelVersionHandler & nn::hac::KernelCapabilityControl::getKernelVersion()
 {
 	return mKernelVersion;
 }
 
-const nn::hac::HandleTableSizeHandler & nn::hac::KernelCapabilityBinary::getHandleTableSize() const
+const nn::hac::HandleTableSizeHandler & nn::hac::KernelCapabilityControl::getHandleTableSize() const
 {
 	return mHandleTableSize;
 }
 
-nn::hac::HandleTableSizeHandler & nn::hac::KernelCapabilityBinary::getHandleTableSize()
+nn::hac::HandleTableSizeHandler & nn::hac::KernelCapabilityControl::getHandleTableSize()
 {
 	return mHandleTableSize;
 }
 
-const nn::hac::MiscFlagsHandler & nn::hac::KernelCapabilityBinary::getMiscFlags() const
+const nn::hac::MiscFlagsHandler & nn::hac::KernelCapabilityControl::getMiscFlags() const
 {
 	return mMiscFlags;
 }
 
-nn::hac::MiscFlagsHandler & nn::hac::KernelCapabilityBinary::getMiscFlags()
+nn::hac::MiscFlagsHandler & nn::hac::KernelCapabilityControl::getMiscFlags()
 {
 	return mMiscFlags;
 }

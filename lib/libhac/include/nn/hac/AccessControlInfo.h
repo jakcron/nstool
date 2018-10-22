@@ -2,10 +2,10 @@
 #include <string>
 #include <fnd/types.h>
 #include <fnd/IByteModel.h>
-#include <nn/hac/aci.h>
-#include <nn/hac/FileSystemAccessControlBinary.h>
-#include <nn/hac/ServiceAccessControlBinary.h>
-#include <nn/hac/KernelCapabilityBinary.h>
+#include <nn/hac/define/aci.h>
+#include <nn/hac/FileSystemAccessControl.h>
+#include <nn/hac/ServiceAccessControl.h>
+#include <nn/hac/KernelCapabilityControl.h>
 
 namespace nn
 {
@@ -33,14 +33,14 @@ namespace hac
 		uint64_t getProgramId() const;
 		void setProgramId(uint64_t program_id);
 
-		const nn::hac::FileSystemAccessControlBinary& getFileSystemAccessControl() const;
-		void setFileSystemAccessControl(const FileSystemAccessControlBinary& fac);
+		const nn::hac::FileSystemAccessControl& getFileSystemAccessControl() const;
+		void setFileSystemAccessControl(const FileSystemAccessControl& fac);
 
-		const nn::hac::ServiceAccessControlBinary& getServiceAccessControl() const;
-		void setServiceAccessControl(const ServiceAccessControlBinary& sac);
+		const nn::hac::ServiceAccessControl& getServiceAccessControl() const;
+		void setServiceAccessControl(const ServiceAccessControl& sac);
 
-		const nn::hac::KernelCapabilityBinary& getKernelCapabilities() const;
-		void setKernelCapabilities(const KernelCapabilityBinary& kc);
+		const nn::hac::KernelCapabilityControl& getKernelCapabilities() const;
+		void setKernelCapabilities(const KernelCapabilityControl& kc);
 	private:
 		const std::string kModuleName = "ACCESS_CONTROL_INFO_BINARY";
 
@@ -49,9 +49,9 @@ namespace hac
 
 		// variables
 		uint64_t mProgramId;
-		nn::hac::FileSystemAccessControlBinary mFileSystemAccessControl;
-		nn::hac::ServiceAccessControlBinary mServiceAccessControl;
-		nn::hac::KernelCapabilityBinary mKernelCapabilities;
+		nn::hac::FileSystemAccessControl mFileSystemAccessControl;
+		nn::hac::ServiceAccessControl mServiceAccessControl;
+		nn::hac::KernelCapabilityControl mKernelCapabilities;
 	};
 }
 }

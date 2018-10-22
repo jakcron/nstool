@@ -1,5 +1,5 @@
 #pragma once
-#include <nn/hac/hierarchicalintegrity.h>
+#include <nn/hac/define/hierarchicalintegrity.h>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <fnd/sha.h>

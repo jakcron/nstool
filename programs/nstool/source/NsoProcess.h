@@ -4,7 +4,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
-#include <nn/hac/meta.h>
+#include <nn/hac/define/meta.h>
 #include <nn/hac/NsoHeader.h>
 
 #include "common.h"

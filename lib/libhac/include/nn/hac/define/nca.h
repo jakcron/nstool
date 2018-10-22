@@ -3,7 +3,7 @@
 #include <fnd/aes.h>
 #include <fnd/sha.h>
 #include <fnd/rsa.h>
-#include <nn/hac/macro.h>
+#include <nn/hac/define/macro.h>
 
 namespace nn
 {

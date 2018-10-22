@@ -3,7 +3,7 @@
 #include <cstring>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
-#include <nn/hac/cnmt.h>
+#include <nn/hac/define/cnmt.h>
 #include <nn/hac/ContentInfo.h>
 #include <nn/hac/ContentMetaInfo.h>
 #include <nn/hac/ApplicationMetaExtendedHeader.h>

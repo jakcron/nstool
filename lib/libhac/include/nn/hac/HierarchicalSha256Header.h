@@ -1,5 +1,5 @@
 #pragma once
-#include <nn/hac/hierarchicalsha256.h>
+#include <nn/hac/define/hierarchicalsha256.h>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
 

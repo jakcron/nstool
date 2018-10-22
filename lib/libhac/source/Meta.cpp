@@ -1,19 +1,19 @@
-#include <nn/hac/MetaBinary.h>
+#include <nn/hac/Meta.h>
 
 #include <fnd/SimpleTextOutput.h>
 
-nn::hac::MetaBinary::MetaBinary()
+nn::hac::Meta::Meta()
 {
 	clear();
 }
 
-nn::hac::MetaBinary::MetaBinary(const MetaBinary & other) :
-	MetaBinary()
+nn::hac::Meta::Meta(const Meta & other) :
+	Meta()
 {
 	*this = other;
 }
 
-void nn::hac::MetaBinary::operator=(const MetaBinary & other)
+void nn::hac::Meta::operator=(const Meta & other)
 {
 	mRawBinary = other.mRawBinary;
 	mInstructionType = other.mInstructionType;
@@ -28,7 +28,7 @@ void nn::hac::MetaBinary::operator=(const MetaBinary & other)
 	mAcid = other.mAcid;
 }
 
-bool nn::hac::MetaBinary::operator==(const MetaBinary & other) const
+bool nn::hac::Meta::operator==(const Meta & other) const
 {
 	return (mInstructionType == other.mInstructionType) \
 		&& (mProcAddressSpaceType == other.mProcAddressSpaceType) \
@@ -42,12 +42,12 @@ bool nn::hac::MetaBinary::operator==(const MetaBinary & other) const
 		&& (mAcid == other.mAcid);
 }
 
-bool nn::hac::MetaBinary::operator!=(const MetaBinary & other) const
+bool nn::hac::Meta::operator!=(const Meta & other) const
 {
 	return !(*this == other);
 }
 
-void nn::hac::MetaBinary::toBytes()
+void nn::hac::Meta::toBytes()
 {
 	if (mAcid.getBytes().size() == 0)
 		mAcid.toBytes();
@@ -103,7 +103,7 @@ void nn::hac::MetaBinary::toBytes()
 	}
 }
 
-void nn::hac::MetaBinary::fromBytes(const byte_t* data, size_t len)
+void nn::hac::Meta::fromBytes(const byte_t* data, size_t len)
 {
 	// check size
 	if (len < sizeof(sMetaHeader))
@@ -159,12 +159,12 @@ void nn::hac::MetaBinary::fromBytes(const byte_t* data, size_t len)
 	}	
 }
 
-const fnd::Vec<byte_t>& nn::hac::MetaBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::Meta::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nn::hac::MetaBinary::clear()
+void nn::hac::Meta::clear()
 {
 	mRawBinary.clear();
 	mInstructionType = meta::INSTR_64BIT;
@@ -179,32 +179,32 @@ void nn::hac::MetaBinary::clear()
 	mAcid.clear();
 }
 
-nn::hac::meta::InstructionType nn::hac::MetaBinary::getInstructionType() const
+nn::hac::meta::InstructionType nn::hac::Meta::getInstructionType() const
 {
 	return mInstructionType;
 }
 
-void nn::hac::MetaBinary::setInstructionType(meta::InstructionType type)
+void nn::hac::Meta::setInstructionType(meta::InstructionType type)
 {
 	mInstructionType = type;
 }
 
-nn::hac::meta::ProcAddrSpaceType nn::hac::MetaBinary::getProcAddressSpaceType() const
+nn::hac::meta::ProcAddrSpaceType nn::hac::Meta::getProcAddressSpaceType() const
 {
 	return mProcAddressSpaceType;
 }
 
-void nn::hac::MetaBinary::setProcAddressSpaceType(meta::ProcAddrSpaceType type)
+void nn::hac::Meta::setProcAddressSpaceType(meta::ProcAddrSpaceType type)
 {
 	mProcAddressSpaceType = type;
 }
 
-byte_t nn::hac::MetaBinary::getMainThreadPriority() const
+byte_t nn::hac::Meta::getMainThreadPriority() const
 {
 	return mMainThreadPriority;
 }
 
-void nn::hac::MetaBinary::setMainThreadPriority(byte_t priority)
+void nn::hac::Meta::setMainThreadPriority(byte_t priority)
 {
 	if (priority > meta::kMaxPriority)
 	{
@@ -214,42 +214,42 @@ void nn::hac::MetaBinary::setMainThreadPriority(byte_t priority)
 	mMainThreadPriority = priority;
 }
 
-byte_t nn::hac::MetaBinary::getMainThreadCpuId() const
+byte_t nn::hac::Meta::getMainThreadCpuId() const
 {
 	return mMainThreadCpuId;
 }
 
-void nn::hac::MetaBinary::setMainThreadCpuId(byte_t core_num)
+void nn::hac::Meta::setMainThreadCpuId(byte_t core_num)
 {
 	mMainThreadCpuId = core_num;
 }
 
-uint32_t nn::hac::MetaBinary::getVersion() const
+uint32_t nn::hac::Meta::getVersion() const
 {
 	return mVersion;
 }
 
-void nn::hac::MetaBinary::setVersion(uint32_t version)
+void nn::hac::Meta::setVersion(uint32_t version)
 {
 	mVersion = version;
 }
 
-uint32_t nn::hac::MetaBinary::getMainThreadStackSize() const
+uint32_t nn::hac::Meta::getMainThreadStackSize() const
 {
 	return mMainThreadStackSize;
 }
 
-void nn::hac::MetaBinary::setMainThreadStackSize(uint32_t size)
+void nn::hac::Meta::setMainThreadStackSize(uint32_t size)
 {
 	mMainThreadStackSize = size;
 }
 
-const std::string & nn::hac::MetaBinary::getName() const
+const std::string & nn::hac::Meta::getName() const
 {
 	return mName;
 }
 
-void nn::hac::MetaBinary::setName(const std::string & name)
+void nn::hac::Meta::setName(const std::string & name)
 {
 	if (name.length() > meta::kNameMaxLen)
 	{
@@ -259,12 +259,12 @@ void nn::hac::MetaBinary::setName(const std::string & name)
 	mName = name;
 }
 
-const std::string & nn::hac::MetaBinary::getProductCode() const
+const std::string & nn::hac::Meta::getProductCode() const
 {
 	return mProductCode;
 }
 
-void nn::hac::MetaBinary::setProductCode(const std::string & product_code)
+void nn::hac::Meta::setProductCode(const std::string & product_code)
 {
 	if (product_code.length() > meta::kProductCodeMaxLen)
 	{
@@ -274,22 +274,22 @@ void nn::hac::MetaBinary::setProductCode(const std::string & product_code)
 	mProductCode = product_code;
 }
 
-const nn::hac::AccessControlInfo & nn::hac::MetaBinary::getAci() const
+const nn::hac::AccessControlInfo & nn::hac::Meta::getAci() const
 {
 	return mAci;
 }
 
-void nn::hac::MetaBinary::setAci(const AccessControlInfo & aci)
+void nn::hac::Meta::setAci(const AccessControlInfo & aci)
 {
 	mAci = aci;
 }
 
-const nn::hac::AccessControlInfoDesc & nn::hac::MetaBinary::getAcid() const
+const nn::hac::AccessControlInfoDesc & nn::hac::Meta::getAcid() const
 {
 	return mAcid;
 }
 
-void nn::hac::MetaBinary::setAcid(const AccessControlInfoDesc & acid)
+void nn::hac::Meta::setAcid(const AccessControlInfoDesc & acid)
 {
 	mAcid = acid;
 }

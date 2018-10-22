@@ -63,7 +63,7 @@
     <ClInclude Include="include\nn\hac\fac.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\FileSystemAccessControlBinary.h">
+    <ClInclude Include="include\nn\hac\FileSystemAccessControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h">
@@ -99,7 +99,7 @@
     <ClInclude Include="include\nn\hac\kc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\KernelCapabilityBinary.h">
+    <ClInclude Include="include\nn\hac\KernelCapabilityControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\KernelCapabilityEntry.h">
@@ -123,7 +123,7 @@
     <ClInclude Include="include\nn\hac\meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\MetaBinary.h">
+    <ClInclude Include="include\nn\hac\Meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\MiscFlagsEntry.h">
@@ -180,7 +180,7 @@
     <ClInclude Include="include\nn\hac\romfs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\ServiceAccessControlBinary.h">
+    <ClInclude Include="include\nn\hac\ServiceAccessControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\ServiceAccessControlEntry.h">
@@ -242,7 +242,7 @@
     <ClCompile Include="source\DeltaMetaExtendedHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\FileSystemAccessControlBinary.cpp">
+    <ClCompile Include="source\FileSystemAccessControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\HandleTableSizeEntry.cpp">
@@ -263,7 +263,7 @@
     <ClCompile Include="source\InteruptHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\KernelCapabilityBinary.cpp">
+    <ClCompile Include="source\KernelCapabilityControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\KernelCapabilityEntry.cpp">
@@ -299,7 +299,7 @@
     <ClCompile Include="source\NcaUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\MetaBinary.cpp">
+    <ClCompile Include="source\Meta.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NroHeader.cpp">
@@ -314,7 +314,7 @@
     <ClCompile Include="source\PfsHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\ServiceAccessControlBinary.cpp">
+    <ClCompile Include="source\ServiceAccessControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ServiceAccessControlEntry.cpp">

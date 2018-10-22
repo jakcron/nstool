@@ -16,16 +16,16 @@ namespace nn
 {
 namespace hac
 {
-	class KernelCapabilityBinary :
+	class KernelCapabilityControl :
 		public fnd::IByteModel
 	{
 	public:
-		KernelCapabilityBinary();
-		KernelCapabilityBinary(const KernelCapabilityBinary& other);
+		KernelCapabilityControl();
+		KernelCapabilityControl(const KernelCapabilityControl& other);
 
-		void operator=(const KernelCapabilityBinary& other);
-		bool operator==(const KernelCapabilityBinary& other) const;
-		bool operator!=(const KernelCapabilityBinary& other) const;
+		void operator=(const KernelCapabilityControl& other);
+		bool operator==(const KernelCapabilityControl& other) const;
+		bool operator!=(const KernelCapabilityControl& other) const;
 
 		// IByteModel
 		void toBytes();
@@ -59,7 +59,7 @@ namespace hac
 		MiscFlagsHandler& getMiscFlags();
 
 	private:
-		const std::string kModuleName = "KC_BINARY";
+		const std::string kModuleName = "KERNEL_CAPABILITY_CONTROL";
 
 		// raw binary
 		fnd::Vec<byte_t> mRawBinary;

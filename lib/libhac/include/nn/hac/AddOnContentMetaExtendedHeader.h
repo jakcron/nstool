@@ -2,7 +2,7 @@
 #include <string>
 #include <cstring>
 #include <fnd/IByteModel.h>
-#include <nn/hac/cnmt.h>
+#include <nn/hac/define/cnmt.h>
 
 namespace nn
 {

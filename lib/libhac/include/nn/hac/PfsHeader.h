@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
-#include <nn/hac/pfs.h>
+#include <nn/hac/define/pfs.h>
 
 namespace nn
 {

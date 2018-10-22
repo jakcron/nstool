@@ -1,33 +1,33 @@
 #include <cstring>
-#include <nn/hac/ServiceAccessControlBinary.h>
+#include <nn/hac/ServiceAccessControl.h>
 
-nn::hac::ServiceAccessControlBinary::ServiceAccessControlBinary()
+nn::hac::ServiceAccessControl::ServiceAccessControl()
 {
 	clear();
 }
 
-nn::hac::ServiceAccessControlBinary::ServiceAccessControlBinary(const ServiceAccessControlBinary & other)
+nn::hac::ServiceAccessControl::ServiceAccessControl(const ServiceAccessControl & other)
 {
 	*this = other;
 }
 
-void nn::hac::ServiceAccessControlBinary::operator=(const ServiceAccessControlBinary & other)
+void nn::hac::ServiceAccessControl::operator=(const ServiceAccessControl & other)
 {
 	mRawBinary = other.mRawBinary;
 	mServices = other.mServices;
 }
 
-bool nn::hac::ServiceAccessControlBinary::operator==(const ServiceAccessControlBinary & other) const
+bool nn::hac::ServiceAccessControl::operator==(const ServiceAccessControl & other) const
 {
 	return (mServices == other.mServices);
 }
 
-bool nn::hac::ServiceAccessControlBinary::operator!=(const ServiceAccessControlBinary & other) const
+bool nn::hac::ServiceAccessControl::operator!=(const ServiceAccessControl & other) const
 {
 	return !(*this == other);
 }
 
-void nn::hac::ServiceAccessControlBinary::toBytes()
+void nn::hac::ServiceAccessControl::toBytes()
 {
 	size_t totalSize = 0;
 	for (size_t i = 0; i < mServices.size(); i++)
@@ -43,7 +43,7 @@ void nn::hac::ServiceAccessControlBinary::toBytes()
 	}
 }
 
-void nn::hac::ServiceAccessControlBinary::fromBytes(const byte_t* data, size_t len)
+void nn::hac::ServiceAccessControl::fromBytes(const byte_t* data, size_t len)
 {
 	clear();
 	mRawBinary.alloc(len);
@@ -57,23 +57,23 @@ void nn::hac::ServiceAccessControlBinary::fromBytes(const byte_t* data, size_t l
 	}
 }
 
-const fnd::Vec<byte_t>& nn::hac::ServiceAccessControlBinary::getBytes() const
+const fnd::Vec<byte_t>& nn::hac::ServiceAccessControl::getBytes() const
 {
 	return mRawBinary;
 }
 
-void nn::hac::ServiceAccessControlBinary::clear()
+void nn::hac::ServiceAccessControl::clear()
 {
 	mRawBinary.clear();
 	mServices.clear();
 }
 
-const fnd::List<nn::hac::ServiceAccessControlEntry>& nn::hac::ServiceAccessControlBinary::getServiceList() const
+const fnd::List<nn::hac::ServiceAccessControlEntry>& nn::hac::ServiceAccessControl::getServiceList() const
 {
 	return mServices;
 }
 
-void nn::hac::ServiceAccessControlBinary::addService(const ServiceAccessControlEntry& service)
+void nn::hac::ServiceAccessControl::addService(const ServiceAccessControlEntry& service)
 {
 	mServices.addElement(service);
 }

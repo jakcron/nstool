@@ -9,16 +9,16 @@ namespace nn
 {
 namespace hac
 {
-	class ServiceAccessControlBinary :
+	class ServiceAccessControl :
 		public fnd::IByteModel
 	{
 	public:
-		ServiceAccessControlBinary();
-		ServiceAccessControlBinary(const ServiceAccessControlBinary& other);
+		ServiceAccessControl();
+		ServiceAccessControl(const ServiceAccessControl& other);
 
-		void operator=(const ServiceAccessControlBinary& other);
-		bool operator==(const ServiceAccessControlBinary& other) const;
-		bool operator!=(const ServiceAccessControlBinary& other) const;
+		void operator=(const ServiceAccessControl& other);
+		bool operator==(const ServiceAccessControl& other) const;
+		bool operator!=(const ServiceAccessControl& other) const;
 
 		// IByteModel
 		void toBytes();
@@ -30,7 +30,7 @@ namespace hac
 		const fnd::List<ServiceAccessControlEntry>& getServiceList() const;
 		void addService(const ServiceAccessControlEntry& service);
 	private:
-		const std::string kModuleName = "SERVICE_ACCESS_CONTROL_BINARY";
+		const std::string kModuleName = "SERVICE_ACCESS_CONTROL";
 
 		// raw binary
 		fnd::Vec<byte_t> mRawBinary;

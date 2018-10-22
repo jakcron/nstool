@@ -415,7 +415,7 @@ void NcaProcess::validateNcaSignatures()
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
-					if (fnd::rsa::pss::rsaVerify(npdm.getMetaBinary().getAcid().getNcaHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					if (fnd::rsa::pss::rsaVerify(npdm.getMeta().getAcid().getNcaHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
 						std::cout << "[WARNING] NCA Header ACID Signature: FAIL" << std::endl;
 					}

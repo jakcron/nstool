@@ -1,6 +1,6 @@
 #pragma once
 #include <cstring>
-#include <nn/hac/nso.h>
+#include <nn/hac/define/nso.h>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
 

@@ -142,32 +142,32 @@ void nn::hac::AccessControlInfo::setProgramId(uint64_t program_id)
 	mProgramId = program_id;
 }
 
-const nn::hac::FileSystemAccessControlBinary& nn::hac::AccessControlInfo::getFileSystemAccessControl() const
+const nn::hac::FileSystemAccessControl& nn::hac::AccessControlInfo::getFileSystemAccessControl() const
 {
 	return mFileSystemAccessControl;
 }
 
-void nn::hac::AccessControlInfo::setFileSystemAccessControl(const nn::hac::FileSystemAccessControlBinary& fac)
+void nn::hac::AccessControlInfo::setFileSystemAccessControl(const nn::hac::FileSystemAccessControl& fac)
 {
 	mFileSystemAccessControl = fac;
 }
 
-const nn::hac::ServiceAccessControlBinary& nn::hac::AccessControlInfo::getServiceAccessControl() const
+const nn::hac::ServiceAccessControl& nn::hac::AccessControlInfo::getServiceAccessControl() const
 {
 	return mServiceAccessControl;
 }
 
-void nn::hac::AccessControlInfo::setServiceAccessControl(const nn::hac::ServiceAccessControlBinary& sac)
+void nn::hac::AccessControlInfo::setServiceAccessControl(const nn::hac::ServiceAccessControl& sac)
 {
 	mServiceAccessControl = sac;
 }
 
-const nn::hac::KernelCapabilityBinary& nn::hac::AccessControlInfo::getKernelCapabilities() const
+const nn::hac::KernelCapabilityControl& nn::hac::AccessControlInfo::getKernelCapabilities() const
 {
 	return mKernelCapabilities;
 }
 
-void nn::hac::AccessControlInfo::setKernelCapabilities(const nn::hac::KernelCapabilityBinary& kc)
+void nn::hac::AccessControlInfo::setKernelCapabilities(const nn::hac::KernelCapabilityControl& kc)
 {
 	mKernelCapabilities = kc;
 }

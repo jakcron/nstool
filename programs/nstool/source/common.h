@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/aes.h>
 #include <fnd/rsa.h>
-#include <nn/hac/nca.h>
+#include <nn/hac/define/nca.h>
 
 static const size_t kMasterKeyNum = 0x20;
 static const size_t kNcaKeakNum = nn::hac::nca::kKeyAreaEncryptionKeyNum;

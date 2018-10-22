@@ -1,5 +1,5 @@
 #pragma once
-#include <nn/hac/nca.h>
+#include <nn/hac/define/nca.h>
 
 namespace nn
 {
