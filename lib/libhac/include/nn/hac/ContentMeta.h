@@ -61,11 +61,11 @@ namespace hac
 		const DeltaMetaExtendedHeader& getDeltaMetaExtendedHeader() const;
 		void setDeltaMetaExtendedHeader(const DeltaMetaExtendedHeader& exhdr);
 
-		const fnd::List<nn::hac::ContentInfo>& getContentInfo() const;
-		void setContentInfo(const fnd::List<nn::hac::ContentInfo>& info);
+		const fnd::List<ContentInfo>& getContentInfo() const;
+		void setContentInfo(const fnd::List<ContentInfo>& info);
 
-		const fnd::List<nn::hac::ContentMetaInfo>& getContentMetaInfo() const;
-		void setContentMetaInfo(const fnd::List<nn::hac::ContentMetaInfo>& info);
+		const fnd::List<ContentMetaInfo>& getContentMetaInfo() const;
+		void setContentMetaInfo(const fnd::List<ContentMetaInfo>& info);
 
 		const fnd::Vec<byte_t>& getExtendedData() const;
 		void setExtendedData(const fnd::Vec<byte_t>& data);
