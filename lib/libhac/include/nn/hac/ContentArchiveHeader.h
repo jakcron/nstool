@@ -7,53 +7,47 @@ namespace nn
 {
 namespace hac
 {
-	class NcaHeader :
+	class ContentArchiveHeader :
 		public fnd::IByteModel
 	{
 	public:
-		enum FormatVersion
+		struct sPartitionEntry
 		{
-			NCA2_FORMAT,
-			NCA3_FORMAT
-		};
-
-		struct sPartition
-		{
-			byte_t index;
+			byte_t header_index;
 			uint64_t offset;
 			uint64_t size;
-			fnd::sha::sSha256Hash hash;
+			fnd::sha::sSha256Hash fs_header_hash;
 
-			const sPartition& operator=(const sPartition& other)
+			const sPartitionEntry& operator=(const sPartitionEntry& other)
 			{
-				index = other.index;
+				header_index = other.header_index;
 				offset = other.offset;
 				size = other.size;
-				hash = other.hash;
+				fs_header_hash = other.fs_header_hash;
 
 				return *this;
 			}
 
-			bool operator==(const sPartition& other) const
+			bool operator==(const sPartitionEntry& other) const
 			{
-				return (index == other.index) \
+				return (header_index == other.header_index) \
 					&& (offset == other.offset) \
 					&& (size == other.size) \
-					&& (hash == other.hash);
+					&& (fs_header_hash == other.fs_header_hash);
 			}
 
-			bool operator!=(const sPartition& other) const
+			bool operator!=(const sPartitionEntry& other) const
 			{
 				return !operator==(other);
 			}
 		};
 
-		NcaHeader();
-		NcaHeader(const NcaHeader& other);
+		ContentArchiveHeader();
+		ContentArchiveHeader(const ContentArchiveHeader& other);
 
-		void operator=(const NcaHeader& other);
-		bool operator==(const NcaHeader& other) const;
-		bool operator!=(const NcaHeader& other) const;
+		void operator=(const ContentArchiveHeader& other);
+		bool operator==(const ContentArchiveHeader& other) const;
+		bool operator!=(const ContentArchiveHeader& other) const;
 
 		// IByteModel
 		void toBytes();
@@ -62,40 +56,52 @@ namespace hac
 
 		// variables
 		void clear();
-		FormatVersion getFormatVersion() const;
-		void setFormatVersion(FormatVersion ver);
+
+		byte_t getFormatVersion() const;
+		void setFormatVersion(byte_t ver);
+		
 		nca::DistributionType getDistributionType() const;
 		void setDistributionType(nca::DistributionType type);
+		
 		nca::ContentType getContentType() const;
 		void setContentType(nca::ContentType type);
+		
 		byte_t getKeyGeneration() const;
 		void setKeyGeneration(byte_t gen);
-		byte_t getKaekIndex() const;
-		void setKaekIndex(byte_t index);
+		
+		byte_t getKeyAreaEncryptionKeyIndex() const;
+		void setKeyAreaEncryptionKeyIndex(byte_t index);
+		
 		uint64_t getContentSize() const;
 		void setContentSize(uint64_t size);
+		
 		uint64_t getProgramId() const;
 		void setProgramId(uint64_t program_id);
+		
 		uint32_t getContentIndex() const;
 		void setContentIndex(uint32_t index);
+		
 		uint32_t getSdkAddonVersion() const;
 		void setSdkAddonVersion(uint32_t version);
+		
 		bool hasRightsId() const;
 		const byte_t* getRightsId() const;
 		void setRightsId(const byte_t* rights_id);
-		const fnd::List<sPartition>& getPartitions() const;
-		void setPartitions(const fnd::List<sPartition>& partitions);
-		const fnd::List<fnd::aes::sAes128Key>& getEncAesKeys() const;
-		void setEncAesKeys(const fnd::List<fnd::aes::sAes128Key>& keys);
+
+		const fnd::List<sPartitionEntry>& getPartitionEntryList() const;
+		void setPartitionEntryList(const fnd::List<sPartitionEntry>& partition_entry_list);
+		
+		const byte_t* getKeyArea() const;
+		void setKeyArea(const byte_t* key_area);
 
 	private:
-		const std::string kModuleName = "NCA_HEADER";
+		const std::string kModuleName = "CONTENT_ARCHIVE_HEADER";
 
 		// binary
 		fnd::Vec<byte_t> mRawBinary;
 
 		// data
-		FormatVersion mFormatVersion;
+		byte_t mFormatVersion;
 		nca::DistributionType mDistributionType;
 		nca::ContentType mContentType;
 		byte_t mKeyGeneration;
@@ -104,9 +110,9 @@ namespace hac
 		uint64_t mProgramId;
 		uint32_t mContentIndex;
 		uint32_t mSdkAddonVersion;
-		byte_t mRightsId[nca::kRightsIdLen];
-		fnd::List<sPartition> mPartitions;
-		fnd::List<fnd::aes::sAes128Key> mEncAesKeys;
+		fnd::Vec<byte_t> mRightsId;
+		fnd::List<sPartitionEntry> mPartitionEntryList;
+		fnd::Vec<byte_t> mKeyArea;
 
 		uint64_t blockNumToSize(uint32_t block_num) const;
 		uint32_t sizeToBlockNum(uint64_t real_size) const;

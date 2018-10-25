@@ -19,10 +19,10 @@ void KeyConfiguration::operator=(const KeyConfiguration& other)
 {
 	mAcidSignKey = other.mAcidSignKey;	
 	mPkg2SignKey = other.mPkg2SignKey;
-	mNcaHeader0SignKey = other.mNcaHeader0SignKey;
+	mContentArchiveHeader0SignKey = other.mContentArchiveHeader0SignKey;
 	mXciHeaderSignKey = other.mXciHeaderSignKey;
 
-	mNcaHeaderKey = other.mNcaHeaderKey;
+	mContentArchiveHeaderKey = other.mContentArchiveHeaderKey;
 	mXciHeaderKey = other.mXciHeaderKey;
 
 	for (size_t i = 0; i < kMasterKeyNum; i++)
@@ -114,14 +114,14 @@ void KeyConfiguration::importHactoolGenericKeyfile(const std::string& path)
 		}
 		
 		// store nca header key
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[nameidx], kKeyStr), mNcaHeaderKey.key[0], 0x20);
+		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kContentArchiveHeaderBase[nameidx], kKeyStr), mContentArchiveHeaderKey.key[0], 0x20);
 
 		// store xci header key
 		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase[nameidx], kKeyStr), mXciHeaderKey.key, 0x10);
 
 		// store rsa keys
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[nameidx], kRsaKeyPrivate), mNcaHeader0SignKey.priv_exponent, fnd::rsa::kRsa2048Size);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kNcaHeaderBase[nameidx], kRsaKeyModulus), mNcaHeader0SignKey.modulus, fnd::rsa::kRsa2048Size);
+		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kContentArchiveHeaderBase[nameidx], kRsaKeyPrivate), mContentArchiveHeader0SignKey.priv_exponent, fnd::rsa::kRsa2048Size);
+		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kContentArchiveHeaderBase[nameidx], kRsaKeyModulus), mContentArchiveHeader0SignKey.modulus, fnd::rsa::kRsa2048Size);
 		
 		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase[nameidx], kRsaKeyPrivate), mXciHeaderSignKey.priv_exponent, fnd::rsa::kRsa2048Size);
 		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase[nameidx], kRsaKeyModulus), mXciHeaderSignKey.modulus, fnd::rsa::kRsa2048Size);
@@ -149,12 +149,12 @@ void KeyConfiguration::importHactoolGenericKeyfile(const std::string& path)
 			{
 				if (i == 0 && nca_header_kek_source != kNullAesKey && nca_header_key_source != kNullAesXtsKey)
 				{
-					if (mNcaHeaderKey == kNullAesXtsKey)
+					if (mContentArchiveHeaderKey == kNullAesXtsKey)
 					{
 						fnd::aes::sAes128Key nca_header_kek;
 						nn::hac::AesKeygen::generateKey(nca_header_kek.key, aes_kek_generation_source.key, nca_header_kek_source.key, aes_key_generation_source.key, master_key[i].key);
-						nn::hac::AesKeygen::generateKey(mNcaHeaderKey.key[0], nca_header_key_source.key[0], nca_header_kek.key);
-						nn::hac::AesKeygen::generateKey(mNcaHeaderKey.key[1], nca_header_key_source.key[1], nca_header_kek.key);
+						nn::hac::AesKeygen::generateKey(mContentArchiveHeaderKey.key[0], nca_header_key_source.key[0], nca_header_kek.key);
+						nn::hac::AesKeygen::generateKey(mContentArchiveHeaderKey.key[1], nca_header_key_source.key[1], nca_header_kek.key);
 					}
 				}
 
@@ -196,11 +196,11 @@ void KeyConfiguration::clearGeneralKeyConfiguration()
 {
 	mAcidSignKey = kNullRsa2048Key;
 	mPkg2SignKey = kNullRsa2048Key;
-	mNcaHeader0SignKey = kNullRsa2048Key;
+	mContentArchiveHeader0SignKey = kNullRsa2048Key;
 	mXciHeaderSignKey = kNullRsa2048Key;
 	mPkiRootKeyList.clear();
 
-	mNcaHeaderKey = kNullAesXtsKey;
+	mContentArchiveHeaderKey = kNullAesXtsKey;
 	mXciHeaderKey = kNullAesKey;
 
 	for (size_t i = 0; i < kMasterKeyNum; i++)
@@ -221,14 +221,14 @@ void KeyConfiguration::clearNcaExternalKeys()
 	mNcaExternalContentKeyList.clear();
 }
 
-bool KeyConfiguration::getNcaHeaderKey(fnd::aes::sAesXts128Key& key) const
+bool KeyConfiguration::getContentArchiveHeaderKey(fnd::aes::sAesXts128Key& key) const
 {
-	return copyOutKeyResourceIfExists(mNcaHeaderKey, key, kNullAesXtsKey);
+	return copyOutKeyResourceIfExists(mContentArchiveHeaderKey, key, kNullAesXtsKey);
 }
 
-bool KeyConfiguration::getNcaHeader0SignKey(fnd::rsa::sRsa2048Key& key) const
+bool KeyConfiguration::getContentArchiveHeader0SignKey(fnd::rsa::sRsa2048Key& key) const
 {
-	return copyOutKeyResourceIfExists(mNcaHeader0SignKey, key, kNullRsa2048Key);
+	return copyOutKeyResourceIfExists(mContentArchiveHeader0SignKey, key, kNullRsa2048Key);
 }
 
 bool KeyConfiguration::getAcidSignKey(fnd::rsa::sRsa2048Key& key) const

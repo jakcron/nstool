@@ -4,6 +4,8 @@
 #include <fnd/io.h>
 #include "PfsProcess.h"
 
+#include <fnd/SimpleTextOutput.h>
+
 PfsProcess::PfsProcess() :
 	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
@@ -80,6 +82,8 @@ void PfsProcess::importHeader()
 	// open minimum header to get full header size
 	scratch.alloc(sizeof(nn::hac::sPfsHeader));
 	(*mFile)->read(scratch.data(), 0, scratch.size());
+	std::cout << "raw pfs header: " << std::endl;
+	fnd::SimpleTextOutput::hxdStyleDump(scratch.data(), scratch.size());
 	if (validateHeaderMagic(((nn::hac::sPfsHeader*)scratch.data())) == false)
 	{
 		throw fnd::Exception(kModuleName, "Corrupt Header");

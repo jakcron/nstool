@@ -1,6 +1,6 @@
 #include <nn/hac/NcaUtils.h>
 
-void nn::hac::NcaUtils::decryptNcaHeader(const byte_t* src, byte_t* dst, const fnd::aes::sAesXts128Key& key)
+void nn::hac::NcaUtils::decryptContentArchiveHeader(const byte_t* src, byte_t* dst, const fnd::aes::sAesXts128Key& key)
 {
 	byte_t tweak[fnd::aes::kAesBlockSize];
 
@@ -9,7 +9,7 @@ void nn::hac::NcaUtils::decryptNcaHeader(const byte_t* src, byte_t* dst, const f
 	fnd::aes::AesXtsMakeTweak(tweak, 1);
 	fnd::aes::AesXtsDecryptSector(src + sectorToOffset(1), nn::hac::nca::kSectorSize, key.key[0], key.key[1], tweak, raw_hdr);
 
-	bool useNca2SectorIndex = ((nn::hac::sNcaHeader*)(raw_hdr))->st_magic.get() == nn::hac::nca::kNca2StructMagic;
+	bool useNca2SectorIndex = ((nn::hac::sContentArchiveHeader*)(raw_hdr))->st_magic.get() == nn::hac::nca::kNca2StructMagic;
 
 	// decrypt whole header
 	for (size_t i = 0; i < nn::hac::nca::kHeaderSectorNum; i++)

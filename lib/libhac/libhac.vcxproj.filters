@@ -144,7 +144,7 @@
     <ClInclude Include="include\nn\hac\nca.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\NcaHeader.h">
+    <ClInclude Include="include\nn\hac\ContentArchiveHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\NcaUtils.h">
@@ -293,7 +293,7 @@
     <ClCompile Include="source\MiscParamsHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\NcaHeader.cpp">
+    <ClCompile Include="source\ContentArchiveHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NcaUtils.cpp">

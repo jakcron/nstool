@@ -57,8 +57,8 @@ namespace hac
 		// variables
 		void clear();
 
-		const fnd::rsa::sRsa2048Key& getNcaHeaderSignature2Key() const;
-		void setNcaHeaderSignature2Key(const fnd::rsa::sRsa2048Key& key);
+		const fnd::rsa::sRsa2048Key& getContentArchiveHeaderSignature2Key() const;
+		void setContentArchiveHeaderSignature2Key(const fnd::rsa::sRsa2048Key& key);
 
 		const fnd::List<aci::Flag>& getFlagList() const;
 		void setFlagList(const fnd::List<aci::Flag>& flags);
@@ -81,7 +81,7 @@ namespace hac
 		fnd::Vec<byte_t> mRawBinary;
 
 		// variables
-		fnd::rsa::sRsa2048Key mNcaHeaderSignature2Key;
+		fnd::rsa::sRsa2048Key mContentArchiveHeaderSignature2Key;
 		fnd::List<aci::Flag> mFlags;
 		sProgramIdRestrict mProgramIdRestrict;
 		nn::hac::FileSystemAccessControl mFileSystemAccessControl;

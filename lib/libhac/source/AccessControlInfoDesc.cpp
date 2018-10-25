@@ -13,7 +13,7 @@ nn::hac::AccessControlInfoDesc::AccessControlInfoDesc(const AccessControlInfoDes
 void nn::hac::AccessControlInfoDesc::operator=(const AccessControlInfoDesc & other)
 {
 	mRawBinary = other.mRawBinary;
-	mNcaHeaderSignature2Key = other.mNcaHeaderSignature2Key;
+	mContentArchiveHeaderSignature2Key = other.mContentArchiveHeaderSignature2Key;
 	mFlags = other.mFlags;
 	mProgramIdRestrict = other.mProgramIdRestrict;
 	mFileSystemAccessControl = other.mFileSystemAccessControl;
@@ -23,7 +23,7 @@ void nn::hac::AccessControlInfoDesc::operator=(const AccessControlInfoDesc & oth
 
 bool nn::hac::AccessControlInfoDesc::operator==(const AccessControlInfoDesc & other) const
 {
-	return (mNcaHeaderSignature2Key == other.mNcaHeaderSignature2Key) \
+	return (mContentArchiveHeaderSignature2Key == other.mContentArchiveHeaderSignature2Key) \
 		&& (mFlags == other.mFlags) \
 		&& (mProgramIdRestrict == other.mProgramIdRestrict) \
 		&& (mFileSystemAccessControl == other.mFileSystemAccessControl) \
@@ -62,7 +62,7 @@ void nn::hac::AccessControlInfoDesc::toBytes()
 	sAciDescHeader* hdr = (sAciDescHeader*)mRawBinary.data();
 
 	// set rsa modulus
-	memcpy(hdr->nca_rsa_signature2_modulus, mNcaHeaderSignature2Key.modulus, fnd::rsa::kRsa2048Size);
+	memcpy(hdr->nca_rsa_signature2_modulus, mContentArchiveHeaderSignature2Key.modulus, fnd::rsa::kRsa2048Size);
 
 	// set type
 	hdr->st_magic = aci::kAciDescStructMagic;
@@ -129,7 +129,7 @@ void nn::hac::AccessControlInfoDesc::fromBytes(const byte_t* data, size_t len)
 	memcpy(mRawBinary.data(), data, mRawBinary.size());
 
 	// save variables
-	memcpy(mNcaHeaderSignature2Key.modulus, hdr.nca_rsa_signature2_modulus, fnd::rsa::kRsa2048Size);
+	memcpy(mContentArchiveHeaderSignature2Key.modulus, hdr.nca_rsa_signature2_modulus, fnd::rsa::kRsa2048Size);
 
 	for (size_t i = 0; i < 32; i++)
 	{
@@ -181,7 +181,7 @@ void nn::hac::AccessControlInfoDesc::validateSignature(const fnd::rsa::sRsa2048K
 void nn::hac::AccessControlInfoDesc::clear()
 {
 	mRawBinary.clear();
-	memset((void*)&mNcaHeaderSignature2Key, 0, sizeof(mNcaHeaderSignature2Key));
+	memset((void*)&mContentArchiveHeaderSignature2Key, 0, sizeof(mContentArchiveHeaderSignature2Key));
 	mFlags.clear();
 	mProgramIdRestrict.min = 0;
 	mProgramIdRestrict.max = 0;
@@ -190,14 +190,14 @@ void nn::hac::AccessControlInfoDesc::clear()
 	mKernelCapabilities.clear();
 }
 
-const fnd::rsa::sRsa2048Key& nn::hac::AccessControlInfoDesc::getNcaHeaderSignature2Key() const
+const fnd::rsa::sRsa2048Key& nn::hac::AccessControlInfoDesc::getContentArchiveHeaderSignature2Key() const
 {
-	return mNcaHeaderSignature2Key;
+	return mContentArchiveHeaderSignature2Key;
 }
 
-void nn::hac::AccessControlInfoDesc::setNcaHeaderSignature2Key(const fnd::rsa::sRsa2048Key& key)
+void nn::hac::AccessControlInfoDesc::setContentArchiveHeaderSignature2Key(const fnd::rsa::sRsa2048Key& key)
 {
-	mNcaHeaderSignature2Key = key;
+	mContentArchiveHeaderSignature2Key = key;
 }
 
 const fnd::List<nn::hac::aci::Flag>& nn::hac::AccessControlInfoDesc::getFlagList() const

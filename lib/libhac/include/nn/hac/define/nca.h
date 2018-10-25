@@ -17,17 +17,24 @@ namespace hac
 		static const size_t kPartitionNum = 4;
 		static const size_t kHeaderSectorNum = 6;
 		static const size_t kHeaderSize = kSectorSize * kHeaderSectorNum;
-		static const size_t kAesKeyNum = 16;
 		static const size_t kRightsIdLen = 0x10;
+		static const size_t kKeyAreaSize = 0x100;
+		static const size_t kKeyAreaKeyNum = kKeyAreaSize / fnd::aes::kAes128KeySize;
 		static const size_t kKeyAreaEncryptionKeyNum = 3;
 		static const size_t kFsHeaderHashSuperblockLen = 0x138;
 		static const uint16_t kDefaultFsHeaderVersion = 2;
 
-		enum ProgramPartitionId
+		enum HeaderFormatVersion
 		{
-			PARTITION_CODE,
-			PARTITION_DATA,
-			PARTITION_LOGO,
+			FORMAT_NCA2 = 2,
+			FORMAT_NCA3 = 3
+		};
+
+		enum ProgramContentPartitionIndex
+		{
+			PARTITION_CODE = 0,
+			PARTITION_DATA = 1,
+			PARTITION_LOGO = 2,
 		};
 
 		enum DistributionType
@@ -83,11 +90,11 @@ namespace hac
 			CRYPT_AESXTS,
 			CRYPT_AESCTR,
 			CRYPT_AESCTREX
-		};	
+		};
 	}
 	
 #pragma pack(push,1)
-	struct sNcaHeader
+	struct sContentArchiveHeader
 	{
 		le_uint32_t st_magic;
 		byte_t distribution_type;
@@ -101,15 +108,15 @@ namespace hac
 		byte_t key_generation_2;
 		byte_t reserved_2[0xf];
 		byte_t rights_id[nca::kRightsIdLen];
-		struct sNcaSection
+		struct sPartitionEntry
 		{
-			le_uint32_t start; // block units
-			le_uint32_t end; // block units
+			le_uint32_t start_blk; // block units
+			le_uint32_t end_blk; // block units
 			byte_t enabled;
 			byte_t reserved[7];
-		} partition[nca::kPartitionNum];
-		fnd::sha::sSha256Hash partition_hash[nca::kPartitionNum];
-		fnd::aes::sAes128Key enc_aes_key[nca::kAesKeyNum];
+		} partition_entry[nca::kPartitionNum];
+		fnd::sha::sSha256Hash fs_header_hash[nca::kPartitionNum];
+		byte_t key_area[nca::kKeyAreaSize];
 	};
 
 	struct sNcaFsHeader
@@ -124,11 +131,11 @@ namespace hac
 		byte_t reserved_1[0xB8];
 	};
 
-	struct sNcaHeaderBlock
+	struct sContentArchiveHeaderBlock
 	{
 		byte_t signature_main[fnd::rsa::kRsa2048Size];
 		byte_t signature_acid[fnd::rsa::kRsa2048Size];
-		sNcaHeader header;
+		sContentArchiveHeader header;
 		sNcaFsHeader fs_header[nn::hac::nca::kPartitionNum];
 	};
 

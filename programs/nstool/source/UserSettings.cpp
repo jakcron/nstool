@@ -701,14 +701,14 @@ bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) c
 {
 	// prepare decrypted NCA data
 	byte_t nca_raw[nn::hac::nca::kHeaderSize];
-	nn::hac::sNcaHeader* nca_header = (nn::hac::sNcaHeader*)(nca_raw + nn::hac::NcaUtils::sectorToOffset(1));
+	nn::hac::sContentArchiveHeader* nca_header = (nn::hac::sContentArchiveHeader*)(nca_raw + nn::hac::NcaUtils::sectorToOffset(1));
 	
 	if (sample.size() < nn::hac::nca::kHeaderSize)
 		return false;
 
 	fnd::aes::sAesXts128Key header_key;
-	mKeyCfg.getNcaHeaderKey(header_key);
-	nn::hac::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, header_key);
+	mKeyCfg.getContentArchiveHeaderKey(header_key);
+	nn::hac::NcaUtils::decryptContentArchiveHeader(sample.data(), nca_raw, header_key);
 
 	if (nca_header->st_magic.get() != nn::hac::nca::kNca2StructMagic && nca_header->st_magic.get() != nn::hac::nca::kNca3StructMagic)
 		return false;
@@ -882,9 +882,9 @@ void UserSettings::dumpKeyConfig() const
 
 		std::cout << "[KeyConfiguration]" << std::endl;
 		std::cout << "  NCA Keys:" << std::endl;
-		if (mKeyCfg.getNcaHeader0SignKey(rsa2048_key) == true)
+		if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key) == true)
 			dumpRsa2048Key(rsa2048_key, "Header Signature[0] Key", 2);
-		if (mKeyCfg.getNcaHeaderKey(aesxts_key) == true)
+		if (mKeyCfg.getContentArchiveHeaderKey(aesxts_key) == true)
 			dumpAesXtsKey(aesxts_key, "Header Encryption Key", 2);
 		
 		for (size_t i = 0; i < kMasterKeyNum; i++)
