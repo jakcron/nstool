@@ -147,7 +147,7 @@
     <ClInclude Include="include\nn\hac\ContentArchiveHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\NcaUtils.h">
+    <ClInclude Include="include\nn\hac\ContentArchiveUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\nro.h">
@@ -296,7 +296,7 @@
     <ClCompile Include="source\ContentArchiveHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\NcaUtils.cpp">
+    <ClCompile Include="source\ContentArchiveUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Meta.cpp">

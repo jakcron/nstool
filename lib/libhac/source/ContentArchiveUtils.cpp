@@ -1,6 +1,6 @@
-#include <nn/hac/NcaUtils.h>
+#include <nn/hac/ContentArchiveUtils.h>
 
-void nn::hac::NcaUtils::decryptContentArchiveHeader(const byte_t* src, byte_t* dst, const fnd::aes::sAesXts128Key& key)
+void nn::hac::ContentArchiveUtils::decryptContentArchiveHeader(const byte_t* src, byte_t* dst, const fnd::aes::sAesXts128Key& key)
 {
 	byte_t tweak[fnd::aes::kAesBlockSize];
 
@@ -19,7 +19,7 @@ void nn::hac::NcaUtils::decryptContentArchiveHeader(const byte_t* src, byte_t* d
 	}
 }
 
-byte_t nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(byte_t key_generation)
+byte_t nn::hac::ContentArchiveUtils::getMasterKeyRevisionFromKeyGeneration(byte_t key_generation)
 {
 	byte_t masterkey_rev;
 
@@ -48,7 +48,7 @@ byte_t nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(byte_t key_gener
 	return masterkey_rev;
 }
 
-void nn::hac::NcaUtils::getNcaPartitionAesCtr(const nn::hac::sNcaFsHeader* hdr, byte_t* ctr)
+void nn::hac::ContentArchiveUtils::getNcaPartitionAesCtr(const nn::hac::sNcaFsHeader* hdr, byte_t* ctr)
 {
 	for (size_t i = 0; i < 8; i++)
 	{

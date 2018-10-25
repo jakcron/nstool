@@ -5,7 +5,7 @@
 #include <fnd/OffsetAdjustedIFile.h>
 #include <fnd/AesCtrWrappedIFile.h>
 #include <fnd/LayeredIntegrityWrappedIFile.h>
-#include <nn/hac/NcaUtils.h>
+#include <nn/hac/ContentArchiveUtils.h>
 #include <nn/hac/AesKeygen.h>
 #include <nn/hac/HierarchicalSha256Header.h>
 #include <nn/hac/HierarchicalIntegrityHeader.h>
@@ -112,7 +112,7 @@ void NcaProcess::importHeader()
 	// decrypt header block
 	fnd::aes::sAesXts128Key header_key;
 	mKeyCfg.getContentArchiveHeaderKey(header_key);
-	nn::hac::NcaUtils::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, header_key);
+	nn::hac::ContentArchiveUtils::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, header_key);
 
 	// generate header hash
 	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sContentArchiveHeader), mHdrHash.bytes);
@@ -128,7 +128,7 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	memset(zero_aesctr_key.key, 0, sizeof(zero_aesctr_key));
 	
 	// get key data from header
-	byte_t masterkey_rev = nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
+	byte_t masterkey_rev = nn::hac::ContentArchiveUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
 	byte_t keak_index = mHdr.getKeyAreaEncryptionKeyIndex();
 
 	// process key area
@@ -253,7 +253,7 @@ void NcaProcess::generatePartitionConfiguration()
 		}
 
 		// setup AES-CTR 
-		nn::hac::NcaUtils::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.iv);
+		nn::hac::ContentArchiveUtils::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.iv);
 
 		// save partition config
 		info.reader = nullptr;

@@ -65,7 +65,7 @@
     <ClInclude Include="include\nn\hac\nacp.h" />
     <ClInclude Include="include\nn\hac\nca.h" />
     <ClInclude Include="include\nn\hac\ContentArchiveHeader.h" />
-    <ClInclude Include="include\nn\hac\NcaUtils.h" />
+    <ClInclude Include="include\nn\hac\ContentArchiveUtils.h" />
     <ClInclude Include="include\nn\hac\nro.h" />
     <ClInclude Include="include\nn\hac\NroHeader.h" />
     <ClInclude Include="include\nn\hac\nrr.h" />
@@ -118,7 +118,7 @@
     <ClCompile Include="source\MiscParamsEntry.cpp" />
     <ClCompile Include="source\MiscParamsHandler.cpp" />
     <ClCompile Include="source\ContentArchiveHeader.cpp" />
-    <ClCompile Include="source\NcaUtils.cpp" />
+    <ClCompile Include="source\ContentArchiveUtils.cpp" />
     <ClCompile Include="source\NroHeader.cpp" />
     <ClCompile Include="source\NsoHeader.cpp" />
     <ClCompile Include="source\PatchMetaExtendedHeader.cpp" />

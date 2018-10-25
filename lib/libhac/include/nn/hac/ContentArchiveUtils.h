@@ -5,7 +5,7 @@ namespace nn
 {
 namespace hac
 {
-	class NcaUtils
+	class ContentArchiveUtils
 	{
 	public:
 		static inline size_t sectorToOffset(size_t sector_index) { return sector_index * nn::hac::nca::kSectorSize; }
