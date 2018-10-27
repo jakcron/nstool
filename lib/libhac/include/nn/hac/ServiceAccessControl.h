@@ -28,7 +28,7 @@ namespace hac
 		// variables
 		void clear();
 		const fnd::List<ServiceAccessControlEntry>& getServiceList() const;
-		void addService(const ServiceAccessControlEntry& service);
+		void setServiceList(const fnd::List<ServiceAccessControlEntry>& list);
 	private:
 		const std::string kModuleName = "SERVICE_ACCESS_CONTROL";
 

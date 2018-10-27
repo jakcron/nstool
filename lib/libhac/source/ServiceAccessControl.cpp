@@ -73,7 +73,7 @@ const fnd::List<nn::hac::ServiceAccessControlEntry>& nn::hac::ServiceAccessContr
 	return mServices;
 }
 
-void nn::hac::ServiceAccessControl::addService(const ServiceAccessControlEntry& service)
+void nn::hac::ServiceAccessControl::setServiceList(const fnd::List<ServiceAccessControlEntry>& list)
 {
-	mServices.addElement(service);
+	mServices = list;
 }
