@@ -45,6 +45,7 @@ namespace hac
 					break;
 				}
 			}
+			if (id == kc::KC_INVALID && cap == (uint32_t)0xffffffff)
 			return id;
 		}
 	};
