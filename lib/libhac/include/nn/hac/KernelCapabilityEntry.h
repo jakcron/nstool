@@ -37,6 +37,7 @@ namespace hac
 		inline kc::KernelCapId getCapId(uint32_t cap) const
 		{
 			kc::KernelCapId id = kc::KC_INVALID;
+			
 			for (byte_t tmp = 0; tmp < 31; tmp++)
 			{
 				if (((cap >> tmp) & 1) == 0)
@@ -45,7 +46,10 @@ namespace hac
 					break;
 				}
 			}
+
 			if (id == kc::KC_INVALID && cap == (uint32_t)0xffffffff)
+				id == kc::KC_STUB;
+
 			return id;
 		}
 	};
