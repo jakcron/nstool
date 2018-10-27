@@ -1,6 +1,6 @@
 #pragma once
-#include <nn/hac/hierarchicalintegrity.h>
-#include <fnd/ISerialisable.h>
+#include <nn/hac/define/hierarchicalintegrity.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <fnd/sha.h>
 
@@ -9,7 +9,7 @@ namespace nn
 namespace hac
 {
 	class HierarchicalIntegrityHeader :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct sLayer
@@ -43,7 +43,7 @@ namespace hac
 		bool operator==(const HierarchicalIntegrityHeader& other) const;
 		bool operator!=(const HierarchicalIntegrityHeader& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

@@ -129,9 +129,9 @@
     <ClInclude Include="include\fnd\elf.h" />
     <ClInclude Include="include\fnd\Endian.h" />
     <ClInclude Include="include\fnd\Exception.h" />
+	<ClInclude Include="include\fnd\IByteModel.h" />
     <ClInclude Include="include\fnd\IFile.h" />
     <ClInclude Include="include\fnd\io.h" />
-    <ClInclude Include="include\fnd\ISerialisable.h" />
     <ClInclude Include="include\fnd\LayeredIntegrityMetadata.h" />
     <ClInclude Include="include\fnd\LayeredIntegrityWrappedIFile.h" />
     <ClInclude Include="include\fnd\List.h" />

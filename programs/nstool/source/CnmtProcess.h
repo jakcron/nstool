@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
-#include <nn/hac/ContentMetaBinary.h>
+#include <nn/hac/ContentMeta.h>
 
 #include "common.h"
 
@@ -18,7 +18,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	const nn::hac::ContentMetaBinary& getContentMetaBinary() const;
+	const nn::hac::ContentMeta& getContentMeta() const;
 
 private:
 	const std::string kModuleName = "CnmtProcess";
@@ -27,7 +27,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nn::hac::ContentMetaBinary mCnmt;
+	nn::hac::ContentMeta mCnmt;
 
 	void importCnmt();
 	void displayCnmt();

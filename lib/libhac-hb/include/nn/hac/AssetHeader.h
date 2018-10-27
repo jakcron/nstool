@@ -1,14 +1,14 @@
 #pragma once
-#include <nn/hac/aset.h>
+#include <nn/hac/define/aset.h>
 #include <fnd/List.h>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 
 namespace nn
 {
 namespace hac
 {
 	class AssetHeader : 
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct sSection
@@ -41,7 +41,7 @@ namespace hac
 		bool operator==(const AssetHeader& other) const;
 		bool operator!=(const AssetHeader& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

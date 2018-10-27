@@ -1,15 +1,15 @@
 #pragma once
 #include <cstring>
-#include <nn/hac/nro.h>
-#include <fnd/ISerialisable.h>
+#include <nn/hac/define/nro.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 
 namespace nn
 {
 namespace hac
 {
-	class NroHeader : 
-		public fnd::ISerialisable
+	class NroHeader :
+		public fnd::IByteModel
 	{
 	public:
 		struct sRoCrt
@@ -82,7 +82,7 @@ namespace hac
 		bool operator==(const NroHeader& other) const;
 		bool operator!=(const NroHeader& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

@@ -1,15 +1,15 @@
 #pragma once
 #include <cstring>
-#include <nn/hac/nso.h>
-#include <fnd/ISerialisable.h>
+#include <nn/hac/define/nso.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 
 namespace nn
 {
 namespace hac
 {
-	class NsoHeader : 
-		public fnd::ISerialisable
+	class NsoHeader :
+		public fnd::IByteModel
 	{
 	public:
 		struct sModuleId
@@ -94,7 +94,7 @@ namespace hac
 		bool operator==(const NsoHeader& other) const;
 		bool operator!=(const NsoHeader& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

@@ -76,7 +76,7 @@
     <ClInclude Include="source\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\XciProcess.h">
+    <ClInclude Include="source\GameCardProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -135,7 +135,7 @@
     <ClCompile Include="source\UserSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\XciProcess.cpp">
+    <ClCompile Include="source\GameCardProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

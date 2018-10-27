@@ -1,54 +1,117 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\nn\hac\AccessControlInfoBinary.h">
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{040358e3-f1c5-4875-b34f-23607459567c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{1c33ce2b-25c4-4857-966c-9dc24daf3f61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\define">
+      <UniqueIdentifier>{a9fd54c0-9fd8-46a1-978e-fb531bf3ee1c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\nn\hac\define\aci.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\cnmt.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\delta.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\fac.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\gc.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\hierarchicalintegrity.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\hierarchicalsha256.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\kc.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\macro.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\meta.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nacp.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nca.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nro.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nrr.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nso.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\pfs.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\romfs.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\AccessControlInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\AccessControlInfoDescBinary.h">
+    <ClInclude Include="include\nn\hac\AccessControlInfoDesc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\aci.h">
+    <ClInclude Include="include\nn\hac\AddOnContentMetaExtendedHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\AesKeygen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\ApplicationControlPropertyBinary.h">
+    <ClInclude Include="include\nn\hac\ApplicationControlProperty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\ApplicationControlPropertyUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\cnmt.h">
+    <ClInclude Include="include\nn\hac\ApplicationMetaExtendedHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\ContentMetaBinary.h">
+    <ClInclude Include="include\nn\hac\ContentArchiveHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\delta.h">
+    <ClInclude Include="include\nn\hac\ContentArchiveUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\fac.h">
+    <ClInclude Include="include\nn\hac\ContentInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\FileSystemAccessControlBinary.h">
+    <ClInclude Include="include\nn\hac\ContentMeta.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\ContentMetaInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\DeltaMetaExtendedHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\FileSystemAccessControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\GameCardHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\GameCardUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h">
@@ -57,13 +120,7 @@
     <ClInclude Include="include\nn\hac\HandleTableSizeHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\hierarchicalintegrity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\nn\hac\HierarchicalIntegrityHeader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\hierarchicalsha256.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\HierarchicalSha256Header.h">
@@ -81,10 +138,7 @@
     <ClInclude Include="include\nn\hac\InteruptHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\kc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\KernelCapabilityBinary.h">
+    <ClInclude Include="include\nn\hac\KernelCapabilityControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\KernelCapabilityEntry.h">
@@ -96,19 +150,13 @@
     <ClInclude Include="include\nn\hac\KernelVersionHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\macro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\nn\hac\MemoryMappingHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\MemoryPageEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\meta.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\MetaBinary.h">
+    <ClInclude Include="include\nn\hac\Meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\MiscFlagsEntry.h">
@@ -123,46 +171,22 @@
     <ClInclude Include="include\nn\hac\MiscParamsHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\nacp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\nca.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\NcaHeader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\NcaUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\nro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\nn\hac\NroHeader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\nrr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\nso.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\NsoHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\pfs.h">
+    <ClInclude Include="include\nn\hac\PartitionFsHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\PfsHeader.h">
+    <ClInclude Include="include\nn\hac\PatchMetaExtendedHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\Result.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\romfs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\ServiceAccessControlBinary.h">
+    <ClInclude Include="include\nn\hac\ServiceAccessControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\ServiceAccessControlEntry.h">
@@ -180,36 +204,54 @@
     <ClInclude Include="include\nn\hac\ThreadInfoHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\xci.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\XciHeader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\XciUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\AccessControlInfoBinary.cpp">
+    <ClCompile Include="source\AccessControlInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\AccessControlInfoDescBinary.cpp">
+    <ClCompile Include="source\AccessControlInfoDesc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\AddOnContentMetaExtendedHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\AesKeygen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\ApplicationControlPropertyBinary.cpp">
+    <ClCompile Include="source\ApplicationControlProperty.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ApplicationControlPropertyUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\ContentMetaBinary.cpp">
+    <ClCompile Include="source\ApplicationMetaExtendedHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\FileSystemAccessControlBinary.cpp">
+    <ClCompile Include="source\ContentArchiveHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ContentArchiveUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ContentInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ContentMeta.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ContentMetaInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\DeltaMetaExtendedHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\FileSystemAccessControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GameCardHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GameCardUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\HandleTableSizeEntry.cpp">
@@ -224,13 +266,16 @@
     <ClCompile Include="source\HierarchicalSha256Header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\IdConverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\InteruptEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\InteruptHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\KernelCapabilityBinary.cpp">
+    <ClCompile Include="source\KernelCapabilityControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\KernelCapabilityEntry.cpp">
@@ -248,6 +293,9 @@
     <ClCompile Include="source\MemoryPageEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Meta.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\MiscFlagsEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -260,25 +308,22 @@
     <ClCompile Include="source\MiscParamsHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\NcaHeader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\NcaUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\MetaBinary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\NroHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\NsoHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\PfsHeader.cpp">
+    <ClCompile Include="source\PartitionFsHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\ServiceAccessControlBinary.cpp">
+    <ClCompile Include="source\PatchMetaExtendedHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Result.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ServiceAccessControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ServiceAccessControlEntry.cpp">
@@ -294,18 +339,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ThreadInfoHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\XciHeader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\XciUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\IdConverter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Result.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

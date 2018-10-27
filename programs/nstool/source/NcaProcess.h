@@ -4,7 +4,7 @@
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
 #include <fnd/LayeredIntegrityMetadata.h>
-#include <nn/hac/NcaHeader.h>
+#include <nn/hac/ContentArchiveHeader.h>
 #include "KeyConfiguration.h"
 
 
@@ -49,9 +49,9 @@ private:
 	bool mListFs;
 
 	// data
-	nn::hac::sNcaHeaderBlock mHdrBlock;
+	nn::hac::sContentArchiveHeaderBlock mHdrBlock;
 	fnd::sha::sSha256Hash mHdrHash;
-	nn::hac::NcaHeader mHdr;
+	nn::hac::ContentArchiveHeader mHdr;
 
 	// crypto
 	struct sKeys
@@ -111,7 +111,7 @@ private:
 	void displayHeader();
 	void processPartitions();
 
-	const char* getFormatVersionStr(nn::hac::NcaHeader::FormatVersion format_ver) const;
+	const char* getFormatVersionStr(byte_t format_ver) const;
 	const char* getDistributionTypeStr(nn::hac::nca::DistributionType dist_type) const;
 	const char* getContentTypeStr(nn::hac::nca::ContentType cont_type) const;
 	const char* getEncryptionTypeStr(nn::hac::nca::EncryptionType enc_type) const;

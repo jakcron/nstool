@@ -5,7 +5,7 @@
 #include <fnd/OffsetAdjustedIFile.h>
 #include <fnd/AesCtrWrappedIFile.h>
 #include <fnd/LayeredIntegrityWrappedIFile.h>
-#include <nn/hac/NcaUtils.h>
+#include <nn/hac/ContentArchiveUtils.h>
 #include <nn/hac/AesKeygen.h>
 #include <nn/hac/HierarchicalSha256Header.h>
 #include <nn/hac/HierarchicalIntegrityHeader.h>
@@ -107,18 +107,18 @@ void NcaProcess::importHeader()
 	}
 	
 	// read header block
-	(*mFile)->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sNcaHeaderBlock));
+	(*mFile)->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sContentArchiveHeaderBlock));
 	
 	// decrypt header block
 	fnd::aes::sAesXts128Key header_key;
-	mKeyCfg.getNcaHeaderKey(header_key);
-	nn::hac::NcaUtils::decryptNcaHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, header_key);
+	mKeyCfg.getContentArchiveHeaderKey(header_key);
+	nn::hac::ContentArchiveUtils::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, header_key);
 
 	// generate header hash
-	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader), mHdrHash.bytes);
+	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sContentArchiveHeader), mHdrHash.bytes);
 
 	// proccess main header
-	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sNcaHeader));
+	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sContentArchiveHeader));
 }
 
 void NcaProcess::generateNcaBodyEncryptionKeys()
@@ -128,26 +128,28 @@ void NcaProcess::generateNcaBodyEncryptionKeys()
 	memset(zero_aesctr_key.key, 0, sizeof(zero_aesctr_key));
 	
 	// get key data from header
-	byte_t masterkey_rev = nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
-	byte_t keak_index = mHdr.getKaekIndex();
+	byte_t masterkey_rev = nn::hac::ContentArchiveUtils::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
+	byte_t keak_index = mHdr.getKeyAreaEncryptionKeyIndex();
 
 	// process key area
 	sKeys::sKeyAreaKey kak;
 	fnd::aes::sAes128Key key_area_enc_key;
-	for (size_t i = 0; i < nn::hac::nca::kAesKeyNum; i++)
+	const fnd::aes::sAes128Key* key_area = (const fnd::aes::sAes128Key*) mHdr.getKeyArea();
+
+	for (size_t i = 0; i < nn::hac::nca::kKeyAreaKeyNum; i++)
 	{
-		if (mHdr.getEncAesKeys()[i] != zero_aesctr_key)
+		if (key_area[i] != zero_aesctr_key)
 		{
 			kak.index = (byte_t)i;
-			kak.enc = mHdr.getEncAesKeys()[i];
+			kak.enc = key_area[i];
 			// key[0-3]
 			if (i < 4 && mKeyCfg.getNcaKeyAreaEncryptionKey(masterkey_rev, keak_index, key_area_enc_key) == true)
 			{
 				kak.decrypted = true;
 				nn::hac::AesKeygen::generateKey(kak.dec.key, kak.enc.key, key_area_enc_key.key);
 			}
-			// key[4]
-			else if (i == 4 && mKeyCfg.getNcaKeyAreaEncryptionKeyHw(masterkey_rev, keak_index, key_area_enc_key) == true)
+			// key[KEY_AESCTR_HW]
+			else if (i == nn::hac::nca::KEY_AESCTR_HW && mKeyCfg.getNcaKeyAreaEncryptionKeyHw(masterkey_rev, keak_index, key_area_enc_key) == true)
 			{
 				kak.decrypted = true;
 				nn::hac::AesKeygen::generateKey(kak.dec.key, kak.enc.key, key_area_enc_key.key);
@@ -223,22 +225,22 @@ void NcaProcess::generatePartitionConfiguration()
 {
 	std::stringstream error;
 
-	for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
+	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 	{
 		// get reference to relevant structures
-		const nn::hac::NcaHeader::sPartition& partition = mHdr.getPartitions()[i];
-		nn::hac::sNcaFsHeader& fs_header = mHdrBlock.fs_header[partition.index];
+		const nn::hac::ContentArchiveHeader::sPartitionEntry& partition = mHdr.getPartitionEntryList()[i];
+		nn::hac::sNcaFsHeader& fs_header = mHdrBlock.fs_header[partition.header_index];
 
 		// output structure
-		sPartitionInfo& info = mPartitions[partition.index];
+		sPartitionInfo& info = mPartitions[partition.header_index];
 
 		// validate header hash
-		fnd::sha::sSha256Hash calc_hash;
-		fnd::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.index], sizeof(nn::hac::sNcaFsHeader), calc_hash.bytes);
-		if (calc_hash.compare(partition.hash) == false)
+		fnd::sha::sSha256Hash fs_header_hash;
+		fnd::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(nn::hac::sNcaFsHeader), fs_header_hash.bytes);
+		if (fs_header_hash.compare(partition.fs_header_hash) == false)
 		{
 			error.clear();
-			error <<  "NCA FS Header [" << partition.index << "] Hash: FAIL \n";
+			error <<  "NCA FS Header [" << partition.header_index << "] Hash: FAIL \n";
 			throw fnd::Exception(kModuleName, error.str());
 		}
 			
@@ -246,12 +248,12 @@ void NcaProcess::generatePartitionConfiguration()
 		if (fs_header.version.get() != nn::hac::nca::kDefaultFsHeaderVersion)
 		{
 			error.clear();
-			error <<  "NCA FS Header [" << partition.index << "] Version(" << fs_header.version.get() << "): UNSUPPORTED";
+			error <<  "NCA FS Header [" << partition.header_index << "] Version(" << fs_header.version.get() << "): UNSUPPORTED";
 			throw fnd::Exception(kModuleName, error.str());
 		}
 
 		// setup AES-CTR 
-		nn::hac::NcaUtils::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.iv);
+		nn::hac::ContentArchiveUtils::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.iv);
 
 		// save partition config
 		info.reader = nullptr;
@@ -387,7 +389,7 @@ void NcaProcess::validateNcaSignatures()
 {
 	// validate signature[0]
 	fnd::rsa::sRsa2048Key sign0_key;
-	mKeyCfg.getNcaHeader0SignKey(sign0_key);
+	mKeyCfg.getContentArchiveHeader0SignKey(sign0_key);
 	if (fnd::rsa::pss::rsaVerify(sign0_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
 	{
 		std::cout << "[WARNING] NCA Header Main Signature: FAIL" << std::endl;
@@ -408,14 +410,14 @@ void NcaProcess::validateNcaSignatures()
 				// open main.npdm
 				if (exefs.getPfsHeader().getFileList().hasElement(kNpdmExefsPath) == true)
 				{
-					const nn::hac::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
+					const nn::hac::PartitionFsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
 
 					MetaProcess npdm;
 					npdm.setInputFile(new fnd::OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
-					if (fnd::rsa::pss::rsaVerify(npdm.getMetaBinary().getAcid().getNcaHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					if (fnd::rsa::pss::rsaVerify(npdm.getMeta().getAcid().getContentArchiveHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
 						std::cout << "[WARNING] NCA Header ACID Signature: FAIL" << std::endl;
 					}
@@ -445,7 +447,7 @@ void NcaProcess::displayHeader()
 	std::cout << "  Dist. Type:      " << getDistributionTypeStr(mHdr.getDistributionType()) << std::endl;
 	std::cout << "  Content Type:    " << getContentTypeStr(mHdr.getContentType()) << std::endl;
 	std::cout << "  Key Generation:  " << std::dec << (uint32_t)mHdr.getKeyGeneration() << std::endl;
-	std::cout << "  Kaek Index:      " << getKaekIndexStr((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKaekIndex()) << " (" << std::dec << (uint32_t)mHdr.getKaekIndex() << ")" << std::endl;
+	std::cout << "  Kaek Index:      " << getKaekIndexStr((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKeyAreaEncryptionKeyIndex()) << " (" << std::dec << (uint32_t)mHdr.getKeyAreaEncryptionKeyIndex() << ")" << std::endl;
 	std::cout << "  Size:            0x" << std::hex << mHdr.getContentSize() << std::endl;
 	std::cout << "  ProgID:          0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getProgramId() << std::endl;
 	std::cout << "  Content Index:   " << std::dec << mHdr.getContentIndex() << std::endl;
@@ -483,10 +485,11 @@ void NcaProcess::displayHeader()
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 	{
 		std::cout << "  Partitions:" << std::endl;
-		for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
+		for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 		{
-			size_t index = mHdr.getPartitions()[i].index;
+			uint32_t index = mHdr.getPartitionEntryList()[i].header_index;
 			sPartitionInfo& info = mPartitions[index];
+			if (info.size == 0) continue;
 
 			std::cout << "    " << std::dec << index << ":" << std::endl;
 			std::cout << "      Offset:      0x" << std::hex << (uint64_t)info.offset << std::endl;
@@ -546,9 +549,9 @@ void NcaProcess::displayHeader()
 
 void NcaProcess::processPartitions()
 {
-	for (size_t i = 0; i < mHdr.getPartitions().size(); i++)
+	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 	{
-		size_t index = mHdr.getPartitions()[i].index;
+		uint32_t index = mHdr.getPartitionEntryList()[i].header_index;
 		struct sPartitionInfo& partition = mPartitions[index];
 
 		// if the reader is null, skip
@@ -604,16 +607,16 @@ void NcaProcess::processPartitions()
 	}
 }
 
-const char* NcaProcess::getFormatVersionStr(nn::hac::NcaHeader::FormatVersion format_ver) const
+const char* NcaProcess::getFormatVersionStr(byte_t format_ver) const
 {
 	const char* str = nullptr;
 
 	switch (format_ver)
 	{
-		case (nn::hac::NcaHeader::NCA2_FORMAT):
+		case (nn::hac::nca::FORMAT_NCA2):
 			str = "NCA2";
 			break;
-		case (nn::hac::NcaHeader::NCA3_FORMAT):
+		case (nn::hac::nca::FORMAT_NCA3):
 			str = "NCA3";
 			break;
 		default:
@@ -797,7 +800,7 @@ const char* NcaProcess::getContentTypeForMountStr(nn::hac::nca::ContentType cont
 			str = "data";
 			break;
 		case (nn::hac::nca::TYPE_PUBLIC_DATA):
-			str = "publicData";
+			str = "publicdata";
 			break;
 		default:
 			str = "";

@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 #include <nn/es/ticket.h>
 
@@ -9,7 +9,7 @@ namespace nn
 namespace es
 {
 	class TicketBody_V2 :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		TicketBody_V2();
@@ -19,7 +19,7 @@ namespace es
 		bool operator==(const TicketBody_V2& other) const;
 		bool operator!=(const TicketBody_V2& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>& getBytes() const;

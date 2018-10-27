@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <fnd/ISerialisable.h>
+#include <fnd/IByteModel.h>
 #include <nn/pki/SignatureBlock.h>
 
 namespace nn
@@ -9,7 +9,7 @@ namespace pki
 {
 	template <class T>
 	class SignedData
-		: public fnd::ISerialisable
+		: public fnd::IByteModel
 	{
 	public:
 		SignedData();

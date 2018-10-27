@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
-#include <nn/hac/ApplicationControlPropertyBinary.h>
+#include <nn/hac/ApplicationControlProperty.h>
 
 #include "common.h"
 
@@ -18,7 +18,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	const nn::hac::ApplicationControlPropertyBinary& getApplicationControlPropertyBinary() const;
+	const nn::hac::ApplicationControlProperty& getApplicationControlProperty() const;
 
 private:
 	const std::string kModuleName = "NacpProcess";
@@ -27,7 +27,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nn::hac::ApplicationControlPropertyBinary mNacp;
+	nn::hac::ApplicationControlProperty mNacp;
 
 	void importNacp();
 	void displayNacp();

@@ -13,18 +13,18 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/Vec.h>
 #include <fnd/ResourceFileReader.h>
-#include <nn/hac/NcaUtils.h>
+#include <nn/hac/ContentArchiveUtils.h>
 #include <nn/hac/AesKeygen.h>
-#include <nn/hac/xci.h>
-#include <nn/hac/pfs.h>
-#include <nn/hac/nca.h>
-#include <nn/hac/meta.h>
-#include <nn/hac/romfs.h>
-#include <nn/hac/cnmt.h>
-#include <nn/hac/nacp.h>
-#include <nn/hac/nso.h>
-#include <nn/hac/nro.h>
-#include <nn/hac/aset.h>
+#include <nn/hac/define/gc.h>
+#include <nn/hac/define/pfs.h>
+#include <nn/hac/define/nca.h>
+#include <nn/hac/define/meta.h>
+#include <nn/hac/define/romfs.h>
+#include <nn/hac/define/cnmt.h>
+#include <nn/hac/define/nacp.h>
+#include <nn/hac/define/nso.h>
+#include <nn/hac/define/nro.h>
+#include <nn/hac/define/aset.h>
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include <nn/pki/SignUtils.h>
@@ -506,7 +506,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 			fnd::aes::sAes128Key enc_title_key;
 			memcpy(enc_title_key.key, tik.getBody().getEncTitleKey(), 16);
 			fnd::aes::sAes128Key common_key, external_content_key;
-			if (mKeyCfg.getETicketCommonKey(nn::hac::NcaUtils::getMasterKeyRevisionFromKeyGeneration(tik.getBody().getCommonKeyId()), common_key) == true)
+			if (mKeyCfg.getETicketCommonKey(nn::hac::ContentArchiveUtils::getMasterKeyRevisionFromKeyGeneration(tik.getBody().getCommonKeyId()), common_key) == true)
 			{
 				nn::hac::AesKeygen::generateKey(external_content_key.key, tik.getBody().getEncTitleKey(), common_key.key);
 				mKeyCfg.addNcaExternalContentKey(tik.getBody().getRightsId(), external_content_key);
@@ -590,8 +590,8 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 	
 	FileType type;
-	if (str == "xci")
-		type = FILE_XCI;
+	if (str == "gc" || str == "gamecard" || str == "xci")
+		type = FILE_GC;
 	else if (str == "nsp")
 		type = FILE_NSP;
 	else if (str == "partitionfs" || str == "hashedpartitionfs"  \
@@ -600,9 +600,9 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_PARTITIONFS;
 	else if (str == "romfs")
 		type = FILE_ROMFS;
-	else if (str == "nca")
+	else if (str == "nca" || str == "contentarchive")
 		type = FILE_NCA;
-	else if (str == "meta")
+	else if (str == "meta" || str == "npdm")
 		type = FILE_META;
 	else if (str == "cnmt")
 		type = FILE_CNMT;
@@ -645,8 +645,8 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #define _ASSERT_SIZE(sz) (scratch.size() >= (sz))
 
 	// test npdm
-	if (_ASSERT_SIZE(sizeof(nn::hac::sXciHeaderPage)) && _TYPE_PTR(nn::hac::sXciHeaderPage)->header.st_magic.get() == nn::hac::xci::kXciStructMagic)
-		file_type = FILE_XCI;
+	if (_ASSERT_SIZE(sizeof(nn::hac::sGcHeaderPage)) && _TYPE_PTR(nn::hac::sGcHeaderPage)->header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
+		file_type = FILE_GC;
 	// test pfs0
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sPfsHeader)) && _TYPE_PTR(nn::hac::sPfsHeader)->st_magic.get() == nn::hac::pfs::kPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
@@ -701,14 +701,14 @@ bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) c
 {
 	// prepare decrypted NCA data
 	byte_t nca_raw[nn::hac::nca::kHeaderSize];
-	nn::hac::sNcaHeader* nca_header = (nn::hac::sNcaHeader*)(nca_raw + nn::hac::NcaUtils::sectorToOffset(1));
+	nn::hac::sContentArchiveHeader* nca_header = (nn::hac::sContentArchiveHeader*)(nca_raw + nn::hac::ContentArchiveUtils::sectorToOffset(1));
 	
 	if (sample.size() < nn::hac::nca::kHeaderSize)
 		return false;
 
 	fnd::aes::sAesXts128Key header_key;
-	mKeyCfg.getNcaHeaderKey(header_key);
-	nn::hac::NcaUtils::decryptNcaHeader(sample.data(), nca_raw, header_key);
+	mKeyCfg.getContentArchiveHeaderKey(header_key);
+	nn::hac::ContentArchiveUtils::decryptContentArchiveHeader(sample.data(), nca_raw, header_key);
 
 	if (nca_header->st_magic.get() != nn::hac::nca::kNca2StructMagic && nca_header->st_magic.get() != nn::hac::nca::kNca3StructMagic)
 		return false;
@@ -882,9 +882,9 @@ void UserSettings::dumpKeyConfig() const
 
 		std::cout << "[KeyConfiguration]" << std::endl;
 		std::cout << "  NCA Keys:" << std::endl;
-		if (mKeyCfg.getNcaHeader0SignKey(rsa2048_key) == true)
+		if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key) == true)
 			dumpRsa2048Key(rsa2048_key, "Header Signature[0] Key", 2);
-		if (mKeyCfg.getNcaHeaderKey(aesxts_key) == true)
+		if (mKeyCfg.getContentArchiveHeaderKey(aesxts_key) == true)
 			dumpAesXtsKey(aesxts_key, "Header Encryption Key", 2);
 		
 		for (size_t i = 0; i < kMasterKeyNum; i++)

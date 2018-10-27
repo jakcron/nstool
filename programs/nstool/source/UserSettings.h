@@ -6,7 +6,7 @@
 #include <fnd/List.h>
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
-#include <nn/hac/meta.h>
+#include <nn/hac/define/meta.h>
 #include "common.h"
 #include "KeyConfiguration.h"
 

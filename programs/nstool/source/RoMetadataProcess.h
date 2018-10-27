@@ -4,7 +4,7 @@
 #include <fnd/types.h>
 #include <fnd/Vec.h>
 
-#include <nn/hac/meta.h>
+#include <nn/hac/define/meta.h>
 
 #include "common.h"
 #include "SdkApiString.h"

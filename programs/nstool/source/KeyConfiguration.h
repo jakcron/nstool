@@ -5,7 +5,7 @@
 #include <fnd/aes.h>
 #include <fnd/rsa.h>
 #include <fnd/ecdsa.h>
-#include <nn/hac/nca.h>
+#include <nn/hac/define/nca.h>
 #include <nn/pki/SignedData.h>
 #include <nn/es/TicketBody_V2.h>
 
@@ -24,8 +24,8 @@ public:
 	void clearNcaExternalKeys();
 
 	// nca keys
-	bool getNcaHeaderKey(fnd::aes::sAesXts128Key& key) const;
-	bool getNcaHeader0SignKey(fnd::rsa::sRsa2048Key& key) const;
+	bool getContentArchiveHeaderKey(fnd::aes::sAesXts128Key& key) const;
+	bool getContentArchiveHeader0SignKey(fnd::rsa::sRsa2048Key& key) const;
 	bool getAcidSignKey(fnd::rsa::sRsa2048Key& key) const;
 	bool getNcaKeyAreaEncryptionKey(byte_t masterkey_index, byte_t keak_type, fnd::aes::sAes128Key& key) const;
 	bool getNcaKeyAreaEncryptionKeyHw(byte_t masterkey_index, byte_t keak_type, fnd::aes::sAes128Key& key) const;
@@ -71,7 +71,7 @@ private:
 	const std::string kPkg1Base[kNameVariantNum] = { "package1", "package1", "package1" };
 	const std::string kPkg2Base[kNameVariantNum] = { "package2", "package2", "package2" };
 	const std::string kXciHeaderBase[kNameVariantNum] = { "xci_header", "xci_header", "xci_header" };
-	const std::string kNcaHeaderBase[kNameVariantNum] = { "nca_header", "header", "nca_header" };
+	const std::string kContentArchiveHeaderBase[kNameVariantNum] = { "nca_header", "header", "nca_header" };
 	const std::string kAcidBase[kNameVariantNum] = { "acid", "acid", "acid" };
 	const std::string kPkiRootBase[kNameVariantNum] = { "pki_root", "pki_root", "pki_root" };
 	const std::string kTicketCommonKeyBase[kNameVariantNum] = { "ticket_commonkey", "titlekek", "ticket_commonkey" };
@@ -175,8 +175,8 @@ private:
 	fnd::aes::sAes128Key mPkg2Key[kMasterKeyNum];
 
 	// nca
-	fnd::rsa::sRsa2048Key mNcaHeader0SignKey;
-	fnd::aes::sAesXts128Key mNcaHeaderKey;
+	fnd::rsa::sRsa2048Key mContentArchiveHeader0SignKey;
+	fnd::aes::sAesXts128Key mContentArchiveHeaderKey;
 	fnd::aes::sAes128Key mNcaKeyAreaEncryptionKey[kNcaKeakNum][kMasterKeyNum];
 	fnd::aes::sAes128Key mNcaKeyAreaEncryptionKeyHw[kNcaKeakNum][kMasterKeyNum];
 

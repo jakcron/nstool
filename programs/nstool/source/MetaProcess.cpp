@@ -61,7 +61,7 @@ void MetaProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-const nn::hac::MetaBinary& MetaProcess::getMetaBinary() const
+const nn::hac::Meta& MetaProcess::getMeta() const
 {
 	return mMeta;
 }
@@ -81,7 +81,7 @@ void MetaProcess::importMeta()
 	mMeta.fromBytes(scratch.data(), scratch.size());
 }
 
-void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid)
 {
 	try {
 		fnd::rsa::sRsa2048Key acid_sign_key;
@@ -96,7 +96,7 @@ void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDescBina
 	
 }
 
-void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfoBinary& aci, const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, const nn::hac::AccessControlInfoDesc& acid)
 {
 	// check Program ID
 	if (acid.getProgramIdRestrict().min > 0 && aci.getProgramId() < acid.getProgramIdRestrict().min)
@@ -287,7 +287,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfoBinary& ac
 	}
 }
 
-void MetaProcess::displayMetaHeader(const nn::hac::MetaBinary& hdr)
+void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 {
 	std::cout << "[Meta Header]" << std::endl;
 	std::cout << "  Process Architecture Params:" << std::endl;
@@ -306,13 +306,13 @@ void MetaProcess::displayMetaHeader(const nn::hac::MetaBinary& hdr)
 	}
 }
 
-void MetaProcess::displayAciHdr(const nn::hac::AccessControlInfoBinary& aci)
+void MetaProcess::displayAciHdr(const nn::hac::AccessControlInfo& aci)
 {
 	std::cout << "[Access Control Info]" << std::endl;
 	std::cout << "  ProgramID:       0x" << std::hex << std::setw(16) << std::setfill('0') << aci.getProgramId() << std::endl;
 }
 
-void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& acid)
+void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
 {
 	std::cout << "[Access Control Info Desc]" << std::endl;
 	if (acid.getFlagList().size() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
@@ -328,7 +328,7 @@ void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDescBinary& 
 	std::cout << "    Max:           0x" << std::hex << std::setw(16) << std::setfill('0') << acid.getProgramIdRestrict().max << std::endl;
 }
 
-void MetaProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
+void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 {
 	std::cout << "[FS Access Control]" << std::endl;
 	std::cout << "  Format Version:  " << std::dec << (uint32_t)fac.getFormatVersion() << std::endl;
@@ -349,8 +349,8 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
 				std::cout << " (bit " << std::dec << (uint32_t)fac.getFsaRightsList()[i] << ")";
 			if (fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack())
 				std::cout << ", ";
-			std::cout << std::endl;
 		}
+		std::cout << std::endl;
 	}
 	
 	if (fac.getContentOwnerIdList().size())
@@ -373,7 +373,7 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControlBinary& fac)
 	
 }
 
-void MetaProcess::displaySac(const nn::hac::ServiceAccessControlBinary& sac)
+void MetaProcess::displaySac(const nn::hac::ServiceAccessControl& sac)
 {
 	std::cout << "[Service Access Control]" << std::endl;
 	std::cout << "  Service List:" << std::endl;
@@ -394,7 +394,7 @@ void MetaProcess::displaySac(const nn::hac::ServiceAccessControlBinary& sac)
 	std::cout << std::endl;
 }
 
-void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityBinary& kern)
+void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 {
 	std::cout << "[Kernel Capabilities]" << std::endl;
 	if (kern.getThreadInfo().isSet())
@@ -437,12 +437,12 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityBinary& kern)
 		std::cout << "  MemoryMaps:" << std::endl;
 		for (size_t i = 0; i < maps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(maps[i].perm) << ") (type=" << getMemMapTypeStr(maps[i].type) << ") not permitted)" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(maps[i].perm) << ") (type=" << getMemMapTypeStr(maps[i].type) << ")" << std::endl;
 		}
 		//std::cout << "  IoMaps:" << std::endl;
 		for (size_t i = 0; i < ioMaps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(ioMaps[i].perm) << ") (type=" << getMemMapTypeStr(ioMaps[i].type) << ") not permitted)" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(ioMaps[i].perm) << ") (type=" << getMemMapTypeStr(ioMaps[i].type) << ")" << std::endl;
 		}
 	}
 	if (kern.getInterupts().isSet())

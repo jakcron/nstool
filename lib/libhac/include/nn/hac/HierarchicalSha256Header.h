@@ -1,6 +1,6 @@
 #pragma once
-#include <nn/hac/hierarchicalsha256.h>
-#include <fnd/ISerialisable.h>
+#include <nn/hac/define/hierarchicalsha256.h>
+#include <fnd/IByteModel.h>
 #include <fnd/List.h>
 
 namespace nn
@@ -8,7 +8,7 @@ namespace nn
 namespace hac
 {
 	class HierarchicalSha256Header :
-		public fnd::ISerialisable
+		public fnd::IByteModel
 	{
 	public:
 		struct sLayer
@@ -40,7 +40,7 @@ namespace hac
 		bool operator==(const HierarchicalSha256Header& other) const;
 		bool operator!=(const HierarchicalSha256Header& other) const;
 
-		// export/import binary
+		// IByteModel
 		void toBytes();
 		void fromBytes(const byte_t* bytes, size_t len);
 		const fnd::Vec<byte_t>&  getBytes() const;
