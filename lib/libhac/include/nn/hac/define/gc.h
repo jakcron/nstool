@@ -10,9 +10,9 @@ namespace nn
 {
 namespace hac
 {
-	namespace xci
+	namespace gc
 	{
-		static const uint32_t kXciStructMagic = _MAKE_STRUCT_MAGIC_U32("HEAD");
+		static const uint32_t kGcHeaderStructMagic = _MAKE_STRUCT_MAGIC_U32("HEAD");
 		static const uint32_t kHeaderEncOffset = 0x90;
 		static const uint32_t kHeaderEncSize = 0x70;
 		static const uint32_t kPageSize = 0x200;
@@ -68,7 +68,7 @@ namespace hac
 	}
 	
 #pragma pack(push,1)
-	struct sXciHeader
+	struct sGcHeader
 	{
 		le_uint32_t st_magic;
 		le_uint32_t rom_area_start_page;
@@ -99,16 +99,16 @@ namespace hac
 		le_uint32_t fw_mode;
 		le_uint32_t upp_version;
 		byte_t reserved_01[0x4];
-		byte_t upp_hash[xci::kUppHashLen];
+		byte_t upp_hash[gc::kUppHashLen];
 		le_uint64_t upp_id;
 		byte_t reserved_02[0x38];
 		// END ENCRYPTION
 	};
 
-	struct sXciHeaderPage
+	struct sGcHeaderPage
 	{
 		byte_t signature[fnd::rsa::kRsa2048Size];
-		sXciHeader header;
+		sGcHeader header;
 	}; // sizeof() = 512 (1 page)
 
 	struct sInitialData
@@ -123,9 +123,9 @@ namespace hac
 	struct sKeyDataArea
 	{
 		sInitialData initial_data; // AES128-CCM encrypted {titlekey[16]}
-		byte_t encrypted_00[xci::kPageSize * 6]; // AES128-CTR encrypted {titlekey[16]}
+		byte_t encrypted_00[gc::kPageSize * 6]; // AES128-CTR encrypted {titlekey[16]}
 		byte_t encrypted_00_aesctr_data[fnd::rsa::kRsa2048Size]; // RSA2048-OAEP-SHA256 encrypted AES-CTR data used for encrypted_00 {key[16],iv[16]}
-		byte_t reserved[xci::kPageSize - fnd::rsa::kRsa2048Size];
+		byte_t reserved[gc::kPageSize - fnd::rsa::kRsa2048Size];
 	}; // sizeof() = 512*8 (8 pages)
 
 #pragma pack(pop)

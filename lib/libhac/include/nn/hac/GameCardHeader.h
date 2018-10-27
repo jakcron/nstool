@@ -1,5 +1,5 @@
 #pragma once
-#include <nn/hac/define/xci.h>
+#include <nn/hac/define/gc.h>
 #include <fnd/IByteModel.h>
 #include <fnd/List.h>
 
@@ -7,16 +7,16 @@ namespace nn
 {
 namespace hac
 {
-	class XciHeader :
+	class GameCardHeader :
 		public fnd::IByteModel
 	{
 	public:
-		XciHeader();
-		XciHeader(const XciHeader& other);
+		GameCardHeader();
+		GameCardHeader(const GameCardHeader& other);
 
-		void operator=(const XciHeader& other);
-		bool operator==(const XciHeader& other) const;
-		bool operator!=(const XciHeader& other) const;
+		void operator=(const GameCardHeader& other);
+		bool operator==(const GameCardHeader& other) const;
+		bool operator!=(const GameCardHeader& other) const;
 
 		// IByteModel
 		void toBytes();
@@ -86,7 +86,7 @@ namespace hac
 		void setUppId(uint64_t id);
 
 	private:
-		const std::string kModuleName = "XCI_HEADER";
+		const std::string kModuleName = "GAMECARD_HEADER";
 
 		// binary
 		fnd::Vec<byte_t> mRawBinary;
@@ -111,7 +111,7 @@ namespace hac
 		uint32_t mSelKey;
 		uint32_t mLimAreaPage;
 
-		// Encrypted Data
+		// Encrypted/Extended Data
 		uint32_t mFwVersion[2];
 		uint32_t mAccCtrl1;
 		uint32_t mWait1TimeRead;

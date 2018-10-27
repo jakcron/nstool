@@ -27,6 +27,9 @@
     <ClInclude Include="include\nn\hac\define\fac.h">
       <Filter>Header Files\define</Filter>
     </ClInclude>
+    <ClInclude Include="include\nn\hac\define\gc.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\hac\define\hierarchicalintegrity.h">
       <Filter>Header Files\define</Filter>
     </ClInclude>
@@ -61,9 +64,6 @@
       <Filter>Header Files\define</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\define\romfs.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\xci.h">
       <Filter>Header Files\define</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\AccessControlInfo.h">
@@ -106,6 +106,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\FileSystemAccessControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\GameCardHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\GameCardUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h">
@@ -198,12 +204,6 @@
     <ClInclude Include="include\nn\hac\ThreadInfoHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\XciHeader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\XciUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AccessControlInfo.cpp">
@@ -246,6 +246,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\FileSystemAccessControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GameCardHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GameCardUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\HandleTableSizeEntry.cpp">
@@ -333,12 +339,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\ThreadInfoHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\XciHeader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\XciUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

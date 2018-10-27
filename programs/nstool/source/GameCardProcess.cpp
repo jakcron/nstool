@@ -2,10 +2,10 @@
 #include <iomanip>
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/OffsetAdjustedIFile.h>
-#include <nn/hac/XciUtils.h>
-#include "XciProcess.h"
+#include <nn/hac/GameCardUtils.h>
+#include "GameCardProcess.h"
 
-XciProcess::XciProcess() :
+GameCardProcess::GameCardProcess() :
 	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
@@ -15,7 +15,7 @@ XciProcess::XciProcess() :
 {
 }
 
-void XciProcess::process()
+void GameCardProcess::process()
 {
 	importHeader();
 
@@ -34,37 +34,37 @@ void XciProcess::process()
 	processPartitionPfs();
 }
 
-void XciProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void GameCardProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
 {
 	mFile = file;
 }
 
-void XciProcess::setKeyCfg(const KeyConfiguration& keycfg)
+void GameCardProcess::setKeyCfg(const KeyConfiguration& keycfg)
 {
 	mKeyCfg = keycfg;
 }
 
-void XciProcess::setCliOutputMode(CliOutputMode type)
+void GameCardProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void XciProcess::setVerifyMode(bool verify)
+void GameCardProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void XciProcess::setPartitionForExtract(const std::string& partition_name, const std::string& extract_path)
+void GameCardProcess::setPartitionForExtract(const std::string& partition_name, const std::string& extract_path)
 {
 	mExtractInfo.addElement({partition_name, extract_path});
 }
 
-void XciProcess::setListFs(bool list_fs)
+void GameCardProcess::setListFs(bool list_fs)
 {
 	mListFs = list_fs;
 }
 
-void XciProcess::importHeader()
+void GameCardProcess::importHeader()
 {
 	fnd::Vec<byte_t> scratch;
 
@@ -74,22 +74,22 @@ void XciProcess::importHeader()
 	}
 	
 	// read header page
-	(*mFile)->read((byte_t*)&mHdrPage, 0, sizeof(nn::hac::sXciHeaderPage));
+	(*mFile)->read((byte_t*)&mHdrPage, 0, sizeof(nn::hac::sGcHeaderPage));
 
 	// allocate memory for and decrypt sXciHeader
-	scratch.alloc(sizeof(nn::hac::sXciHeader));
+	scratch.alloc(sizeof(nn::hac::sGcHeader));
 
 	fnd::aes::sAes128Key header_key;
 	mKeyCfg.getXciHeaderKey(header_key);
-	nn::hac::XciUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.data(), header_key.key);
+	nn::hac::GameCardUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.data(), header_key.key);
 
 	// deserialise header
 	mHdr.fromBytes(scratch.data(), scratch.size());
 }
 
-void XciProcess::displayHeader()
+void GameCardProcess::displayHeader()
 {
-	std::cout << "[XCI Header]" << std::endl;
+	std::cout << "[GameCard Header]" << std::endl;
 	std::cout << "  CardHeaderVersion:      " << std::dec << (uint32_t)mHdr.getCardHeaderVersion() << std::endl;
 	std::cout << "  RomSize:                " << getRomSizeStr(mHdr.getRomSizeType());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
@@ -128,22 +128,22 @@ void XciProcess::displayHeader()
 	{
 		std::cout << "  RomAreaStartPage:       0x" << std::hex << mHdr.getRomAreaStartPage();
 		if (mHdr.getRomAreaStartPage() != (uint32_t)(-1))
-			std::cout << " (0x" << std::hex << nn::hac::XciUtils::blockToAddr(mHdr.getRomAreaStartPage()) << ")";
+			std::cout << " (0x" << std::hex << nn::hac::GameCardUtils::blockToAddr(mHdr.getRomAreaStartPage()) << ")";
 		std::cout << std::endl;
 
 		std::cout << "  BackupAreaStartPage:    0x" << std::hex << mHdr.getBackupAreaStartPage();
 		if (mHdr.getBackupAreaStartPage() != (uint32_t)(-1))
-			std::cout << " (0x" << std::hex << nn::hac::XciUtils::blockToAddr(mHdr.getBackupAreaStartPage()) << ")";
+			std::cout << " (0x" << std::hex << nn::hac::GameCardUtils::blockToAddr(mHdr.getBackupAreaStartPage()) << ")";
 		std::cout << std::endl;
 
 		std::cout << "  ValidDataEndPage:       0x" << std::hex << mHdr.getValidDataEndPage();
 		if (mHdr.getValidDataEndPage() != (uint32_t)(-1))
-			std::cout << " (0x" << std::hex << nn::hac::XciUtils::blockToAddr(mHdr.getValidDataEndPage()) << ")";
+			std::cout << " (0x" << std::hex << nn::hac::GameCardUtils::blockToAddr(mHdr.getValidDataEndPage()) << ")";
 		std::cout << std::endl;
 
 		std::cout << "  LimArea:                0x" << std::hex << mHdr.getLimAreaPage();
 		if (mHdr.getLimAreaPage() != (uint32_t)(-1))
-			std::cout << " (0x" << std::hex << nn::hac::XciUtils::blockToAddr(mHdr.getLimAreaPage()) << ")";
+			std::cout << " (0x" << std::hex << nn::hac::GameCardUtils::blockToAddr(mHdr.getLimAreaPage()) << ")";
 		std::cout << std::endl;
 
 		std::cout << "  PartitionFs Header:" << std::endl;
@@ -160,7 +160,7 @@ void XciProcess::displayHeader()
 	
 	if (mHdr.getFwVerMinor() != 0)
 	{
-		std::cout << "[XCI Extended Header]" << std::endl;
+		std::cout << "[GameCard Extended Header]" << std::endl;
 		std::cout << "  FwVersion:              v" << std::dec << mHdr.getFwVerMajor() << "." << mHdr.getFwVerMinor() << std::endl;
 		std::cout << "  AccCtrl1:               0x" << std::hex << mHdr.getAccCtrl1() << std::endl;
 		std::cout << "    CardClockRate:        " << getCardClockRate(mHdr.getAccCtrl1()) << std::endl;
@@ -178,7 +178,7 @@ void XciProcess::displayHeader()
 	}
 }
 
-bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
+bool GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
 {
 	fnd::Vec<byte_t> scratch;
 	fnd::sha::sSha256Hash calc_hash;
@@ -188,23 +188,23 @@ bool XciProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* t
 	return calc_hash.compare(test_hash);
 }
 
-void XciProcess::validateXciSignature()
+void GameCardProcess::validateXciSignature()
 {
 	fnd::rsa::sRsa2048Key header_sign_key;
 	fnd::sha::sSha256Hash calc_hash;
-	fnd::sha::Sha256((byte_t*)&mHdrPage.header, sizeof(nn::hac::sXciHeader), calc_hash.bytes);
+	fnd::sha::Sha256((byte_t*)&mHdrPage.header, sizeof(nn::hac::sGcHeader), calc_hash.bytes);
 	mKeyCfg.getXciHeaderSignKey(header_sign_key);
 	if (fnd::rsa::pkcs::rsaVerify(header_sign_key, fnd::sha::HASH_SHA256, calc_hash.bytes, mHdrPage.signature) != 0)
 	{
-		std::cout << "[WARNING] XCI Header Signature: FAIL" << std::endl;
+		std::cout << "[WARNING] GameCard Header Signature: FAIL" << std::endl;
 	}
 }
 
-void XciProcess::processRootPfs()
+void GameCardProcess::processRootPfs()
 {
 	if (mVerify && validateRegionOfFile(mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize(), mHdr.getPartitionFsHash().bytes) == false)
 	{
-		std::cout << "[WARNING] XCI Root HFS0: FAIL (bad hash)" << std::endl;
+		std::cout << "[WARNING] GameCard Root HFS0: FAIL (bad hash)" << std::endl;
 	}
 	mRootPfs.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize()));
 	mRootPfs.setListFs(mListFs);
@@ -214,7 +214,7 @@ void XciProcess::processRootPfs()
 	mRootPfs.process();
 }
 
-void XciProcess::processPartitionPfs()
+void GameCardProcess::processPartitionPfs()
 {
 	const fnd::List<nn::hac::PartitionFsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
 	for (size_t i = 0; i < rootPartitions.size(); i++)
@@ -222,7 +222,7 @@ void XciProcess::processPartitionPfs()
 		// this must be validated here because only the size of the root partiton header is known at verification time
 		if (mVerify && validateRegionOfFile(mHdr.getPartitionFsAddress() + rootPartitions[i].offset, rootPartitions[i].hash_protected_size, rootPartitions[i].hash.bytes) == false)
 		{
-			std::cout << "[WARNING] XCI " << rootPartitions[i].name << " Partition HFS0: FAIL (bad hash)" << std::endl;
+			std::cout << "[WARNING] GameCard " << rootPartitions[i].name << " Partition HFS0: FAIL (bad hash)" << std::endl;
 		}
 
 		PfsProcess tmp;
@@ -238,28 +238,28 @@ void XciProcess::processPartitionPfs()
 	}
 }
 
-const char* XciProcess::getRomSizeStr(byte_t rom_size) const
+const char* GameCardProcess::getRomSizeStr(byte_t rom_size) const
 {
 	const char* str = nullptr;
 
 	switch (rom_size)
 	{
-		case (nn::hac::xci::ROM_SIZE_1GB):
+		case (nn::hac::gc::ROM_SIZE_1GB):
 			str = "1GB";
 			break;
-		case (nn::hac::xci::ROM_SIZE_2GB):
+		case (nn::hac::gc::ROM_SIZE_2GB):
 			str = "2GB";
 			break;
-		case (nn::hac::xci::ROM_SIZE_4GB):
+		case (nn::hac::gc::ROM_SIZE_4GB):
 			str = "4GB";
 			break;
-		case (nn::hac::xci::ROM_SIZE_8GB):
+		case (nn::hac::gc::ROM_SIZE_8GB):
 			str = "8GB";
 			break;
-		case (nn::hac::xci::ROM_SIZE_16GB):
+		case (nn::hac::gc::ROM_SIZE_16GB):
 			str = "16GB";
 			break;
-		case (nn::hac::xci::ROM_SIZE_32GB):
+		case (nn::hac::gc::ROM_SIZE_32GB):
 			str = "32GB";
 			break;
 		default:
@@ -270,19 +270,19 @@ const char* XciProcess::getRomSizeStr(byte_t rom_size) const
 	return str;
 }
 
-const char* XciProcess::getHeaderFlagStr(byte_t flag) const
+const char* GameCardProcess::getHeaderFlagStr(byte_t flag) const
 {
 	const char* str = nullptr;
 	
 	switch (flag)
 	{
-		case (nn::hac::xci::FLAG_AUTOBOOT):
+		case (nn::hac::gc::FLAG_AUTOBOOT):
 			str = "AutoBoot";
 			break;
-		case (nn::hac::xci::FLAG_HISTORY_ERASE):
+		case (nn::hac::gc::FLAG_HISTORY_ERASE):
 			str = "HistoryErase";
 			break;
-		case (nn::hac::xci::FLAG_REPAIR_TOOL):
+		case (nn::hac::gc::FLAG_REPAIR_TOOL):
 			str = "RepairTool";
 			break;
 		default:
@@ -294,16 +294,16 @@ const char* XciProcess::getHeaderFlagStr(byte_t flag) const
 }
 
 
-const char* XciProcess::getCardClockRate(uint32_t acc_ctrl_1) const
+const char* GameCardProcess::getCardClockRate(uint32_t acc_ctrl_1) const
 {
 	const char* str = nullptr;
 
 	switch (acc_ctrl_1)
 	{
-		case (nn::hac::xci::CLOCK_RATE_25):
+		case (nn::hac::gc::CLOCK_RATE_25):
 			str = "20 MHz";
 			break;
-		case (nn::hac::xci::CLOCK_RATE_50):
+		case (nn::hac::gc::CLOCK_RATE_50):
 			str = "50 MHz";
 			break;
 		default:

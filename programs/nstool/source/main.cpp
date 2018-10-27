@@ -3,7 +3,7 @@
 #include <fnd/SharedPtr.h>
 #include <fnd/StringConv.h>
 #include "UserSettings.h"
-#include "XciProcess.h"
+#include "GameCardProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
 #include "NcaProcess.h"
@@ -38,9 +38,9 @@ int main(int argc, char** argv)
 
 		fnd::SharedPtr<fnd::IFile> inputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read));
 
-		if (user_set.getFileType() == FILE_XCI)
+		if (user_set.getFileType() == FILE_GC)
 		{	
-			XciProcess xci;
+			GameCardProcess xci;
 
 			xci.setInputFile(inputFile);
 			
@@ -49,13 +49,13 @@ int main(int argc, char** argv)
 			xci.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getXciUpdatePath().isSet)
-				xci.setPartitionForExtract(nn::hac::xci::kUpdatePartitionStr, user_set.getXciUpdatePath().var);
+				xci.setPartitionForExtract(nn::hac::gc::kUpdatePartitionStr, user_set.getXciUpdatePath().var);
 			if (user_set.getXciLogoPath().isSet)
-				xci.setPartitionForExtract(nn::hac::xci::kLogoPartitionStr, user_set.getXciLogoPath().var);
+				xci.setPartitionForExtract(nn::hac::gc::kLogoPartitionStr, user_set.getXciLogoPath().var);
 			if (user_set.getXciNormalPath().isSet)
-				xci.setPartitionForExtract(nn::hac::xci::kNormalPartitionStr, user_set.getXciNormalPath().var);
+				xci.setPartitionForExtract(nn::hac::gc::kNormalPartitionStr, user_set.getXciNormalPath().var);
 			if (user_set.getXciSecurePath().isSet)
-				xci.setPartitionForExtract(nn::hac::xci::kSecurePartitionStr, user_set.getXciSecurePath().var);
+				xci.setPartitionForExtract(nn::hac::gc::kSecurePartitionStr, user_set.getXciSecurePath().var);
 			xci.setListFs(user_set.isListFs());
 
 			xci.process();

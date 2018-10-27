@@ -197,7 +197,7 @@
     <ClInclude Include="source\SdkApiString.h" />
     <ClInclude Include="source\UserSettings.h" />
     <ClInclude Include="source\version.h" />
-    <ClInclude Include="source\XciProcess.h" />
+    <ClInclude Include="source\GameCardProcess.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AssetProcess.cpp" />
@@ -218,7 +218,7 @@
     <ClCompile Include="source\RomfsProcess.cpp" />
     <ClCompile Include="source\SdkApiString.cpp" />
     <ClCompile Include="source\UserSettings.cpp" />
-    <ClCompile Include="source\XciProcess.cpp" />
+    <ClCompile Include="source\GameCardProcess.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

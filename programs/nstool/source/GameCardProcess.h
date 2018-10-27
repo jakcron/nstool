@@ -4,16 +4,16 @@
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
 #include <fnd/List.h>
-#include <nn/hac/XciHeader.h>
+#include <nn/hac/GameCardHeader.h>
 #include "KeyConfiguration.h"
 #include "PfsProcess.h"
 
 #include "common.h"
 
-class XciProcess
+class GameCardProcess
 {
 public:
-	XciProcess();
+	GameCardProcess();
 
 	void process();
 
@@ -28,7 +28,7 @@ public:
 	void setListFs(bool list_fs);
 
 private:
-	const std::string kModuleName = "XciProcess";
+	const std::string kModuleName = "GameCardProcess";
 	const std::string kXciMountPointName = "gamecard:/";
 
 	fnd::SharedPtr<fnd::IFile> mFile;
@@ -55,8 +55,8 @@ private:
 
 	bool mListFs;
 
-	nn::hac::sXciHeaderPage mHdrPage;
-	nn::hac::XciHeader mHdr;
+	nn::hac::sGcHeaderPage mHdrPage;
+	nn::hac::GameCardHeader mHdr;
 	PfsProcess mRootPfs;
 	fnd::List<sExtractInfo> mExtractInfo;
 

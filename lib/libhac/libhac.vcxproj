@@ -38,6 +38,7 @@
     <ClInclude Include="include\nn\hac\define\cnmt.h" />
     <ClInclude Include="include\nn\hac\define\delta.h" />
     <ClInclude Include="include\nn\hac\define\fac.h" />
+    <ClInclude Include="include\nn\hac\define\gc.h" />
     <ClInclude Include="include\nn\hac\define\hierarchicalintegrity.h" />
     <ClInclude Include="include\nn\hac\define\hierarchicalsha256.h" />
     <ClInclude Include="include\nn\hac\define\kc.h" />
@@ -50,9 +51,10 @@
     <ClInclude Include="include\nn\hac\define\nso.h" />
     <ClInclude Include="include\nn\hac\define\pfs.h" />
     <ClInclude Include="include\nn\hac\define\romfs.h" />
-    <ClInclude Include="include\nn\hac\define\xci.h" />
     <ClInclude Include="include\nn\hac\DeltaMetaExtendedHeader.h" />
     <ClInclude Include="include\nn\hac\FileSystemAccessControl.h" />
+    <ClInclude Include="include\nn\hac\GameCardHeader.h" />
+    <ClInclude Include="include\nn\hac\GameCardUtils.h" />
     <ClInclude Include="include\nn\hac\HandleTableSizeEntry.h" />
     <ClInclude Include="include\nn\hac\HandleTableSizeHandler.h" />
     <ClInclude Include="include\nn\hac\HierarchicalIntegrityHeader.h" />
@@ -83,8 +85,6 @@
     <ClInclude Include="include\nn\hac\SystemCallHandler.h" />
     <ClInclude Include="include\nn\hac\ThreadInfoEntry.h" />
     <ClInclude Include="include\nn\hac\ThreadInfoHandler.h" />
-    <ClInclude Include="include\nn\hac\XciHeader.h" />
-    <ClInclude Include="include\nn\hac\XciUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AccessControlInfo.cpp" />
@@ -101,6 +101,8 @@
     <ClCompile Include="source\ContentMetaInfo.cpp" />
     <ClCompile Include="source\DeltaMetaExtendedHeader.cpp" />
     <ClCompile Include="source\FileSystemAccessControl.cpp" />
+    <ClCompile Include="source\GameCardHeader.cpp" />
+    <ClCompile Include="source\GameCardUtils.cpp" />
     <ClCompile Include="source\HandleTableSizeEntry.cpp" />
     <ClCompile Include="source\HandleTableSizeHandler.cpp" />
     <ClCompile Include="source\HierarchicalIntegrityHeader.cpp" />
@@ -130,8 +132,6 @@
     <ClCompile Include="source\SystemCallHandler.cpp" />
     <ClCompile Include="source\ThreadInfoEntry.cpp" />
     <ClCompile Include="source\ThreadInfoHandler.cpp" />
-    <ClCompile Include="source\XciHeader.cpp" />
-    <ClCompile Include="source\XciUtils.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

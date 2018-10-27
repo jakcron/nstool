@@ -15,7 +15,7 @@
 #include <fnd/ResourceFileReader.h>
 #include <nn/hac/ContentArchiveUtils.h>
 #include <nn/hac/AesKeygen.h>
-#include <nn/hac/define/xci.h>
+#include <nn/hac/define/gc.h>
 #include <nn/hac/define/pfs.h>
 #include <nn/hac/define/nca.h>
 #include <nn/hac/define/meta.h>
@@ -590,8 +590,8 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 	
 	FileType type;
-	if (str == "xci")
-		type = FILE_XCI;
+	if (str == "gc" || str == "gamecard" || str == "xci")
+		type = FILE_GC;
 	else if (str == "nsp")
 		type = FILE_NSP;
 	else if (str == "partitionfs" || str == "hashedpartitionfs"  \
@@ -600,9 +600,9 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_PARTITIONFS;
 	else if (str == "romfs")
 		type = FILE_ROMFS;
-	else if (str == "nca")
+	else if (str == "nca" || str == "contentarchive")
 		type = FILE_NCA;
-	else if (str == "meta")
+	else if (str == "meta" || str == "npdm")
 		type = FILE_META;
 	else if (str == "cnmt")
 		type = FILE_CNMT;
@@ -645,8 +645,8 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #define _ASSERT_SIZE(sz) (scratch.size() >= (sz))
 
 	// test npdm
-	if (_ASSERT_SIZE(sizeof(nn::hac::sXciHeaderPage)) && _TYPE_PTR(nn::hac::sXciHeaderPage)->header.st_magic.get() == nn::hac::xci::kXciStructMagic)
-		file_type = FILE_XCI;
+	if (_ASSERT_SIZE(sizeof(nn::hac::sGcHeaderPage)) && _TYPE_PTR(nn::hac::sGcHeaderPage)->header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
+		file_type = FILE_GC;
 	// test pfs0
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sPfsHeader)) && _TYPE_PTR(nn::hac::sPfsHeader)->st_magic.get() == nn::hac::pfs::kPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
