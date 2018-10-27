@@ -410,7 +410,7 @@ void NcaProcess::validateNcaSignatures()
 				// open main.npdm
 				if (exefs.getPfsHeader().getFileList().hasElement(kNpdmExefsPath) == true)
 				{
-					const nn::hac::PfsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
+					const nn::hac::PartitionFsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
 
 					MetaProcess npdm;
 					npdm.setInputFile(new fnd::OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));

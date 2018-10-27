@@ -216,7 +216,7 @@ void XciProcess::processRootPfs()
 
 void XciProcess::processPartitionPfs()
 {
-	const fnd::List<nn::hac::PfsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
+	const fnd::List<nn::hac::PartitionFsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
 	for (size_t i = 0; i < rootPartitions.size(); i++)
 	{
 		// this must be validated here because only the size of the root partiton header is known at verification time

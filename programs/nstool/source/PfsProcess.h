@@ -3,7 +3,7 @@
 #include <fnd/types.h>
 #include <fnd/IFile.h>
 #include <fnd/SharedPtr.h>
-#include <nn/hac/PfsHeader.h>
+#include <nn/hac/PartitionFsHeader.h>
 
 #include "common.h"
 
@@ -24,7 +24,7 @@ public:
 	void setExtractPath(const std::string& path);
 	void setListFs(bool list_fs);
 
-	const nn::hac::PfsHeader& getPfsHeader() const;
+	const nn::hac::PartitionFsHeader& getPfsHeader() const;
 
 private:
 	const std::string kModuleName = "PfsProcess";
@@ -41,7 +41,7 @@ private:
 
 	fnd::Vec<byte_t> mCache;
 
-	nn::hac::PfsHeader mPfs;
+	nn::hac::PartitionFsHeader mPfs;
 
 	void importHeader();
 	void displayHeader();
@@ -51,5 +51,5 @@ private:
 	void validateHfs();
 	void extractFs();
 
-	const char* getFsTypeStr(nn::hac::PfsHeader::FsType type) const;
+	const char* getFsTypeStr(nn::hac::PartitionFsHeader::FsType type) const;
 };

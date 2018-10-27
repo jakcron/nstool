@@ -9,7 +9,7 @@ namespace nn
 {
 namespace hac
 {
-	class PfsHeader :
+	class PartitionFsHeader :
 		public fnd::IByteModel
 	{
 	public:
@@ -62,12 +62,12 @@ namespace hac
 			}
 		};
 
-		PfsHeader();
-		PfsHeader(const PfsHeader& other);
+		PartitionFsHeader();
+		PartitionFsHeader(const PartitionFsHeader& other);
 
-		void operator=(const PfsHeader& other);
-		bool operator==(const PfsHeader& other) const;
-		bool operator!=(const PfsHeader& other) const;
+		void operator=(const PartitionFsHeader& other);
+		bool operator==(const PartitionFsHeader& other) const;
+		bool operator!=(const PartitionFsHeader& other) const;
 
 		// IByteModel
 		void toBytes();
@@ -84,7 +84,7 @@ namespace hac
 		void addFile(const std::string& name, size_t size, size_t hash_protected_size, const fnd::sha::sSha256Hash& hash);
 
 	private:
-		const std::string kModuleName = "PFS_HEADER";
+		const std::string kModuleName = "PARTITIONFS_HEADER";
 
 		// binary blob
 		fnd::Vec<byte_t> mRawBinary;

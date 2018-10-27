@@ -63,7 +63,7 @@ void PfsProcess::setListFs(bool list_fs)
 	mListFs = list_fs;
 }
 
-const nn::hac::PfsHeader& PfsProcess::getPfsHeader() const
+const nn::hac::PartitionFsHeader& PfsProcess::getPfsHeader() const
 {
 	return mPfs;
 }
@@ -110,16 +110,16 @@ void PfsProcess::displayFs()
 {	
 	for (size_t i = 0; i < mPfs.getFileList().size(); i++)
 	{
-		const nn::hac::PfsHeader::sFile& file = mPfs.getFileList()[i];
+		const nn::hac::PartitionFsHeader::sFile& file = mPfs.getFileList()[i];
 		std::cout << "    " << file.name;
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
 		{
 			switch (mPfs.getFsType())
 			{
-			case (nn::hac::PfsHeader::TYPE_PFS0):
+			case (nn::hac::PartitionFsHeader::TYPE_PFS0):
 				std::cout << std::hex << " (offset=0x" << file.offset << ", size=0x" << file.size << ")";
 				break;
-			case (nn::hac::PfsHeader::TYPE_HFS0):
+			case (nn::hac::PartitionFsHeader::TYPE_HFS0):
 				std::cout << std::hex << " (offset=0x" << file.offset << ", size=0x" << file.size << ", hash_protected_size=0x" << file.hash_protected_size << ")";
 				break;
 			}
@@ -148,7 +148,7 @@ bool PfsProcess::validateHeaderMagic(const nn::hac::sPfsHeader* hdr)
 void PfsProcess::validateHfs()
 {
 	fnd::sha::sSha256Hash hash;
-	const fnd::List<nn::hac::PfsHeader::sFile>& file = mPfs.getFileList();
+	const fnd::List<nn::hac::PartitionFsHeader::sFile>& file = mPfs.getFileList();
 	for (size_t i = 0; i < file.size(); i++)
 	{
 		mCache.alloc(file[i].hash_protected_size);
@@ -170,7 +170,7 @@ void PfsProcess::extractFs()
 	fnd::io::makeDirectory(mExtractPath);
 
 	fnd::SimpleFile outFile;
-	const fnd::List<nn::hac::PfsHeader::sFile>& file = mPfs.getFileList();
+	const fnd::List<nn::hac::PartitionFsHeader::sFile>& file = mPfs.getFileList();
 
 	std::string file_path;
 	for (size_t i = 0; i < file.size(); i++)
@@ -193,16 +193,16 @@ void PfsProcess::extractFs()
 	}
 }
 
-const char* PfsProcess::getFsTypeStr(nn::hac::PfsHeader::FsType type) const
+const char* PfsProcess::getFsTypeStr(nn::hac::PartitionFsHeader::FsType type) const
 {
 	const char* str = nullptr;
 
 	switch (type)
 	{
-	case (nn::hac::PfsHeader::TYPE_PFS0):
+	case (nn::hac::PartitionFsHeader::TYPE_PFS0):
 		str = "PFS0";
 		break;
-	case (nn::hac::PfsHeader::TYPE_HFS0):
+	case (nn::hac::PartitionFsHeader::TYPE_HFS0):
 		str = "HFS0";
 		break;
 	default:

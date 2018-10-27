@@ -74,8 +74,8 @@
     <ClInclude Include="include\nn\hac\MiscParamsHandler.h" />
     <ClInclude Include="include\nn\hac\NroHeader.h" />
     <ClInclude Include="include\nn\hac\NsoHeader.h" />
+    <ClInclude Include="include\nn\hac\PartitionFsHeader.h" />
     <ClInclude Include="include\nn\hac\PatchMetaExtendedHeader.h" />
-    <ClInclude Include="include\nn\hac\PfsHeader.h" />
     <ClInclude Include="include\nn\hac\Result.h" />
     <ClInclude Include="include\nn\hac\ServiceAccessControl.h" />
     <ClInclude Include="include\nn\hac\ServiceAccessControlEntry.h" />
@@ -121,8 +121,8 @@
     <ClCompile Include="source\MiscParamsHandler.cpp" />
     <ClCompile Include="source\NroHeader.cpp" />
     <ClCompile Include="source\NsoHeader.cpp" />
+    <ClCompile Include="source\PartitionFsHeader.cpp" />
     <ClCompile Include="source\PatchMetaExtendedHeader.cpp" />
-    <ClCompile Include="source\PfsHeader.cpp" />
     <ClCompile Include="source\Result.cpp" />
     <ClCompile Include="source\ServiceAccessControl.cpp" />
     <ClCompile Include="source\ServiceAccessControlEntry.cpp" />

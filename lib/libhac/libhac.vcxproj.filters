@@ -15,6 +15,57 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\nn\hac\define\aci.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\cnmt.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\delta.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\fac.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\hierarchicalintegrity.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\hierarchicalsha256.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\kc.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\macro.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\meta.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nacp.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nca.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nro.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nrr.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\nso.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\pfs.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\romfs.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\xci.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\hac\AccessControlInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -120,10 +171,10 @@
     <ClInclude Include="include\nn\hac\NsoHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\PatchMetaExtendedHeader.h">
+    <ClInclude Include="include\nn\hac\PartitionFsHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\nn\hac\PfsHeader.h">
+    <ClInclude Include="include\nn\hac\PatchMetaExtendedHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\Result.h">
@@ -152,57 +203,6 @@
     </ClInclude>
     <ClInclude Include="include\nn\hac\XciUtils.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\aci.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\cnmt.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\delta.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\fac.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\hierarchicalintegrity.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\hierarchicalsha256.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\kc.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\macro.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\meta.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\nacp.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\nca.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\nro.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\nrr.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\nso.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\pfs.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\romfs.h">
-      <Filter>Header Files\define</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nn\hac\define\xci.h">
-      <Filter>Header Files\define</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -308,10 +308,10 @@
     <ClCompile Include="source\NsoHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\PatchMetaExtendedHeader.cpp">
+    <ClCompile Include="source\PartitionFsHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\PfsHeader.cpp">
+    <ClCompile Include="source\PatchMetaExtendedHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Result.cpp">
