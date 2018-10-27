@@ -118,9 +118,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\nn\hac\aset.h" />
     <ClInclude Include="include\nn\hac\AssetHeader.h" />
-    <ClInclude Include="include\nn\hac\nro-hb.h" />
+    <ClInclude Include="include\nn\hac\define\aset.h" />
+    <ClInclude Include="include\nn\hac\define\nro-hb.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AssetHeader.cpp" />
