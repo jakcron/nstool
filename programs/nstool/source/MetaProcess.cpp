@@ -349,8 +349,8 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 				std::cout << " (bit " << std::dec << (uint32_t)fac.getFsaRightsList()[i] << ")";
 			if (fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack())
 				std::cout << ", ";
-			std::cout << std::endl;
 		}
+		std::cout << std::endl;
 	}
 	
 	if (fac.getContentOwnerIdList().size())
@@ -437,12 +437,12 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 		std::cout << "  MemoryMaps:" << std::endl;
 		for (size_t i = 0; i < maps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(maps[i].perm) << ") (type=" << getMemMapTypeStr(maps[i].type) << ") not permitted)" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(maps[i].perm) << ") (type=" << getMemMapTypeStr(maps[i].type) << ")" << std::endl;
 		}
 		//std::cout << "  IoMaps:" << std::endl;
 		for (size_t i = 0; i < ioMaps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(ioMaps[i].perm) << ") (type=" << getMemMapTypeStr(ioMaps[i].type) << ") not permitted)" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(ioMaps[i].perm) << ") (type=" << getMemMapTypeStr(ioMaps[i].type) << ")" << std::endl;
 		}
 	}
 	if (kern.getInterupts().isSet())
