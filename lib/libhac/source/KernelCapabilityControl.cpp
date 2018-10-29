@@ -117,6 +117,9 @@ void nn::hac::KernelCapabilityControl::fromBytes(const byte_t * data, size_t len
 			case (kc::KC_MISC_FLAGS):
 				miscFlagsCaps.addElement(cap);
 				break;
+			case (kc::KC_STUB):
+				// ignore stubbed
+				break;
 			default:
 				throw fnd::Exception(kModuleName, "Unsupported kernel capability type");
 		}

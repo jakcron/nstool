@@ -48,7 +48,7 @@ namespace hac
 			}
 
 			if (id == kc::KC_INVALID && cap == (uint32_t)0xffffffff)
-				id == kc::KC_STUB;
+				id = kc::KC_STUB;
 
 			return id;
 		}
