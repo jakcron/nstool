@@ -87,6 +87,9 @@ void UserSettings::showHelp()
 	printf("      --listapi       Print SDK API List.\n");
 	printf("      --listsym       Print Code Symbols.\n");
 	printf("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
+	printf("\n  INI (Initial Process List Blob)\n");
+	printf("    %s [--kipdir <dir>] <file>\n", BIN_NAME);
+	printf("      --kipdir        Extract embedded KIPs to directory.\n");
 	printf("\n  ASET (Homebrew Asset Blob)\n");
 	printf("    %s [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n", BIN_NAME);
 	printf("      --listfs        Print filesystem in embedded RomFS partition.\n");
@@ -183,6 +186,11 @@ const sOptional<std::string>& UserSettings::getNcaPart2Path() const
 const sOptional<std::string>& UserSettings::getNcaPart3Path() const
 {
 	return mNcaPart3Path;
+}
+
+const sOptional<std::string>& UserSettings::getKipExtractPath() const
+{
+	return mKipExtractPath;
 }
 
 const sOptional<std::string>& UserSettings::getAssetIconPath() const
@@ -368,6 +376,12 @@ void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCm
 			cmd_args.inst_type = arg_list[i + 1];
 		}
 
+		else if (arg_list[i] == "--kipdir")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.kip_extract_path = arg_list[i + 1];
+		}
+
 		else if (arg_list[i] == "--icon")
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
@@ -545,6 +559,8 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mNcaPart1Path = args.part1_path;
 	mNcaPart2Path = args.part2_path;
 	mNcaPart3Path = args.part3_path;
+
+	mKipExtractPath = args.kip_extract_path;
 
 	// determine the architecture type for NSO/NRO
 	if (args.inst_type.isSet)

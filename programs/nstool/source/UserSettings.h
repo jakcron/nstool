@@ -41,6 +41,7 @@ public:
 	const sOptional<std::string>& getNcaPart1Path() const;
 	const sOptional<std::string>& getNcaPart2Path() const;
 	const sOptional<std::string>& getNcaPart3Path() const;
+	const sOptional<std::string>& getKipExtractPath() const;
 	const sOptional<std::string>& getAssetIconPath() const;
 	const sOptional<std::string>& getAssetNacpPath() const;
 	const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& getCertificateChain() const;
@@ -78,6 +79,7 @@ private:
 		sOptional<std::string> part1_path;
 		sOptional<std::string> part2_path;
 		sOptional<std::string> part3_path;
+		sOptional<std::string> kip_extract_path;
 		sOptional<bool> list_api;
 		sOptional<bool> list_sym;
 		sOptional<std::string> inst_type;
@@ -102,6 +104,8 @@ private:
 	sOptional<std::string> mNcaPart1Path;
 	sOptional<std::string> mNcaPart2Path;
 	sOptional<std::string> mNcaPart3Path;
+
+	sOptional<std::string> mKipExtractPath;
 
 	sOptional<std::string> mAssetIconPath;
 	sOptional<std::string> mAssetNacpPath;
