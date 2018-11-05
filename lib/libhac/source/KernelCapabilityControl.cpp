@@ -84,12 +84,12 @@ void nn::hac::KernelCapabilityControl::fromBytes(const byte_t * data, size_t len
 	fnd::List<KernelCapabilityEntry> handleTableSizeCaps;
 	fnd::List<KernelCapabilityEntry> miscFlagsCaps;
 
-	const uint32_t* raw_caps = (const uint32_t*)mRawBinary.data();
+	const le_uint32_t* raw_caps = (const le_uint32_t*)mRawBinary.data();
 	size_t cap_num = mRawBinary.size() / sizeof(uint32_t);
 	KernelCapabilityEntry cap;
 	for (size_t i = 0; i < cap_num; i++)
 	{
-		cap.setCap(le_word(raw_caps[i]));
+		cap.setCap(raw_caps[i].get());
 		switch (cap.getType())
 		{
 			case (kc::KC_THREAD_INFO) :

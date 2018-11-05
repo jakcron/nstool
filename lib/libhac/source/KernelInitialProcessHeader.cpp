@@ -74,11 +74,12 @@ void nn::hac::KernelInitialProcessHeader::toBytes()
 		throw fnd::Exception(kModuleName, "Too many kernel capabilities");
 	}
 	memcpy(hdr->capabilities, mKernelCapabilities.getBytes().data(), mKernelCapabilities.getBytes().size());
+	
+	// stub remaining entries
 	if (mKernelCapabilities.getBytes().size() <  kip::kKernCapabilitySize)
 	{
-
-	}
-	memset(hdr->capabilities + mKernelCapabilities.getBytes().size(), 0xff, kip::kKernCapabilitySize - mKernelCapabilities.getBytes().size());
+		memset(hdr->capabilities + mKernelCapabilities.getBytes().size(), 0xff, kip::kKernCapabilitySize - mKernelCapabilities.getBytes().size());
+	}	
 
 	// flags
 	for (size_t i = 0; i < mFlagList.size(); i++)
