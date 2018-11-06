@@ -36,7 +36,13 @@
     <ClInclude Include="include\nn\hac\define\hierarchicalsha256.h">
       <Filter>Header Files\define</Filter>
     </ClInclude>
+    <ClInclude Include="include\nn\hac\define\ini.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\hac\define\kc.h">
+      <Filter>Header Files\define</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\define\kip.h">
       <Filter>Header Files\define</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\define\macro.h">
@@ -132,6 +138,9 @@
     <ClInclude Include="include\nn\hac\IKernelCapabilityHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\nn\hac\IniHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\nn\hac\InteruptEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -142,6 +151,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\KernelCapabilityEntry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nn\hac\KernelInitialProcessHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\nn\hac\KernelVersionEntry.h">
@@ -269,6 +281,9 @@
     <ClCompile Include="source\IdConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\IniHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\InteruptEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -279,6 +294,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\KernelCapabilityEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\KernelInitialProcessHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\KernelVersionEntry.cpp">

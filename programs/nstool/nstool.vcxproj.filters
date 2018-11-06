@@ -34,7 +34,16 @@
     <ClInclude Include="source\EsTikProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\GameCardProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\IniProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="source\KeyConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\KipProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\MetaProcess.h">
@@ -76,9 +85,6 @@
     <ClInclude Include="source\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\GameCardProcess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AssetProcess.cpp">
@@ -93,7 +99,16 @@
     <ClCompile Include="source\EsTikProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\GameCardProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\IniProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="source\KeyConfiguration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\KipProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\main.cpp">
@@ -133,9 +148,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\UserSettings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\GameCardProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
