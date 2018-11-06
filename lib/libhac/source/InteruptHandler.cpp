@@ -26,12 +26,11 @@ void nn::hac::InteruptHandler::importKernelCapabilityList(const fnd::List<Kernel
 {
 	if (caps.size() == 0)
 		return;
-
 	// convert to interupts
 	fnd::List<InteruptEntry> interupts;
 	for (size_t i = 0; i < caps.size(); i++)
 	{
-		interupts[i].setKernelCapability(caps[i]);
+		interupts.addElement(InteruptEntry(caps[i]));
 	}
 
 	mInterupts.clear();

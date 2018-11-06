@@ -12,6 +12,8 @@
 #include "NsoProcess.h"
 #include "NroProcess.h"
 #include "NacpProcess.h"
+#include "IniProcess.h"
+#include "KipProcess.h"
 #include "PkiCertProcess.h"
 #include "EsTikProcess.h"
 #include "AssetProcess.h"
@@ -40,96 +42,96 @@ int main(int argc, char** argv)
 
 		if (user_set.getFileType() == FILE_GC)
 		{	
-			GameCardProcess xci;
+			GameCardProcess obj;
 
-			xci.setInputFile(inputFile);
+			obj.setInputFile(inputFile);
 			
-			xci.setKeyCfg(user_set.getKeyCfg());
-			xci.setCliOutputMode(user_set.getCliOutputMode());
-			xci.setVerifyMode(user_set.isVerifyFile());
+			obj.setKeyCfg(user_set.getKeyCfg());
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getXciUpdatePath().isSet)
-				xci.setPartitionForExtract(nn::hac::gc::kUpdatePartitionStr, user_set.getXciUpdatePath().var);
+				obj.setPartitionForExtract(nn::hac::gc::kUpdatePartitionStr, user_set.getXciUpdatePath().var);
 			if (user_set.getXciLogoPath().isSet)
-				xci.setPartitionForExtract(nn::hac::gc::kLogoPartitionStr, user_set.getXciLogoPath().var);
+				obj.setPartitionForExtract(nn::hac::gc::kLogoPartitionStr, user_set.getXciLogoPath().var);
 			if (user_set.getXciNormalPath().isSet)
-				xci.setPartitionForExtract(nn::hac::gc::kNormalPartitionStr, user_set.getXciNormalPath().var);
+				obj.setPartitionForExtract(nn::hac::gc::kNormalPartitionStr, user_set.getXciNormalPath().var);
 			if (user_set.getXciSecurePath().isSet)
-				xci.setPartitionForExtract(nn::hac::gc::kSecurePartitionStr, user_set.getXciSecurePath().var);
-			xci.setListFs(user_set.isListFs());
+				obj.setPartitionForExtract(nn::hac::gc::kSecurePartitionStr, user_set.getXciSecurePath().var);
+			obj.setListFs(user_set.isListFs());
 
-			xci.process();
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_PARTITIONFS || user_set.getFileType() == FILE_NSP)
 		{
-			PfsProcess pfs;
+			PfsProcess obj;
 
-			pfs.setInputFile(inputFile);
-			pfs.setCliOutputMode(user_set.getCliOutputMode());
-			pfs.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(inputFile);
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getFsPath().isSet)
-				pfs.setExtractPath(user_set.getFsPath().var);
-			pfs.setListFs(user_set.isListFs());
+				obj.setExtractPath(user_set.getFsPath().var);
+			obj.setListFs(user_set.isListFs());
 			
-			pfs.process();
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_ROMFS)
 		{
-			RomfsProcess romfs;
+			RomfsProcess obj;
 
-			romfs.setInputFile(inputFile);
-			romfs.setCliOutputMode(user_set.getCliOutputMode());
-			romfs.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(inputFile);
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
 			if (user_set.getFsPath().isSet)
-				romfs.setExtractPath(user_set.getFsPath().var);
-			romfs.setListFs(user_set.isListFs());
+				obj.setExtractPath(user_set.getFsPath().var);
+			obj.setListFs(user_set.isListFs());
 
-			romfs.process();
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_NCA)
 		{
-			NcaProcess nca;
+			NcaProcess obj;
 
-			nca.setInputFile(inputFile);
-			nca.setKeyCfg(user_set.getKeyCfg());
-			nca.setCliOutputMode(user_set.getCliOutputMode());
-			nca.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(inputFile);
+			obj.setKeyCfg(user_set.getKeyCfg());
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
 
 			if (user_set.getNcaPart0Path().isSet)
-				nca.setPartition0ExtractPath(user_set.getNcaPart0Path().var);
+				obj.setPartition0ExtractPath(user_set.getNcaPart0Path().var);
 			if (user_set.getNcaPart1Path().isSet)
-				nca.setPartition1ExtractPath(user_set.getNcaPart1Path().var);
+				obj.setPartition1ExtractPath(user_set.getNcaPart1Path().var);
 			if (user_set.getNcaPart2Path().isSet)
-				nca.setPartition2ExtractPath(user_set.getNcaPart2Path().var);
+				obj.setPartition2ExtractPath(user_set.getNcaPart2Path().var);
 			if (user_set.getNcaPart3Path().isSet)
-				nca.setPartition3ExtractPath(user_set.getNcaPart3Path().var);
-			nca.setListFs(user_set.isListFs());
+				obj.setPartition3ExtractPath(user_set.getNcaPart3Path().var);
+			obj.setListFs(user_set.isListFs());
 
-			nca.process();
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_META)
 		{
-			MetaProcess npdm;
+			MetaProcess obj;
 
-			npdm.setInputFile(inputFile);
-			npdm.setKeyCfg(user_set.getKeyCfg());
-			npdm.setCliOutputMode(user_set.getCliOutputMode());
-			npdm.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(inputFile);
+			obj.setKeyCfg(user_set.getKeyCfg());
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
-			npdm.process();
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_CNMT)
 		{
-			CnmtProcess cnmt;
+			CnmtProcess obj;
 
-			cnmt.setInputFile(inputFile);
-			cnmt.setCliOutputMode(user_set.getCliOutputMode());
-			cnmt.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(inputFile);
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
-			cnmt.process();
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_NSO)
 		{
@@ -170,36 +172,59 @@ int main(int argc, char** argv)
 		}
 		else if (user_set.getFileType() == FILE_NACP)
 		{
-			NacpProcess nacp;
+			NacpProcess obj;
 
-			nacp.setInputFile(inputFile);
-			nacp.setCliOutputMode(user_set.getCliOutputMode());
-			nacp.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(inputFile);
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
-			nacp.process();
+			obj.process();
+		}
+		else if (user_set.getFileType() == FILE_INI)
+		{
+			IniProcess obj;
+
+			obj.setInputFile(inputFile);
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
+
+			if (user_set.getKipExtractPath().isSet)
+				obj.setKipExtractPath(user_set.getKipExtractPath().var);
+
+			obj.process();
+		}
+		else if (user_set.getFileType() == FILE_KIP)
+		{
+			KipProcess obj;
+
+			obj.setInputFile(inputFile);
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
+
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_PKI_CERT)
 		{
-			PkiCertProcess cert;
+			PkiCertProcess obj;
 
-			cert.setInputFile(inputFile);
-			cert.setKeyCfg(user_set.getKeyCfg());
-			cert.setCliOutputMode(user_set.getCliOutputMode());
-			cert.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(inputFile);
+			obj.setKeyCfg(user_set.getKeyCfg());
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
-			cert.process();
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_ES_TIK)
 		{
-			EsTikProcess tik;
+			EsTikProcess obj;
 
-			tik.setInputFile(inputFile);
-			tik.setKeyCfg(user_set.getKeyCfg());
-			tik.setCertificateChain(user_set.getCertificateChain());
-			tik.setCliOutputMode(user_set.getCliOutputMode());
-			tik.setVerifyMode(user_set.isVerifyFile());
+			obj.setInputFile(inputFile);
+			obj.setKeyCfg(user_set.getKeyCfg());
+			obj.setCertificateChain(user_set.getCertificateChain());
+			obj.setCliOutputMode(user_set.getCliOutputMode());
+			obj.setVerifyMode(user_set.isVerifyFile());
 
-			tik.process();
+			obj.process();
 		}
 		else if (user_set.getFileType() == FILE_HB_ASSET)
 		{
@@ -219,6 +244,10 @@ int main(int argc, char** argv)
 			obj.setListFs(user_set.isListFs());
 
 			obj.process();
+		}
+		else
+		{
+			throw fnd::Exception("main", "Unhandled file type");
 		}
 	}
 	catch (const fnd::Exception& e) {

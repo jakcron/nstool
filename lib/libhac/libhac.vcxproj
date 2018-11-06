@@ -41,7 +41,9 @@
     <ClInclude Include="include\nn\hac\define\gc.h" />
     <ClInclude Include="include\nn\hac\define\hierarchicalintegrity.h" />
     <ClInclude Include="include\nn\hac\define\hierarchicalsha256.h" />
+    <ClInclude Include="include\nn\hac\define\ini.h" />
     <ClInclude Include="include\nn\hac\define\kc.h" />
+    <ClInclude Include="include\nn\hac\define\kip.h" />
     <ClInclude Include="include\nn\hac\define\macro.h" />
     <ClInclude Include="include\nn\hac\define\meta.h" />
     <ClInclude Include="include\nn\hac\define\nacp.h" />
@@ -61,10 +63,12 @@
     <ClInclude Include="include\nn\hac\HierarchicalSha256Header.h" />
     <ClInclude Include="include\nn\hac\IdConverter.h" />
     <ClInclude Include="include\nn\hac\IKernelCapabilityHandler.h" />
+    <ClInclude Include="include\nn\hac\IniHeader.h" />
     <ClInclude Include="include\nn\hac\InteruptEntry.h" />
     <ClInclude Include="include\nn\hac\InteruptHandler.h" />
     <ClInclude Include="include\nn\hac\KernelCapabilityControl.h" />
     <ClInclude Include="include\nn\hac\KernelCapabilityEntry.h" />
+    <ClInclude Include="include\nn\hac\KernelInitialProcessHeader.h" />
     <ClInclude Include="include\nn\hac\KernelVersionEntry.h" />
     <ClInclude Include="include\nn\hac\KernelVersionHandler.h" />
     <ClInclude Include="include\nn\hac\MemoryMappingHandler.h" />
@@ -108,10 +112,12 @@
     <ClCompile Include="source\HierarchicalIntegrityHeader.cpp" />
     <ClCompile Include="source\HierarchicalSha256Header.cpp" />
     <ClCompile Include="source\IdConverter.cpp" />
+    <ClCompile Include="source\IniHeader.cpp" />
     <ClCompile Include="source\InteruptEntry.cpp" />
     <ClCompile Include="source\InteruptHandler.cpp" />
     <ClCompile Include="source\KernelCapabilityControl.cpp" />
     <ClCompile Include="source\KernelCapabilityEntry.cpp" />
+    <ClCompile Include="source\KernelInitialProcessHeader.cpp" />
     <ClCompile Include="source\KernelVersionEntry.cpp" />
     <ClCompile Include="source\KernelVersionHandler.cpp" />
     <ClCompile Include="source\MemoryMappingHandler.cpp" />

@@ -20,7 +20,8 @@ namespace hac
 			KC_MISC_PARAMS = 13,
 			KC_KERNEL_VERSION = 14,
 			KC_HANDLE_TABLE_SIZE = 15,
-			KC_MISC_FLAGS = 16
+			KC_MISC_FLAGS = 16,
+			KC_STUB = 32
 		};
 	}
 }

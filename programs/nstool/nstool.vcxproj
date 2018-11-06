@@ -183,7 +183,10 @@
     <ClInclude Include="source\common.h" />
     <ClInclude Include="source\ElfSymbolParser.h" />
     <ClInclude Include="source\EsTikProcess.h" />
+    <ClInclude Include="source\GameCardProcess.h" />
+    <ClInclude Include="source\IniProcess.h" />
     <ClInclude Include="source\KeyConfiguration.h" />
+    <ClInclude Include="source\KipProcess.h" />
     <ClInclude Include="source\MetaProcess.h" />
     <ClInclude Include="source\NacpProcess.h" />
     <ClInclude Include="source\NcaProcess.h" />
@@ -197,14 +200,16 @@
     <ClInclude Include="source\SdkApiString.h" />
     <ClInclude Include="source\UserSettings.h" />
     <ClInclude Include="source\version.h" />
-    <ClInclude Include="source\GameCardProcess.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\AssetProcess.cpp" />
     <ClCompile Include="source\CnmtProcess.cpp" />
     <ClCompile Include="source\ElfSymbolParser.cpp" />
     <ClCompile Include="source\EsTikProcess.cpp" />
+    <ClCompile Include="source\GameCardProcess.cpp" />
+    <ClCompile Include="source\IniProcess.cpp" />
     <ClCompile Include="source\KeyConfiguration.cpp" />
+    <ClCompile Include="source\KipProcess.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\MetaProcess.cpp" />
     <ClCompile Include="source\NacpProcess.cpp" />
@@ -218,7 +223,6 @@
     <ClCompile Include="source\RomfsProcess.cpp" />
     <ClCompile Include="source\SdkApiString.cpp" />
     <ClCompile Include="source\UserSettings.cpp" />
-    <ClCompile Include="source\GameCardProcess.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -24,6 +24,8 @@
 #include <nn/hac/define/nacp.h>
 #include <nn/hac/define/nso.h>
 #include <nn/hac/define/nro.h>
+#include <nn/hac/define/ini.h>
+#include <nn/hac/define/kip.h>
 #include <nn/hac/define/aset.h>
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
@@ -52,7 +54,7 @@ void UserSettings::showHelp()
 	printf("\n  General Options:\n");
 	printf("      -d, --dev       Use devkit keyset.\n");
 	printf("      -k, --keyset    Specify keyset file.\n");
-	printf("      -t, --type      Specify input file type. [xci, pfs, romfs, nca, meta, cnmt, nso, nro, nacp, aset, cert, tik]\n");
+	printf("      -t, --type      Specify input file type. [xci, pfs, romfs, nca, meta, cnmt, nso, nro, ini, kip, nacp, aset, cert, tik]\n");
 	printf("      -y, --verify    Verify file.\n");
 	printf("\n  Output Options:\n");
 	printf("      --showkeys      Show keys generated.\n");
@@ -85,6 +87,9 @@ void UserSettings::showHelp()
 	printf("      --listapi       Print SDK API List.\n");
 	printf("      --listsym       Print Code Symbols.\n");
 	printf("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
+	printf("\n  INI (Initial Process List Blob)\n");
+	printf("    %s [--kipdir <dir>] <file>\n", BIN_NAME);
+	printf("      --kipdir        Extract embedded KIPs to directory.\n");
 	printf("\n  ASET (Homebrew Asset Blob)\n");
 	printf("    %s [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n", BIN_NAME);
 	printf("      --listfs        Print filesystem in embedded RomFS partition.\n");
@@ -181,6 +186,11 @@ const sOptional<std::string>& UserSettings::getNcaPart2Path() const
 const sOptional<std::string>& UserSettings::getNcaPart3Path() const
 {
 	return mNcaPart3Path;
+}
+
+const sOptional<std::string>& UserSettings::getKipExtractPath() const
+{
+	return mKipExtractPath;
 }
 
 const sOptional<std::string>& UserSettings::getAssetIconPath() const
@@ -366,6 +376,12 @@ void UserSettings::populateCmdArgs(const std::vector<std::string>& arg_list, sCm
 			cmd_args.inst_type = arg_list[i + 1];
 		}
 
+		else if (arg_list[i] == "--kipdir")
+		{
+			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
+			cmd_args.kip_extract_path = arg_list[i + 1];
+		}
+
 		else if (arg_list[i] == "--icon")
 		{
 			if (!hasParamter) throw fnd::Exception(kModuleName, arg_list[i] + " requries a parameter.");
@@ -544,6 +560,8 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 	mNcaPart2Path = args.part2_path;
 	mNcaPart3Path = args.part3_path;
 
+	mKipExtractPath = args.kip_extract_path;
+
 	// determine the architecture type for NSO/NRO
 	if (args.inst_type.isSet)
 		mInstructionType = getInstructionTypeFromString(*args.inst_type);
@@ -610,6 +628,10 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 		type = FILE_NSO;
 	else if (str == "nro")
 		type = FILE_NRO;
+	else if (str == "ini")
+		type = FILE_INI;
+	else if (str == "kip")
+		type = FILE_KIP;
 	else if (str == "nacp")
 		type = FILE_NACP;
 	else if (str == "cert")
@@ -665,9 +687,15 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 	// test nso
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sNsoHeader)) && _TYPE_PTR(nn::hac::sNsoHeader)->st_magic.get() == nn::hac::nso::kNsoStructMagic)
 		file_type = FILE_NSO;
-	// test nso
+	// test nro
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sNroHeader)) && _TYPE_PTR(nn::hac::sNroHeader)->st_magic.get() == nn::hac::nro::kNroStructMagic)
 		file_type = FILE_NRO;
+	// test ini
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sIniHeader)) && _TYPE_PTR(nn::hac::sIniHeader)->st_magic.get() == nn::hac::ini::kIniStructMagic)
+		file_type = FILE_INI;
+	// test kip
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sKipHeader)) && _TYPE_PTR(nn::hac::sKipHeader)->st_magic.get() == nn::hac::kip::kKipStructMagic)
+		file_type = FILE_KIP;
 	// test pki certificate
 	else if (determineValidEsCertFromSample(scratch))
 		file_type = FILE_PKI_CERT;
