@@ -10,6 +10,8 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 * Content Metadata (.cnmt) 
 * Nintendo Software Object (.nso) 
 * Nintendo Relocatable Software Object (.nro)
+* Kernel Initial Process List (.ini)
+* Kernel Initial Process (.kip)
 * Nintendo Application Control Property (.nacp)
 * ES Ticket (v2 only) (.tik)
 * PKI Certificate (.cert)
@@ -21,7 +23,7 @@ Usage: nstool [options... ] <file>
   General Options:
       -d, --dev       Use devkit keyset.
       -k, --keyset    Specify keyset file.
-      -t, --type      Specify input file type. [xci, pfs, romfs, nca, meta, cnmt, nso, nro, nacp, aset, cert, tik]
+      -t, --type      Specify input file type. [xci, pfs, romfs, nca, meta, cnmt, nso, nro, ini, kip, nacp, aset, cert, tik]
       -y, --verify    Verify file.
 
   Output Options:
@@ -59,6 +61,10 @@ Usage: nstool [options... ] <file>
       --listapi       Print SDK API List.
       --listsym       Print Code Symbols.
       --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).
+
+  INI (Initial Process List Blob)
+    nstool [--kipdir <dir>] <file>
+      --kipdir        Extract embedded KIPs to directory.
 
   ASET (Homebrew Asset Blob)
     nstool [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>
