@@ -17,7 +17,7 @@ void nn::hac::ApplicationControlProperty::operator=(const ApplicationControlProp
 	mTitle = other.mTitle;
 	mIsbn = other.mIsbn;
 	mStartupUserAccount = other.mStartupUserAccount;
-	mTouchScreenUsageMode = other.mTouchScreenUsageMode;
+	mUserAccountSwitchLockValue = other.mUserAccountSwitchLockValue;
 	mAocRegistrationType = other.mAocRegistrationType;
 	mAttributeFlag = other.mAttributeFlag;
 	mSupportedLanguages = other.mSupportedLanguages;
@@ -53,6 +53,7 @@ void nn::hac::ApplicationControlProperty::operator=(const ApplicationControlProp
 	mPlayLogQueryCapability = other.mPlayLogQueryCapability;
 	mRepairFlag = other.mRepairFlag;
 	mProgramIndex = other.mProgramIndex;
+	mRequiredNetworkServiceLicenseOnLaunchValue = other.mRequiredNetworkServiceLicenseOnLaunchValue;
 }
 
 bool nn::hac::ApplicationControlProperty::operator==(const ApplicationControlProperty& other) const
@@ -60,7 +61,7 @@ bool nn::hac::ApplicationControlProperty::operator==(const ApplicationControlPro
 	return (mTitle == other.mTitle) \
 		&& (mIsbn == other.mIsbn) \
 		&& (mStartupUserAccount == other.mStartupUserAccount) \
-		&& (mTouchScreenUsageMode == other.mTouchScreenUsageMode) \
+		&& (mUserAccountSwitchLockValue == other.mUserAccountSwitchLockValue) \
 		&& (mAocRegistrationType == other.mAocRegistrationType) \
 		&& (mAttributeFlag == other.mAttributeFlag) \
 		&& (mSupportedLanguages == other.mSupportedLanguages) \
@@ -95,7 +96,8 @@ bool nn::hac::ApplicationControlProperty::operator==(const ApplicationControlPro
 		&& (mPlayLogQueryableApplicationId == other.mPlayLogQueryableApplicationId) \
 		&& (mPlayLogQueryCapability == other.mPlayLogQueryCapability) \
 		&& (mRepairFlag == other.mRepairFlag) \
-		&& (mProgramIndex == other.mProgramIndex);
+		&& (mProgramIndex == other.mProgramIndex) \
+		&& (mRequiredNetworkServiceLicenseOnLaunchValue == other.mRequiredNetworkServiceLicenseOnLaunchValue);
 }
 
 bool nn::hac::ApplicationControlProperty::operator!=(const ApplicationControlProperty& other) const
@@ -130,7 +132,7 @@ void nn::hac::ApplicationControlProperty::toBytes()
 
 	// enum type casts
 	data->startup_user_account = mStartupUserAccount;
-	data->touch_screen_usage = mTouchScreenUsageMode;
+	data->user_account_switch_lock = mUserAccountSwitchLockValue;
 	data->add_on_content_registration_type = mAocRegistrationType;
 	data->attribute_flag = mAttributeFlag;
 	data->parental_control_flag = mParentalControlFlag;
@@ -145,6 +147,7 @@ void nn::hac::ApplicationControlProperty::toBytes()
 	data->hdcp = mHdcp;
 	data->play_log_query_capability = mPlayLogQueryCapability;
 	data->repair_flag = mRepairFlag;
+	data->required_network_service_license_on_launch_flag = mRequiredNetworkServiceLicenseOnLaunchValue;
 
 	// misc params
 	data->presence_group_id = mPresenceGroupId;
@@ -221,7 +224,7 @@ void nn::hac::ApplicationControlProperty::fromBytes(const byte_t* bytes, size_t 
 
 	// enum type casts
 	mStartupUserAccount = (nacp::StartupUserAccount)data->startup_user_account;
-	mTouchScreenUsageMode = (nacp::TouchScreenUsageMode)data->touch_screen_usage;
+	mUserAccountSwitchLockValue = (nacp::UserAccountSwitchLockValue)data->user_account_switch_lock;
 	mAocRegistrationType = (nacp::AocRegistrationType)data->add_on_content_registration_type;
 	mAttributeFlag = (nacp::AttributeFlag)data->attribute_flag.get();
 	mParentalControlFlag = (nacp::ParentalControlFlag)data->parental_control_flag.get();
@@ -236,6 +239,7 @@ void nn::hac::ApplicationControlProperty::fromBytes(const byte_t* bytes, size_t 
 	mHdcp = (nacp::Hdcp)data->hdcp;
 	mPlayLogQueryCapability = (nacp::PlayLogQueryCapability)data->play_log_query_capability;
 	mRepairFlag = (nacp::RepairFlag)data->repair_flag;
+	mRequiredNetworkServiceLicenseOnLaunchValue = (nacp::RequiredNetworkServiceLicenseOnLaunchValue)data->required_network_service_license_on_launch_flag;
 
 	// misc params
 	mPresenceGroupId = data->presence_group_id.get();
@@ -287,7 +291,7 @@ void nn::hac::ApplicationControlProperty::clear()
 	mTitle.clear();
 	mIsbn.clear();
 	mStartupUserAccount = nacp::USER_None;
-	mTouchScreenUsageMode = nacp::TOUCH_None;
+	mUserAccountSwitchLockValue = nacp::UASL_Disable;
 	mAocRegistrationType = nacp::AOC_AllOnLaunch;
 	mAttributeFlag = nacp::ATTR_None;
 	mSupportedLanguages.clear();
@@ -323,6 +327,7 @@ void nn::hac::ApplicationControlProperty::clear()
 	mPlayLogQueryCapability = nacp::PLQC_None;
 	mRepairFlag = nacp::REPF_None;
 	mProgramIndex = 0;
+	mRequiredNetworkServiceLicenseOnLaunchValue = nacp::REQNETLIC_None;
 }
 
 const fnd::List<nn::hac::ApplicationControlProperty::sTitle>& nn::hac::ApplicationControlProperty::getTitle() const
@@ -355,14 +360,14 @@ void nn::hac::ApplicationControlProperty::setStartupUserAccount(nacp::StartupUse
 	mStartupUserAccount = var;
 }
 
-nn::hac::nacp::TouchScreenUsageMode nn::hac::ApplicationControlProperty::getTouchScreenUsageMode() const
+nn::hac::nacp::UserAccountSwitchLockValue nn::hac::ApplicationControlProperty::getUserAccountSwitchLockValue() const
 {
-	return mTouchScreenUsageMode;
+	return mUserAccountSwitchLockValue;
 }
 
-void nn::hac::ApplicationControlProperty::setTouchScreenUsageMode(nacp::TouchScreenUsageMode var)
+void nn::hac::ApplicationControlProperty::setUserAccountSwitchLockValue(nacp::UserAccountSwitchLockValue var)
 {
-	mTouchScreenUsageMode = var;
+	mUserAccountSwitchLockValue = var;
 }
 
 nn::hac::nacp::AocRegistrationType nn::hac::ApplicationControlProperty::getAocRegistrationType() const
@@ -713,4 +718,14 @@ byte_t nn::hac::ApplicationControlProperty::getProgramIndex() const
 void nn::hac::ApplicationControlProperty::setProgramIndex(byte_t var)
 {
 	mProgramIndex = var;
+}
+
+nn::hac::nacp::RequiredNetworkServiceLicenseOnLaunchValue nn::hac::ApplicationControlProperty::getRequiredNetworkServiceLicenseOnLaunchValue() const
+{
+	return mRequiredNetworkServiceLicenseOnLaunchValue;
+}
+
+void nn::hac::ApplicationControlProperty::setRequiredNetworkServiceLicenseOnLaunchValue(nacp::RequiredNetworkServiceLicenseOnLaunchValue var)
+{
+	mRequiredNetworkServiceLicenseOnLaunchValue = var;
 }

@@ -33,6 +33,7 @@ private:
 	void displayNacp();
 	const char* getLanguageStr(nn::hac::nacp::Language var) const;
 	const char* getStartupUserAccountStr(nn::hac::nacp::StartupUserAccount var) const;
+	const char* getUserAccountSwitchLockValueStr(nn::hac::nacp::UserAccountSwitchLockValue var) const;
 	const char* getTouchScreenUsageModeStr(nn::hac::nacp::TouchScreenUsageMode var) const;
 	const char* getAocRegistrationTypeStr(nn::hac::nacp::AocRegistrationType var) const;
 	const char* getAttributeFlagStr(nn::hac::nacp::AttributeFlag var) const;
@@ -49,5 +50,6 @@ private:
 	const char* getHdcpStr(nn::hac::nacp::Hdcp var) const;
 	const char* getPlayLogQueryCapabilityStr(nn::hac::nacp::PlayLogQueryCapability var) const;
 	const char* getRepairFlagStr(nn::hac::nacp::RepairFlag var) const;
+	const char* getRequiredNetworkServiceLicenseOnLaunchValueStr(nn::hac::nacp::RequiredNetworkServiceLicenseOnLaunchValue var) const;
 	std::string getSaveDataSizeStr(int64_t size) const;
 };

@@ -150,10 +150,7 @@ void NacpProcess::displayNacp()
 	}
 	std::cout << "  Other Flags:" << std::endl;
 	std::cout << "    StartupUserAccount:           " << getStartupUserAccountStr(mNacp.getStartupUserAccount()) << std::endl;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-	{
-		std::cout << "    TouchScreenUsageMode:         " << getTouchScreenUsageModeStr(mNacp.getTouchScreenUsageMode()) << std::endl;
-	}
+	std::cout << "    UserAccountSwitchLock:        " << getUserAccountSwitchLockValueStr(mNacp.getUserAccountSwitchLockValue()) << std::endl;
 	std::cout << "    AttributeFlag:                " << getAttributeFlagStr(mNacp.getAttributeFlag()) << std::endl;
 	std::cout << "    CrashReportMode:              " << getCrashReportModeStr(mNacp.getCrashReportMode()) << std::endl;
 	std::cout << "    HDCP:                         " << getHdcpStr(mNacp.getHdcp()) << std::endl;
@@ -162,6 +159,7 @@ void NacpProcess::displayNacp()
 	std::cout << "    DataLossConfirmation:         " << getDataLossConfirmationStr(mNacp.getDataLossConfirmation()) << std::endl;
 	std::cout << "    RepairFlag:                   " << getRepairFlagStr(mNacp.getRepairFlag()) << std::endl;
 	std::cout << "    ProgramIndex:                 0x" << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)mNacp.getProgramIndex() << std::endl;
+	std::cout << "    Req NetworkLicenseOnLaunch:   " << getRequiredNetworkServiceLicenseOnLaunchValueStr(mNacp.getRequiredNetworkServiceLicenseOnLaunchValue()) << std::endl;
 	if (mNacp.getApplicationErrorCodeCategory().empty() == false || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		std::cout << "    ApplicationErrorCodeCategory: " << mNacp.getApplicationErrorCodeCategory() << std::endl;
@@ -270,6 +268,25 @@ const char* NacpProcess::getTouchScreenUsageModeStr(nn::hac::nacp::TouchScreenUs
 		break;
 	case (nn::hac::nacp::TOUCH_Required):
 		str = "Required";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getUserAccountSwitchLockValueStr(nn::hac::nacp::UserAccountSwitchLockValue var) const
+{
+	const char* str = nullptr;
+
+	switch (var)
+	{
+	case (nn::hac::nacp::UASL_Disable):
+		str = "Disable";
+		break;
+	case (nn::hac::nacp::UASL_Enable):
+		str = "Enable";
 		break;
 	default:
 		str = "Unknown";
@@ -600,6 +617,25 @@ const char* NacpProcess::getRepairFlagStr(nn::hac::nacp::RepairFlag var) const
 		break;
 	case (nn::hac::nacp::REPF_SuppressGameCardAccess):
 		str = "SuppressGameCardAccess";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
+}
+
+const char* NacpProcess::getRequiredNetworkServiceLicenseOnLaunchValueStr(nn::hac::nacp::RequiredNetworkServiceLicenseOnLaunchValue var) const
+{
+	const char* str = nullptr;
+
+	switch (var)
+	{
+	case (nn::hac::nacp::REQNETLIC_None):
+		str = "None";
+		break;
+	case (nn::hac::nacp::REQNETLIC_Common):
+		str = "Common";
 		break;
 	default:
 		str = "Unknown";

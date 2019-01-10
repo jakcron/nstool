@@ -109,8 +109,8 @@ namespace hac
 		nacp::StartupUserAccount getStartupUserAccount() const;
 		void setStartupUserAccount(nacp::StartupUserAccount var);
 
-		nacp::TouchScreenUsageMode getTouchScreenUsageMode() const;
-		void setTouchScreenUsageMode(nacp::TouchScreenUsageMode var);
+		nacp::UserAccountSwitchLockValue getUserAccountSwitchLockValue() const;
+		void setUserAccountSwitchLockValue(nacp::UserAccountSwitchLockValue var);
 
 		nacp::AocRegistrationType getAocRegistrationType() const;
 		void setAocRegistrationType(nacp::AocRegistrationType var);
@@ -217,6 +217,8 @@ namespace hac
 		byte_t getProgramIndex() const;
 		void setProgramIndex(byte_t var);
 
+		nacp::RequiredNetworkServiceLicenseOnLaunchValue getRequiredNetworkServiceLicenseOnLaunchValue() const;
+		void setRequiredNetworkServiceLicenseOnLaunchValue(nacp::RequiredNetworkServiceLicenseOnLaunchValue var);
 
 	private:
 		const std::string kModuleName = "APPLICATION_CONTROL_PROPERTY";
@@ -228,7 +230,7 @@ namespace hac
 		fnd::List<sTitle> mTitle;
 		std::string mIsbn;
 		nacp::StartupUserAccount mStartupUserAccount;
-		nacp::TouchScreenUsageMode mTouchScreenUsageMode;
+		nacp::UserAccountSwitchLockValue mUserAccountSwitchLockValue;
 		nacp::AocRegistrationType mAocRegistrationType;
 		nacp::AttributeFlag mAttributeFlag;
 		fnd::List<nn::hac::nacp::Language> mSupportedLanguages;
@@ -264,6 +266,7 @@ namespace hac
 		nacp::PlayLogQueryCapability mPlayLogQueryCapability;
 		nacp::RepairFlag mRepairFlag;
 		byte_t mProgramIndex;
+		nacp::RequiredNetworkServiceLicenseOnLaunchValue mRequiredNetworkServiceLicenseOnLaunchValue;
 	};
 }
 }
