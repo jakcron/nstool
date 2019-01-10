@@ -124,6 +124,12 @@ namespace hac
 			REPF_SuppressGameCardAccess
 		};
 
+		enum RequiredNetworkServiceLicenseOnLaunchValue
+		{
+			REQNETLIC_None,
+			REQNETLIC_Common
+		};
+
 		enum RuntimeAocInstallMode
 		{
 			RTAOC_Deny,
@@ -150,6 +156,12 @@ namespace hac
 			TOUCH_Required,
 		};
 
+		enum UserAccountSwitchLockValue
+		{
+			UASL_Disable,
+			UASL_Enable
+		};
+
 		enum VideoCaptureMode
 		{
 			VCAP_Disable,
@@ -167,6 +179,60 @@ namespace hac
 	};
 
 	struct sApplicationControlProperty
+	{
+		sApplicationTitle title[nacp::kMaxLanguageCount];
+		char isbn[nacp::kIsbnLength];
+		byte_t startup_user_account;
+		byte_t user_account_switch_lock;
+		byte_t add_on_content_registration_type;
+		le_uint32_t attribute_flag;
+		le_uint32_t supported_language_flag;
+		le_uint32_t parental_control_flag;
+		byte_t screenshot;
+		byte_t video_capture;
+		byte_t data_loss_confirmation;
+		byte_t play_log_policy;
+		le_uint64_t presence_group_id;
+		int8_t rating_age[nacp::kRatingAgeCount];
+		char display_version[nacp::kDisplayVersionLength];
+		le_uint64_t add_on_content_base_id;
+		le_uint64_t save_data_owner_id;
+		le_uint64_t user_account_save_data_size;
+		le_uint64_t user_account_save_data_journal_size;
+		le_uint64_t device_save_data_size;
+		le_uint64_t device_save_data_journal_size;
+		le_uint64_t bcat_delivery_cache_storage_size;
+		char application_error_code_category[nacp::kApplicationErrorCodeCategoryLength];
+		le_uint64_t local_communication_id[nacp::kLocalCommunicationIdCount];
+		byte_t logo_type;
+		byte_t logo_handling;
+		byte_t runtime_add_on_content_install;
+		byte_t reserved_00[3];
+		byte_t crash_report;
+		byte_t hdcp;
+		le_uint64_t seed_for_pseudo_device_id;
+		char bcat_passphrase[nacp::kBcatPassphraseLength];
+		byte_t reserved_01;
+		byte_t reserved_02[6]; //reserved_for_user_account_save_data_operation
+		le_uint64_t user_account_save_data_size_max;
+		le_uint64_t user_account_save_data_journal_size_max;
+		le_uint64_t device_save_data_size_max;
+		le_uint64_t device_save_data_journal_size_max;
+		le_uint64_t temporary_storage_size;
+		le_uint64_t cache_storage_size;
+		le_uint64_t cache_storage_journal_size;
+		le_uint64_t cache_storage_data_and_journal_size_max;
+		le_uint16_t cache_storage_index_max;
+		byte_t reserved_03[6];
+		le_uint64_t play_log_queryable_application_id[nacp::kPlayLogQueryableApplicationIdCount];
+		byte_t play_log_query_capability;
+		byte_t repair_flag;
+		byte_t program_index;
+		byte_t required_network_service_license_on_launch_flag;
+		byte_t reserved_04[0xDEC];
+	};
+
+	struct sApplicationControlProperty_v0
 	{
 		sApplicationTitle title[nacp::kMaxLanguageCount];
 		char isbn[nacp::kIsbnLength];
