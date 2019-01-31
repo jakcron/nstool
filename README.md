@@ -1,26 +1,77 @@
-# NNTools
+# Nintendo Switch Tool (NSTool) ![DeviceTag](https://img.shields.io/badge/Device-SWITCH-e60012.svg)
+General purpose reading/extraction tool for Nintendo Switch file formats.
 
-Tools & Libraries for Nintendo devices.
+## Supported File Formats
+* NPDM (.npdm)
+* PartitionFS (and HashedPartitionFS) (includes raw .nsp)
+* RomFS
+* GameCard Image (.xci)
+* Nintendo Content Archive (.nca)
+* Content Metadata (.cnmt) 
+* Nintendo Software Object (.nso) 
+* Nintendo Relocatable Software Object (.nro)
+* Nintendo Application Control Property (.nacp)
+* ES Ticket (v2 only) (.tik)
+* PKI Certificate (.cert)
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+# Usage
+```
+Usage: nstool [options... ] <file>
 
-# Tools
-* [__nstool__](/programs/nstool/README.md) - General purpose read/extract tool for Nintendo Switch file formats.
+  General Options:
+      -d, --dev       Use devkit keyset.
+      -k, --keyset    Specify keyset file.
+      -t, --type      Specify input file type. [xci, pfs, romfs, nca, npdm, cnmt, nso, nro, nacp, aset, cert, tik]
+      -y, --verify    Verify file.
 
-# Libraries
-* __libfnd__ - Foundation library. Provides file IO, crypto, CLI utils, string conversion, etc.
-* __libpki__ - Processes Nintendo's proprietary PKI.
-* __libes__ - Processes Nintendo's eShop file formats.
-* __libhac__  - Processes Nintendo Switch file formats.
-* __libhac-hb__ - Processes Nintendo Switch file formats (homebrew extensions).
+  Output Options:
+      --showkeys      Show keys generated.
+      --showlayout    Show layout metadata.
+      -v, --verbose   Verbose output.
 
-# Dependencies
-* __libpolarssl__ - Cryptographic functions (AES,SHA,RSA). Clone of [polarssl](https://github.com/ARMmbed/mbedtls) (now mbedTLS).
-* __liblz4__ - Compression algorithms (LZ4). Clone of [lz4](https://github.com/lz4/lz4).
+  XCI (GameCard Image)
+    nstool [--listfs] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>
+      --listfs        Print file system in embedded partitions.
+      --update        Extract "update" partition to directory.
+      --logo          Extract "logo" partition to directory.
+      --normal        Extract "normal" partition to directory.
+      --secure        Extract "secure" partition to directory.
 
-(Copies of these are included locally and are statically linked libraries)
+  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)
+    nstool [--listfs] [--fsdir <dir>] <file>
+      --listfs        Print file system.
+      --fsdir         Extract file system to directory.
+
+  NCA (Nintendo Content Archive)
+    nstool [--listfs] [--bodykey <key> --titlekey <key>] [--part0 <dir> ...] <.nca file>
+      --listfs        Print file system in embedded partitions.
+      --titlekey      Specify title key extracted from ticket.
+      --bodykey       Specify body encryption key.
+      --tik           Specify ticket to source title key.
+      --cert          Specify certificate chain to verify ticket.
+      --part0         Extract "partition 0" to directory.
+      --part1         Extract "partition 1" to directory.
+      --part2         Extract "partition 2" to directory.
+      --part3         Extract "partition 3" to directory.
+
+  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)
+    nstool [--listapi --listsym] [--insttype <inst. type>] <file>
+      --listapi       Print SDK API List.
+      --listsym       Print Code Symbols.
+      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).
+
+  ASET (Homebrew Asset Blob)
+    nstool [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>
+      --listfs        Print filesystem in embedded RomFS partition.
+      --icon          Extract icon partition to file.
+      --nacp          Extract NACP partition to file.
+      --fsdir         Extract RomFS partition to directory.
+```
+
+# External Keys
+NSTool doesn't embed any keys that are copyright protected. However keys can be imported via various keyset files. 
+
+See [SWITCH_KEYS.md](/SWITCH_KEYS.md) for more info.
 
 # Building
-On MacOS/Linux/WSL run `make`.
-
-For Windows, Visual Studio 2017 is supported.
+See [BUILDING.md](/BUILDING.md)
