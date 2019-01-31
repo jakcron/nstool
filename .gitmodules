@@ -1,0 +1,21 @@
+[submodule "deps/liblz4"]
+	path = deps/liblz4
+	url = https://github.com/jakcron/liblz4.git
+[submodule "deps/libpolarssl"]
+	path = deps/libpolarssl
+	url = https://github.com/jakcron/libpolarssl.git
+[submodule "deps/libfnd"]
+	path = deps/libfnd
+	url = https://github.com/jakcron/libfnd.git
+[submodule "deps/libnintendo-pki"]
+	path = deps/libnintendo-pki
+	url = https://github.com/jakcron/libnintendo-pki.git
+[submodule "deps/libnintendo-es"]
+	path = deps/libnintendo-es
+	url = https://github.com/jakcron/libnintendo-es.git
+[submodule "deps/libnintendo-hac"]
+	path = deps/libnintendo-hac
+	url = https://github.com/jakcron/libnintendo-hac.git
+[submodule "deps/libnintendo-hac-hb"]
+	path = deps/libnintendo-hac-hb
+	url = https://github.com/jakcron/libnintendo-hac-hb.git
