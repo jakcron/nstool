@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{775EF5EB-CA49-4994-8AC4-47B4A5385266}</ProjectGuid>
+    <RootNamespace>nstool</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\deps\libfnd\build\visualstudio\libfnd\libfnd.vcxproj">
+      <Project>{4e578016-34ba-4a1e-b8ec-37a48780b6ca}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\deps\liblz4\build\visualstudio\liblz4\liblz4.vcxproj">
+      <Project>{e741aded-7900-4e07-8db0-d008c336c3fb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\deps\libnintendo-es\build\visualstudio\libnintendo-es\libnintendo-es.vcxproj">
+      <Project>{8616d6c9-c8de-4c3f-afc2-625636664c2b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\deps\libnintendo-hac-hb\build\visualstudio\libnintendo-hac-hb\libnintendo-hac-hb.vcxproj">
+      <Project>{24d001b4-d439-4967-9371-dc3e0523eb19}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\deps\libnintendo-hac\build\visualstudio\libnintendo-hac\libnintendo-hac.vcxproj">
+      <Project>{8885c125-83fb-4f73-a93a-c712b1434d54}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\deps\libnintendo-pki\build\visualstudio\libnintendo-pki\libnintendo-pki.vcxproj">
+      <Project>{0bef63a0-2801-4563-ab65-1e2fd881c3af}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\deps\libpolarssl\build\visualstudio\libpolarssl\libpolarssl.vcxproj">
+      <Project>{7a7c66f3-2b5b-4e23-85d8-2a74fedad92c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\AssetProcess.cpp" />
+    <ClCompile Include="..\..\..\src\CnmtProcess.cpp" />
+    <ClCompile Include="..\..\..\src\ElfSymbolParser.cpp" />
+    <ClCompile Include="..\..\..\src\EsTikProcess.cpp" />
+    <ClCompile Include="..\..\..\src\GameCardProcess.cpp" />
+    <ClCompile Include="..\..\..\src\IniProcess.cpp" />
+    <ClCompile Include="..\..\..\src\KeyConfiguration.cpp" />
+    <ClCompile Include="..\..\..\src\KipProcess.cpp" />
+    <ClCompile Include="..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\src\MetaProcess.cpp" />
+    <ClCompile Include="..\..\..\src\NacpProcess.cpp" />
+    <ClCompile Include="..\..\..\src\NcaProcess.cpp" />
+    <ClCompile Include="..\..\..\src\NroProcess.cpp" />
+    <ClCompile Include="..\..\..\src\NsoProcess.cpp" />
+    <ClCompile Include="..\..\..\src\PfsProcess.cpp" />
+    <ClCompile Include="..\..\..\src\PkiCertProcess.cpp" />
+    <ClCompile Include="..\..\..\src\PkiValidator.cpp" />
+    <ClCompile Include="..\..\..\src\RoMetadataProcess.cpp" />
+    <ClCompile Include="..\..\..\src\RomfsProcess.cpp" />
+    <ClCompile Include="..\..\..\src\SdkApiString.cpp" />
+    <ClCompile Include="..\..\..\src\UserSettings.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\AssetProcess.h" />
+    <ClInclude Include="..\..\..\src\CnmtProcess.h" />
+    <ClInclude Include="..\..\..\src\common.h" />
+    <ClInclude Include="..\..\..\src\ElfSymbolParser.h" />
+    <ClInclude Include="..\..\..\src\EsTikProcess.h" />
+    <ClInclude Include="..\..\..\src\GameCardProcess.h" />
+    <ClInclude Include="..\..\..\src\IniProcess.h" />
+    <ClInclude Include="..\..\..\src\KeyConfiguration.h" />
+    <ClInclude Include="..\..\..\src\KipProcess.h" />
+    <ClInclude Include="..\..\..\src\MetaProcess.h" />
+    <ClInclude Include="..\..\..\src\NacpProcess.h" />
+    <ClInclude Include="..\..\..\src\NcaProcess.h" />
+    <ClInclude Include="..\..\..\src\NroProcess.h" />
+    <ClInclude Include="..\..\..\src\NsoProcess.h" />
+    <ClInclude Include="..\..\..\src\PfsProcess.h" />
+    <ClInclude Include="..\..\..\src\PkiCertProcess.h" />
+    <ClInclude Include="..\..\..\src\PkiValidator.h" />
+    <ClInclude Include="..\..\..\src\RoMetadataProcess.h" />
+    <ClInclude Include="..\..\..\src\RomfsProcess.h" />
+    <ClInclude Include="..\..\..\src\SdkApiString.h" />
+    <ClInclude Include="..\..\..\src\UserSettings.h" />
+    <ClInclude Include="..\..\..\src\version.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
