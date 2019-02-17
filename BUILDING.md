@@ -7,7 +7,10 @@
 
 ### Using Makefile
 * `make` (default) - Compile program
+	* Compiling the program requires local dependencies to be compiled via `make deps` beforehand
 * `make clean` - Remove executable and object files
+* `make deps` - Compile locally included dependency libraries
+* `make clean_deps` - Remove compiled library binaries and object files
 
 ## Native Win32 - Visual Studio
 ### Requirements
@@ -15,5 +18,5 @@
 
 ### Compiling NSTool
 * Open `build/visualstudio/nstool.sln` in Visual Studio
-* Select Target (e.g `Debug`|`Release` & `x64`)
+* Select Target (e.g `Debug`|`Release` & `x86`|`x64`)
 * Navigate to `Build`->`Build Solution`
