@@ -45,7 +45,7 @@ void UserSettings::parseCmdArgs(const std::vector<std::string>& arg_list)
 
 void UserSettings::showHelp()
 {
-	printf("%s v%d.%d.%d (C) %s\n", APP_NAME, VER_MAJOR, VER_MINOR, VER_PATCH, AUTHORS);
+	printf("%s v%d.%d.%d (C) %s\n", APP_NAME, PROJECT_VER_MAJOR, PROJECT_VER_MINOR, PROJECT_VER_PATCH, PROJECT_AUTHORS);
 	printf("Built: %s %s\n\n", __TIME__, __DATE__);
 	
 	printf("Usage: %s [options... ] <file>\n", BIN_NAME);
