@@ -1,12 +1,9 @@
 # C++/C Recursive Project Makefile 
 # (c) Jack
-# Version 2
+# Version 3
 
-# Project Defines
+# Project Name
 PROJECT_NAME = nstool
-PROJECT_VER_MAJOR = 1
-PROJECT_VER_MINOR = 1
-PROJECT_VER_PATCH = 1
 
 # Project Relative Paths
 PROJECT_PATH = $(CURDIR)
@@ -27,8 +24,11 @@ ifeq ($(ROOT_PROJECT_NAME),)
 endif
 
 # Shared Library Definitions
-PROJECT_SONAME = $(PROJECT_NAME).so.$(PROJECT_VER_MAJOR)
-PROJECT_SO_FILENAME = $(PROJECT_SONAME).$(PROJECT_VER_MINOR).$(PROJECT_VER_PATCH)
+PROJECT_SO_VER_MAJOR = 0
+PROJECT_SO_VER_MINOR = 1
+PROJECT_SO_VER_PATCH = 0
+PROJECT_SONAME = $(PROJECT_NAME).so.$(PROJECT_SO_VER_MAJOR)
+PROJECT_SO_FILENAME = $(PROJECT_SONAME).$(PROJECT_SO_VER_MINOR).$(PROJECT_SO_VER_PATCH)
 
 # Project Dependencies
 PROJECT_DEPEND_LOCAL = nintendo-hac-hb nintendo-hac nintendo-es nintendo-pki fnd polarssl lz4 
@@ -49,9 +49,6 @@ endif
 ifneq ($(PROJECT_DEPEND_EXTERNAL),)
 	LIB +=  $(foreach dep,$(PROJECT_DEPEND_EXTERNAL), -l$(dep))
 endif
-
-# Generate compiler flags for program/library version
-PROJECT_VER_DEF = -DPROJECT_VER_MAJOR=$(PROJECT_VER_MAJOR) -DPROJECT_VER_MINOR=$(PROJECT_VER_MINOR) -DPROJECT_VER_PATCH=$(PROJECT_VER_PATCH)
 
 # Detect Platform
 ifeq ($(PROJECT_PLATFORM),)
@@ -95,8 +92,8 @@ else ifeq ($(PROJECT_PLATFORM), MACOS)
 endif
 
 # Compiler Flags
-CXXFLAGS = -std=c++11 $(INC) $(PROJECT_VER_DEF) $(WARNFLAGS) -fPIC
-CFLAGS = -std=c11 $(INC) $(PROJECT_VER_DEF) $(WARNFLAGS) -fPIC
+CXXFLAGS = -std=c++11 $(INC) $(WARNFLAGS) -fPIC
+CFLAGS = -std=c11 $(INC) $(WARNFLAGS) -fPIC
 
 # Object Files
 SRC_OBJ = $(foreach dir,$(PROJECT_SRC_SUBDIRS),$(subst .cpp,.o,$(wildcard $(dir)/*.cpp))) $(foreach dir,$(PROJECT_SRC_SUBDIRS),$(subst .c,.o,$(wildcard $(dir)/*.c)))
