@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include "MetaProcess.h"
+#include <nn/hac/define/svc.h>
 
 MetaProcess::MetaProcess() :
 	mFile(),
@@ -645,6 +646,48 @@ const char* MetaProcess::getFsaRightStr(nn::hac::fac::FsAccessFlag flag) const
 	case (nn::hac::fac::FSA_SETTINGS_CONTROL):
 		str = "SettingsControl";
 		break;
+	case (nn::hac::fac::FSA_SYSTEM_DATA):
+		str = "SystemData";
+		break;
+	case (nn::hac::fac::FSA_SD_CARD):
+		str = "SdCard";
+		break;
+	case (nn::hac::fac::FSA_HOST):
+		str = "Host";
+		break;
+	case (nn::hac::fac::FSA_FILL_BIS):
+		str = "FillBis";
+		break;
+	case (nn::hac::fac::FSA_CORRUPT_SAVE_DATA):
+		str = "CorruptSaveData";
+		break;
+	case (nn::hac::fac::FSA_SAVE_DATA_FOR_DEBUG):
+		str = "SaveDataForDebug";
+		break;
+	case (nn::hac::fac::FSA_FORMAT_SD_CARD):
+		str = "FormateSdCard";
+		break;
+	case (nn::hac::fac::FSA_GET_RIGHTS_ID):
+		str = "GetRightsId";
+		break;
+	case (nn::hac::fac::FSA_REGISTER_EXTERNAL_KEY):
+		str = "RegisterExternalKey";
+		break;
+	case (nn::hac::fac::FSA_REGISTER_UPDATE_PARTITION):
+		str = "RegisterUpdatePartition";
+		break;
+	case (nn::hac::fac::FSA_SAVE_DATA_TRANSFER):
+		str = "SaveDataTransfer";
+		break;
+	case (nn::hac::fac::FSA_DEVICE_DETECTION):
+		str = "DeviceDetection";
+		break;
+	case (nn::hac::fac::FSA_ACCESS_FAILURE_RESOLUTION):
+		str = "AccessFailureResolution";
+		break;
+	case (nn::hac::fac::FSA_SAVE_DATA_TRANSFER_V2):
+		str = "SaveDataTransfer2";
+		break;
 	case (nn::hac::fac::FSA_DEBUG):
 		str = "Debug";
 		break;
@@ -688,385 +731,385 @@ const char* MetaProcess::getSystemCallStr(byte_t syscall_id) const
 
 	switch(syscall_id)
 	{
-	case (0x01):
+	case (nn::hac::svc::SVC_SET_HEAP_SIZE):
 		str = "SetHeapSize";
 		break;
-	case (0x02):
+	case (nn::hac::svc::SVC_SET_MEMORY_PERMISSION):
 		str = "SetMemoryPermission";
 		break;
-	case (0x03):
+	case (nn::hac::svc::SVC_SET_MEMORY_ATTRIBUTE):
 		str = "SetMemoryAttribute";
 		break;
-	case (0x04):
+	case (nn::hac::svc::SVC_MAP_MEMORY):
 		str = "MapMemory";
 		break;
-	case (0x05):
+	case (nn::hac::svc::SVC_UNMAP_MEMORY):
 		str = "UnmapMemory";
 		break;
-	case (0x06):
+	case (nn::hac::svc::SVC_QUERY_MEMORY):
 		str = "QueryMemory";
 		break;
-	case (0x07):
+	case (nn::hac::svc::SVC_EXIT_PROCESS):
 		str = "ExitProcess";
 		break;
-	case (0x08):
+	case (nn::hac::svc::SVC_CREATE_THREAD):
 		str = "CreateThread";
 		break;
-	case (0x09):
+	case (nn::hac::svc::SVC_START_THREAD):
 		str = "StartThread";
 		break;
-	case (0x0a):
+	case (nn::hac::svc::SVC_EXIT_THREAD):
 		str = "ExitThread";
 		break;
-	case (0x0b):
+	case (nn::hac::svc::SVC_SLEEP_THREAD):
 		str = "SleepThread";
 		break;
-	case (0x0c):
+	case (nn::hac::svc::SVC_GET_THREAD_PRIORITY):
 		str = "GetThreadPriority";
 		break;
-	case (0x0d):
+	case (nn::hac::svc::SVC_SET_THREAD_PRIORITY):
 		str = "SetThreadPriority";
 		break;
-	case (0x0e):
+	case (nn::hac::svc::SVC_GET_THREAD_CORE_MASK):
 		str = "GetThreadCoreMask";
 		break;
-	case (0x0f):
+	case (nn::hac::svc::SVC_SET_THREAD_CORE_MASK):
 		str = "SetThreadCoreMask";
 		break;
-	case (0x10):
+	case (nn::hac::svc::SVC_GET_CURRENT_PROCESSOR_NUMBER):
 		str = "GetCurrentProcessorNumber";
 		break;
-	case (0x11):
+	case (nn::hac::svc::SVC_SIGNAL_EVENT):
 		str = "SignalEvent";
 		break;
-	case (0x12):
+	case (nn::hac::svc::SVC_CLEAR_EVENT):
 		str = "ClearEvent";
 		break;
-	case (0x13):
+	case (nn::hac::svc::SVC_MAP_SHARED_MEMORY):
 		str = "MapSharedMemory";
 		break;
-	case (0x14):
+	case (nn::hac::svc::SVC_UNMAP_SHARED_MEMORY):
 		str = "UnmapSharedMemory";
 		break;
-	case (0x15):
+	case (nn::hac::svc::SVC_CREATE_TRANSFER_MEMORY):
 		str = "CreateTransferMemory";
 		break;
-	case (0x16):
+	case (nn::hac::svc::SVC_CLOSE_HANDLE):
 		str = "CloseHandle";
 		break;
-	case (0x17):
+	case (nn::hac::svc::SVC_RESET_SIGNAL):
 		str = "ResetSignal";
 		break;
-	case (0x18):
+	case (nn::hac::svc::SVC_WAIT_SYNCHRONIZATION):
 		str = "WaitSynchronization";
 		break;
-	case (0x19):
+	case (nn::hac::svc::SVC_CANCEL_SYNCHRONIZATION):
 		str = "CancelSynchronization";
 		break;
-	case (0x1a):
+	case (nn::hac::svc::SVC_ARBIRATE_LOCK):
 		str = "ArbitrateLock";
 		break;
-	case (0x1b):
+	case (nn::hac::svc::SVC_ARBIRATE_UNLOCK):
 		str = "ArbitrateUnlock";
 		break;
-	case (0x1c):
+	case (nn::hac::svc::SVC_WAIT_PROCESS_WIDE_KEY_ATOMIC):
 		str = "WaitProcessWideKeyAtomic";
 		break;
-	case (0x1d):
+	case (nn::hac::svc::SVC_SIGNAL_PROCESS_WIDE_KEY):
 		str = "SignalProcessWideKey";
 		break;
-	case (0x1e):
+	case (nn::hac::svc::SVC_GET_SYSTEM_TICK):
 		str = "GetSystemTick";
 		break;
-	case (0x1f):
+	case (nn::hac::svc::SVC_CONNECT_TO_NAMED_PORT):
 		str = "ConnectToNamedPort";
 		break;
-	case (0x20):
+	case (nn::hac::svc::SVC_SEND_SYNC_REQUEST_LIGHT):
 		str = "SendSyncRequestLight";
 		break;
-	case (0x21):
+	case (nn::hac::svc::SVC_SEND_SYNC_REQUEST):
 		str = "SendSyncRequest";
 		break;
-	case (0x22):
+	case (nn::hac::svc::SVC_SEND_SYNC_REQUEST_WITH_USER_BUFFER):
 		str = "SendSyncRequestWithUserBuffer";
 		break;
-	case (0x23):
+	case (nn::hac::svc::SVC_SEND_ASYNC_REQUEST_WITH_USER_BUFFER):
 		str = "SendAsyncRequestWithUserBuffer";
 		break;
-	case (0x24):
+	case (nn::hac::svc::SVC_GET_PROCESS_ID):
 		str = "GetProcessId";
 		break;
-	case (0x25):
+	case (nn::hac::svc::SVC_GET_THREAD_ID):
 		str = "GetThreadId";
 		break;
-	case (0x26):
+	case (nn::hac::svc::SVC_BREAK):
 		str = "Break";
 		break;
-	case (0x27):
+	case (nn::hac::svc::SVC_OUTPUT_DEBUG_STRING):
 		str = "OutputDebugString";
 		break;
-	case (0x28):
+	case (nn::hac::svc::SVC_RETURN_FROM_EXCEPTION):
 		str = "ReturnFromException";
 		break;
-	case (0x29):
+	case (nn::hac::svc::SVC_GET_INFO):
 		str = "GetInfo";
 		break;
-	case (0x2a):
+	case (nn::hac::svc::SVC_FLUSH_ENTIRE_DATA_CACHE):
 		str = "FlushEntireDataCache";
 		break;
-	case (0x2b):
+	case (nn::hac::svc::SVC_FLUSH_DATA_CACHE):
 		str = "FlushDataCache";
 		break;
-	case (0x2c):
+	case (nn::hac::svc::SVC_MAP_PHYSICAL_MEMORY):
 		str = "MapPhysicalMemory";
 		break;
-	case (0x2d):
+	case (nn::hac::svc::SVC_UNMAP_PHYSICAL_MEMORY):
 		str = "UnmapPhysicalMemory";
 		break;
-	case (0x2e):
+	case (nn::hac::svc::SVC_GET_FUTURE_THREAD_INFO):
 		str = "GetFutureThreadInfo";
 		break;
-	case (0x2f):
+	case (nn::hac::svc::SVC_GET_LAST_THREAD_INFO):
 		str = "GetLastThreadInfo";
 		break;
-	case (0x30):
+	case (nn::hac::svc::SVC_GET_RESOURCE_LIMIT_LIMIT_VALUE):
 		str = "GetResourceLimitLimitValue";
 		break;
-	case (0x31):
+	case (nn::hac::svc::SVC_GET_RESOURCE_LIMIT_CURRENT_VALUE):
 		str = "GetResourceLimitCurrentValue";
 		break;
-	case (0x32):
+	case (nn::hac::svc::SVC_SET_THREAD_ACTIVITY):
 		str = "SetThreadActivity";
 		break;
-	case (0x33):
+	case (nn::hac::svc::SVC_GET_THREAD_CONTEXT3):
 		str = "GetThreadContext3";
 		break;
-	case (0x34):
+	case (nn::hac::svc::SVC_WAIT_FOR_ADDRESS):
 		str = "WaitForAddress";
 		break;
-	case (0x35):
+	case (nn::hac::svc::SVC_SIGNAL_TO_ADDRESS):
 		str = "SignalToAddress";
 		break;
-	case (0x36):
-		str = "svc36";
+	case (nn::hac::svc::SVC_SYNCHRONIZE_PREEMPTION_STATE):
+		str = "SynchronizePreemptionState";
 		break;
-	case (0x37):
+	case (nn::hac::svc::SVC_UNK_0x37):
 		str = "svc37";
 		break;
-	case (0x38):
+	case (nn::hac::svc::SVC_UNK_0x38):
 		str = "svc38";
 		break;
-	case (0x39):
+	case (nn::hac::svc::SVC_UNK_0x39):
 		str = "svc39";
 		break;
-	case (0x3a):
+	case (nn::hac::svc::SVC_UNK_0x3A):
 		str = "svc3A";
 		break;
-	case (0x3b):
+	case (nn::hac::svc::SVC_UNK_0x3B):
 		str = "svc3B";
 		break;
-	case (0x3c):
+	case (nn::hac::svc::SVC_DUMP_INFO):
 		str = "DumpInfo";
 		break;
-	case (0x3d):
+	case (nn::hac::svc::SVC_DUMP_INFO_NEW):
 		str = "DumpInfoNew";
 		break;
-	case (0x3e):
+	case (nn::hac::svc::SVC_UNK_0x3E):
 		str = "svc3E";
 		break;
-	case (0x3f):
+	case (nn::hac::svc::SVC_UNK_0x3F):
 		str = "svc3F";
 		break;
-	case (0x40):
+	case (nn::hac::svc::SVC_CREATE_SESSION):
 		str = "CreateSession";
 		break;
-	case (0x41):
+	case (nn::hac::svc::SVC_ACCEPT_SESSION):
 		str = "AcceptSession";
 		break;
-	case (0x42):
+	case (nn::hac::svc::SVC_REPLY_AND_RECEIVE_LIGHT):
 		str = "ReplyAndReceiveLight";
 		break;
-	case (0x43):
+	case (nn::hac::svc::SVC_REPLY_AND_RECEIVE):
 		str = "ReplyAndReceive";
 		break;
-	case (0x44):
+	case (nn::hac::svc::SVC_REPLY_AND_RECEIVE_WITH_USER_BUFFER):
 		str = "ReplyAndReceiveWithUserBuffer";
 		break;
-	case (0x45):
+	case (nn::hac::svc::SVC_CREATE_EVENT):
 		str = "CreateEvent";
 		break;
-	case (0x46):
+	case (nn::hac::svc::SVC_UNK_0x46):
 		str = "svc46";
 		break;
-	case (0x47):
+	case (nn::hac::svc::SVC_UNK_0x47):
 		str = "svc47";
 		break;
-	case (0x48):
+	case (nn::hac::svc::SVC_MAP_PHYSICAL_MEMORY_UNSAFE):
 		str = "MapPhysicalMemoryUnsafe";
 		break;
-	case (0x49):
+	case (nn::hac::svc::SVC_UNMAP_PHYSICAL_MEMORY_UNSAFE):
 		str = "UnmapPhysicalMemoryUnsafe";
 		break;
-	case (0x4a):
+	case (nn::hac::svc::SVC_SET_UNSAFE_LIMIT):
 		str = "SetUnsafeLimit";
 		break;
-	case (0x4b):
+	case (nn::hac::svc::SVC_CREATE_CODE_MEMORY):
 		str = "CreateCodeMemory";
 		break;
-	case (0x4c):
+	case (nn::hac::svc::SVC_CONTROL_CODE_MEMORY):
 		str = "ControlCodeMemory";
 		break;
-	case (0x4d):
+	case (nn::hac::svc::SVC_SLEEP_SYSTEM):
 		str = "SleepSystem";
 		break;
-	case (0x4e):
+	case (nn::hac::svc::SVC_READ_WRITE_REGISTER):
 		str = "ReadWriteRegister";
 		break;
-	case (0x4f):
+	case (nn::hac::svc::SVC_SET_PROCESS_ACTIVITY):
 		str = "SetProcessActivity";
 		break;
-	case (0x50):
+	case (nn::hac::svc::SVC_CREATE_SHARED_MEMORY):
 		str = "CreateSharedMemory";
 		break;
-	case (0x51):
+	case (nn::hac::svc::SVC_MAP_TRANSFER_MEMORY):
 		str = "MapTransferMemory";
 		break;
-	case (0x52):
+	case (nn::hac::svc::SVC_UNMAP_TRANSFER_MEMORY):
 		str = "UnmapTransferMemory";
 		break;
-	case (0x53):
+	case (nn::hac::svc::SVC_CREATE_INTERRUPT_EVENT):
 		str = "CreateInterruptEvent";
 		break;
-	case (0x54):
+	case (nn::hac::svc::SVC_QUERY_PHYSICAL_ADDRESS):
 		str = "QueryPhysicalAddress";
 		break;
-	case (0x55):
+	case (nn::hac::svc::SVC_QUERY_IO_MAPPING):
 		str = "QueryIoMapping";
 		break;
-	case (0x56):
+	case (nn::hac::svc::SVC_CREATE_DEVICE_ADDRESS_SPACE):
 		str = "CreateDeviceAddressSpace";
 		break;
-	case (0x57):
+	case (nn::hac::svc::SVC_ATTACH_DEVICE_ADDRESS_SPACE):
 		str = "AttachDeviceAddressSpace";
 		break;
-	case (0x58):
+	case (nn::hac::svc::SVC_DETACH_DEVICE_ADDRESS_SPACE):
 		str = "DetachDeviceAddressSpace";
 		break;
-	case (0x59):
+	case (nn::hac::svc::SVC_MAP_DEVICE_ADDRESS_SPACE_BY_FORCE):
 		str = "MapDeviceAddressSpaceByForce";
 		break;
-	case (0x5a):
+	case (nn::hac::svc::SVC_MAP_DEVICE_ADDRESS_SPACE_ALIGNED):
 		str = "MapDeviceAddressSpaceAligned";
 		break;
-	case (0x5b):
+	case (nn::hac::svc::SVC_MAP_DEVICE_ADDRESS_SPACE):
 		str = "MapDeviceAddressSpace";
 		break;
-	case (0x5c):
+	case (nn::hac::svc::SVC_UNMAP_DEVICE_ADDRESS_SPACE):
 		str = "UnmapDeviceAddressSpace";
 		break;
-	case (0x5d):
+	case (nn::hac::svc::SVC_INVALIDATE_PROCESS_DATA_CACHE):
 		str = "InvalidateProcessDataCache";
 		break;
-	case (0x5e):
+	case (nn::hac::svc::SVC_STORE_PROCESS_DATA_CACHE):
 		str = "StoreProcessDataCache";
 		break;
-	case (0x5f):
+	case (nn::hac::svc::SVC_FLUSH_PROCESS_DATA_CACHE):
 		str = "FlushProcessDataCache";
 		break;
-	case (0x60):
+	case (nn::hac::svc::SVC_DEBUG_ACTIVE_PROCESS):
 		str = "DebugActiveProcess";
 		break;
-	case (0x61):
+	case (nn::hac::svc::SVC_BREAK_DEBUG_PROCESS):
 		str = "BreakDebugProcess";
 		break;
-	case (0x62):
+	case (nn::hac::svc::SVC_TERMINATE_DEBUG_PROCESS):
 		str = "TerminateDebugProcess";
 		break;
-	case (0x63):
+	case (nn::hac::svc::SVC_GET_DEBUG_EVENT):
 		str = "GetDebugEvent";
 		break;
-	case (0x64):
+	case (nn::hac::svc::SVC_CONTINUE_DEBUG_EVENT):
 		str = "ContinueDebugEvent";
 		break;
-	case (0x65):
+	case (nn::hac::svc::SVC_GET_PROCESS_LIST):
 		str = "GetProcessList";
 		break;
-	case (0x66):
+	case (nn::hac::svc::SVC_GET_THREAD_LIST):
 		str = "GetThreadList";
 		break;
-	case (0x67):
+	case (nn::hac::svc::SVC_GET_DEBUG_THREAD_CONTEXT):
 		str = "GetDebugThreadContext";
 		break;
-	case (0x68):
+	case (nn::hac::svc::SVC_SET_DEBUG_THREAD_CONTEXT):
 		str = "SetDebugThreadContext";
 		break;
-	case (0x69):
+	case (nn::hac::svc::SVC_QUERY_DEBUG_PROCESS_MEMORY):
 		str = "QueryDebugProcessMemory";
 		break;
-	case (0x6a):
+	case (nn::hac::svc::SVC_READ_DEBUG_PROCESS_MEMORY):
 		str = "ReadDebugProcessMemory";
 		break;
-	case (0x6b):
+	case (nn::hac::svc::SVC_WRITE_DEBUG_PROCESS_MEMORY):
 		str = "WriteDebugProcessMemory";
 		break;
-	case (0x6c):
+	case (nn::hac::svc::SVC_SET_HARDWARE_BREAK_POINT):
 		str = "SetHardwareBreakPoint";
 		break;
-	case (0x6d):
+	case (nn::hac::svc::SVC_GET_DEBUG_THREAD_PARAM):
 		str = "GetDebugThreadParam";
 		break;
-	case (0x6e):
+	case (nn::hac::svc::SVC_UNK_0x6E):
 		str = "svc6E";
 		break;
-	case (0x6f):
+	case (nn::hac::svc::SVC_GET_SYSTEM_INFO):
 		str = "GetSystemInfo";
 		break;
-	case (0x70):
+	case (nn::hac::svc::SVC_CREATE_PORT):
 		str = "CreatePort";
 		break;
-	case (0x71):
+	case (nn::hac::svc::SVC_MANAGE_NAMED_PORT):
 		str = "ManageNamedPort";
 		break;
-	case (0x72):
+	case (nn::hac::svc::SVC_CONNECT_TO_PORT):
 		str = "ConnectToPort";
 		break;
-	case (0x73):
+	case (nn::hac::svc::SVC_SET_PROCESS_MEMORY_PERMISSION):
 		str = "SetProcessMemoryPermission";
 		break;
-	case (0x74):
+	case (nn::hac::svc::SVC_MAP_PROCESS_MEMORY):
 		str = "MapProcessMemory";
 		break;
-	case (0x75):
+	case (nn::hac::svc::SVC_UNMAP_PROCESS_MEMORY):
 		str = "UnmapProcessMemory";
 		break;
-	case (0x76):
+	case (nn::hac::svc::SVC_QUERY_PROCESS_MEMORY):
 		str = "QueryProcessMemory";
 		break;
-	case (0x77):
+	case (nn::hac::svc::SVC_MAP_PROCESS_CODE_MEMORY):
 		str = "MapProcessCodeMemory";
 		break;
-	case (0x78):
+	case (nn::hac::svc::SVC_UNMAP_PROCESS_CODE_MEMORY):
 		str = "UnmapProcessCodeMemory";
 		break;
-	case (0x79):
+	case (nn::hac::svc::SVC_CREATE_PROCESS):
 		str = "CreateProcess";
 		break;
-	case (0x7a):
+	case (nn::hac::svc::SVC_START_PROCESS):
 		str = "StartProcess";
 		break;
-	case (0x7b):
+	case (nn::hac::svc::SVC_TERMINATE_PROCESS):
 		str = "TerminateProcess";
 		break;
-	case (0x7c):
+	case (nn::hac::svc::SVC_GET_PROCESS_INFO):
 		str = "GetProcessInfo";
 		break;
-	case (0x7d):
+	case (nn::hac::svc::SVC_CREATE_RESOURCE_LIMIT):
 		str = "CreateResourceLimit";
 		break;
-	case (0x7e):
+	case (nn::hac::svc::SVC_SET_RESOURCE_LIMIT_LIMIT_VALUE):
 		str = "SetResourceLimitLimitValue";
 		break;
-	case (0x7f):
+	case (nn::hac::svc::SVC_CALL_SECURE_MONITOR):
 		str = "CallSecureMonitor";
 		break;
 	default:
