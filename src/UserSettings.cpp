@@ -609,7 +609,7 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 	
 	FileType type;
 	if (str == "gc" || str == "gamecard" || str == "xci")
-		type = FILE_GC;
+		type = FILE_GAMECARD;
 	else if (str == "nsp")
 		type = FILE_NSP;
 	else if (str == "partitionfs" || str == "hashedpartitionfs"  \
@@ -666,9 +666,11 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #define _TYPE_PTR(st) ((st*)(scratch.data()))
 #define _ASSERT_SIZE(sz) (scratch.size() >= (sz))
 
-	// test npdm
-	if (_ASSERT_SIZE(sizeof(nn::hac::sGcHeaderPage)) && _TYPE_PTR(nn::hac::sGcHeaderPage)->header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
-		file_type = FILE_GC;
+	// test gamecard
+	if (_ASSERT_SIZE(sizeof(nn::hac::sGcHeader_Rsa2048Signed)) && _TYPE_PTR(nn::hac::sGcHeader_Rsa2048Signed)->header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
+		file_type = FILE_GAMECARD;
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sSdkGcHeader)) && _TYPE_PTR(nn::hac::sSdkGcHeader)->signed_header.header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
+		file_type = FILE_GAMECARD;
 	// test pfs0
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sPfsHeader)) && _TYPE_PTR(nn::hac::sPfsHeader)->st_magic.get() == nn::hac::pfs::kPfsStructMagic)
 		file_type = FILE_PARTITIONFS;

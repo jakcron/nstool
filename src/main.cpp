@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 
 		fnd::SharedPtr<fnd::IFile> inputFile(new fnd::SimpleFile(user_set.getInputPath(), fnd::SimpleFile::Read));
 
-		if (user_set.getFileType() == FILE_GC)
+		if (user_set.getFileType() == FILE_GAMECARD)
 		{	
 			GameCardProcess obj;
 
