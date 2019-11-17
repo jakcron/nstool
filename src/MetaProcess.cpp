@@ -685,8 +685,14 @@ const char* MetaProcess::getFsaRightStr(nn::hac::fac::FsAccessFlag flag) const
 	case (nn::hac::fac::FSA_ACCESS_FAILURE_RESOLUTION):
 		str = "AccessFailureResolution";
 		break;
-	case (nn::hac::fac::FSA_SAVE_DATA_TRANSFER_V2):
-		str = "SaveDataTransfer2";
+	case (nn::hac::fac::FSA_SAVE_DATA_TRANSFER_VERSION_2):
+		str = "SaveDataTransferVersion2";
+		break;
+	case (nn::hac::fac::FSA_REGISTER_PROGRAM_INDEX_MAP_INFO):
+		str = "RegisterProgramIndexMapInfo";
+		break;
+	case (nn::hac::fac::FSA_CREATE_OWN_SAVE_DATA):
+		str = "CreateOwnSaveData";
 		break;
 	case (nn::hac::fac::FSA_DEBUG):
 		str = "Debug";
