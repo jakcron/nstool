@@ -33,12 +33,7 @@ private:
 	void displayHeader();
 	void displayKernelCap(const nn::hac::KernelCapabilityControl& kern);
 
-	const char* getProcessCategoryStr(nn::hac::kip::ProcessCategory var) const;
 	const char* getInstructionTypeStr(bool is64Bit) const;
 	const char* getAddressSpaceStr(bool is64Bit) const;
 	const char* getMemoryPoolStr(bool isSystemPool) const;
-	const char* getMiscFlagStr(nn::hac::MiscFlagsHandler::Flags flag) const;
-	const char* getSystemCallStr(byte_t syscall_id) const;
-	const char* getMemMapPermStr(nn::hac::MemoryMappingHandler::MemoryPerm type) const;
-	const char* getMemMapTypeStr(nn::hac::MemoryMappingHandler::MappingType type) const;
 };
