@@ -1,7 +1,12 @@
+#include "MetaProcess.h"
+
 #include <iostream>
 #include <iomanip>
-#include "MetaProcess.h"
-#include <nn/hac/define/svc.h>
+
+#include <nn/hac/AccessControlInfoUtil.h>
+#include <nn/hac/FileSystemAccessUtil.h>
+#include <nn/hac/KernelCapabilityUtil.h>
+#include <nn/hac/MetaUtil.h>
 
 MetaProcess::MetaProcess() :
 	mFile(),
@@ -121,7 +126,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 		if (fsaRightFound == false)
 		{
 
-			std::cout << "[WARNING] ACI/FAC FsaRights: FAIL (" << getFsaRightStr(aci.getFileSystemAccessControl().getFsaRightsList()[i]) << " not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/FAC FsaRights: FAIL (" << nn::hac::FileSystemAccessUtil::getFsaRightAsString(aci.getFileSystemAccessControl().getFsaRightsList()[i]) << " not permitted)" << std::endl;
 		}
 	}
 
@@ -203,7 +208,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 
 		if (rightFound == false)
 		{
-			std::cout << "[WARNING] ACI/KC SystemCallList: FAIL (" << getSystemCallStr(aci.getKernelCapabilities().getSystemCalls().getSystemCalls()[i]) << " not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/KC SystemCallList: FAIL (" << nn::hac::KernelCapabilityUtil::getSystemCallAsString(aci.getKernelCapabilities().getSystemCalls().getSystemCalls()[i]) << " not permitted)" << std::endl;
 		}
 	}
 	// check memory maps
@@ -220,7 +225,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 		{
 			const nn::hac::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getMemoryMaps()[i];
 
-			std::cout << "[WARNING] ACI/KC MemoryMap: FAIL (0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)map.addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(map.addr + map.size) << 12) - 1) << " (perm=" << getMemMapPermStr(map.perm) << ") (type=" << getMemMapTypeStr(map.type) << ") not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/KC MemoryMap: FAIL (0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)map.addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(map.addr + map.size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(map.perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(map.type) << ") not permitted)" << std::endl;
 		}
 	}
 	for (size_t i = 0; i < aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps().size(); i++)
@@ -236,7 +241,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 		{
 			const nn::hac::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps()[i];
 
-			std::cout << "[WARNING] ACI/KC IoMemoryMap: FAIL (0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)map.addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(map.addr + map.size) << 12) - 1) << " (perm=" << getMemMapPermStr(map.perm) << ") (type=" << getMemMapTypeStr(map.type) << ") not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/KC IoMemoryMap: FAIL (0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)map.addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(map.addr + map.size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(map.perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(map.type) << ") not permitted)" << std::endl;
 		}
 	}
 	// check interupts
@@ -283,7 +288,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 
 		if (rightFound == false)
 		{
-			std::cout << "[WARNING] ACI/KC MiscFlag: FAIL (" << getMiscFlagStr(aci.getKernelCapabilities().getMiscFlags().getFlagList()[i]) << " not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/KC MiscFlag: FAIL (" << nn::hac::KernelCapabilityUtil::getMiscFlagAsString(aci.getKernelCapabilities().getMiscFlags().getFlagList()[i]) << " not permitted)" << std::endl;
 		}
 	}
 }
@@ -292,8 +297,8 @@ void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 {
 	std::cout << "[Meta Header]" << std::endl;
 	std::cout << "  Process Architecture Params:" << std::endl;
-	std::cout << "    Ins. Type:     " << getInstructionTypeStr(hdr.getInstructionType()) << std::endl;
-	std::cout << "    Addr Space:    " << getProcAddressSpaceTypeStr(hdr.getProcAddressSpaceType()) << std::endl;
+	std::cout << "    Ins. Type:     " << nn::hac::MetaUtil::getInstructionTypeAsString(hdr.getInstructionType()) << std::endl;
+	std::cout << "    Addr Space:    " << nn::hac::MetaUtil::getProcAddressSpaceTypeAsString(hdr.getProcAddressSpaceType()) << std::endl;
 	std::cout << "  Main Thread Params:" << std::endl;
 	std::cout << "    Priority:      " << std::dec << (uint32_t)hdr.getMainThreadPriority() << std::endl;
 	std::cout << "    CpuId:         " << std::dec << (uint32_t)hdr.getMainThreadCpuId() << std::endl;
@@ -321,7 +326,7 @@ void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
 		std::cout << "  Flags:           " << std::endl;
 		for (size_t i = 0; i < acid.getFlagList().size(); i++)
 		{
-			std::cout << "    " << getAcidFlagStr(acid.getFlagList()[i]) << " (" << std::dec << (uint32_t)acid.getFlagList()[i] << ")" << std::endl;
+			std::cout << "    " << nn::hac::AccessControlInfoUtil::getAcidFlagAsString(acid.getFlagList()[i]) << " (" << std::dec << (uint32_t)acid.getFlagList()[i] << ")" << std::endl;
 		}
 	}
 	std::cout << "  ProgramID Restriction" << std::endl;
@@ -345,7 +350,7 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 					std::cout << std::endl;
 				std::cout << "    ";
 			}
-			std::cout << getFsaRightStr(fac.getFsaRightsList()[i]);
+			std::cout << nn::hac::FileSystemAccessUtil::getFsaRightAsString(fac.getFsaRightsList()[i]);
 			if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 				std::cout << " (bit " << std::dec << (uint32_t)fac.getFsaRightsList()[i] << ")";
 			if (fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack())
@@ -368,7 +373,7 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 		std::cout << "  Save Data Owner IDs:" << std::endl;
 		for (size_t i = 0; i < fac.getSaveDataOwnerIdList().size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << fac.getSaveDataOwnerIdList()[i].id << " (" << getSaveDataOwnerAccessModeStr(fac.getSaveDataOwnerIdList()[i].access_type) << ")" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << fac.getSaveDataOwnerIdList()[i].id << " (" << nn::hac::FileSystemAccessUtil::getSaveDataOwnerAccessModeAsString(fac.getSaveDataOwnerIdList()[i].access_type) << ")" << std::endl;
 		}
 	}
 	
@@ -411,7 +416,7 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 
 	if (kern.getSystemCalls().isSet())
 	{
-		fnd::List<uint8_t> syscalls = kern.getSystemCalls().getSystemCalls();
+		fnd::List<nn::hac::kc::SystemCall> syscalls = kern.getSystemCalls().getSystemCalls();
 		std::cout << "  SystemCalls:" << std::endl;
 		std::cout << "    ";
 		size_t lineLen = 0;
@@ -423,10 +428,11 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 				std::cout << std::endl;
 				std::cout << "    ";
 			}
-			std::cout << getSystemCallStr(syscalls[i]);
+			std::string syscall_name = nn::hac::KernelCapabilityUtil::getSystemCallAsString(syscalls[i]);
+			std::cout << syscall_name;
 			if (syscalls[i] != syscalls.atBack())
 				std::cout << ", ";
-			lineLen += strlen(getSystemCallStr(syscalls[i]));
+			lineLen += syscall_name.length();
 		}
 		std::cout << std::endl;
 	}
@@ -438,12 +444,12 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 		std::cout << "  MemoryMaps:" << std::endl;
 		for (size_t i = 0; i < maps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(maps[i].perm) << ") (type=" << getMemMapTypeStr(maps[i].type) << ")" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(maps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(maps[i].type) << ")" << std::endl;
 		}
 		//std::cout << "  IoMaps:" << std::endl;
 		for (size_t i = 0; i < ioMaps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << getMemMapPermStr(ioMaps[i].perm) << ") (type=" << getMemMapTypeStr(ioMaps[i].type) << ")" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(ioMaps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(ioMaps[i].type) << ")" << std::endl;
 		}
 	}
 	if (kern.getInterupts().isSet())
@@ -478,7 +484,7 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getMiscFlags().isSet())
 	{
-		fnd::List<nn::hac::MiscFlagsHandler::Flags> flagList = kern.getMiscFlags().getFlagList();
+		fnd::List<nn::hac::kc::MiscFlags> flagList = kern.getMiscFlags().getFlagList();
 
 		std::cout << "  Misc Flags:" << std::endl;
 		for (uint32_t i = 0; i < flagList.size(); i++)
@@ -489,679 +495,10 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 					std::cout << std::endl;
 				std::cout << "    ";
 			}
-			std::cout << getMiscFlagStr(flagList[i]);
+			std::cout << nn::hac::KernelCapabilityUtil::getMiscFlagAsString(flagList[i]);
 			if (flagList[i] != flagList.atBack())
 				std::cout << ", ";
 			std::cout << std::endl;
 		}
 	}
-}
-
-const char* MetaProcess::getInstructionTypeStr(nn::hac::meta::InstructionType type) const
-{
-	const char* str = nullptr;
-
-	switch(type)
-	{
-	case (nn::hac::meta::INSTR_32BIT):
-		str = "32Bit";
-		break;
-	case (nn::hac::meta::INSTR_64BIT):
-		str = "64Bit";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* MetaProcess::getProcAddressSpaceTypeStr(nn::hac::meta::ProcAddrSpaceType type) const
-{
-	const char* str = nullptr;
-
-	switch(type)
-	{
-	case (nn::hac::meta::ADDR_SPACE_64BIT):
-		str = "64Bit";
-		break;
-	case (nn::hac::meta::ADDR_SPACE_32BIT):
-		str = "32Bit";
-		break;
-	case (nn::hac::meta::ADDR_SPACE_32BIT_NO_RESERVED):
-		str = "32Bit no reserved";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* MetaProcess::getAcidFlagStr(nn::hac::aci::Flag flag) const
-{
-	const char* str = nullptr;
-
-	switch(flag)
-	{
-	case (nn::hac::aci::FLAG_PRODUCTION):
-		str = "Production";
-		break;
-	case (nn::hac::aci::FLAG_UNQUALIFIED_APPROVAL):
-		str = "UnqualifiedApproval";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* MetaProcess::getMiscFlagStr(nn::hac::MiscFlagsHandler::Flags flag) const
-{
-	const char* str = nullptr;
-
-	switch(flag)
-	{
-	case (nn::hac::MiscFlagsHandler::FLAG_ENABLE_DEBUG):
-		str = "EnableDebug";
-		break;
-	case (nn::hac::MiscFlagsHandler::FLAG_FORCE_DEBUG):
-		str = "ForceDebug";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* MetaProcess::getFsaRightStr(nn::hac::fac::FsAccessFlag flag) const
-{
-	const char* str = nullptr;
-
-	switch(flag)
-	{
-	case (nn::hac::fac::FSA_APPLICATION_INFO):
-		str = "ApplicationInfo";
-		break;
-	case (nn::hac::fac::FSA_BOOT_MODE_CONTROL):
-		str = "BootModeControl";
-		break;
-	case (nn::hac::fac::FSA_CALIBRATION):
-		str = "Calibration";
-		break;
-	case (nn::hac::fac::FSA_SYSTEM_SAVE_DATA):
-		str = "SystemSaveData";
-		break;
-	case (nn::hac::fac::FSA_GAME_CARD):
-		str = "GameCard";
-		break;
-	case (nn::hac::fac::FSA_SAVE_DATA_BACKUP):
-		str = "SaveDataBackUp";
-		break;
-	case (nn::hac::fac::FSA_SAVE_DATA_MANAGEMENT):
-		str = "SaveDataManagement";
-		break;
-	case (nn::hac::fac::FSA_BIS_ALL_RAW):
-		str = "BisAllRaw";
-		break;
-	case (nn::hac::fac::FSA_GAME_CARD_RAW):
-		str = "GameCardRaw";
-		break;
-	case (nn::hac::fac::FSA_GAME_CARD_PRIVATE):
-		str = "GameCardPrivate";
-		break;
-	case (nn::hac::fac::FSA_SET_TIME):
-		str = "SetTime";
-		break;
-	case (nn::hac::fac::FSA_CONTENT_MANAGER):
-		str = "ContentManager";
-		break;
-	case (nn::hac::fac::FSA_IMAGE_MANAGER):
-		str = "ImageManager";
-		break;
-	case (nn::hac::fac::FSA_CREATE_SAVE_DATA):
-		str = "CreateSaveData";
-		break;
-	case (nn::hac::fac::FSA_SYSTEM_SAVE_DATA_MANAGEMENT):
-		str = "SystemSaveDataManagement";
-		break;
-	case (nn::hac::fac::FSA_BIS_FILE_SYSTEM):
-		str = "BisFileSystem";
-		break;
-	case (nn::hac::fac::FSA_SYSTEM_UPDATE):
-		str = "SystemUpdate";
-		break;
-	case (nn::hac::fac::FSA_SAVE_DATA_META):
-		str = "SaveDataMeta";
-		break;
-	case (nn::hac::fac::FSA_DEVICE_SAVE_CONTROL):
-		str = "DeviceSaveData";
-		break;
-	case (nn::hac::fac::FSA_SETTINGS_CONTROL):
-		str = "SettingsControl";
-		break;
-	case (nn::hac::fac::FSA_SYSTEM_DATA):
-		str = "SystemData";
-		break;
-	case (nn::hac::fac::FSA_SD_CARD):
-		str = "SdCard";
-		break;
-	case (nn::hac::fac::FSA_HOST):
-		str = "Host";
-		break;
-	case (nn::hac::fac::FSA_FILL_BIS):
-		str = "FillBis";
-		break;
-	case (nn::hac::fac::FSA_CORRUPT_SAVE_DATA):
-		str = "CorruptSaveData";
-		break;
-	case (nn::hac::fac::FSA_SAVE_DATA_FOR_DEBUG):
-		str = "SaveDataForDebug";
-		break;
-	case (nn::hac::fac::FSA_FORMAT_SD_CARD):
-		str = "FormateSdCard";
-		break;
-	case (nn::hac::fac::FSA_GET_RIGHTS_ID):
-		str = "GetRightsId";
-		break;
-	case (nn::hac::fac::FSA_REGISTER_EXTERNAL_KEY):
-		str = "RegisterExternalKey";
-		break;
-	case (nn::hac::fac::FSA_REGISTER_UPDATE_PARTITION):
-		str = "RegisterUpdatePartition";
-		break;
-	case (nn::hac::fac::FSA_SAVE_DATA_TRANSFER):
-		str = "SaveDataTransfer";
-		break;
-	case (nn::hac::fac::FSA_DEVICE_DETECTION):
-		str = "DeviceDetection";
-		break;
-	case (nn::hac::fac::FSA_ACCESS_FAILURE_RESOLUTION):
-		str = "AccessFailureResolution";
-		break;
-	case (nn::hac::fac::FSA_SAVE_DATA_TRANSFER_VERSION_2):
-		str = "SaveDataTransferVersion2";
-		break;
-	case (nn::hac::fac::FSA_REGISTER_PROGRAM_INDEX_MAP_INFO):
-		str = "RegisterProgramIndexMapInfo";
-		break;
-	case (nn::hac::fac::FSA_CREATE_OWN_SAVE_DATA):
-		str = "CreateOwnSaveData";
-		break;
-	case (nn::hac::fac::FSA_DEBUG):
-		str = "Debug";
-		break;
-	case (nn::hac::fac::FSA_FULL_PERMISSION):
-		str = "FullPermission";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* MetaProcess::getSaveDataOwnerAccessModeStr(nn::hac::fac::SaveDataOwnerIdAccessType type) const
-{
-	const char* str = nullptr;
-
-	switch(type)
-	{
-	case (nn::hac::fac::SDO_READ):
-		str = "Read";
-		break;
-	case (nn::hac::fac::SDO_WRITE):
-		str = "Write";
-		break;
-	case (nn::hac::fac::SDO_READWRITE):
-		str = "ReadWrite";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* MetaProcess::getSystemCallStr(byte_t syscall_id) const
-{
-	const char* str = nullptr;
-
-	switch(syscall_id)
-	{
-	case (nn::hac::svc::SVC_SET_HEAP_SIZE):
-		str = "SetHeapSize";
-		break;
-	case (nn::hac::svc::SVC_SET_MEMORY_PERMISSION):
-		str = "SetMemoryPermission";
-		break;
-	case (nn::hac::svc::SVC_SET_MEMORY_ATTRIBUTE):
-		str = "SetMemoryAttribute";
-		break;
-	case (nn::hac::svc::SVC_MAP_MEMORY):
-		str = "MapMemory";
-		break;
-	case (nn::hac::svc::SVC_UNMAP_MEMORY):
-		str = "UnmapMemory";
-		break;
-	case (nn::hac::svc::SVC_QUERY_MEMORY):
-		str = "QueryMemory";
-		break;
-	case (nn::hac::svc::SVC_EXIT_PROCESS):
-		str = "ExitProcess";
-		break;
-	case (nn::hac::svc::SVC_CREATE_THREAD):
-		str = "CreateThread";
-		break;
-	case (nn::hac::svc::SVC_START_THREAD):
-		str = "StartThread";
-		break;
-	case (nn::hac::svc::SVC_EXIT_THREAD):
-		str = "ExitThread";
-		break;
-	case (nn::hac::svc::SVC_SLEEP_THREAD):
-		str = "SleepThread";
-		break;
-	case (nn::hac::svc::SVC_GET_THREAD_PRIORITY):
-		str = "GetThreadPriority";
-		break;
-	case (nn::hac::svc::SVC_SET_THREAD_PRIORITY):
-		str = "SetThreadPriority";
-		break;
-	case (nn::hac::svc::SVC_GET_THREAD_CORE_MASK):
-		str = "GetThreadCoreMask";
-		break;
-	case (nn::hac::svc::SVC_SET_THREAD_CORE_MASK):
-		str = "SetThreadCoreMask";
-		break;
-	case (nn::hac::svc::SVC_GET_CURRENT_PROCESSOR_NUMBER):
-		str = "GetCurrentProcessorNumber";
-		break;
-	case (nn::hac::svc::SVC_SIGNAL_EVENT):
-		str = "SignalEvent";
-		break;
-	case (nn::hac::svc::SVC_CLEAR_EVENT):
-		str = "ClearEvent";
-		break;
-	case (nn::hac::svc::SVC_MAP_SHARED_MEMORY):
-		str = "MapSharedMemory";
-		break;
-	case (nn::hac::svc::SVC_UNMAP_SHARED_MEMORY):
-		str = "UnmapSharedMemory";
-		break;
-	case (nn::hac::svc::SVC_CREATE_TRANSFER_MEMORY):
-		str = "CreateTransferMemory";
-		break;
-	case (nn::hac::svc::SVC_CLOSE_HANDLE):
-		str = "CloseHandle";
-		break;
-	case (nn::hac::svc::SVC_RESET_SIGNAL):
-		str = "ResetSignal";
-		break;
-	case (nn::hac::svc::SVC_WAIT_SYNCHRONIZATION):
-		str = "WaitSynchronization";
-		break;
-	case (nn::hac::svc::SVC_CANCEL_SYNCHRONIZATION):
-		str = "CancelSynchronization";
-		break;
-	case (nn::hac::svc::SVC_ARBIRATE_LOCK):
-		str = "ArbitrateLock";
-		break;
-	case (nn::hac::svc::SVC_ARBIRATE_UNLOCK):
-		str = "ArbitrateUnlock";
-		break;
-	case (nn::hac::svc::SVC_WAIT_PROCESS_WIDE_KEY_ATOMIC):
-		str = "WaitProcessWideKeyAtomic";
-		break;
-	case (nn::hac::svc::SVC_SIGNAL_PROCESS_WIDE_KEY):
-		str = "SignalProcessWideKey";
-		break;
-	case (nn::hac::svc::SVC_GET_SYSTEM_TICK):
-		str = "GetSystemTick";
-		break;
-	case (nn::hac::svc::SVC_CONNECT_TO_NAMED_PORT):
-		str = "ConnectToNamedPort";
-		break;
-	case (nn::hac::svc::SVC_SEND_SYNC_REQUEST_LIGHT):
-		str = "SendSyncRequestLight";
-		break;
-	case (nn::hac::svc::SVC_SEND_SYNC_REQUEST):
-		str = "SendSyncRequest";
-		break;
-	case (nn::hac::svc::SVC_SEND_SYNC_REQUEST_WITH_USER_BUFFER):
-		str = "SendSyncRequestWithUserBuffer";
-		break;
-	case (nn::hac::svc::SVC_SEND_ASYNC_REQUEST_WITH_USER_BUFFER):
-		str = "SendAsyncRequestWithUserBuffer";
-		break;
-	case (nn::hac::svc::SVC_GET_PROCESS_ID):
-		str = "GetProcessId";
-		break;
-	case (nn::hac::svc::SVC_GET_THREAD_ID):
-		str = "GetThreadId";
-		break;
-	case (nn::hac::svc::SVC_BREAK):
-		str = "Break";
-		break;
-	case (nn::hac::svc::SVC_OUTPUT_DEBUG_STRING):
-		str = "OutputDebugString";
-		break;
-	case (nn::hac::svc::SVC_RETURN_FROM_EXCEPTION):
-		str = "ReturnFromException";
-		break;
-	case (nn::hac::svc::SVC_GET_INFO):
-		str = "GetInfo";
-		break;
-	case (nn::hac::svc::SVC_FLUSH_ENTIRE_DATA_CACHE):
-		str = "FlushEntireDataCache";
-		break;
-	case (nn::hac::svc::SVC_FLUSH_DATA_CACHE):
-		str = "FlushDataCache";
-		break;
-	case (nn::hac::svc::SVC_MAP_PHYSICAL_MEMORY):
-		str = "MapPhysicalMemory";
-		break;
-	case (nn::hac::svc::SVC_UNMAP_PHYSICAL_MEMORY):
-		str = "UnmapPhysicalMemory";
-		break;
-	case (nn::hac::svc::SVC_GET_FUTURE_THREAD_INFO):
-		str = "GetFutureThreadInfo";
-		break;
-	case (nn::hac::svc::SVC_GET_LAST_THREAD_INFO):
-		str = "GetLastThreadInfo";
-		break;
-	case (nn::hac::svc::SVC_GET_RESOURCE_LIMIT_LIMIT_VALUE):
-		str = "GetResourceLimitLimitValue";
-		break;
-	case (nn::hac::svc::SVC_GET_RESOURCE_LIMIT_CURRENT_VALUE):
-		str = "GetResourceLimitCurrentValue";
-		break;
-	case (nn::hac::svc::SVC_SET_THREAD_ACTIVITY):
-		str = "SetThreadActivity";
-		break;
-	case (nn::hac::svc::SVC_GET_THREAD_CONTEXT3):
-		str = "GetThreadContext3";
-		break;
-	case (nn::hac::svc::SVC_WAIT_FOR_ADDRESS):
-		str = "WaitForAddress";
-		break;
-	case (nn::hac::svc::SVC_SIGNAL_TO_ADDRESS):
-		str = "SignalToAddress";
-		break;
-	case (nn::hac::svc::SVC_SYNCHRONIZE_PREEMPTION_STATE):
-		str = "SynchronizePreemptionState";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x37):
-		str = "svc37";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x38):
-		str = "svc38";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x39):
-		str = "svc39";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x3A):
-		str = "svc3A";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x3B):
-		str = "svc3B";
-		break;
-	case (nn::hac::svc::SVC_DUMP_INFO):
-		str = "DumpInfo";
-		break;
-	case (nn::hac::svc::SVC_DUMP_INFO_NEW):
-		str = "DumpInfoNew";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x3E):
-		str = "svc3E";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x3F):
-		str = "svc3F";
-		break;
-	case (nn::hac::svc::SVC_CREATE_SESSION):
-		str = "CreateSession";
-		break;
-	case (nn::hac::svc::SVC_ACCEPT_SESSION):
-		str = "AcceptSession";
-		break;
-	case (nn::hac::svc::SVC_REPLY_AND_RECEIVE_LIGHT):
-		str = "ReplyAndReceiveLight";
-		break;
-	case (nn::hac::svc::SVC_REPLY_AND_RECEIVE):
-		str = "ReplyAndReceive";
-		break;
-	case (nn::hac::svc::SVC_REPLY_AND_RECEIVE_WITH_USER_BUFFER):
-		str = "ReplyAndReceiveWithUserBuffer";
-		break;
-	case (nn::hac::svc::SVC_CREATE_EVENT):
-		str = "CreateEvent";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x46):
-		str = "svc46";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x47):
-		str = "svc47";
-		break;
-	case (nn::hac::svc::SVC_MAP_PHYSICAL_MEMORY_UNSAFE):
-		str = "MapPhysicalMemoryUnsafe";
-		break;
-	case (nn::hac::svc::SVC_UNMAP_PHYSICAL_MEMORY_UNSAFE):
-		str = "UnmapPhysicalMemoryUnsafe";
-		break;
-	case (nn::hac::svc::SVC_SET_UNSAFE_LIMIT):
-		str = "SetUnsafeLimit";
-		break;
-	case (nn::hac::svc::SVC_CREATE_CODE_MEMORY):
-		str = "CreateCodeMemory";
-		break;
-	case (nn::hac::svc::SVC_CONTROL_CODE_MEMORY):
-		str = "ControlCodeMemory";
-		break;
-	case (nn::hac::svc::SVC_SLEEP_SYSTEM):
-		str = "SleepSystem";
-		break;
-	case (nn::hac::svc::SVC_READ_WRITE_REGISTER):
-		str = "ReadWriteRegister";
-		break;
-	case (nn::hac::svc::SVC_SET_PROCESS_ACTIVITY):
-		str = "SetProcessActivity";
-		break;
-	case (nn::hac::svc::SVC_CREATE_SHARED_MEMORY):
-		str = "CreateSharedMemory";
-		break;
-	case (nn::hac::svc::SVC_MAP_TRANSFER_MEMORY):
-		str = "MapTransferMemory";
-		break;
-	case (nn::hac::svc::SVC_UNMAP_TRANSFER_MEMORY):
-		str = "UnmapTransferMemory";
-		break;
-	case (nn::hac::svc::SVC_CREATE_INTERRUPT_EVENT):
-		str = "CreateInterruptEvent";
-		break;
-	case (nn::hac::svc::SVC_QUERY_PHYSICAL_ADDRESS):
-		str = "QueryPhysicalAddress";
-		break;
-	case (nn::hac::svc::SVC_QUERY_IO_MAPPING):
-		str = "QueryIoMapping";
-		break;
-	case (nn::hac::svc::SVC_CREATE_DEVICE_ADDRESS_SPACE):
-		str = "CreateDeviceAddressSpace";
-		break;
-	case (nn::hac::svc::SVC_ATTACH_DEVICE_ADDRESS_SPACE):
-		str = "AttachDeviceAddressSpace";
-		break;
-	case (nn::hac::svc::SVC_DETACH_DEVICE_ADDRESS_SPACE):
-		str = "DetachDeviceAddressSpace";
-		break;
-	case (nn::hac::svc::SVC_MAP_DEVICE_ADDRESS_SPACE_BY_FORCE):
-		str = "MapDeviceAddressSpaceByForce";
-		break;
-	case (nn::hac::svc::SVC_MAP_DEVICE_ADDRESS_SPACE_ALIGNED):
-		str = "MapDeviceAddressSpaceAligned";
-		break;
-	case (nn::hac::svc::SVC_MAP_DEVICE_ADDRESS_SPACE):
-		str = "MapDeviceAddressSpace";
-		break;
-	case (nn::hac::svc::SVC_UNMAP_DEVICE_ADDRESS_SPACE):
-		str = "UnmapDeviceAddressSpace";
-		break;
-	case (nn::hac::svc::SVC_INVALIDATE_PROCESS_DATA_CACHE):
-		str = "InvalidateProcessDataCache";
-		break;
-	case (nn::hac::svc::SVC_STORE_PROCESS_DATA_CACHE):
-		str = "StoreProcessDataCache";
-		break;
-	case (nn::hac::svc::SVC_FLUSH_PROCESS_DATA_CACHE):
-		str = "FlushProcessDataCache";
-		break;
-	case (nn::hac::svc::SVC_DEBUG_ACTIVE_PROCESS):
-		str = "DebugActiveProcess";
-		break;
-	case (nn::hac::svc::SVC_BREAK_DEBUG_PROCESS):
-		str = "BreakDebugProcess";
-		break;
-	case (nn::hac::svc::SVC_TERMINATE_DEBUG_PROCESS):
-		str = "TerminateDebugProcess";
-		break;
-	case (nn::hac::svc::SVC_GET_DEBUG_EVENT):
-		str = "GetDebugEvent";
-		break;
-	case (nn::hac::svc::SVC_CONTINUE_DEBUG_EVENT):
-		str = "ContinueDebugEvent";
-		break;
-	case (nn::hac::svc::SVC_GET_PROCESS_LIST):
-		str = "GetProcessList";
-		break;
-	case (nn::hac::svc::SVC_GET_THREAD_LIST):
-		str = "GetThreadList";
-		break;
-	case (nn::hac::svc::SVC_GET_DEBUG_THREAD_CONTEXT):
-		str = "GetDebugThreadContext";
-		break;
-	case (nn::hac::svc::SVC_SET_DEBUG_THREAD_CONTEXT):
-		str = "SetDebugThreadContext";
-		break;
-	case (nn::hac::svc::SVC_QUERY_DEBUG_PROCESS_MEMORY):
-		str = "QueryDebugProcessMemory";
-		break;
-	case (nn::hac::svc::SVC_READ_DEBUG_PROCESS_MEMORY):
-		str = "ReadDebugProcessMemory";
-		break;
-	case (nn::hac::svc::SVC_WRITE_DEBUG_PROCESS_MEMORY):
-		str = "WriteDebugProcessMemory";
-		break;
-	case (nn::hac::svc::SVC_SET_HARDWARE_BREAK_POINT):
-		str = "SetHardwareBreakPoint";
-		break;
-	case (nn::hac::svc::SVC_GET_DEBUG_THREAD_PARAM):
-		str = "GetDebugThreadParam";
-		break;
-	case (nn::hac::svc::SVC_UNK_0x6E):
-		str = "svc6E";
-		break;
-	case (nn::hac::svc::SVC_GET_SYSTEM_INFO):
-		str = "GetSystemInfo";
-		break;
-	case (nn::hac::svc::SVC_CREATE_PORT):
-		str = "CreatePort";
-		break;
-	case (nn::hac::svc::SVC_MANAGE_NAMED_PORT):
-		str = "ManageNamedPort";
-		break;
-	case (nn::hac::svc::SVC_CONNECT_TO_PORT):
-		str = "ConnectToPort";
-		break;
-	case (nn::hac::svc::SVC_SET_PROCESS_MEMORY_PERMISSION):
-		str = "SetProcessMemoryPermission";
-		break;
-	case (nn::hac::svc::SVC_MAP_PROCESS_MEMORY):
-		str = "MapProcessMemory";
-		break;
-	case (nn::hac::svc::SVC_UNMAP_PROCESS_MEMORY):
-		str = "UnmapProcessMemory";
-		break;
-	case (nn::hac::svc::SVC_QUERY_PROCESS_MEMORY):
-		str = "QueryProcessMemory";
-		break;
-	case (nn::hac::svc::SVC_MAP_PROCESS_CODE_MEMORY):
-		str = "MapProcessCodeMemory";
-		break;
-	case (nn::hac::svc::SVC_UNMAP_PROCESS_CODE_MEMORY):
-		str = "UnmapProcessCodeMemory";
-		break;
-	case (nn::hac::svc::SVC_CREATE_PROCESS):
-		str = "CreateProcess";
-		break;
-	case (nn::hac::svc::SVC_START_PROCESS):
-		str = "StartProcess";
-		break;
-	case (nn::hac::svc::SVC_TERMINATE_PROCESS):
-		str = "TerminateProcess";
-		break;
-	case (nn::hac::svc::SVC_GET_PROCESS_INFO):
-		str = "GetProcessInfo";
-		break;
-	case (nn::hac::svc::SVC_CREATE_RESOURCE_LIMIT):
-		str = "CreateResourceLimit";
-		break;
-	case (nn::hac::svc::SVC_SET_RESOURCE_LIMIT_LIMIT_VALUE):
-		str = "SetResourceLimitLimitValue";
-		break;
-	case (nn::hac::svc::SVC_CALL_SECURE_MONITOR):
-		str = "CallSecureMonitor";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* MetaProcess::getMemMapPermStr(nn::hac::MemoryMappingHandler::MemoryPerm type) const
-{
-	const char* str = nullptr;
-
-	switch(type)
-	{
-	case (nn::hac::MemoryMappingHandler::MEM_RW):
-		str = "RW";
-		break;
-	case (nn::hac::MemoryMappingHandler::MEM_RO):
-		str = "RO";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* MetaProcess::getMemMapTypeStr(nn::hac::MemoryMappingHandler::MappingType type) const
-{
-	const char* str = nullptr;
-
-	switch(type)
-	{
-	case (nn::hac::MemoryMappingHandler::MAP_IO):
-		str = "Io";
-		break;
-	case (nn::hac::MemoryMappingHandler::MAP_STATIC):
-		str = "Static";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
 }
