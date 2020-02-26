@@ -2,7 +2,6 @@
 #include <fnd/ResourceFileReader.h>
 #include <fnd/SimpleTextOutput.h>
 #include <nn/hac/AesKeygen.h>
-#include <nn/hac/ContentArchiveUtils.h>
 
 KeyConfiguration::KeyConfiguration()
 {

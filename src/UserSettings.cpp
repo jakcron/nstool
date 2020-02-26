@@ -13,7 +13,7 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/Vec.h>
 #include <fnd/ResourceFileReader.h>
-#include <nn/hac/ContentArchiveUtils.h>
+#include <nn/hac/ContentArchiveUtil.h>
 #include <nn/hac/AesKeygen.h>
 #include <nn/hac/define/gc.h>
 #include <nn/hac/define/pfs.h>
@@ -522,7 +522,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 			fnd::aes::sAes128Key enc_title_key;
 			memcpy(enc_title_key.key, tik.getBody().getEncTitleKey(), 16);
 			fnd::aes::sAes128Key common_key, external_content_key;
-			if (mKeyCfg.getETicketCommonKey(nn::hac::ContentArchiveUtils::getMasterKeyRevisionFromKeyGeneration(tik.getBody().getCommonKeyId()), common_key) == true)
+			if (mKeyCfg.getETicketCommonKey(nn::hac::ContentArchiveUtil::getMasterKeyRevisionFromKeyGeneration(tik.getBody().getCommonKeyId()), common_key) == true)
 			{
 				nn::hac::AesKeygen::generateKey(external_content_key.key, tik.getBody().getEncTitleKey(), common_key.key);
 				mKeyCfg.addNcaExternalContentKey(tik.getBody().getRightsId(), external_content_key);
@@ -731,14 +731,14 @@ bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) c
 {
 	// prepare decrypted NCA data
 	byte_t nca_raw[nn::hac::nca::kHeaderSize];
-	nn::hac::sContentArchiveHeader* nca_header = (nn::hac::sContentArchiveHeader*)(nca_raw + nn::hac::ContentArchiveUtils::sectorToOffset(1));
+	nn::hac::sContentArchiveHeader* nca_header = (nn::hac::sContentArchiveHeader*)(nca_raw + nn::hac::ContentArchiveUtil::sectorToOffset(1));
 	
 	if (sample.size() < nn::hac::nca::kHeaderSize)
 		return false;
 
 	fnd::aes::sAesXts128Key header_key;
 	mKeyCfg.getContentArchiveHeaderKey(header_key);
-	nn::hac::ContentArchiveUtils::decryptContentArchiveHeader(sample.data(), nca_raw, header_key);
+	nn::hac::ContentArchiveUtil::decryptContentArchiveHeader(sample.data(), nca_raw, header_key);
 
 	if (nca_header->st_magic.get() != nn::hac::nca::kNca2StructMagic && nca_header->st_magic.get() != nn::hac::nca::kNca3StructMagic)
 		return false;
