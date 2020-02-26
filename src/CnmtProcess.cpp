@@ -1,8 +1,12 @@
+#include "CnmtProcess.h"
+
 #include <iostream>
 #include <iomanip>
+
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/OffsetAdjustedIFile.h>
-#include "CnmtProcess.h"
+
+#include <nn/hac/ContentMetaUtil.h>
 
 CnmtProcess::CnmtProcess() :
 	mFile(),
@@ -61,10 +65,18 @@ void CnmtProcess::displayCnmt()
 	std::cout << "[ContentMeta]" << std::endl;
 	std::cout << "  TitleId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getTitleId() << std::endl;
 	std::cout << "  Version:               v" << std::dec << mCnmt.getTitleVersion() << " (" << _SPLIT_VER(mCnmt.getTitleVersion()) << ")"<< std::endl;
-	std::cout << "  Type:                  " << getContentMetaTypeStr(mCnmt.getContentMetaType()) << " (" << std::dec << mCnmt.getContentMetaType() << ")" << std::endl;
+	std::cout << "  Type:                  " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(mCnmt.getContentMetaType()) << " (" << std::dec << mCnmt.getContentMetaType() << ")" << std::endl;
 	std::cout << "  Attributes:            0x" << std::hex << (uint32_t)mCnmt.getAttributes() << std::endl;
-	std::cout << "    IncludesExFatDriver: " << getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)) << std::endl;
-	std::cout << "    Rebootless:          " << getBoolStr(_HAS_BIT(mCnmt.getAttributes(), nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)) << std::endl;
+	if (mCnmt.getAttributes() != 0)
+	{
+		for (size_t bit = 0; bit < (sizeof(byte_t)*8); bit++)
+		{
+			if (_HAS_BIT(mCnmt.getAttributes(), bit))
+			{
+				std::cout << "  > " << nn::hac::ContentMetaUtil::getContentMetaAttributeAsString((nn::hac::cnmt::ContentMetaAttribute)bit) << std::endl;
+			}
+		}
+	}
 	std::cout << "  RequiredDownloadSystemVersion: v" << mCnmt.getRequiredDownloadSystemVersion() << " (" << _SPLIT_VER(mCnmt.getRequiredDownloadSystemVersion()) << ")"<< std::endl;
 	switch(mCnmt.getContentMetaType())
 	{
@@ -97,7 +109,7 @@ void CnmtProcess::displayCnmt()
 		{
 			const nn::hac::ContentInfo& info = mCnmt.getContentInfo()[i];
 			std::cout << "    " << std::dec << i << std::endl;
-			std::cout << "      Type:         " << getContentTypeStr(info.getContentType()) << " (" << std::dec << info.getContentType() << ")" << std::endl;
+			std::cout << "      Type:         " << nn::hac::ContentMetaUtil::getContentTypeAsString(info.getContentType()) << " (" << std::dec << info.getContentType() << ")" << std::endl;
 			std::cout << "      Id:           " << fnd::SimpleTextOutput::arrayToString(info.getContentId().data, nn::hac::cnmt::kContentIdLen, false, "") << std::endl;
 			std::cout << "      Size:         0x" << std::hex << info.getContentSize() << std::endl;
 			std::cout << "      Hash:         " << fnd::SimpleTextOutput::arrayToString(info.getContentHash().bytes, sizeof(info.getContentHash()), false, "") << std::endl;
@@ -112,10 +124,18 @@ void CnmtProcess::displayCnmt()
 			std::cout << "    " << std::dec << i << std::endl;
 			std::cout << "      Id:           0x" << std::hex << std::setw(16) << std::setfill('0') << info.getTitleId() << std::endl;
 			std::cout << "      Version:      v" << std::dec << info.getTitleVersion() << " (" << _SPLIT_VER(info.getTitleVersion()) << ")"<< std::endl;
-			std::cout << "      Type:         " << getContentMetaTypeStr(info.getContentMetaType()) << " (" << std::dec << info.getContentMetaType() << ")" << std::endl; 
+			std::cout << "      Type:         " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(info.getContentMetaType()) << " (" << std::dec << info.getContentMetaType() << ")" << std::endl; 
 			std::cout << "      Attributes:   0x" << std::hex << (uint32_t)info.getAttributes() << std::endl;
-			std::cout << "        IncludesExFatDriver: " << getBoolStr(_HAS_BIT(info.getAttributes(), nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER)) << std::endl;
-			std::cout << "        Rebootless:          " << getBoolStr(_HAS_BIT(info.getAttributes(), nn::hac::cnmt::ATTRIBUTE_REBOOTLESS)) << std::endl;
+			if (info.getAttributes() != 0)
+			{
+				for (size_t bit = 0; bit < (sizeof(byte_t)*8); bit++)
+				{
+					if (_HAS_BIT(info.getAttributes(), bit))
+					{
+						std::cout << "      > " << nn::hac::ContentMetaUtil::getContentMetaAttributeAsString((nn::hac::cnmt::ContentMetaAttribute)bit) << std::endl;
+					}
+				}
+			}
 		}
 	}
 
@@ -127,123 +147,4 @@ void CnmtProcess::displayCnmt()
 const char* CnmtProcess::getBoolStr(bool state) const
 {
 	return state? "TRUE" : "FALSE";
-}
-
-const char* CnmtProcess::getContentTypeStr(nn::hac::cnmt::ContentType type) const
-{
-	const char* str = nullptr;
-
-	switch (type)
-	{
-	case (nn::hac::cnmt::TYPE_META):
-		str = "Meta";
-		break;
-	case (nn::hac::cnmt::TYPE_PROGRAM):
-		str = "Program";
-		break;
-	case (nn::hac::cnmt::TYPE_DATA):
-		str = "Data";
-		break;
-	case (nn::hac::cnmt::TYPE_CONTROL):
-		str = "Control";
-		break;
-	case (nn::hac::cnmt::TYPE_HTML_DOCUMENT):
-		str = "HtmlDocument";
-		break;
-	case (nn::hac::cnmt::TYPE_LEGAL_INFORMATION):
-		str = "LegalInformation";
-		break;
-	case (nn::hac::cnmt::TYPE_DELTA_FRAGMENT):
-		str = "DeltaFragment";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* CnmtProcess::getContentMetaTypeStr(nn::hac::cnmt::ContentMetaType type) const
-{
-	const char* str = nullptr;
-
-	switch (type)
-	{
-	case (nn::hac::cnmt::METATYPE_SYSTEM_PROGRAM):
-		str = "SystemProgram";
-		break;
-	case (nn::hac::cnmt::METATYPE_SYSTEM_DATA):
-		str = "SystemData";
-		break;
-	case (nn::hac::cnmt::METATYPE_SYSTEM_UPDATE):
-		str = "SystemUpdate";
-		break;
-	case (nn::hac::cnmt::METATYPE_BOOT_IMAGE_PACKAGE):
-		str = "BootImagePackage";
-		break;
-	case (nn::hac::cnmt::METATYPE_BOOT_IMAGE_PACKAGE_SAFE):
-		str = "BootImagePackageSafe";
-		break;
-	case (nn::hac::cnmt::METATYPE_APPLICATION):
-		str = "Application";
-		break;
-	case (nn::hac::cnmt::METATYPE_PATCH):
-		str = "Patch";
-		break;
-	case (nn::hac::cnmt::METATYPE_ADD_ON_CONTENT):
-		str = "AddOnContent";
-		break;
-	case (nn::hac::cnmt::METATYPE_DELTA):
-		str = "Delta";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* CnmtProcess::getUpdateTypeStr(nn::hac::cnmt::UpdateType type) const
-{
-	const char* str = nullptr;
-
-	switch (type)
-	{
-	case (nn::hac::cnmt::UPDATETYPE_APPLY_AS_DELTA):
-		str = "ApplyAsDelta";
-		break;
-	case (nn::hac::cnmt::UPDATETYPE_OVERWRITE):
-		str = "Overwrite";
-		break;
-	case (nn::hac::cnmt::UPDATETYPE_CREATE):
-		str = "Create";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
-}
-
-const char* CnmtProcess::getContentMetaAttrStr(nn::hac::cnmt::ContentMetaAttribute attr) const
-{
-	const char* str = nullptr;
-
-	switch (attr)
-	{
-	case (nn::hac::cnmt::ATTRIBUTE_INCLUDES_EX_FAT_DRIVER):
-		str = "IncludesExFatDriver";
-		break;
-	case (nn::hac::cnmt::ATTRIBUTE_REBOOTLESS):
-		str = "Rebootless";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
 }
