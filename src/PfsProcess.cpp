@@ -1,8 +1,13 @@
+#include "PfsProcess.h"
+
 #include <iostream>
 #include <iomanip>
+
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
-#include "PfsProcess.h"
+
+#include <nn/hac/PartitionFsUtil.h>
+
 
 PfsProcess::PfsProcess() :
 	mFile(),
@@ -95,7 +100,7 @@ void PfsProcess::importHeader()
 void PfsProcess::displayHeader()
 {
 	std::cout << "[PartitionFS]" << std::endl;
-	std::cout << "  Type:        " << getFsTypeStr(mPfs.getFsType()) << std::endl;
+	std::cout << "  Type:        " << nn::hac::PartitionFsUtil::getFsTypeAsString(mPfs.getFsType()) << std::endl;
 	std::cout << "  FileNum:     " << std::dec << mPfs.getFileList().size() << std::endl;
 	if (mMountName.empty() == false)
 	{
@@ -191,24 +196,4 @@ void PfsProcess::extractFs()
 		}		
 		outFile.close();
 	}
-}
-
-const char* PfsProcess::getFsTypeStr(nn::hac::PartitionFsHeader::FsType type) const
-{
-	const char* str = nullptr;
-
-	switch (type)
-	{
-	case (nn::hac::PartitionFsHeader::TYPE_PFS0):
-		str = "PFS0";
-		break;
-	case (nn::hac::PartitionFsHeader::TYPE_HFS0):
-		str = "HFS0";
-		break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	return str;
 }
