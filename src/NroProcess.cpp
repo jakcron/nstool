@@ -128,7 +128,9 @@ void NroProcess::importCodeSegments()
 void NroProcess::displayHeader()
 {
 	std::cout << "[NRO Header]" << std::endl;
-	std::cout << "  RoCrt:       " << fnd::SimpleTextOutput::arrayToString(mHdr.getRoCrt().data, nn::hac::nro::kRoCrtSize, false, "") << std::endl;
+	std::cout << "  RoCrt:       " << std::endl;
+	std::cout << "    EntryPoint: 0x" << std::hex << mHdr.getRoCrtEntryPoint() << std::endl;
+	std::cout << "    ModOffset:  0x" << std::hex << mHdr.getRoCrtModOffset() << std::endl;
 	std::cout << "  ModuleId:    " << fnd::SimpleTextOutput::arrayToString(mHdr.getModuleId().data, nn::hac::nro::kModuleIdSize, false, "") << std::endl;
 	std::cout << "  NroSize:     0x" << std::hex << mHdr.getNroSize() << std::endl;
 	std::cout << "  Program Sections:" << std::endl;

@@ -10,7 +10,7 @@ static const size_t kNcaKeakNum = nn::hac::nca::kKeyAreaEncryptionKeyNum;
 
 enum FileType
 {
-	FILE_GC,
+	FILE_GAMECARD,
 	FILE_NSP,
 	FILE_PARTITIONFS,
 	FILE_ROMFS,

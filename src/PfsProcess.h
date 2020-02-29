@@ -50,6 +50,4 @@ private:
 	bool validateHeaderMagic(const nn::hac::sPfsHeader* hdr);
 	void validateHfs();
 	void extractFs();
-
-	const char* getFsTypeStr(nn::hac::PartitionFsHeader::FsType type) const;
 };

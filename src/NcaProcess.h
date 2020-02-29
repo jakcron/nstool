@@ -111,13 +111,5 @@ private:
 	void displayHeader();
 	void processPartitions();
 
-	const char* getFormatVersionStr(byte_t format_ver) const;
-	const char* getDistributionTypeStr(nn::hac::nca::DistributionType dist_type) const;
-	const char* getContentTypeStr(nn::hac::nca::ContentType cont_type) const;
-	const char* getEncryptionTypeStr(nn::hac::nca::EncryptionType enc_type) const;
-	const char* getHashTypeStr(nn::hac::nca::HashType hash_type) const;
-	const char* getFormatTypeStr(nn::hac::nca::FormatType format_type) const;
-	const char* getKaekIndexStr(nn::hac::nca::KeyAreaEncryptionKeyIndex keak_index) const;
 	const char* getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const;
-	const char* getProgramPartitionNameStr(size_t i) const;
 };

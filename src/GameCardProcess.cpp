@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/OffsetAdjustedIFile.h>
-#include <nn/hac/GameCardUtils.h>
+#include <nn/hac/GameCardUtil.h>
 #include "GameCardProcess.h"
 
 GameCardProcess::GameCardProcess() :
@@ -10,6 +10,7 @@ GameCardProcess::GameCardProcess() :
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
 	mVerify(false),
 	mListFs(false),
+	mProccessExtendedHeader(false),
 	mRootPfs(),
 	mExtractInfo()
 {
@@ -73,25 +74,53 @@ void GameCardProcess::importHeader()
 		throw fnd::Exception(kModuleName, "No file reader set.");
 	}
 	
-	// read header page
-	(*mFile)->read((byte_t*)&mHdrPage, 0, sizeof(nn::hac::sGcHeaderPage));
+	// allocate memory for header
+	scratch.alloc(sizeof(nn::hac::sSdkGcHeader));
 
-	// allocate memory for and decrypt sXciHeader
-	scratch.alloc(sizeof(nn::hac::sGcHeader));
+	// read header region
+	(*mFile)->read((byte_t*)scratch.data(), 0, sizeof(nn::hac::sSdkGcHeader));
 
+	// determine if this is a SDK XCI or a "Community" XCI
+	if (((nn::hac::sSdkGcHeader*)scratch.data())->signed_header.header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
+	{
+		mIsTrueSdkXci = true;
+		mGcHeaderOffset = sizeof(nn::hac::sGcKeyDataRegion);
+	}
+	else if (((nn::hac::sGcHeader_Rsa2048Signed*)scratch.data())->header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
+	{
+		mIsTrueSdkXci = false;
+		mGcHeaderOffset = 0;
+	}
+	else 
+	{
+		throw fnd::Exception(kModuleName, "GameCard image did not have expected magic bytes");
+	}
+
+	nn::hac::sGcHeader_Rsa2048Signed* hdr_ptr = (nn::hac::sGcHeader_Rsa2048Signed*)(scratch.data() + mGcHeaderOffset);
+
+	// generate hash of raw header
+	fnd::sha::Sha256((byte_t*)&hdr_ptr->header, sizeof(nn::hac::sGcHeader), mHdrHash.bytes);
+	
+	// save the signature
+	memcpy(mHdrSignature, hdr_ptr->signature, fnd::rsa::kRsa2048Size);
+	
+	// decrypt extended header
 	fnd::aes::sAes128Key header_key;
-	mKeyCfg.getXciHeaderKey(header_key);
-	nn::hac::GameCardUtils::decryptXciHeader((const byte_t*)&mHdrPage.header, scratch.data(), header_key.key);
-
+	if (mKeyCfg.getXciHeaderKey(header_key))
+	{
+		nn::hac::GameCardUtil::decryptXciHeader(&hdr_ptr->header, header_key.key);
+		mProccessExtendedHeader = true;
+	}
+	
 	// deserialise header
-	mHdr.fromBytes(scratch.data(), scratch.size());
+	mHdr.fromBytes((byte_t*)&hdr_ptr->header, sizeof(nn::hac::sGcHeader));
 }
 
 void GameCardProcess::displayHeader()
 {
 	std::cout << "[GameCard Header]" << std::endl;
 	std::cout << "  CardHeaderVersion:      " << std::dec << (uint32_t)mHdr.getCardHeaderVersion() << std::endl;
-	std::cout << "  RomSize:                " << getRomSizeStr(mHdr.getRomSizeType());
+	std::cout << "  RomSize:                " << nn::hac::GameCardUtil::getRomSizeAsString((nn::hac::gc::RomSize)mHdr.getRomSizeType());
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		std::cout << " (0x" << std::hex << (uint32_t)mHdr.getRomSizeType() << ")";
 	std::cout << std::endl;
@@ -103,14 +132,14 @@ void GameCardProcess::displayHeader()
 		{
 			if (_HAS_BIT(mHdr.getFlags(), i))
 			{
-				std::cout << "    " << getHeaderFlagStr(i) << std::endl;
+				std::cout << "    " << nn::hac::GameCardUtil::getHeaderFlagsAsString((nn::hac::gc::HeaderFlags)i) << std::endl;
 			}
 		}
 	}
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 	{
 		std::cout << "  InitialData:" << std::endl;
-		std::cout << "    KekIndex:             " << std::dec << (uint32_t)mHdr.getKekIndex() << std::endl;
+		std::cout << "    KekIndex:             " << nn::hac::GameCardUtil::getKekIndexAsString((nn::hac::gc::KekIndex)mHdr.getKekIndex()) << "(" << std::dec << (uint32_t)mHdr.getKekIndex() << ")" << std::endl;
 		std::cout << "    TitleKeyDecIndex:     " << std::dec << (uint32_t)mHdr.getTitleKeyDecIndex() << std::endl;
 		std::cout << "    Hash:" << std::endl;
 		std::cout << "      " << fnd::SimpleTextOutput::arrayToString(mHdr.getInitialDataHash().bytes, 0x10, true, ":") << std::endl;
@@ -128,22 +157,22 @@ void GameCardProcess::displayHeader()
 	{
 		std::cout << "  RomAreaStartPage:       0x" << std::hex << mHdr.getRomAreaStartPage();
 		if (mHdr.getRomAreaStartPage() != (uint32_t)(-1))
-			std::cout << " (0x" << std::hex << nn::hac::GameCardUtils::blockToAddr(mHdr.getRomAreaStartPage()) << ")";
+			std::cout << " (0x" << std::hex << nn::hac::GameCardUtil::blockToAddr(mHdr.getRomAreaStartPage()) << ")";
 		std::cout << std::endl;
 
 		std::cout << "  BackupAreaStartPage:    0x" << std::hex << mHdr.getBackupAreaStartPage();
 		if (mHdr.getBackupAreaStartPage() != (uint32_t)(-1))
-			std::cout << " (0x" << std::hex << nn::hac::GameCardUtils::blockToAddr(mHdr.getBackupAreaStartPage()) << ")";
+			std::cout << " (0x" << std::hex << nn::hac::GameCardUtil::blockToAddr(mHdr.getBackupAreaStartPage()) << ")";
 		std::cout << std::endl;
 
 		std::cout << "  ValidDataEndPage:       0x" << std::hex << mHdr.getValidDataEndPage();
 		if (mHdr.getValidDataEndPage() != (uint32_t)(-1))
-			std::cout << " (0x" << std::hex << nn::hac::GameCardUtils::blockToAddr(mHdr.getValidDataEndPage()) << ")";
+			std::cout << " (0x" << std::hex << nn::hac::GameCardUtil::blockToAddr(mHdr.getValidDataEndPage()) << ")";
 		std::cout << std::endl;
 
 		std::cout << "  LimArea:                0x" << std::hex << mHdr.getLimAreaPage();
 		if (mHdr.getLimAreaPage() != (uint32_t)(-1))
-			std::cout << " (0x" << std::hex << nn::hac::GameCardUtils::blockToAddr(mHdr.getLimAreaPage()) << ")";
+			std::cout << " (0x" << std::hex << nn::hac::GameCardUtil::blockToAddr(mHdr.getLimAreaPage()) << ")";
 		std::cout << std::endl;
 
 		std::cout << "  PartitionFs Header:" << std::endl;
@@ -158,23 +187,24 @@ void GameCardProcess::displayHeader()
 	}
 
 	
-	if (mHdr.getFwVerMinor() != 0)
+	if (mProccessExtendedHeader)
 	{
 		std::cout << "[GameCard Extended Header]" << std::endl;
-		std::cout << "  FwVersion:              v" << std::dec << mHdr.getFwVerMajor() << "." << mHdr.getFwVerMinor() << std::endl;
+		std::cout << "  FwVersion:              v" << std::dec << mHdr.getFwVersion() << "(" << nn::hac::GameCardUtil::getCardFwVersionDescriptionAsString((nn::hac::gc::FwVersion)mHdr.getFwVersion()) << ")" << std::endl;
 		std::cout << "  AccCtrl1:               0x" << std::hex << mHdr.getAccCtrl1() << std::endl;
-		std::cout << "    CardClockRate:        " << getCardClockRate(mHdr.getAccCtrl1()) << std::endl;
+		std::cout << "    CardClockRate:        " << nn::hac::GameCardUtil::getCardClockRateAsString((nn::hac::gc::CardClockRate)mHdr.getAccCtrl1()) << std::endl;
 		std::cout << "  Wait1TimeRead:          0x" << std::hex << mHdr.getWait1TimeRead() << std::endl;
 		std::cout << "  Wait2TimeRead:          0x" << std::hex << mHdr.getWait2TimeRead() << std::endl;
 		std::cout << "  Wait1TimeWrite:         0x" << std::hex << mHdr.getWait1TimeWrite() << std::endl;
 		std::cout << "  Wait2TimeWrite:         0x" << std::hex << mHdr.getWait2TimeWrite() << std::endl;
 		std::cout << "  FwMode:                 0x" << std::hex << mHdr.getFwMode() << std::endl;
+		std::cout << "  CompatibilityType:      " << nn::hac::GameCardUtil::getCompatibilityTypeAsString((nn::hac::gc::CompatibilityType)mHdr.getCompatibilityType()) << "(" << std::dec << mHdr.getCompatibilityType() << ")" << std::endl;
 		std::cout << "  Update Partition Info:" << std::endl;
 #define _SPLIT_VER(ver) std::dec << ((ver>>26) & 0x3f) << "." << ((ver>>20) & 0x3f) << "." << ((ver>>16) & 0xf) << "." << (ver & 0xffff)
 		std::cout << "    CUP Version:          v" << std::dec << mHdr.getUppVersion() << " (" << _SPLIT_VER(mHdr.getUppVersion()) << ")" << std::endl;
 #undef _SPLIT_VER
 		std::cout << "    CUP TitleId:          0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getUppId() << std::endl;
-		std::cout << "    Partition Hash:       " << fnd::SimpleTextOutput::arrayToString(mHdr.getUppHash(), 8, true, ":") << std::endl;
+		std::cout << "    CUP Digest:       " << fnd::SimpleTextOutput::arrayToString(mHdr.getUppHash(), 8, true, ":") << std::endl;
 	}
 }
 
@@ -191,10 +221,9 @@ bool GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte
 void GameCardProcess::validateXciSignature()
 {
 	fnd::rsa::sRsa2048Key header_sign_key;
-	fnd::sha::sSha256Hash calc_hash;
-	fnd::sha::Sha256((byte_t*)&mHdrPage.header, sizeof(nn::hac::sGcHeader), calc_hash.bytes);
+
 	mKeyCfg.getXciHeaderSignKey(header_sign_key);
-	if (fnd::rsa::pkcs::rsaVerify(header_sign_key, fnd::sha::HASH_SHA256, calc_hash.bytes, mHdrPage.signature) != 0)
+	if (fnd::rsa::pkcs::rsaVerify(header_sign_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrSignature) != 0)
 	{
 		std::cout << "[WARNING] GameCard Header Signature: FAIL" << std::endl;
 	}
@@ -236,80 +265,4 @@ void GameCardProcess::processPartitionPfs()
 	
 		tmp.process();
 	}
-}
-
-const char* GameCardProcess::getRomSizeStr(byte_t rom_size) const
-{
-	const char* str = nullptr;
-
-	switch (rom_size)
-	{
-		case (nn::hac::gc::ROM_SIZE_1GB):
-			str = "1GB";
-			break;
-		case (nn::hac::gc::ROM_SIZE_2GB):
-			str = "2GB";
-			break;
-		case (nn::hac::gc::ROM_SIZE_4GB):
-			str = "4GB";
-			break;
-		case (nn::hac::gc::ROM_SIZE_8GB):
-			str = "8GB";
-			break;
-		case (nn::hac::gc::ROM_SIZE_16GB):
-			str = "16GB";
-			break;
-		case (nn::hac::gc::ROM_SIZE_32GB):
-			str = "32GB";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-
-	return str;
-}
-
-const char* GameCardProcess::getHeaderFlagStr(byte_t flag) const
-{
-	const char* str = nullptr;
-	
-	switch (flag)
-	{
-		case (nn::hac::gc::FLAG_AUTOBOOT):
-			str = "AutoBoot";
-			break;
-		case (nn::hac::gc::FLAG_HISTORY_ERASE):
-			str = "HistoryErase";
-			break;
-		case (nn::hac::gc::FLAG_REPAIR_TOOL):
-			str = "RepairTool";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-
-	return str;
-}
-
-
-const char* GameCardProcess::getCardClockRate(uint32_t acc_ctrl_1) const
-{
-	const char* str = nullptr;
-
-	switch (acc_ctrl_1)
-	{
-		case (nn::hac::gc::CLOCK_RATE_25):
-			str = "20 MHz";
-			break;
-		case (nn::hac::gc::CLOCK_RATE_50):
-			str = "50 MHz";
-			break;
-		default:
-			str = "Unknown";
-			break;
-	}
-
-	return str;
 }

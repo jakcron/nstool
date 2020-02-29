@@ -35,6 +35,7 @@ private:
 	KeyConfiguration mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
+	bool mListFs;
 
 	struct sExtractInfo
 	{
@@ -53,10 +54,16 @@ private:
 		}
 	};
 
-	bool mListFs;
-
-	nn::hac::sGcHeaderPage mHdrPage;
+	
+	
+	bool mIsTrueSdkXci;
+	bool mIsSdkXciEncrypted;
+	size_t mGcHeaderOffset;
+	bool mProccessExtendedHeader;
+	byte_t mHdrSignature[fnd::rsa::kRsa2048Size];
+	fnd::sha::sSha256Hash mHdrHash;
 	nn::hac::GameCardHeader mHdr;
+	
 	PfsProcess mRootPfs;
 	fnd::List<sExtractInfo> mExtractInfo;
 
@@ -66,9 +73,4 @@ private:
 	void validateXciSignature();
 	void processRootPfs();
 	void processPartitionPfs();
-
-	// strings
-	const char* getRomSizeStr(byte_t rom_size) const;
-	const char* getHeaderFlagStr(byte_t flag) const;
-	const char* getCardClockRate(uint32_t acc_ctrl_1) const;
 };

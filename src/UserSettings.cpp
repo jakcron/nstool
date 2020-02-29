@@ -13,7 +13,7 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/Vec.h>
 #include <fnd/ResourceFileReader.h>
-#include <nn/hac/ContentArchiveUtils.h>
+#include <nn/hac/ContentArchiveUtil.h>
 #include <nn/hac/AesKeygen.h>
 #include <nn/hac/define/gc.h>
 #include <nn/hac/define/pfs.h>
@@ -522,7 +522,7 @@ void UserSettings::populateKeyset(sCmdArgs& args)
 			fnd::aes::sAes128Key enc_title_key;
 			memcpy(enc_title_key.key, tik.getBody().getEncTitleKey(), 16);
 			fnd::aes::sAes128Key common_key, external_content_key;
-			if (mKeyCfg.getETicketCommonKey(nn::hac::ContentArchiveUtils::getMasterKeyRevisionFromKeyGeneration(tik.getBody().getCommonKeyId()), common_key) == true)
+			if (mKeyCfg.getETicketCommonKey(nn::hac::ContentArchiveUtil::getMasterKeyRevisionFromKeyGeneration(tik.getBody().getCommonKeyId()), common_key) == true)
 			{
 				nn::hac::AesKeygen::generateKey(external_content_key.key, tik.getBody().getEncTitleKey(), common_key.key);
 				mKeyCfg.addNcaExternalContentKey(tik.getBody().getRightsId(), external_content_key);
@@ -609,7 +609,7 @@ FileType UserSettings::getFileTypeFromString(const std::string& type_str)
 	
 	FileType type;
 	if (str == "gc" || str == "gamecard" || str == "xci")
-		type = FILE_GC;
+		type = FILE_GAMECARD;
 	else if (str == "nsp")
 		type = FILE_NSP;
 	else if (str == "partitionfs" || str == "hashedpartitionfs"  \
@@ -666,9 +666,11 @@ FileType UserSettings::determineFileTypeFromFile(const std::string& path)
 #define _TYPE_PTR(st) ((st*)(scratch.data()))
 #define _ASSERT_SIZE(sz) (scratch.size() >= (sz))
 
-	// test npdm
-	if (_ASSERT_SIZE(sizeof(nn::hac::sGcHeaderPage)) && _TYPE_PTR(nn::hac::sGcHeaderPage)->header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
-		file_type = FILE_GC;
+	// test gamecard
+	if (_ASSERT_SIZE(sizeof(nn::hac::sGcHeader_Rsa2048Signed)) && _TYPE_PTR(nn::hac::sGcHeader_Rsa2048Signed)->header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
+		file_type = FILE_GAMECARD;
+	else if (_ASSERT_SIZE(sizeof(nn::hac::sSdkGcHeader)) && _TYPE_PTR(nn::hac::sSdkGcHeader)->signed_header.header.st_magic.get() == nn::hac::gc::kGcHeaderStructMagic)
+		file_type = FILE_GAMECARD;
 	// test pfs0
 	else if (_ASSERT_SIZE(sizeof(nn::hac::sPfsHeader)) && _TYPE_PTR(nn::hac::sPfsHeader)->st_magic.get() == nn::hac::pfs::kPfsStructMagic)
 		file_type = FILE_PARTITIONFS;
@@ -729,14 +731,14 @@ bool UserSettings::determineValidNcaFromSample(const fnd::Vec<byte_t>& sample) c
 {
 	// prepare decrypted NCA data
 	byte_t nca_raw[nn::hac::nca::kHeaderSize];
-	nn::hac::sContentArchiveHeader* nca_header = (nn::hac::sContentArchiveHeader*)(nca_raw + nn::hac::ContentArchiveUtils::sectorToOffset(1));
+	nn::hac::sContentArchiveHeader* nca_header = (nn::hac::sContentArchiveHeader*)(nca_raw + nn::hac::ContentArchiveUtil::sectorToOffset(1));
 	
 	if (sample.size() < nn::hac::nca::kHeaderSize)
 		return false;
 
 	fnd::aes::sAesXts128Key header_key;
 	mKeyCfg.getContentArchiveHeaderKey(header_key);
-	nn::hac::ContentArchiveUtils::decryptContentArchiveHeader(sample.data(), nca_raw, header_key);
+	nn::hac::ContentArchiveUtil::decryptContentArchiveHeader(sample.data(), nca_raw, header_key);
 
 	if (nca_header->st_magic.get() != nn::hac::nca::kNca2StructMagic && nca_header->st_magic.get() != nn::hac::nca::kNca3StructMagic)
 		return false;
