@@ -210,7 +210,7 @@ void KeyConfiguration::clearGeneralKeyConfiguration()
 		for (size_t j = 0; j < kNcaKeakNum; j++)
 		{
 			mNcaKeyAreaEncryptionKey[j][i] = kNullAesKey;
-			mNcaKeyAreaEncryptionKey[j][i] = kNullAesKey;
+			mNcaKeyAreaEncryptionKeyHw[j][i] = kNullAesKey;
 		}
 	}
 }

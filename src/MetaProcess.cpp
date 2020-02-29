@@ -296,6 +296,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 {
 	std::cout << "[Meta Header]" << std::endl;
+	std::cout << "  ACID KeyGeneration: " << std::dec << hdr.getAcidKeyGeneration() << std::endl;
 	std::cout << "  Process Architecture Params:" << std::endl;
 	std::cout << "    Ins. Type:     " << nn::hac::MetaUtil::getInstructionTypeAsString(hdr.getInstructionType()) << std::endl;
 	std::cout << "    Addr Space:    " << nn::hac::MetaUtil::getProcAddressSpaceTypeAsString(hdr.getProcAddressSpaceType()) << std::endl;
