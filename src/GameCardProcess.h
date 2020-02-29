@@ -73,12 +73,4 @@ private:
 	void validateXciSignature();
 	void processRootPfs();
 	void processPartitionPfs();
-
-	// strings
-	const char* getKekIndexStr(byte_t kek_index) const;
-	const char* getRomSizeStr(byte_t rom_size) const;
-	const char* getHeaderFlagStr(byte_t flag) const;
-	const char* getCardFwVersionDescriptionStr(uint64_t version) const;
-	const char* getCardClockRate(uint32_t acc_ctrl_1) const;
-	const char* getCardCompatibiltyType(byte_t flag) const;
 };
