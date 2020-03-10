@@ -34,7 +34,7 @@ private:
 
 	void importMeta();
 
-	void validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid);
+	void validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid, byte_t key_generation);
 	void validateAciFromAcid(const nn::hac::AccessControlInfo& aci, const nn::hac::AccessControlInfoDesc& acid);
 
 	void displayMetaHeader(const nn::hac::Meta& hdr);

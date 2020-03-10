@@ -26,7 +26,7 @@ public:
 	// nca keys
 	bool getContentArchiveHeaderKey(fnd::aes::sAesXts128Key& key) const;
 	bool getContentArchiveHeader0SignKey(fnd::rsa::sRsa2048Key& key) const;
-	bool getAcidSignKey(fnd::rsa::sRsa2048Key& key) const;
+	bool getAcidSignKey(fnd::rsa::sRsa2048Key& key, byte_t key_generation) const;
 	bool getNcaKeyAreaEncryptionKey(byte_t masterkey_index, byte_t keak_type, fnd::aes::sAes128Key& key) const;
 	bool getNcaKeyAreaEncryptionKeyHw(byte_t masterkey_index, byte_t keak_type, fnd::aes::sAes128Key& key) const;
 	

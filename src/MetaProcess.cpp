@@ -21,8 +21,8 @@ void MetaProcess::process()
 
 	if (mVerify)
 	{
-		validateAcidSignature(mMeta.getAcid());
-		validateAciFromAcid(mMeta.getAci(), mMeta.getAcid());
+		validateAcidSignature(mMeta.getAccessControlInfoDesc(), mMeta.getAccessControlInfoDescKeyGeneration());
+		validateAciFromAcid(mMeta.getAccessControlInfo(), mMeta.getAccessControlInfoDesc());
 	}
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
@@ -31,18 +31,18 @@ void MetaProcess::process()
 		displayMetaHeader(mMeta);
 
 		// aci binary
-		displayAciHdr(mMeta.getAci());
-		displayFac(mMeta.getAci().getFileSystemAccessControl());
-		displaySac(mMeta.getAci().getServiceAccessControl());
-		displayKernelCap(mMeta.getAci().getKernelCapabilities());
+		displayAciHdr(mMeta.getAccessControlInfo());
+		displayFac(mMeta.getAccessControlInfo().getFileSystemAccessControl());
+		displaySac(mMeta.getAccessControlInfo().getServiceAccessControl());
+		displayKernelCap(mMeta.getAccessControlInfo().getKernelCapabilities());
 
 		// acid binary
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		{
-			displayAciDescHdr(mMeta.getAcid());
-			displayFac(mMeta.getAcid().getFileSystemAccessControl());
-			displaySac(mMeta.getAcid().getServiceAccessControl());
-			displayKernelCap(mMeta.getAcid().getKernelCapabilities());
+			displayAciDescHdr(mMeta.getAccessControlInfoDesc());
+			displayFac(mMeta.getAccessControlInfoDesc().getFileSystemAccessControl());
+			displaySac(mMeta.getAccessControlInfoDesc().getServiceAccessControl());
+			displayKernelCap(mMeta.getAccessControlInfoDesc().getKernelCapabilities());
 		}
 	}
 }
@@ -87,11 +87,11 @@ void MetaProcess::importMeta()
 	mMeta.fromBytes(scratch.data(), scratch.size());
 }
 
-void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid)
+void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid, byte_t key_generation)
 {
 	try {
 		fnd::rsa::sRsa2048Key acid_sign_key;
-		if (mKeyCfg.getAcidSignKey(acid_sign_key) != true)
+		if (mKeyCfg.getAcidSignKey(acid_sign_key, key_generation) != true)
 			throw fnd::Exception();
 
 		acid.validateSignature(acid_sign_key);
@@ -296,10 +296,11 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 {
 	std::cout << "[Meta Header]" << std::endl;
-	std::cout << "  ACID KeyGeneration: " << std::dec << hdr.getAcidKeyGeneration() << std::endl;
-	std::cout << "  Process Architecture Params:" << std::endl;
-	std::cout << "    Ins. Type:     " << nn::hac::MetaUtil::getInstructionTypeAsString(hdr.getInstructionType()) << std::endl;
-	std::cout << "    Addr Space:    " << nn::hac::MetaUtil::getProcAddressSpaceTypeAsString(hdr.getProcAddressSpaceType()) << std::endl;
+	std::cout << "  ACID KeyGeneration: " << std::dec << (uint32_t)hdr.getAccessControlInfoDescKeyGeneration() << std::endl;
+	std::cout << "  Flags:" << std::endl;
+	std::cout << "    Is64BitInstruction:       " << std::boolalpha << hdr.getIs64BitInstructionFlag() << std::endl;
+	std::cout << "    ProcessAddressSpace:      " << nn::hac::MetaUtil::getProcessAddressSpaceAsString(hdr.getProcessAddressSpace()) << std::endl;
+	std::cout << "    OptimizeMemoryAllocation: " << std::boolalpha << hdr.getOptimizeMemoryAllocationFlag() << std::endl;
 	std::cout << "  Main Thread Params:" << std::endl;
 	std::cout << "    Priority:      " << std::dec << (uint32_t)hdr.getMainThreadPriority() << std::endl;
 	std::cout << "    CpuId:         " << std::dec << (uint32_t)hdr.getMainThreadCpuId() << std::endl;
@@ -322,15 +323,10 @@ void MetaProcess::displayAciHdr(const nn::hac::AccessControlInfo& aci)
 void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
 {
 	std::cout << "[Access Control Info Desc]" << std::endl;
-	if (acid.getFlagList().size() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-	{
-		std::cout << "  Flags:           " << std::endl;
-		for (size_t i = 0; i < acid.getFlagList().size(); i++)
-		{
-			std::cout << "    " << nn::hac::AccessControlInfoUtil::getAcidFlagAsString(acid.getFlagList()[i]) << " (" << std::dec << (uint32_t)acid.getFlagList()[i] << ")" << std::endl;
-		}
-	}
-	std::cout << "  Memory Region:   " << nn::hac::AccessControlInfoUtil::getMemoryRegionAsString(acid.getMemoryRegion()) << " (" << std::dec << (uint32_t)acid.getMemoryRegion() << ")" << std::endl;
+	std::cout << "  Flags:           " << std::endl;
+	std::cout << "    Production:            " << std::boolalpha << acid.getProductionFlag() << std::endl;
+	std::cout << "    Unqualified Approval:  " << std::boolalpha << acid.getUnqualifiedApprovalFlag() << std::endl;
+	std::cout << "    Memory Region:         " << nn::hac::AccessControlInfoUtil::getMemoryRegionAsString(acid.getMemoryRegion()) << " (" << std::dec << (uint32_t)acid.getMemoryRegion() << ")" << std::endl;
 	std::cout << "  ProgramID Restriction" << std::endl;
 	std::cout << "    Min:           0x" << std::hex << std::setw(16) << std::setfill('0') << acid.getProgramIdRestrict().min << std::endl;
 	std::cout << "    Max:           0x" << std::hex << std::setw(16) << std::setfill('0') << acid.getProgramIdRestrict().max << std::endl;

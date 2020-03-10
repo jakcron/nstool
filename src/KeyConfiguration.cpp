@@ -230,9 +230,21 @@ bool KeyConfiguration::getContentArchiveHeader0SignKey(fnd::rsa::sRsa2048Key& ke
 	return copyOutKeyResourceIfExists(mContentArchiveHeader0SignKey, key, kNullRsa2048Key);
 }
 
-bool KeyConfiguration::getAcidSignKey(fnd::rsa::sRsa2048Key& key) const
+bool KeyConfiguration::getAcidSignKey(fnd::rsa::sRsa2048Key& key, byte_t key_generation) const
 {
-	return copyOutKeyResourceIfExists(mAcidSignKey, key, kNullRsa2048Key);
+	// TODO: This needs to be changed to support multiple keys
+
+	bool keyIsFound = false;
+	switch (key_generation)
+	{
+	case (0x00):
+		keyIsFound = copyOutKeyResourceIfExists(mAcidSignKey, key, kNullRsa2048Key);
+		break;
+	default:
+		keyIsFound = false;
+	} 
+
+	return keyIsFound;
 }
 
 bool KeyConfiguration::getNcaKeyAreaEncryptionKey(byte_t masterkey_index, byte_t keak_type, fnd::aes::sAes128Key& key) const
