@@ -69,7 +69,7 @@ acid_sign_key_##_private              : RSA2048 Private Exponent (0x100 bytes)
 Since firmware `9.0.0+` support for signature key generations was retroactively added for RSA-PSS signatures in NRR, ACID and NCA. The old names for these keys are still valid:
 ```
 nca_header_sign_key_modulus      : alias for nca_header_sign_key_00_modulus
-nca_header_sign_key_private      : alias nca_header_sign_key_00_private
+nca_header_sign_key_private      : alias for nca_header_sign_key_00_private
 acid_sign_key_modulus            : alias for acid_sign_key_00_modulus
 acid_sign_key_private            : alias for acid_sign_key_00_private
 ```
