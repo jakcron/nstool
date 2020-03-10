@@ -225,9 +225,21 @@ bool KeyConfiguration::getContentArchiveHeaderKey(fnd::aes::sAesXts128Key& key) 
 	return copyOutKeyResourceIfExists(mContentArchiveHeaderKey, key, kNullAesXtsKey);
 }
 
-bool KeyConfiguration::getContentArchiveHeader0SignKey(fnd::rsa::sRsa2048Key& key) const
+bool KeyConfiguration::getContentArchiveHeader0SignKey(fnd::rsa::sRsa2048Key& key, byte_t key_generation) const
 {
-	return copyOutKeyResourceIfExists(mContentArchiveHeader0SignKey, key, kNullRsa2048Key);
+	// TODO: This needs to be changed to support multiple keys
+
+	bool keyIsFound = false;
+	switch (key_generation)
+	{
+	case (0x00):
+		keyIsFound = copyOutKeyResourceIfExists(mContentArchiveHeader0SignKey, key, kNullRsa2048Key);
+		break;
+	default:
+		keyIsFound = false;
+	} 
+
+	return keyIsFound;
 }
 
 bool KeyConfiguration::getAcidSignKey(fnd::rsa::sRsa2048Key& key, byte_t key_generation) const

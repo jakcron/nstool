@@ -912,7 +912,7 @@ void UserSettings::dumpKeyConfig() const
 
 		std::cout << "[KeyConfiguration]" << std::endl;
 		std::cout << "  NCA Keys:" << std::endl;
-		if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key) == true)
+		if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key, 0x00) == true)
 			dumpRsa2048Key(rsa2048_key, "Header Signature[0] Key", 2);
 		if (mKeyCfg.getContentArchiveHeaderKey(aesxts_key) == true)
 			dumpAesXtsKey(aesxts_key, "Header Encryption Key", 2);

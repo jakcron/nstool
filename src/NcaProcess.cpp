@@ -392,7 +392,7 @@ void NcaProcess::validateNcaSignatures()
 {
 	// validate signature[0]
 	fnd::rsa::sRsa2048Key sign0_key;
-	mKeyCfg.getContentArchiveHeader0SignKey(sign0_key);
+	mKeyCfg.getContentArchiveHeader0SignKey(sign0_key, mHdr.getSignatureKeyGeneration());
 	if (fnd::rsa::pss::rsaVerify(sign0_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
 	{
 		std::cout << "[WARNING] NCA Header Main Signature: FAIL" << std::endl;
@@ -417,10 +417,12 @@ void NcaProcess::validateNcaSignatures()
 
 					MetaProcess npdm;
 					npdm.setInputFile(new fnd::OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));
+					npdm.setKeyCfg(mKeyCfg);
+					npdm.setVerifyMode(true);
 					npdm.setCliOutputMode(0);
 					npdm.process();
 
-					if (fnd::rsa::pss::rsaVerify(npdm.getMeta().getAcid().getContentArchiveHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					if (fnd::rsa::pss::rsaVerify(npdm.getMeta().getAccessControlInfoDesc().getContentArchiveHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
 					{
 						std::cout << "[WARNING] NCA Header ACID Signature: FAIL" << std::endl;
 					}
@@ -450,6 +452,7 @@ void NcaProcess::displayHeader()
 	std::cout << "  Dist. Type:      " << nn::hac::ContentArchiveUtil::getDistributionTypeAsString(mHdr.getDistributionType()) << std::endl;
 	std::cout << "  Content Type:    " << nn::hac::ContentArchiveUtil::getContentTypeAsString(mHdr.getContentType()) << std::endl;
 	std::cout << "  Key Generation:  " << std::dec << (uint32_t)mHdr.getKeyGeneration() << std::endl;
+	std::cout << "  Sig. Generation: " << std::dec << (uint32_t)mHdr.getSignatureKeyGeneration() << std::endl;
 	std::cout << "  Kaek Index:      " << nn::hac::ContentArchiveUtil::getKeyAreaEncryptionKeyIndexAsString((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKeyAreaEncryptionKeyIndex()) << " (" << std::dec << (uint32_t)mHdr.getKeyAreaEncryptionKeyIndex() << ")" << std::endl;
 	std::cout << "  Size:            0x" << std::hex << mHdr.getContentSize() << std::endl;
 	std::cout << "  ProgID:          0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getProgramId() << std::endl;
