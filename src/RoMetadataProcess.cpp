@@ -7,7 +7,7 @@
 
 RoMetadataProcess::RoMetadataProcess() :
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
-	mInstructionType(nn::hac::meta::INSTR_64BIT),
+	mIs64BitInstruction(true),
 	mListApi(false),
 	mListSymbols(false),
 	mApiInfo(),
@@ -57,9 +57,9 @@ void RoMetadataProcess::setCliOutputMode(CliOutputMode type)
 	mCliOutputMode = type;
 }
 
-void RoMetadataProcess::setInstructionType(nn::hac::meta::InstructionType type)
+void RoMetadataProcess::setIs64BitInstruction(bool flag)
 {
-	mInstructionType = type;
+	mIs64BitInstruction = flag;
 }
 
 void RoMetadataProcess::setListApi(bool listApi)
@@ -126,7 +126,7 @@ void RoMetadataProcess::importApiList()
 
 	if (mDynSym.size > 0)
 	{
-		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mInstructionType == nn::hac::meta::INSTR_64BIT);
+		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mIs64BitInstruction);
 	}
 }
 

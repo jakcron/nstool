@@ -138,9 +138,9 @@ bool UserSettings::isListSymbols() const
 	return mListSymbols;
 }
 
-nn::hac::meta::InstructionType UserSettings::getInstType() const
+bool UserSettings::getIs64BitInstruction() const
 {
-	return mInstructionType;
+	return mIs64BitInstruction;
 }
 
 const sOptional<std::string>& UserSettings::getXciUpdatePath() const
@@ -564,9 +564,9 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 
 	// determine the architecture type for NSO/NRO
 	if (args.inst_type.isSet)
-		mInstructionType = getInstructionTypeFromString(*args.inst_type);
+		mIs64BitInstruction = getIs64BitInstructionFromString(*args.inst_type);
 	else
-		mInstructionType = nn::hac::meta::INSTR_64BIT; // default 64bit
+		mIs64BitInstruction = true; // default 64bit
 	
 	mListApi = args.list_api.isSet;
 	mListSymbols = args.list_sym.isSet;
@@ -800,7 +800,7 @@ bool UserSettings::determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) 
 
 	const nn::hac::sApplicationControlProperty* data = (const nn::hac::sApplicationControlProperty*)sample.data();
 
-	if (data->logo_type > nn::hac::nacp::LOGO_Nintendo)
+	if (data->logo_type > (byte_t)nn::hac::nacp::LogoType::Nintendo)
 		return false;
 
 	if (data->display_version[0] == 0)
@@ -862,20 +862,20 @@ bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample)
 	return true;
 }
 
-nn::hac::meta::InstructionType UserSettings::getInstructionTypeFromString(const std::string & type_str)
+bool UserSettings::getIs64BitInstructionFromString(const std::string & type_str)
 {
 	std::string str = type_str;
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 
-	nn::hac::meta::InstructionType type;
+	bool flag;
 	if (str == "32bit")
-		type = nn::hac::meta::INSTR_32BIT;
+		flag = false;
 	else if (str == "64bit")
-		type = nn::hac::meta::INSTR_64BIT;
+		flag = true;
 	else
 		throw fnd::Exception(kModuleName, "Unsupported instruction type: " + str);
 
-	return type;
+	return flag;
 }
 
 void UserSettings::getHomePath(std::string& path) const
@@ -944,7 +944,7 @@ void UserSettings::dumpKeyConfig() const
 			dumpAesKey(aes_key, "Extended Header Encryption Key", 2);
 		
 		
-		if (mKeyCfg.getAcidSignKey(rsa2048_key) == true)
+		if (mKeyCfg.getAcidSignKey(rsa2048_key, 0x00) == true)
 			dumpRsa2048Key(rsa2048_key, "ACID Signer Key", 1);
 		
 		
