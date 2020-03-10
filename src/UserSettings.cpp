@@ -912,10 +912,14 @@ void UserSettings::dumpKeyConfig() const
 
 		std::cout << "[KeyConfiguration]" << std::endl;
 		std::cout << "  NCA Keys:" << std::endl;
-		if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key, 0x00) == true)
-			dumpRsa2048Key(rsa2048_key, "Header Signature[0] Key", 2);
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key, i) == true)
+				dumpRsa2048Key(rsa2048_key, "Header0-SignatureKey-" + kKeyIndex[i], 2);
+		}
+		
 		if (mKeyCfg.getContentArchiveHeaderKey(aesxts_key) == true)
-			dumpAesXtsKey(aesxts_key, "Header Encryption Key", 2);
+			dumpAesXtsKey(aesxts_key, "Header-EncryptionKey", 2);
 		
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
@@ -939,14 +943,15 @@ void UserSettings::dumpKeyConfig() const
 		
 		std::cout << "  XCI Keys:" << std::endl;
 		if (mKeyCfg.getXciHeaderSignKey(rsa2048_key) == true)
-			dumpRsa2048Key(rsa2048_key, "Header Signature Key", 2);
+			dumpRsa2048Key(rsa2048_key, "Header-SignatureKey", 2);
 		if (mKeyCfg.getXciHeaderKey(aes_key) == true)
-			dumpAesKey(aes_key, "Extended Header Encryption Key", 2);
+			dumpAesKey(aes_key, "ExtendedHeader-EncryptionKey", 2);
 		
-		
-		if (mKeyCfg.getAcidSignKey(rsa2048_key, 0x00) == true)
-			dumpRsa2048Key(rsa2048_key, "ACID Signer Key", 1);
-		
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getAcidSignKey(rsa2048_key, i) == true)
+				dumpRsa2048Key(rsa2048_key, "ACID-SignatureKey-" + kKeyIndex[i], 1);
+		}
 		
 		std::cout << "  Package1 Keys:" << std::endl;
 		for (size_t i = 0; i < kMasterKeyNum; i++)
