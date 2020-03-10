@@ -29,36 +29,49 @@ nca_body_keak_ocean_source       : Used with master_key_##, aes_kek_generation_s
 nca_body_keak_system_source      : Used with master_key_##, aes_kek_generation_source and aes_key_generation_source to generate nca_body_keak_system_##. (0x10 bytes)
 
 ; Package1 keys
-package1_key_##                  : AES128 Key (0x10 bytes)
+package1_key_##                       : AES128 Key (0x10 bytes)
 
 ; Package2 Keys 
-package2_key_##                  : AES128 Key (0x10 bytes)
-package2_sign_key_modulus        : RSA2048 Modulus (0x100 bytes)
-package2_sign_key_private        : RSA2048 Private Exponent (0x100 bytes)
+package2_key_##                       : AES128 Key (0x10 bytes)
+package2_sign_key_modulus             : RSA2048 Modulus (0x100 bytes)
+package2_sign_key_private             : RSA2048 Private Exponent (0x100 bytes)
 
 ; Ticket Keys
-ticket_commonkey_##              : AES128 Key (0x10 bytes)
+ticket_commonkey_##                   : AES128 Key (0x10 bytes)
 
 ; PKI Root Signing Key
-pki_root_sign_key_modulus        : RSA4096 Modulus (0x200 bytes)
-pki_root_sign_key_private        : RSA4096 Private Exponent (0x200 bytes)
+pki_root_sign_key_modulus             : RSA4096 Modulus (0x200 bytes)
+pki_root_sign_key_private             : RSA4096 Private Exponent (0x200 bytes)
 
 ; NCA Keys
-nca_header_key                   : AES128-XTS Key (0x20 bytes)
-nca_header_sign_key_modulus      : RSA2048 Modulus (0x100 bytes)
-nca_header_sign_key_private      : RSA2048 Private Exponent (0x100 bytes)
-nca_body_keak_application_##     : AES128 Key (0x10 bytes)
-nca_body_keak_ocean_##           : AES128 Key (0x10 bytes)
-nca_body_keak_system_##          : AES128 Key (0x10 bytes)
+nca_header_key                        : AES128-XTS Key (0x20 bytes)
+nca_header_sign_key_##_modulus        : RSA2048 Modulus (0x100 bytes)
+nca_header_sign_key_##_private        : RSA2048 Private Exponent (0x100 bytes)
+nca_body_keak_application_##          : AES128 Key (0x10 bytes)
+nca_body_keak_ocean_##                : AES128 Key (0x10 bytes)
+nca_body_keak_system_##               : AES128 Key (0x10 bytes)
+
+; NRR Keys
+nrr_certificate_sign_key_##_modulus   : RSA2048 Modulus (0x100 bytes)
+nrr_certificate_sign_key_##_private   : RSA2048 Private Exponent (0x100 bytes)
 
 ; XCI Keys
-xci_header_key                   : AES128 Key (0x10 bytes)
-xci_header_sign_key_modulus      : RSA2048 Modulus (0x100 bytes)
-xci_header_sign_key_private      : RSA2048 Private Exponent (0x100 bytes)
+xci_header_key                        : AES128 Key (0x10 bytes)
+xci_header_sign_key_modulus           : RSA2048 Modulus (0x100 bytes)
+xci_header_sign_key_private           : RSA2048 Private Exponent (0x100 bytes)
 
 ; ACID Keys
-acid_sign_key_modulus            : RSA2048 Modulus (0x100 bytes)
-acid_sign_key_private            : RSA2048 Private Exponent (0x100 bytes)
+acid_sign_key_##_modulus              : RSA2048 Modulus (0x100 bytes)
+acid_sign_key_##_private              : RSA2048 Private Exponent (0x100 bytes)
+```
+
+## Legacy Keynames
+Since firmware `9.0.0+` support for signature key generations was retroactively added for RSA-PSS signatures in NRR, ACID and NCA. The old names for these keys are still valid:
+```
+nca_header_sign_key_modulus      : alias for nca_header_sign_key_00_modulus
+nca_header_sign_key_private      : alias nca_header_sign_key_00_private
+acid_sign_key_modulus            : alias for acid_sign_key_00_modulus
+acid_sign_key_private            : alias for acid_sign_key_00_private
 ```
 
 ## Compatibility with hactool keyset files

@@ -16,9 +16,7 @@ KeyConfiguration::KeyConfiguration(const KeyConfiguration& other)
 
 void KeyConfiguration::operator=(const KeyConfiguration& other)
 {
-	mAcidSignKey = other.mAcidSignKey;	
 	mPkg2SignKey = other.mPkg2SignKey;
-	mContentArchiveHeader0SignKey = other.mContentArchiveHeader0SignKey;
 	mXciHeaderSignKey = other.mXciHeaderSignKey;
 
 	mContentArchiveHeaderKey = other.mContentArchiveHeaderKey;
@@ -26,6 +24,9 @@ void KeyConfiguration::operator=(const KeyConfiguration& other)
 
 	for (size_t i = 0; i < kMasterKeyNum; i++)
 	{
+		mAcidSignKey[i] = other.mAcidSignKey[i];
+		mContentArchiveHeader0SignKey[i] = other.mContentArchiveHeader0SignKey[i];
+		mNrrCertificateSignKey[i] = other.mNrrCertificateSignKey[i];
 		mPkg2Key[i] = other.mPkg2Key[i];
 		mPkg1Key[i] = other.mPkg1Key[i];
 		mNcaKeyAreaEncryptionKey[0][i] = other.mNcaKeyAreaEncryptionKey[0][i];
@@ -69,6 +70,7 @@ void KeyConfiguration::importHactoolGenericKeyfile(const std::string& path)
 
 #define _CONCAT_2_STRINGS(str1, str2) ((str1) + "_" + (str2))
 #define _CONCAT_3_STRINGS(str1, str2, str3) _CONCAT_2_STRINGS(_CONCAT_2_STRINGS(str1, str2), str3)
+#define _CONCAT_4_STRINGS(str1, str2, str3, str4) _CONCAT_2_STRINGS(_CONCAT_2_STRINGS(_CONCAT_2_STRINGS(str1, str2), str3), str4)
 
 	std::string key,val;
 	fnd::Vec<byte_t> dec_array;
@@ -110,6 +112,13 @@ void KeyConfiguration::importHactoolGenericKeyfile(const std::string& path)
 			_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaKeyAreaEncKeyHwBase[nameidx], kNcaKeyAreaKeyIndexStr[0], kKeyIndex[mkeyidx]), mNcaKeyAreaEncryptionKeyHw[0][mkeyidx].key, 0x10);
 			_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaKeyAreaEncKeyHwBase[nameidx], kNcaKeyAreaKeyIndexStr[1], kKeyIndex[mkeyidx]), mNcaKeyAreaEncryptionKeyHw[1][mkeyidx].key, 0x10);
 			_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaKeyAreaEncKeyHwBase[nameidx], kNcaKeyAreaKeyIndexStr[2], kKeyIndex[mkeyidx]), mNcaKeyAreaEncryptionKeyHw[2][mkeyidx].key, 0x10);
+
+			_SAVE_KEYDATA(_CONCAT_4_STRINGS(kContentArchiveHeaderBase[nameidx], kSignKey, kKeyIndex[mkeyidx], kPrivateStr), mContentArchiveHeader0SignKey[mkeyidx].priv_exponent, fnd::rsa::kRsa2048Size);
+			_SAVE_KEYDATA(_CONCAT_4_STRINGS(kContentArchiveHeaderBase[nameidx], kSignKey, kKeyIndex[mkeyidx], kModulusStr), mContentArchiveHeader0SignKey[mkeyidx].modulus, fnd::rsa::kRsa2048Size);
+			_SAVE_KEYDATA(_CONCAT_4_STRINGS(kAcidBase[nameidx], kSignKey, kKeyIndex[mkeyidx], kPrivateStr), mAcidSignKey[mkeyidx].priv_exponent, fnd::rsa::kRsa2048Size);
+			_SAVE_KEYDATA(_CONCAT_4_STRINGS(kAcidBase[nameidx], kSignKey, kKeyIndex[mkeyidx], kModulusStr), mAcidSignKey[mkeyidx].modulus, fnd::rsa::kRsa2048Size);
+			_SAVE_KEYDATA(_CONCAT_4_STRINGS(kNrrCertBase[nameidx], kSignKey, kKeyIndex[mkeyidx], kPrivateStr), mNrrCertificateSignKey[mkeyidx].priv_exponent, fnd::rsa::kRsa2048Size);
+			_SAVE_KEYDATA(_CONCAT_4_STRINGS(kNrrCertBase[nameidx], kSignKey, kKeyIndex[mkeyidx], kModulusStr), mNrrCertificateSignKey[mkeyidx].modulus, fnd::rsa::kRsa2048Size);
 		}
 		
 		// store nca header key
@@ -119,20 +128,23 @@ void KeyConfiguration::importHactoolGenericKeyfile(const std::string& path)
 		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase[nameidx], kKeyStr), mXciHeaderKey.key, 0x10);
 
 		// store rsa keys
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kContentArchiveHeaderBase[nameidx], kRsaKeyPrivate), mContentArchiveHeader0SignKey.priv_exponent, fnd::rsa::kRsa2048Size);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kContentArchiveHeaderBase[nameidx], kRsaKeyModulus), mContentArchiveHeader0SignKey.modulus, fnd::rsa::kRsa2048Size);
 		
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase[nameidx], kRsaKeyPrivate), mXciHeaderSignKey.priv_exponent, fnd::rsa::kRsa2048Size);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kXciHeaderBase[nameidx], kRsaKeyModulus), mXciHeaderSignKey.modulus, fnd::rsa::kRsa2048Size);
+		// legacy header nca key name 
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kContentArchiveHeaderBase[nameidx], kSignKey, kPrivateStr), mContentArchiveHeader0SignKey[0].priv_exponent, fnd::rsa::kRsa2048Size);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kContentArchiveHeaderBase[nameidx], kSignKey, kModulusStr), mContentArchiveHeader0SignKey[0].modulus, fnd::rsa::kRsa2048Size);
+		
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kXciHeaderBase[nameidx], kSignKey, kPrivateStr), mXciHeaderSignKey.priv_exponent, fnd::rsa::kRsa2048Size);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kXciHeaderBase[nameidx], kSignKey, kModulusStr), mXciHeaderSignKey.modulus, fnd::rsa::kRsa2048Size);
 
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase[nameidx], kRsaKeyPrivate), mAcidSignKey.priv_exponent, fnd::rsa::kRsa2048Size);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kAcidBase[nameidx], kRsaKeyModulus), mAcidSignKey.modulus, fnd::rsa::kRsa2048Size);
+		// legacy acid header key name
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kAcidBase[nameidx], kSignKey, kPrivateStr), mAcidSignKey[0].priv_exponent, fnd::rsa::kRsa2048Size);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kAcidBase[nameidx], kSignKey, kModulusStr), mAcidSignKey[0].modulus, fnd::rsa::kRsa2048Size);
 
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkg2Base[nameidx], kRsaKeyPrivate), mPkg2SignKey.priv_exponent, fnd::rsa::kRsa2048Size);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkg2Base[nameidx], kRsaKeyModulus), mPkg2SignKey.modulus, fnd::rsa::kRsa2048Size);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPkg2Base[nameidx], kSignKey, kPrivateStr), mPkg2SignKey.priv_exponent, fnd::rsa::kRsa2048Size);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPkg2Base[nameidx], kSignKey, kModulusStr), mPkg2SignKey.modulus, fnd::rsa::kRsa2048Size);
 
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase[nameidx], kRsaKeyPrivate), pki_root_sign_key.priv_exponent, fnd::rsa::kRsa4096Size);
-		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kPkiRootBase[nameidx], kRsaKeyModulus), pki_root_sign_key.modulus, fnd::rsa::kRsa4096Size);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPkiRootBase[nameidx], kSignKey, kPrivateStr), pki_root_sign_key.priv_exponent, fnd::rsa::kRsa4096Size);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kPkiRootBase[nameidx], kSignKey, kModulusStr), pki_root_sign_key.modulus, fnd::rsa::kRsa4096Size);
 	}
 
 #undef _SAVE_KEYDATA
@@ -193,9 +205,9 @@ void KeyConfiguration::importHactoolGenericKeyfile(const std::string& path)
 
 void KeyConfiguration::clearGeneralKeyConfiguration()
 {
-	mAcidSignKey = kNullRsa2048Key;
+	
 	mPkg2SignKey = kNullRsa2048Key;
-	mContentArchiveHeader0SignKey = kNullRsa2048Key;
+	
 	mXciHeaderSignKey = kNullRsa2048Key;
 	mPkiRootKeyList.clear();
 
@@ -204,6 +216,9 @@ void KeyConfiguration::clearGeneralKeyConfiguration()
 
 	for (size_t i = 0; i < kMasterKeyNum; i++)
 	{
+		mAcidSignKey[i] = kNullRsa2048Key;
+		mContentArchiveHeader0SignKey[i] = kNullRsa2048Key;
+		mNrrCertificateSignKey[i] = kNullRsa2048Key;
 		mPkg1Key[i] = kNullAesKey;
 		mPkg2Key[i] = kNullAesKey;
 		mETicketCommonKey[i] = kNullAesKey;
@@ -228,35 +243,23 @@ bool KeyConfiguration::getContentArchiveHeaderKey(fnd::aes::sAesXts128Key& key) 
 bool KeyConfiguration::getContentArchiveHeader0SignKey(fnd::rsa::sRsa2048Key& key, byte_t key_generation) const
 {
 	// TODO: This needs to be changed to support multiple keys
-
-	bool keyIsFound = false;
-	switch (key_generation)
+	if (key_generation >= kMasterKeyNum)
 	{
-	case (0x00):
-		keyIsFound = copyOutKeyResourceIfExists(mContentArchiveHeader0SignKey, key, kNullRsa2048Key);
-		break;
-	default:
-		keyIsFound = false;
-	} 
+		return false;
+	}
 
-	return keyIsFound;
+	return copyOutKeyResourceIfExists(mContentArchiveHeader0SignKey[key_generation], key, kNullRsa2048Key);
 }
 
 bool KeyConfiguration::getAcidSignKey(fnd::rsa::sRsa2048Key& key, byte_t key_generation) const
 {
 	// TODO: This needs to be changed to support multiple keys
-
-	bool keyIsFound = false;
-	switch (key_generation)
+	if (key_generation >= kMasterKeyNum)
 	{
-	case (0x00):
-		keyIsFound = copyOutKeyResourceIfExists(mAcidSignKey, key, kNullRsa2048Key);
-		break;
-	default:
-		keyIsFound = false;
-	} 
+		return false;
+	}
 
-	return keyIsFound;
+	return copyOutKeyResourceIfExists(mAcidSignKey[key_generation], key, kNullRsa2048Key);
 }
 
 bool KeyConfiguration::getNcaKeyAreaEncryptionKey(byte_t masterkey_index, byte_t keak_type, fnd::aes::sAes128Key& key) const
@@ -306,6 +309,17 @@ bool KeyConfiguration::getNcaExternalContentKey(const byte_t rights_id[nn::hac::
 	}
 
 	return res_exists;
+}
+
+bool KeyConfiguration::getNrrCertificateSignKey(fnd::rsa::sRsa2048Key& key, byte_t key_generation) const
+{
+	// TODO: This needs to be changed to support multiple keys
+	if (key_generation >= kMasterKeyNum)
+	{
+		return false;
+	}
+
+	return copyOutKeyResourceIfExists(mNrrCertificateSignKey[key_generation], key, kNullRsa2048Key);
 }
 
 bool KeyConfiguration::getPkg1Key(byte_t masterkey_index, fnd::aes::sAes128Key& key) const

@@ -34,6 +34,9 @@ public:
 	void addNcaExternalContentKey(const byte_t rights_id[nn::hac::nca::kRightsIdLen], const fnd::aes::sAes128Key& key);
 	bool getNcaExternalContentKey(const byte_t rights_id[nn::hac::nca::kRightsIdLen], fnd::aes::sAes128Key& key) const;
 
+	// nrr key
+	bool getNrrCertificateSignKey(fnd::rsa::sRsa2048Key& key, byte_t key_generation) const;
+
 	// pkg1/pkg2
 	bool getPkg1Key(byte_t masterkey_index, fnd::aes::sAes128Key& key) const;
 	bool getPkg2Key(byte_t masterkey_index, fnd::aes::sAes128Key& key) const;
@@ -73,6 +76,7 @@ private:
 	const std::string kXciHeaderBase[kNameVariantNum] = { "xci_header", "xci_header", "xci_header" };
 	const std::string kContentArchiveHeaderBase[kNameVariantNum] = { "nca_header", "header", "nca_header" };
 	const std::string kAcidBase[kNameVariantNum] = { "acid", "acid", "acid" };
+	const std::string kNrrCertBase[kNameVariantNum] = { "nrr_certificate", "nrr_certificate", "nrr_certificate" };
 	const std::string kPkiRootBase[kNameVariantNum] = { "pki_root", "pki_root", "pki_root" };
 	const std::string kTicketCommonKeyBase[kNameVariantNum] = { "ticket_commonkey", "titlekek", "ticket_commonkey" };
 	const std::string kNcaKeyAreaEncKeyBase[kNameVariantNum] = { "nca_key_area_key", "key_area_key", "nca_body_keak" };
@@ -84,8 +88,9 @@ private:
 	const std::string kKeyStr = "key";
 	const std::string kKekStr = "kek";
 	const std::string kSourceStr = "source";
-	const std::string kRsaKeyModulus = "sign_key_modulus";
-	const std::string kRsaKeyPrivate = "sign_key_private";
+	const std::string kSignKey = "sign_key";
+	const std::string kModulusStr = "modulus";
+	const std::string kPrivateStr = "private";
 	const std::string kNcaKeyAreaKeyIndexStr[kNcaKeakNum] = { "application", "ocean", "system" };	
 	const std::string kKeyIndex[kMasterKeyNum] = {"00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f","10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f"};
 
@@ -167,7 +172,7 @@ private:
 
 	/* general key config */
 	// acid
-	fnd::rsa::sRsa2048Key mAcidSignKey;
+	fnd::rsa::sRsa2048Key mAcidSignKey[kMasterKeyNum];
 
 	// pkg1 and pkg2
 	fnd::aes::sAes128Key mPkg1Key[kMasterKeyNum];
@@ -175,10 +180,13 @@ private:
 	fnd::aes::sAes128Key mPkg2Key[kMasterKeyNum];
 
 	// nca
-	fnd::rsa::sRsa2048Key mContentArchiveHeader0SignKey;
+	fnd::rsa::sRsa2048Key mContentArchiveHeader0SignKey[kMasterKeyNum];
 	fnd::aes::sAesXts128Key mContentArchiveHeaderKey;
 	fnd::aes::sAes128Key mNcaKeyAreaEncryptionKey[kNcaKeakNum][kMasterKeyNum];
 	fnd::aes::sAes128Key mNcaKeyAreaEncryptionKeyHw[kNcaKeakNum][kMasterKeyNum];
+
+	// nrr
+	fnd::rsa::sRsa2048Key mNrrCertificateSignKey[kMasterKeyNum];
 
 	// xci
 	fnd::rsa::sRsa2048Key mXciHeaderSignKey;
