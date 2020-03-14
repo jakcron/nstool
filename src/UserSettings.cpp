@@ -758,13 +758,13 @@ bool UserSettings::determineValidCnmtFromSample(const fnd::Vec<byte_t>& sample) 
 	if (sample.size() < minimum_size)
 		return false;
 
-	if (data->type == nn::hac::cnmt::METATYPE_APPLICATION)
+	if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Application)
 	{
 		const nn::hac::sApplicationMetaExtendedHeader* meta = (const nn::hac::sApplicationMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
 		if ((meta->patch_id.get() & data->id.get()) != data->id.get())
 			return false;
 	}
-	else if (data->type == nn::hac::cnmt::METATYPE_PATCH)
+	else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Patch)
 	{
 		const nn::hac::sPatchMetaExtendedHeader* meta = (const nn::hac::sPatchMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
@@ -772,13 +772,13 @@ bool UserSettings::determineValidCnmtFromSample(const fnd::Vec<byte_t>& sample) 
 
 		minimum_size += meta->extended_data_size.get();
 	}
-	else if (data->type == nn::hac::cnmt::METATYPE_ADD_ON_CONTENT)
+	else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::AddOnContent)
 	{
 		const nn::hac::sAddOnContentMetaExtendedHeader* meta = (const nn::hac::sAddOnContentMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
 			return false;
 	}
-	else if (data->type == nn::hac::cnmt::METATYPE_DELTA)
+	else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Delta)
 	{
 		const nn::hac::sDeltaMetaExtendedHeader* meta = (const nn::hac::sDeltaMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
 		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())

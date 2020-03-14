@@ -65,7 +65,7 @@ void CnmtProcess::displayCnmt()
 	std::cout << "[ContentMeta]" << std::endl;
 	std::cout << "  TitleId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getTitleId() << std::endl;
 	std::cout << "  Version:               v" << std::dec << mCnmt.getTitleVersion() << " (" << _SPLIT_VER(mCnmt.getTitleVersion()) << ")"<< std::endl;
-	std::cout << "  Type:                  " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(mCnmt.getContentMetaType()) << " (" << std::dec << mCnmt.getContentMetaType() << ")" << std::endl;
+	std::cout << "  Type:                  " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(mCnmt.getContentMetaType()) << " (" << std::dec << (uint32_t)mCnmt.getContentMetaType() << ")" << std::endl;
 	std::cout << "  Attributes:            0x" << std::hex << (uint32_t)mCnmt.getAttributes() << std::endl;
 	if (mCnmt.getAttributes() != 0)
 	{
@@ -80,22 +80,22 @@ void CnmtProcess::displayCnmt()
 	std::cout << "  RequiredDownloadSystemVersion: v" << mCnmt.getRequiredDownloadSystemVersion() << " (" << _SPLIT_VER(mCnmt.getRequiredDownloadSystemVersion()) << ")"<< std::endl;
 	switch(mCnmt.getContentMetaType())
 	{
-		case (nn::hac::cnmt::METATYPE_APPLICATION):
+		case (nn::hac::cnmt::ContentMetaType::Application):
 			std::cout << "  ApplicationExtendedHeader:" << std::endl;
 			std::cout << "    RequiredSystemVersion: v" << std::dec << mCnmt.getApplicationMetaExtendedHeader().getRequiredSystemVersion() << " (" << _SPLIT_VER(mCnmt.getApplicationMetaExtendedHeader().getRequiredSystemVersion()) << ")"<< std::endl;
 			std::cout << "    PatchId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getApplicationMetaExtendedHeader().getPatchId() << std::endl;
 			break;
-		case (nn::hac::cnmt::METATYPE_PATCH):
+		case (nn::hac::cnmt::ContentMetaType::Patch):
 			std::cout << "  PatchMetaExtendedHeader:" << std::endl;
 			std::cout << "    RequiredSystemVersion: v" << std::dec << mCnmt.getPatchMetaExtendedHeader().getRequiredSystemVersion() << " (" << _SPLIT_VER(mCnmt.getPatchMetaExtendedHeader().getRequiredSystemVersion()) << ")"<< std::endl;
 			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getPatchMetaExtendedHeader().getApplicationId() << std::endl;
 			break;
-		case (nn::hac::cnmt::METATYPE_ADD_ON_CONTENT):
+		case (nn::hac::cnmt::ContentMetaType::AddOnContent):
 			std::cout << "  AddOnContentMetaExtendedHeader:" << std::endl;
 			std::cout << "    RequiredApplicationVersion: v" << std::dec << mCnmt.getAddOnContentMetaExtendedHeader().getRequiredApplicationVersion() << " (" << _SPLIT_VER(mCnmt.getAddOnContentMetaExtendedHeader().getRequiredApplicationVersion()) << ")" << std::endl;
 			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getAddOnContentMetaExtendedHeader().getApplicationId() << std::endl;
 			break;
-		case (nn::hac::cnmt::METATYPE_DELTA):
+		case (nn::hac::cnmt::ContentMetaType::Delta):
 			std::cout << "  DeltaMetaExtendedHeader:" << std::endl;
 			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getDeltaMetaExtendedHeader().getApplicationId() << std::endl;
 			break;
@@ -109,7 +109,7 @@ void CnmtProcess::displayCnmt()
 		{
 			const nn::hac::ContentInfo& info = mCnmt.getContentInfo()[i];
 			std::cout << "    " << std::dec << i << std::endl;
-			std::cout << "      Type:         " << nn::hac::ContentMetaUtil::getContentTypeAsString(info.getContentType()) << " (" << std::dec << info.getContentType() << ")" << std::endl;
+			std::cout << "      Type:         " << nn::hac::ContentMetaUtil::getContentTypeAsString(info.getContentType()) << " (" << std::dec << (uint32_t)info.getContentType() << ")" << std::endl;
 			std::cout << "      Id:           " << fnd::SimpleTextOutput::arrayToString(info.getContentId().data, nn::hac::cnmt::kContentIdLen, false, "") << std::endl;
 			std::cout << "      Size:         0x" << std::hex << info.getContentSize() << std::endl;
 			std::cout << "      Hash:         " << fnd::SimpleTextOutput::arrayToString(info.getContentHash().bytes, sizeof(info.getContentHash()), false, "") << std::endl;
@@ -124,7 +124,7 @@ void CnmtProcess::displayCnmt()
 			std::cout << "    " << std::dec << i << std::endl;
 			std::cout << "      Id:           0x" << std::hex << std::setw(16) << std::setfill('0') << info.getTitleId() << std::endl;
 			std::cout << "      Version:      v" << std::dec << info.getTitleVersion() << " (" << _SPLIT_VER(info.getTitleVersion()) << ")"<< std::endl;
-			std::cout << "      Type:         " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(info.getContentMetaType()) << " (" << std::dec << info.getContentMetaType() << ")" << std::endl; 
+			std::cout << "      Type:         " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(info.getContentMetaType()) << " (" << std::dec << (uint32_t)info.getContentMetaType() << ")" << std::endl; 
 			std::cout << "      Attributes:   0x" << std::hex << (uint32_t)info.getAttributes() << std::endl;
 			if (info.getAttributes() != 0)
 			{
