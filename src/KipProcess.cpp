@@ -8,8 +8,6 @@
 #include <fnd/Vec.h>
 
 #include <nn/hac/KernelCapabilityUtil.h>
-#include <nn/hac/KernelInitialProcessUtil.h>
-
 
 KipProcess::KipProcess():
 	mFile(),
@@ -145,12 +143,12 @@ void KipProcess::displayHeader()
 {
 	std::cout << "[KIP Header]" << std::endl;
 	std::cout << "  Meta:" << std::endl;
-	std::cout << "    Name:              " << mHdr.getName() << std::endl;
-	std::cout << "    TitleId:           0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getTitleId() << std::endl;
-	std::cout << "    ProcessCategory:   " << nn::hac::KernelInitialProcessUtil::getProcessCategoryAsString(mHdr.getProcessCategory()) << std::endl;
-	std::cout << "    InstructionType:   " << getInstructionTypeStr(mHdr.getFlagList().hasElement(nn::hac::kip::FLAG_INSTRUCTION_64BIT)) << std::endl;
-	std::cout << "    AddrSpaceWidth:    " << getAddressSpaceStr(mHdr.getFlagList().hasElement(nn::hac::kip::FLAG_ADDR_SPACE_64BIT)) << std::endl;
-	std::cout << "    MemoryPool:        " << getMemoryPoolStr(mHdr.getFlagList().hasElement(nn::hac::kip::FLAG_USE_SYSTEM_POOL_PARTITION)) << std::endl;
+	std::cout << "    Name:                " << mHdr.getName() << std::endl;
+	std::cout << "    TitleId:             0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getTitleId() << std::endl;
+	std::cout << "    Version:             v" << std::dec << mHdr.getVersion() << std::endl;
+	std::cout << "    Is64BitInstruction:  " << std::boolalpha << mHdr.getIs64BitInstructionFlag() << std::endl;
+	std::cout << "    Is64BitAddressSpace: " << std::boolalpha << mHdr.getIs64BitAddressSpaceFlag() << std::endl;
+	std::cout << "    UseSecureMemory:     " << std::boolalpha << mHdr.getUseSecureMemoryFlag() << std::endl;
 	std::cout << "  Program Sections:" << std::endl;
 	std::cout << "     .text:" << std::endl;
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
@@ -282,19 +280,4 @@ void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 			std::cout << std::endl;
 		}
 	}
-}
-
-const char* KipProcess::getInstructionTypeStr(bool is64Bit) const
-{
-	return is64Bit? "64Bit" : "32Bit";
-}
-
-const char* KipProcess::getAddressSpaceStr(bool is64Bit) const
-{
-	return is64Bit? "64Bit" : "32Bit";
-}
-
-const char* KipProcess::getMemoryPoolStr(bool isSystemPool) const
-{
-	return isSystemPool? "System" : "Application";
 }

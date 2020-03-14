@@ -32,8 +32,4 @@ private:
 	void importCodeSegments();
 	void displayHeader();
 	void displayKernelCap(const nn::hac::KernelCapabilityControl& kern);
-
-	const char* getInstructionTypeStr(bool is64Bit) const;
-	const char* getAddressSpaceStr(bool is64Bit) const;
-	const char* getMemoryPoolStr(bool isSystemPool) const;
 };
