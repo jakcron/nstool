@@ -114,19 +114,13 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 		std::cout << "[WARNING] ACI ProgramId: FAIL (Outside Legal Range)" << std::endl;
 	}
 
-	for (size_t i = 0; i < aci.getFileSystemAccessControl().getFsaRightsList().size(); i++)
+	auto fs_access = aci.getFileSystemAccessControl().getFsAccess();
+	auto desc_fs_access = acid.getFileSystemAccessControl().getFsAccess();
+	for (size_t i = 0; i < fs_access.size(); i++)
 	{
-		bool fsaRightFound = false;
-		for (size_t j = 0; j < acid.getFileSystemAccessControl().getFsaRightsList().size() && fsaRightFound == false; j++)
+		if (fs_access.test(i) && desc_fs_access.test(i) == false)
 		{
-			if (aci.getFileSystemAccessControl().getFsaRightsList()[i] == acid.getFileSystemAccessControl().getFsaRightsList()[j])
-				fsaRightFound = true;
-		}
-
-		if (fsaRightFound == false)
-		{
-
-			std::cout << "[WARNING] ACI/FAC FsaRights: FAIL (" << nn::hac::FileSystemAccessUtil::getFsaRightAsString(aci.getFileSystemAccessControl().getFsaRightsList()[i]) << " not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/FAC FsaRights: FAIL (" << nn::hac::FileSystemAccessUtil::getFsAccessFlagAsString(nn::hac::fac::FsAccessFlag(i)) << " not permitted)" << std::endl;
 		}
 	}
 
@@ -337,22 +331,37 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 	std::cout << "[FS Access Control]" << std::endl;
 	std::cout << "  Format Version:  " << std::dec << (uint32_t)fac.getFormatVersion() << std::endl;
 
-	if (fac.getFsaRightsList().size())
+	auto fs_access = fac.getFsAccess();
+	if (fs_access.any())
 	{
-		std::cout << "  FS Rights:" << std::endl;
-		for (size_t i = 0; i < fac.getFsaRightsList().size(); i++)
+		std::cout << "  FsAccess:" << std::endl;
+		// TODO this formatting loop could be a utils function
+		for (size_t flag = 0, printed = 0; flag < fs_access.size(); flag++)
 		{
-			if (i % 10 == 0)
+			// skip unset flags
+			if (fs_access.test(flag) == false)
+				continue;
+
+			// format the strings
+			// for each 10 printed we do a new line
+			if (printed % 10 == 0)
 			{
-				if (i != 0)
+				// skip new line when we haven't printed anything
+				if (printed != 0)
 					std::cout << std::endl;
 				std::cout << "    ";
 			}
-			std::cout << nn::hac::FileSystemAccessUtil::getFsaRightAsString(fac.getFsaRightsList()[i]);
+			// within a line we want to separate the next string from the last one with a comma and a space
+			else
+			{
+				std::cout << ", ";	
+			}
+			printed++;
+
+			// output string info
+			std::cout << nn::hac::FileSystemAccessUtil::getFsAccessFlagAsString(nn::hac::fac::FsAccessFlag(flag));
 			if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-				std::cout << " (bit " << std::dec << (uint32_t)fac.getFsaRightsList()[i] << ")";
-			if (fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack())
-				std::cout << ", ";
+				std::cout << " (bit " << std::dec << (uint32_t)flag << ")";				
 		}
 		std::cout << std::endl;
 	}
