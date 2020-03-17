@@ -287,6 +287,7 @@ void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 	std::cout << "    Is64BitInstruction:       " << std::boolalpha << hdr.getIs64BitInstructionFlag() << std::endl;
 	std::cout << "    ProcessAddressSpace:      " << nn::hac::MetaUtil::getProcessAddressSpaceAsString(hdr.getProcessAddressSpace()) << std::endl;
 	std::cout << "    OptimizeMemoryAllocation: " << std::boolalpha << hdr.getOptimizeMemoryAllocationFlag() << std::endl;
+	std::cout << "  SystemResourceSize: 0x" << std::hex << hdr.getSystemResourceSize() << std::endl;
 	std::cout << "  Main Thread Params:" << std::endl;
 	std::cout << "    Priority:      " << std::dec << (uint32_t)hdr.getMainThreadPriority() << std::endl;
 	std::cout << "    CpuId:         " << std::dec << (uint32_t)hdr.getMainThreadCpuId() << std::endl;
@@ -452,7 +453,7 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getMiscParams().isSet())
 	{
-		std::cout << "  ProgramType:        " << std::dec << (uint32_t)kern.getMiscParams().getProgramType() << std::endl;
+		std::cout << "  ProgramType:        " << nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()) << " (" << std::dec << (uint32_t)kern.getMiscParams().getProgramType() << ")" << std::endl;
 	}
 	if (kern.getKernelVersion().isSet())
 	{
