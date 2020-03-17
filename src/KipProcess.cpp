@@ -241,7 +241,7 @@ void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getMiscParams().isSet())
 	{
-		std::cout << "  ProgramType:        " << std::dec << (uint32_t)kern.getMiscParams().getProgramType() << std::endl;
+		std::cout << "  ProgramType:        " << nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()) << " (" << std::dec << (uint32_t)kern.getMiscParams().getProgramType() << ")" << std::endl;
 	}
 	if (kern.getKernelVersion().isSet())
 	{
