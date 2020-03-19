@@ -232,14 +232,14 @@ void NcaProcess::generatePartitionConfiguration()
 	{
 		// get reference to relevant structures
 		const nn::hac::ContentArchiveHeader::sPartitionEntry& partition = mHdr.getPartitionEntryList()[i];
-		nn::hac::sNcaFsHeader& fs_header = mHdrBlock.fs_header[partition.header_index];
+		nn::hac::sContentArchiveFsHeader& fs_header = mHdrBlock.fs_header[partition.header_index];
 
 		// output structure
 		sPartitionInfo& info = mPartitions[partition.header_index];
 
 		// validate header hash
 		fnd::sha::sSha256Hash fs_header_hash;
-		fnd::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(nn::hac::sNcaFsHeader), fs_header_hash.bytes);
+		fnd::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(nn::hac::sContentArchiveFsHeader), fs_header_hash.bytes);
 		if (fs_header_hash.compare(partition.fs_header_hash) == false)
 		{
 			error.clear();
@@ -267,14 +267,14 @@ void NcaProcess::generatePartitionConfiguration()
 		info.enc_type = (nn::hac::nca::EncryptionType)fs_header.encryption_type;
 		if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
 		{
-			// info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, LayeredIntegrityMetadata::HASH_TYPE_SHA256);
+			// info.hash_tree_meta.importData(fs_header.hash_info, nn::hac::nca::kHashInfoLen, LayeredIntegrityMetadata::HASH_TYPE_SHA256);
 			nn::hac::HierarchicalSha256Header hdr;
 			fnd::List<fnd::LayeredIntegrityMetadata::sLayer> hash_layers;
 			fnd::LayeredIntegrityMetadata::sLayer data_layer;
 			fnd::List<fnd::sha::sSha256Hash> master_hash_list;
 
 			// import raw data
-			hdr.fromBytes(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen);
+			hdr.fromBytes(fs_header.hash_info, nn::hac::nca::kHashInfoLen);
 			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
 			{
 				fnd::LayeredIntegrityMetadata::sLayer layer;
@@ -300,13 +300,13 @@ void NcaProcess::generatePartitionConfiguration()
 		}	
 		else if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
 		{
-			// info.hash_tree_meta.importData(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen, LayeredIntegrityMetadata::HASH_TYPE_INTEGRITY);
+			// info.hash_tree_meta.importData(fs_header.hash_info, nn::hac::nca::kHashInfoLen, LayeredIntegrityMetadata::HASH_TYPE_INTEGRITY);
 			nn::hac::HierarchicalIntegrityHeader hdr;
 			fnd::List<fnd::LayeredIntegrityMetadata::sLayer> hash_layers;
 			fnd::LayeredIntegrityMetadata::sLayer data_layer;
 			fnd::List<fnd::sha::sSha256Hash> master_hash_list;
 
-			hdr.fromBytes(fs_header.hash_superblock, nn::hac::nca::kFsHeaderHashSuperblockLen);
+			hdr.fromBytes(fs_header.hash_info, nn::hac::nca::kHashInfoLen);
 			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
 			{
 				fnd::LayeredIntegrityMetadata::sLayer layer;
