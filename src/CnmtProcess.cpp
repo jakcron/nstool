@@ -62,7 +62,7 @@ void CnmtProcess::displayCnmt()
 {
 	std::cout << "[ContentMeta]" << std::endl;
 	std::cout << "  TitleId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getTitleId() << std::endl;
-	std::cout << "  Version:               v" << std::dec << mCnmt.getTitleVersion() << " (" << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getTitleVersion()) << ")"<< std::endl;
+	std::cout << "  Version:               " << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getTitleVersion()) << " (v" << std::dec << mCnmt.getTitleVersion() << ")"<< std::endl;
 	std::cout << "  Type:                  " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(mCnmt.getContentMetaType()) << " (" << std::dec << (uint32_t)mCnmt.getContentMetaType() << ")" << std::endl;
 	std::cout << "  Attributes:            0x" << std::hex << mCnmt.getAttribute().to_ullong() << std::endl;
 	if (mCnmt.getAttribute().any())
@@ -75,23 +75,25 @@ void CnmtProcess::displayCnmt()
 			}
 		}
 	}
-	std::cout << "  RequiredDownloadSystemVersion: v" << mCnmt.getRequiredDownloadSystemVersion() << " (" << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getRequiredDownloadSystemVersion()) << ")"<< std::endl;
+	std::cout << "  StorageId:             " << nn::hac::ContentMetaUtil::getStorageIdAsString(mCnmt.getStorageId()) << " (" << std::dec << (uint32_t)mCnmt.getStorageId() << ")" << std::endl;
+	std::cout << "  ContentInstallType:    " << nn::hac::ContentMetaUtil::getContentInstallTypeAsString(mCnmt.getContentInstallType()) << " (" << std::dec << (uint32_t)mCnmt.getContentInstallType() << ")" << std::endl;
+	std::cout << "  RequiredDownloadSystemVersion: " << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getRequiredDownloadSystemVersion()) << " (v" << mCnmt.getRequiredDownloadSystemVersion() << ")"<< std::endl;
 	switch(mCnmt.getContentMetaType())
 	{
 		case (nn::hac::cnmt::ContentMetaType::Application):
 			std::cout << "  ApplicationExtendedHeader:" << std::endl;
-			std::cout << "    RequiredApplicationVersion: v" << std::dec << mCnmt.getApplicationMetaExtendedHeader().getRequiredApplicationVersion() << " (" << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getApplicationMetaExtendedHeader().getRequiredApplicationVersion()) << ")"<< std::endl;
-			std::cout << "    RequiredSystemVersion:      v" << std::dec << mCnmt.getApplicationMetaExtendedHeader().getRequiredSystemVersion() << " (" << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getApplicationMetaExtendedHeader().getRequiredSystemVersion()) << ")"<< std::endl;
+			std::cout << "    RequiredApplicationVersion: " << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getApplicationMetaExtendedHeader().getRequiredApplicationVersion()) << " (v" << std::dec << mCnmt.getApplicationMetaExtendedHeader().getRequiredApplicationVersion() << ")"<< std::endl;
+			std::cout << "    RequiredSystemVersion:      " << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getApplicationMetaExtendedHeader().getRequiredSystemVersion()) << " (v" << std::dec << mCnmt.getApplicationMetaExtendedHeader().getRequiredSystemVersion() << ")"<< std::endl;
 			std::cout << "    PatchId:                    0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getApplicationMetaExtendedHeader().getPatchId() << std::endl;
 			break;
 		case (nn::hac::cnmt::ContentMetaType::Patch):
 			std::cout << "  PatchMetaExtendedHeader:" << std::endl;
-			std::cout << "    RequiredSystemVersion: v" << std::dec << mCnmt.getPatchMetaExtendedHeader().getRequiredSystemVersion() << " (" << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getPatchMetaExtendedHeader().getRequiredSystemVersion()) << ")"<< std::endl;
+			std::cout << "    RequiredSystemVersion: " << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getPatchMetaExtendedHeader().getRequiredSystemVersion()) <<  " (v" << std::dec << mCnmt.getPatchMetaExtendedHeader().getRequiredSystemVersion() << ")"<< std::endl;
 			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getPatchMetaExtendedHeader().getApplicationId() << std::endl;
 			break;
 		case (nn::hac::cnmt::ContentMetaType::AddOnContent):
 			std::cout << "  AddOnContentMetaExtendedHeader:" << std::endl;
-			std::cout << "    RequiredApplicationVersion: v" << std::dec << mCnmt.getAddOnContentMetaExtendedHeader().getRequiredApplicationVersion() << " (" << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getAddOnContentMetaExtendedHeader().getRequiredApplicationVersion()) << ")" << std::endl;
+			std::cout << "    RequiredApplicationVersion: " << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getAddOnContentMetaExtendedHeader().getRequiredApplicationVersion()) << " (v" << std::dec << mCnmt.getAddOnContentMetaExtendedHeader().getRequiredApplicationVersion() << ")" << std::endl;
 			std::cout << "    ApplicationId:         0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getAddOnContentMetaExtendedHeader().getApplicationId() << std::endl;
 			break;
 		case (nn::hac::cnmt::ContentMetaType::Delta):
