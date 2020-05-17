@@ -1,0 +1,57 @@
+name: Compile Master Branch
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  release:
+    types: [ created ]
+
+jobs:
+  build_makefile:
+    name: Compile ${{ matrix.prog }} for ${{ matrix.dist }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        dist: [ubuntu_x86_64, macos_x86_64]
+        prog: [nstool]
+        include:
+         - dist: ubuntu_x86_64
+           os: ubuntu-latest
+         - dist: macos_x86_64
+           os: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Clone submodules
+      run: git submodule init && git submodule update
+    - name: Compile ${{ matrix.prog }}
+      run: make deps && make
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.prog }}-${{ matrix.dist }}
+        path: ./bin/nstool
+  build_visualstudio:
+    name: Compile ${{ matrix.prog }} for ${{ matrix.dist }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        dist: [win_x86_64]
+        prog: [nstool]
+        include:
+         - dist: win_x86_64
+           os: windows-latest
+           platform: x64
+    steps:
+    - uses: actions/checkout@v1
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.0
+    - name: Clone submodules
+      run: git submodule init && git submodule update
+    - name: Compile ${{ matrix.prog }}
+      run: msbuild .\build\visualstudio\${{ matrix.prog }}.sln /p:configuration=release /p:platform=${{ matrix.platform }} 
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.prog }}-${{ matrix.dist }}
+        path: .\build\visualstudio\x64\Release\${{ matrix.prog }}.exe
+
