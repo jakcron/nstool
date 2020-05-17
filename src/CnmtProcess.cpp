@@ -64,17 +64,33 @@ void CnmtProcess::displayCnmt()
 	std::cout << "  TitleId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getTitleId() << std::endl;
 	std::cout << "  Version:               " << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getTitleVersion()) << " (v" << std::dec << mCnmt.getTitleVersion() << ")"<< std::endl;
 	std::cout << "  Type:                  " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(mCnmt.getContentMetaType()) << " (" << std::dec << (uint32_t)mCnmt.getContentMetaType() << ")" << std::endl;
-	std::cout << "  Attributes:            0x" << std::hex << mCnmt.getAttribute().to_ullong() << std::endl;
+	std::cout << "  Attributes:            0x" << std::hex << mCnmt.getAttribute().to_ullong();
 	if (mCnmt.getAttribute().any())
 	{
+		std::vector<std::string> attribute_list;
+
 		for (size_t flag = 0; flag < mCnmt.getAttribute().size(); flag++)
 		{
+			
 			if (mCnmt.getAttribute().test(flag))
 			{
-				std::cout << "  > " << nn::hac::ContentMetaUtil::getContentMetaAttributeFlagAsString(nn::hac::cnmt::ContentMetaAttributeFlag(flag)) << std::endl;
+				attribute_list.push_back(nn::hac::ContentMetaUtil::getContentMetaAttributeFlagAsString(nn::hac::cnmt::ContentMetaAttributeFlag(flag)));
 			}
 		}
+
+		std::cout << " [";
+		for (auto itr = attribute_list.begin(); itr != attribute_list.end(); itr++)
+		{
+			std::cout << *itr;
+			if ((itr + 1) != attribute_list.end())
+			{
+				std::cout << ", ";
+			}
+		}
+		std::cout << "]";
 	}
+	std::cout << std::endl;
+
 	std::cout << "  StorageId:             " << nn::hac::ContentMetaUtil::getStorageIdAsString(mCnmt.getStorageId()) << " (" << std::dec << (uint32_t)mCnmt.getStorageId() << ")" << std::endl;
 	std::cout << "  ContentInstallType:    " << nn::hac::ContentMetaUtil::getContentInstallTypeAsString(mCnmt.getContentInstallType()) << " (" << std::dec << (uint32_t)mCnmt.getContentInstallType() << ")" << std::endl;
 	std::cout << "  RequiredDownloadSystemVersion: " << nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getRequiredDownloadSystemVersion()) << " (v" << mCnmt.getRequiredDownloadSystemVersion() << ")"<< std::endl;
@@ -111,7 +127,7 @@ void CnmtProcess::displayCnmt()
 			const nn::hac::ContentInfo& info = mCnmt.getContentInfo()[i];
 			std::cout << "    " << std::dec << i << std::endl;
 			std::cout << "      Type:         " << nn::hac::ContentMetaUtil::getContentTypeAsString(info.getContentType()) << " (" << std::dec << (uint32_t)info.getContentType() << ")" << std::endl;
-			std::cout << "      Id:           " << fnd::SimpleTextOutput::arrayToString(info.getContentId().data, nn::hac::cnmt::kContentIdLen, false, "") << std::endl;
+			std::cout << "      Id:           " << fnd::SimpleTextOutput::arrayToString(info.getContentId().data(), info.getContentId().size(), false, "") << std::endl;
 			std::cout << "      Size:         0x" << std::hex << info.getContentSize() << std::endl;
 			std::cout << "      Hash:         " << fnd::SimpleTextOutput::arrayToString(info.getContentHash().bytes, sizeof(info.getContentHash()), false, "") << std::endl;
 		}
@@ -124,26 +140,36 @@ void CnmtProcess::displayCnmt()
 			const nn::hac::ContentMetaInfo& info = mCnmt.getContentMetaInfo()[i];
 			std::cout << "    " << std::dec << i << std::endl;
 			std::cout << "      Id:           0x" << std::hex << std::setw(16) << std::setfill('0') << info.getTitleId() << std::endl;
-			std::cout << "      Version:      v" << std::dec << info.getTitleVersion() << " (" << nn::hac::ContentMetaUtil::getVersionAsString(info.getTitleVersion()) << ")"<< std::endl;
+			std::cout << "      Version:      " << nn::hac::ContentMetaUtil::getVersionAsString(info.getTitleVersion()) << " (v" << std::dec << info.getTitleVersion() << ")"<< std::endl;
 			std::cout << "      Type:         " << nn::hac::ContentMetaUtil::getContentMetaTypeAsString(info.getContentMetaType()) << " (" << std::dec << (uint32_t)info.getContentMetaType() << ")" << std::endl; 
-			std::cout << "      Attributes:   0x" << std::hex << info.getAttribute().to_ullong() << std::endl;
+			std::cout << "      Attributes:   0x" << std::hex << info.getAttribute().to_ullong();
 			if (info.getAttribute().any())
 			{
+				std::vector<std::string> attribute_list;
+
 				for (size_t flag = 0; flag < info.getAttribute().size(); flag++)
 				{
+					
 					if (info.getAttribute().test(flag))
 					{
-						std::cout << "  > " << nn::hac::ContentMetaUtil::getContentMetaAttributeFlagAsString(nn::hac::cnmt::ContentMetaAttributeFlag(flag)) << std::endl;
+						attribute_list.push_back(nn::hac::ContentMetaUtil::getContentMetaAttributeFlagAsString(nn::hac::cnmt::ContentMetaAttributeFlag(flag)));
 					}
 				}
+
+				std::cout << " [";
+				for (auto itr = attribute_list.begin(); itr != attribute_list.end(); itr++)
+				{
+					std::cout << *itr;
+					if ((itr + 1) != attribute_list.end())
+					{
+						std::cout << ", ";
+					}
+				}
+				std::cout << "]";
 			}
+			std::cout << std::endl;
 		}
 	}
 
-	std::cout << "  Digest:   " << fnd::SimpleTextOutput::arrayToString(mCnmt.getDigest().data, nn::hac::cnmt::kDigestLen, false, "") << std::endl;
-}
-
-const char* CnmtProcess::getBoolStr(bool state) const
-{
-	return state? "TRUE" : "FALSE";
+	std::cout << "  Digest:   " << fnd::SimpleTextOutput::arrayToString(mCnmt.getDigest().data(), mCnmt.getDigest().size(), false, "") << std::endl;
 }

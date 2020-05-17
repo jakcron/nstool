@@ -31,6 +31,4 @@ private:
 
 	void importCnmt();
 	void displayCnmt();
-
-	const char* getBoolStr(bool state) const;
 };
