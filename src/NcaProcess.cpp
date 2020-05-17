@@ -448,7 +448,7 @@ void NcaProcess::validateNcaSignatures()
 void NcaProcess::displayHeader()
 {
 	std::cout << "[NCA Header]" << std::endl;
-	std::cout << "  Format Type:     " << nn::hac::ContentArchiveUtil::getFormatVersionAsString((nn::hac::nca::HeaderFormatVersion)mHdr.getFormatVersion()) << std::endl;
+	std::cout << "  Format Type:     " << nn::hac::ContentArchiveUtil::getFormatHeaderVersionAsString((nn::hac::nca::HeaderFormatVersion)mHdr.getFormatVersion()) << std::endl;
 	std::cout << "  Dist. Type:      " << nn::hac::ContentArchiveUtil::getDistributionTypeAsString(mHdr.getDistributionType()) << std::endl;
 	std::cout << "  Content Type:    " << nn::hac::ContentArchiveUtil::getContentTypeAsString(mHdr.getContentType()) << std::endl;
 	std::cout << "  Key Generation:  " << std::dec << (uint32_t)mHdr.getKeyGeneration() << std::endl;
@@ -457,9 +457,7 @@ void NcaProcess::displayHeader()
 	std::cout << "  Size:            0x" << std::hex << mHdr.getContentSize() << std::endl;
 	std::cout << "  ProgID:          0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getProgramId() << std::endl;
 	std::cout << "  Content Index:   " << std::dec << mHdr.getContentIndex() << std::endl;
-#define _SPLIT_VER(ver) std::dec << (uint32_t)((ver>>24) & 0xff) << "." << (uint32_t)((ver>>16) & 0xff) << "." << (uint32_t)((ver>>8) & 0xff)
-	std::cout << "  SdkAddon Ver.:   v" << std::dec << mHdr.getSdkAddonVersion() << " (" << _SPLIT_VER(mHdr.getSdkAddonVersion()) << ")" << std::endl;
-#undef _SPLIT_VER
+	std::cout << "  SdkAddon Ver.:   " << nn::hac::ContentArchiveUtil::getSdkAddonVersionAsString(mHdr.getSdkAddonVersion()) << " (v" << std::dec << mHdr.getSdkAddonVersion() << ")" << std::endl;
 	if (mHdr.hasRightsId())
 	{
 		std::cout << "  RightsId:        " << fnd::SimpleTextOutput::arrayToString(mHdr.getRightsId(), nn::hac::nca::kRightsIdLen, true, "") << std::endl;
