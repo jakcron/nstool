@@ -190,7 +190,7 @@ void GameCardProcess::displayHeader()
 	if (mProccessExtendedHeader)
 	{
 		std::cout << "[GameCard Extended Header]" << std::endl;
-		std::cout << "  FwVersion:              v" << std::dec << mHdr.getFwVersion() << "(" << nn::hac::GameCardUtil::getCardFwVersionDescriptionAsString((nn::hac::gc::FwVersion)mHdr.getFwVersion()) << ")" << std::endl;
+		std::cout << "  FwVersion:              v" << std::dec << mHdr.getFwVersion() << " (" << nn::hac::GameCardUtil::getCardFwVersionDescriptionAsString((nn::hac::gc::FwVersion)mHdr.getFwVersion()) << ")" << std::endl;
 		std::cout << "  AccCtrl1:               0x" << std::hex << mHdr.getAccCtrl1() << std::endl;
 		std::cout << "    CardClockRate:        " << nn::hac::GameCardUtil::getCardClockRateAsString((nn::hac::gc::CardClockRate)mHdr.getAccCtrl1()) << std::endl;
 		std::cout << "  Wait1TimeRead:          0x" << std::hex << mHdr.getWait1TimeRead() << std::endl;
@@ -198,24 +198,39 @@ void GameCardProcess::displayHeader()
 		std::cout << "  Wait1TimeWrite:         0x" << std::hex << mHdr.getWait1TimeWrite() << std::endl;
 		std::cout << "  Wait2TimeWrite:         0x" << std::hex << mHdr.getWait2TimeWrite() << std::endl;
 		std::cout << "  FwMode:                 0x" << std::hex << mHdr.getFwMode() << std::endl;
-		std::cout << "  CompatibilityType:      " << nn::hac::GameCardUtil::getCompatibilityTypeAsString((nn::hac::gc::CompatibilityType)mHdr.getCompatibilityType()) << "(" << std::dec << mHdr.getCompatibilityType() << ")" << std::endl;
+		std::cout << "  CompatibilityType:      " << nn::hac::GameCardUtil::getCompatibilityTypeAsString((nn::hac::gc::CompatibilityType)mHdr.getCompatibilityType()) << " (" << std::dec << (uint32_t) mHdr.getCompatibilityType() << ")" << std::endl;
 		std::cout << "  Update Partition Info:" << std::endl;
 #define _SPLIT_VER(ver) std::dec << ((ver>>26) & 0x3f) << "." << ((ver>>20) & 0x3f) << "." << ((ver>>16) & 0xf) << "." << (ver & 0xffff)
 		std::cout << "    CUP Version:          v" << std::dec << mHdr.getUppVersion() << " (" << _SPLIT_VER(mHdr.getUppVersion()) << ")" << std::endl;
 #undef _SPLIT_VER
 		std::cout << "    CUP TitleId:          0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getUppId() << std::endl;
-		std::cout << "    CUP Digest:       " << fnd::SimpleTextOutput::arrayToString(mHdr.getUppHash(), 8, true, ":") << std::endl;
+		std::cout << "    CUP Digest:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getUppHash(), 8, true, ":") << std::endl;
 	}
+}
+
+bool GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash, bool use_salt, byte_t salt)
+{
+	fnd::Vec<byte_t> scratch;
+	fnd::sha::sSha256Hash calc_hash;
+	if (use_salt)
+	{
+		scratch.alloc(len + 1);		
+		scratch.data()[len] = salt;
+	}
+	else
+	{
+		scratch.alloc(len);
+	}
+
+	(*mFile)->read(scratch.data(), offset, len);
+	fnd::sha::Sha256(scratch.data(), scratch.size(), calc_hash.bytes);
+
+	return calc_hash.compare(test_hash);
 }
 
 bool GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
 {
-	fnd::Vec<byte_t> scratch;
-	fnd::sha::sSha256Hash calc_hash;
-	scratch.alloc(len);
-	(*mFile)->read(scratch.data(), offset, scratch.size());
-	fnd::sha::Sha256(scratch.data(), scratch.size(), calc_hash.bytes);
-	return calc_hash.compare(test_hash);
+	return validateRegionOfFile(offset, len, test_hash, false, 0);
 }
 
 void GameCardProcess::validateXciSignature()
@@ -231,7 +246,7 @@ void GameCardProcess::validateXciSignature()
 
 void GameCardProcess::processRootPfs()
 {
-	if (mVerify && validateRegionOfFile(mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize(), mHdr.getPartitionFsHash().bytes) == false)
+	if (mVerify && validateRegionOfFile(mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize(), mHdr.getPartitionFsHash().bytes, mHdr.getCompatibilityType() != nn::hac::gc::COMPAT_GLOBAL, mHdr.getCompatibilityType()) == false)
 	{
 		std::cout << "[WARNING] GameCard Root HFS0: FAIL (bad hash)" << std::endl;
 	}
