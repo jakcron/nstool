@@ -31,4 +31,7 @@ private:
 
 	void importCnmt();
 	void displayCnmt();
+
+	void displayContentMetaInfo(const nn::hac::ContentMetaInfo& content_meta_info, const std::string& prefix);
+	void displayContentMetaInfoList(const std::vector<nn::hac::ContentMetaInfo>& content_meta_info_list, const std::string& prefix);
 };
