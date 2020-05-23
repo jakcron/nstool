@@ -95,8 +95,8 @@ void KeyConfiguration::importHactoolGenericKeyfile(const std::string& path)
 		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kNcaKeyAreaEncKeyBase[nameidx], kNcaKeyAreaKeyIndexStr[2], kSourceStr), key_area_key_source[2].key, 0x10);
 		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kKekGenBase[nameidx], kSourceStr), aes_kek_generation_source.key, 0x10);
 		_SAVE_KEYDATA(_CONCAT_2_STRINGS(kKeyGenBase[nameidx], kSourceStr), aes_key_generation_source.key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kXciHeaderBase[nameidx], kKekStr, kSourceStr), nca_header_kek_source.key, 0x10);
-		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kXciHeaderBase[nameidx], kKeyStr, kSourceStr), nca_header_key_source.key, 0x20);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kContentArchiveHeaderBase[nameidx], kKekStr, kSourceStr), nca_header_kek_source.key, 0x10);
+		_SAVE_KEYDATA(_CONCAT_3_STRINGS(kContentArchiveHeaderBase[nameidx], kKeyStr, kSourceStr), nca_header_key_source.key, 0x20);
 
 		// Store Key Variants/Derivatives
 		for (size_t mkeyidx = 0; mkeyidx < kMasterKeyNum; mkeyidx++)
