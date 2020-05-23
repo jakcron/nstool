@@ -32,6 +32,7 @@ public:
 	const std::vector<SdkApiString>& getPublicApiList() const;
 	const std::vector<SdkApiString>& getDebugApiList() const;
 	const std::vector<SdkApiString>& getPrivateApiList() const;
+	const std::vector<SdkApiString>& getGuidelineApiList() const;
 	const fnd::List<ElfSymbolParser::sElfSymbol>& getSymbolList() const;
 private:
 	const std::string kModuleName = "RoMetadataProcess";
@@ -56,6 +57,7 @@ private:
 	std::vector<SdkApiString> mPublicApiList;
 	std::vector<SdkApiString> mDebugApiList;
 	std::vector<SdkApiString> mPrivateApiList;
+	std::vector<SdkApiString> mGuidelineApiList;
 	
 	ElfSymbolParser mSymbolList;
 
