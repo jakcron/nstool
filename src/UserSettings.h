@@ -29,7 +29,7 @@ public:
 	bool isListFs() const;
 	bool isListApi() const;
 	bool isListSymbols() const;
-	nn::hac::meta::InstructionType getInstType() const;
+	bool getIs64BitInstruction() const;
 
 	// specialised paths
 	const sOptional<std::string>& getXciUpdatePath() const;
@@ -114,7 +114,7 @@ private:
 
 	bool mListApi;
 	bool mListSymbols;
-	nn::hac::meta::InstructionType mInstructionType;
+	bool mIs64BitInstruction;
 
 	void populateCmdArgs(const std::vector<std::string>& arg_list, sCmdArgs& cmd_args);
 	void populateKeyset(sCmdArgs& args);
@@ -126,7 +126,7 @@ private:
 	bool determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidEsCertFromSample(const fnd::Vec<byte_t>& sample) const;
 	bool determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample) const;
-	nn::hac::meta::InstructionType getInstructionTypeFromString(const std::string& type_str);
+	bool getIs64BitInstructionFromString(const std::string& type_str);
 	void getHomePath(std::string& path) const;
 	void getSwitchPath(std::string& path) const;
 

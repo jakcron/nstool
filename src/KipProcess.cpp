@@ -8,8 +8,6 @@
 #include <fnd/Vec.h>
 
 #include <nn/hac/KernelCapabilityUtil.h>
-#include <nn/hac/KernelInitialProcessUtil.h>
-
 
 KipProcess::KipProcess():
 	mFile(),
@@ -145,12 +143,12 @@ void KipProcess::displayHeader()
 {
 	std::cout << "[KIP Header]" << std::endl;
 	std::cout << "  Meta:" << std::endl;
-	std::cout << "    Name:              " << mHdr.getName() << std::endl;
-	std::cout << "    TitleId:           0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getTitleId() << std::endl;
-	std::cout << "    ProcessCategory:   " << nn::hac::KernelInitialProcessUtil::getProcessCategoryAsString(mHdr.getProcessCategory()) << std::endl;
-	std::cout << "    InstructionType:   " << getInstructionTypeStr(mHdr.getFlagList().hasElement(nn::hac::kip::FLAG_INSTRUCTION_64BIT)) << std::endl;
-	std::cout << "    AddrSpaceWidth:    " << getAddressSpaceStr(mHdr.getFlagList().hasElement(nn::hac::kip::FLAG_ADDR_SPACE_64BIT)) << std::endl;
-	std::cout << "    MemoryPool:        " << getMemoryPoolStr(mHdr.getFlagList().hasElement(nn::hac::kip::FLAG_USE_SYSTEM_POOL_PARTITION)) << std::endl;
+	std::cout << "    Name:                " << mHdr.getName() << std::endl;
+	std::cout << "    TitleId:             0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getTitleId() << std::endl;
+	std::cout << "    Version:             v" << std::dec << mHdr.getVersion() << std::endl;
+	std::cout << "    Is64BitInstruction:  " << std::boolalpha << mHdr.getIs64BitInstructionFlag() << std::endl;
+	std::cout << "    Is64BitAddressSpace: " << std::boolalpha << mHdr.getIs64BitAddressSpaceFlag() << std::endl;
+	std::cout << "    UseSecureMemory:     " << std::boolalpha << mHdr.getUseSecureMemoryFlag() << std::endl;
 	std::cout << "  Program Sections:" << std::endl;
 	std::cout << "     .text:" << std::endl;
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
@@ -197,25 +195,15 @@ void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 
 	if (kern.getSystemCalls().isSet())
 	{
-		fnd::List<nn::hac::kc::SystemCall> syscalls = kern.getSystemCalls().getSystemCalls();
+		auto syscall_ids = kern.getSystemCalls().getSystemCallIds();
 		std::cout << "  SystemCalls:" << std::endl;
-		std::cout << "    ";
-		size_t lineLen = 0;
-		for (size_t i = 0; i < syscalls.size(); i++)
+		std::vector<std::string> syscall_names;
+		for (size_t syscall_id = 0; syscall_id < syscall_ids.size(); syscall_id++)
 		{
-			if (lineLen > 60)
-			{
-				lineLen = 0;
-				std::cout << std::endl;
-				std::cout << "    ";
-			}
-			std::string syscall_string = nn::hac::KernelCapabilityUtil::getSystemCallAsString(syscalls[i]);
-			std::cout << syscall_string;
-			if (syscalls[i] != syscalls.atBack())
-				std::cout << ", ";
-			lineLen += syscall_string.length();
+			if (syscall_ids.test(syscall_id))
+				syscall_names.push_back(nn::hac::KernelCapabilityUtil::getSystemCallIdAsString(nn::hac::kc::SystemCallId(syscall_id)));
 		}
-		std::cout << std::endl;
+		fnd::SimpleTextOutput::dumpStringList(syscall_names, 60, 4);
 	}
 	if (kern.getMemoryMaps().isSet())
 	{
@@ -225,12 +213,12 @@ void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 		std::cout << "  MemoryMaps:" << std::endl;
 		for (size_t i = 0; i < maps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(maps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(maps[i].type) << ")" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemoryPermissionAsString(maps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMappingTypeAsString(maps[i].type) << ")" << std::endl;
 		}
 		//std::cout << "  IoMaps:" << std::endl;
 		for (size_t i = 0; i < ioMaps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(ioMaps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(ioMaps[i].type) << ")" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemoryPermissionAsString(ioMaps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMappingTypeAsString(ioMaps[i].type) << ")" << std::endl;
 		}
 	}
 	if (kern.getInterupts().isSet())
@@ -253,7 +241,7 @@ void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getMiscParams().isSet())
 	{
-		std::cout << "  ProgramType:        " << std::dec << (uint32_t)kern.getMiscParams().getProgramType() << std::endl;
+		std::cout << "  ProgramType:        " << nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()) << " (" << std::dec << (uint32_t)kern.getMiscParams().getProgramType() << ")" << std::endl;
 	}
 	if (kern.getKernelVersion().isSet())
 	{
@@ -265,36 +253,14 @@ void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getMiscFlags().isSet())
 	{
-		fnd::List<nn::hac::kc::MiscFlags> flagList = kern.getMiscFlags().getFlagList();
-
+		auto misc_flags = kern.getMiscFlags().getMiscFlags();
 		std::cout << "  Misc Flags:" << std::endl;
-		for (uint32_t i = 0; i < flagList.size(); i++)
+		std::vector<std::string> misc_flags_names;
+		for (size_t misc_flags_bit = 0; misc_flags_bit < misc_flags.size(); misc_flags_bit++)
 		{
-			if (i % 10 == 0)
-			{
-				if (i != 0)
-					std::cout << std::endl;
-				std::cout << "    ";
-			}
-			std::cout << nn::hac::KernelCapabilityUtil::getMiscFlagAsString(flagList[i]);
-			if (flagList[i] != flagList.atBack())
-				std::cout << ", ";
-			std::cout << std::endl;
+			if (misc_flags.test(misc_flags_bit))
+				misc_flags_names.push_back(nn::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(nn::hac::kc::MiscFlagsBit(misc_flags_bit)));
 		}
+		fnd::SimpleTextOutput::dumpStringList(misc_flags_names, 60, 4);
 	}
-}
-
-const char* KipProcess::getInstructionTypeStr(bool is64Bit) const
-{
-	return is64Bit? "64Bit" : "32Bit";
-}
-
-const char* KipProcess::getAddressSpaceStr(bool is64Bit) const
-{
-	return is64Bit? "64Bit" : "32Bit";
-}
-
-const char* KipProcess::getMemoryPoolStr(bool isSystemPool) const
-{
-	return isSystemPool? "System" : "Application";
 }

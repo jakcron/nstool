@@ -22,7 +22,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	void setInstructionType(nn::hac::meta::InstructionType type);
+	void setIs64BitInstruction(bool flag);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 

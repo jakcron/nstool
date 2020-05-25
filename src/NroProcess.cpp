@@ -43,9 +43,9 @@ void NroProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void NroProcess::setInstructionType(nn::hac::meta::InstructionType type)
+void NroProcess::setIs64BitInstruction(bool flag)
 {
-	mRoMeta.setInstructionType(type);
+	mRoMeta.setIs64BitInstruction(flag);
 }
 
 void NroProcess::setListApi(bool listApi)

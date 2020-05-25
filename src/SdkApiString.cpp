@@ -81,6 +81,14 @@ void SdkApiString::resolveApiString(const std::string& full_str)
 	{
 		mApiType = API_PRIVATE;
 	}
+	else if (api_type == kSdkGuidelineApiString)
+	{
+		mApiType = API_GUIDELINE;
+	}
+	else
+	{
+		// TODO?
+	}
 
 	mVenderName = vender;
 	mModuleName = module;

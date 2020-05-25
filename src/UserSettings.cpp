@@ -138,9 +138,9 @@ bool UserSettings::isListSymbols() const
 	return mListSymbols;
 }
 
-nn::hac::meta::InstructionType UserSettings::getInstType() const
+bool UserSettings::getIs64BitInstruction() const
 {
-	return mInstructionType;
+	return mIs64BitInstruction;
 }
 
 const sOptional<std::string>& UserSettings::getXciUpdatePath() const
@@ -564,9 +564,9 @@ void UserSettings::populateUserSettings(sCmdArgs& args)
 
 	// determine the architecture type for NSO/NRO
 	if (args.inst_type.isSet)
-		mInstructionType = getInstructionTypeFromString(*args.inst_type);
+		mIs64BitInstruction = getIs64BitInstructionFromString(*args.inst_type);
 	else
-		mInstructionType = nn::hac::meta::INSTR_64BIT; // default 64bit
+		mIs64BitInstruction = true; // default 64bit
 	
 	mListApi = args.list_api.isSet;
 	mListSymbols = args.list_sym.isSet;
@@ -758,33 +758,43 @@ bool UserSettings::determineValidCnmtFromSample(const fnd::Vec<byte_t>& sample) 
 	if (sample.size() < minimum_size)
 		return false;
 
-	if (data->type == nn::hac::cnmt::METATYPE_APPLICATION)
+	// include exthdr/data check if applicable
+	if (data->exhdr_size.get() > 0)
 	{
-		const nn::hac::sApplicationMetaExtendedHeader* meta = (const nn::hac::sApplicationMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
-		if ((meta->patch_id.get() & data->id.get()) != data->id.get())
-			return false;
-	}
-	else if (data->type == nn::hac::cnmt::METATYPE_PATCH)
-	{
-		const nn::hac::sPatchMetaExtendedHeader* meta = (const nn::hac::sPatchMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
-		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
-			return false;
+		if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Application)
+		{
+			const nn::hac::sApplicationMetaExtendedHeader* meta = (const nn::hac::sApplicationMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			if ((meta->patch_id.get() & data->id.get()) != data->id.get())
+				return false;
+		}
+		else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Patch)
+		{
+			const nn::hac::sPatchMetaExtendedHeader* meta = (const nn::hac::sPatchMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
+				return false;
 
-		minimum_size += meta->extended_data_size.get();
-	}
-	else if (data->type == nn::hac::cnmt::METATYPE_ADD_ON_CONTENT)
-	{
-		const nn::hac::sAddOnContentMetaExtendedHeader* meta = (const nn::hac::sAddOnContentMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
-		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
-			return false;
-	}
-	else if (data->type == nn::hac::cnmt::METATYPE_DELTA)
-	{
-		const nn::hac::sDeltaMetaExtendedHeader* meta = (const nn::hac::sDeltaMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
-		if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
-			return false;
+			minimum_size += meta->extended_data_size.get();
+		}
+		else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::AddOnContent)
+		{
+			const nn::hac::sAddOnContentMetaExtendedHeader* meta = (const nn::hac::sAddOnContentMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
+				return false;
+		}
+		else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Delta)
+		{
+			const nn::hac::sDeltaMetaExtendedHeader* meta = (const nn::hac::sDeltaMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			if ((meta->application_id.get() & data->id.get()) != meta->application_id.get())
+				return false;
 
-		minimum_size += meta->extended_data_size.get();
+			minimum_size += meta->extended_data_size.get();
+		}
+		else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::SystemUpdate)
+		{
+			const nn::hac::sSystemUpdateMetaExtendedHeader* meta = (const nn::hac::sSystemUpdateMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+
+			minimum_size += meta->extended_data_size.get();
+		}
 	}
 
 	if (sample.size() != minimum_size)
@@ -800,7 +810,7 @@ bool UserSettings::determineValidNacpFromSample(const fnd::Vec<byte_t>& sample) 
 
 	const nn::hac::sApplicationControlProperty* data = (const nn::hac::sApplicationControlProperty*)sample.data();
 
-	if (data->logo_type > nn::hac::nacp::LOGO_Nintendo)
+	if (data->logo_type > (byte_t)nn::hac::nacp::LogoType::Nintendo)
 		return false;
 
 	if (data->display_version[0] == 0)
@@ -862,20 +872,20 @@ bool UserSettings::determineValidEsTikFromSample(const fnd::Vec<byte_t>& sample)
 	return true;
 }
 
-nn::hac::meta::InstructionType UserSettings::getInstructionTypeFromString(const std::string & type_str)
+bool UserSettings::getIs64BitInstructionFromString(const std::string & type_str)
 {
 	std::string str = type_str;
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 
-	nn::hac::meta::InstructionType type;
+	bool flag;
 	if (str == "32bit")
-		type = nn::hac::meta::INSTR_32BIT;
+		flag = false;
 	else if (str == "64bit")
-		type = nn::hac::meta::INSTR_64BIT;
+		flag = true;
 	else
 		throw fnd::Exception(kModuleName, "Unsupported instruction type: " + str);
 
-	return type;
+	return flag;
 }
 
 void UserSettings::getHomePath(std::string& path) const
@@ -912,10 +922,19 @@ void UserSettings::dumpKeyConfig() const
 
 		std::cout << "[KeyConfiguration]" << std::endl;
 		std::cout << "  NCA Keys:" << std::endl;
-		if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key) == true)
-			dumpRsa2048Key(rsa2048_key, "Header Signature[0] Key", 2);
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key, i) == true)
+				dumpRsa2048Key(rsa2048_key, "Header0-SignatureKey-" + kKeyIndex[i], 2);
+		}
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getAcidSignKey(rsa2048_key, i) == true)
+				dumpRsa2048Key(rsa2048_key, "Acid-SignatureKey-" + kKeyIndex[i], 2);
+		}
+		
 		if (mKeyCfg.getContentArchiveHeaderKey(aesxts_key) == true)
-			dumpAesXtsKey(aesxts_key, "Header Encryption Key", 2);
+			dumpAesXtsKey(aesxts_key, "Header-EncryptionKey", 2);
 		
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
@@ -937,15 +956,20 @@ void UserSettings::dumpKeyConfig() const
 				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-System-" + kKeyIndex[i], 2);
 		}
 		
+		std::cout << "  NRR Keys:" << std::endl;
+		for (size_t i = 0; i < kMasterKeyNum; i++)
+		{
+			if (mKeyCfg.getNrrCertificateSignKey(rsa2048_key, i) == true)
+				dumpRsa2048Key(rsa2048_key, "Certificate-SignatureKey-" + kKeyIndex[i], 2);
+		}
+
 		std::cout << "  XCI Keys:" << std::endl;
 		if (mKeyCfg.getXciHeaderSignKey(rsa2048_key) == true)
-			dumpRsa2048Key(rsa2048_key, "Header Signature Key", 2);
+			dumpRsa2048Key(rsa2048_key, "Header-SignatureKey", 2);
 		if (mKeyCfg.getXciHeaderKey(aes_key) == true)
-			dumpAesKey(aes_key, "Extended Header Encryption Key", 2);
+			dumpAesKey(aes_key, "ExtendedHeader-EncryptionKey", 2);
 		
-		
-		if (mKeyCfg.getAcidSignKey(rsa2048_key) == true)
-			dumpRsa2048Key(rsa2048_key, "ACID Signer Key", 1);
+	
 		
 		
 		std::cout << "  Package1 Keys:" << std::endl;

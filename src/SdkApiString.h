@@ -9,7 +9,8 @@ public:
 		API_MIDDLEWARE,
 		API_DEBUG,
 		API_PRIVATE,
-		API_SDK_VERSION
+		API_SDK_VERSION,
+		API_GUIDELINE,
 	};
 
 	SdkApiString(const std::string& full_str);
@@ -32,6 +33,7 @@ private:
 	const std::string kSdkMiddleWareApiString = "SDK MW";
 	const std::string kSdkDebugApiString = "SDK Debug";
 	const std::string kSdkPrivateApiString = "SDK Private";
+	const std::string kSdkGuidelineApiString = "SDK Guideline";
 	const std::string kVenderNintendo = "Nintendo";
 	const std::string kSdkVersionString = "NintendoSdk_nnSdk-";
 
