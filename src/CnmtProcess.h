@@ -32,5 +32,6 @@ private:
 	void importCnmt();
 	void displayCnmt();
 
-	const char* getBoolStr(bool state) const;
+	void displayContentMetaInfo(const nn::hac::ContentMetaInfo& content_meta_info, const std::string& prefix);
+	void displayContentMetaInfoList(const std::vector<nn::hac::ContentMetaInfo>& content_meta_info_list, const std::string& prefix);
 };

@@ -141,7 +141,7 @@ int main(int argc, char** argv)
 			obj.setCliOutputMode(user_set.getCliOutputMode());
 			obj.setVerifyMode(user_set.isVerifyFile());
 			
-			obj.setInstructionType(user_set.getInstType());
+			obj.setIs64BitInstruction(user_set.getIs64BitInstruction());
 			obj.setListApi(user_set.isListApi());
 			obj.setListSymbols(user_set.isListSymbols());
 
@@ -155,7 +155,7 @@ int main(int argc, char** argv)
 			obj.setCliOutputMode(user_set.getCliOutputMode());
 			obj.setVerifyMode(user_set.isVerifyFile());
 			
-			obj.setInstructionType(user_set.getInstType());
+			obj.setIs64BitInstruction(user_set.getIs64BitInstruction());
 			obj.setListApi(user_set.isListApi());
 			obj.setListSymbols(user_set.isListSymbols());
 

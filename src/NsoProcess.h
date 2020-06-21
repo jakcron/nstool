@@ -21,7 +21,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	void setInstructionType(nn::hac::meta::InstructionType type);
+	void setIs64BitInstruction(bool flag);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
@@ -32,7 +32,7 @@ private:
 	fnd::SharedPtr<fnd::IFile> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
-	nn::hac::meta::InstructionType mInstructionType;
+	bool mIs64BitInstruction;
 	bool mListApi;
 	bool mListSymbols;
 

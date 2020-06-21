@@ -7,7 +7,7 @@
 
 RoMetadataProcess::RoMetadataProcess() :
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
-	mInstructionType(nn::hac::meta::INSTR_64BIT),
+	mIs64BitInstruction(true),
 	mListApi(false),
 	mListSymbols(false),
 	mApiInfo(),
@@ -57,9 +57,9 @@ void RoMetadataProcess::setCliOutputMode(CliOutputMode type)
 	mCliOutputMode = type;
 }
 
-void RoMetadataProcess::setInstructionType(nn::hac::meta::InstructionType type)
+void RoMetadataProcess::setIs64BitInstruction(bool flag)
 {
-	mInstructionType = type;
+	mIs64BitInstruction = flag;
 }
 
 void RoMetadataProcess::setListApi(bool listApi)
@@ -92,6 +92,11 @@ const std::vector<SdkApiString>& RoMetadataProcess::getPrivateApiList() const
 	return mPrivateApiList;
 }
 
+const std::vector<SdkApiString>& RoMetadataProcess::getGuidelineApiList() const
+{
+	return mGuidelineApiList;
+}
+
 const fnd::List<ElfSymbolParser::sElfSymbol>& RoMetadataProcess::getSymbolList() const
 {
 	return mSymbolList.getSymbolList();
@@ -113,20 +118,32 @@ void RoMetadataProcess::importApiList()
 		{
 			SdkApiString api(api_str);
 
-			if (api.getApiType() == SdkApiString::API_SDK_VERSION)
+			switch (api.getApiType())
+			{
+			case SdkApiString::API_SDK_VERSION:
 				mSdkVerApiList.push_back(api);
-			else if (api.getApiType() == SdkApiString::API_MIDDLEWARE)
+				break;
+			case SdkApiString::API_MIDDLEWARE:
 				mPublicApiList.push_back(api);
-			else if (api.getApiType() == SdkApiString::API_DEBUG)
+				break;
+			case SdkApiString::API_DEBUG:
 				mDebugApiList.push_back(api);
-			else if (api.getApiType() == SdkApiString::API_PRIVATE)
+				break;
+			case SdkApiString::API_PRIVATE:
 				mPrivateApiList.push_back(api);
+				break;
+			case SdkApiString::API_GUIDELINE:
+				mGuidelineApiList.push_back(api);
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
 	if (mDynSym.size > 0)
 	{
-		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mInstructionType == nn::hac::meta::INSTR_64BIT);
+		mSymbolList.parseData(mRoBlob.data() + mDynSym.offset, mDynSym.size, mRoBlob.data() + mDynStr.offset, mDynStr.size, mIs64BitInstruction);
 	}
 }
 
@@ -163,6 +180,14 @@ void RoMetadataProcess::displayRoMetaData()
 			for (size_t i = 0; i < mPrivateApiList.size(); i++)
 			{
 				std::cout << "    " << mPrivateApiList[i].getModuleName() << " (vender: " << mPrivateApiList[i].getVenderName() << ")" << std::endl;
+			}
+		}
+		if (mGuidelineApiList.size() > 0)
+		{
+			std::cout << "  Guideline APIs:" << std::endl;
+			for (size_t i = 0; i < mGuidelineApiList.size(); i++)
+			{
+				std::cout << "    " << mGuidelineApiList[i].getModuleName() << " (vender: " << mGuidelineApiList[i].getVenderName() << ")" << std::endl;
 			}
 		}
 	}

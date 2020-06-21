@@ -8,6 +8,8 @@
 #include <nn/hac/KernelCapabilityUtil.h>
 #include <nn/hac/MetaUtil.h>
 
+#include <fnd/SimpleTextOutput.h>
+
 MetaProcess::MetaProcess() :
 	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
@@ -21,8 +23,8 @@ void MetaProcess::process()
 
 	if (mVerify)
 	{
-		validateAcidSignature(mMeta.getAcid());
-		validateAciFromAcid(mMeta.getAci(), mMeta.getAcid());
+		validateAcidSignature(mMeta.getAccessControlInfoDesc(), mMeta.getAccessControlInfoDescKeyGeneration());
+		validateAciFromAcid(mMeta.getAccessControlInfo(), mMeta.getAccessControlInfoDesc());
 	}
 
 	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
@@ -31,18 +33,18 @@ void MetaProcess::process()
 		displayMetaHeader(mMeta);
 
 		// aci binary
-		displayAciHdr(mMeta.getAci());
-		displayFac(mMeta.getAci().getFileSystemAccessControl());
-		displaySac(mMeta.getAci().getServiceAccessControl());
-		displayKernelCap(mMeta.getAci().getKernelCapabilities());
+		displayAciHdr(mMeta.getAccessControlInfo());
+		displayFac(mMeta.getAccessControlInfo().getFileSystemAccessControl());
+		displaySac(mMeta.getAccessControlInfo().getServiceAccessControl());
+		displayKernelCap(mMeta.getAccessControlInfo().getKernelCapabilities());
 
 		// acid binary
 		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
 		{
-			displayAciDescHdr(mMeta.getAcid());
-			displayFac(mMeta.getAcid().getFileSystemAccessControl());
-			displaySac(mMeta.getAcid().getServiceAccessControl());
-			displayKernelCap(mMeta.getAcid().getKernelCapabilities());
+			displayAciDescHdr(mMeta.getAccessControlInfoDesc());
+			displayFac(mMeta.getAccessControlInfoDesc().getFileSystemAccessControl());
+			displaySac(mMeta.getAccessControlInfoDesc().getServiceAccessControl());
+			displayKernelCap(mMeta.getAccessControlInfoDesc().getKernelCapabilities());
 		}
 	}
 }
@@ -87,11 +89,11 @@ void MetaProcess::importMeta()
 	mMeta.fromBytes(scratch.data(), scratch.size());
 }
 
-void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid)
+void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid, byte_t key_generation)
 {
 	try {
 		fnd::rsa::sRsa2048Key acid_sign_key;
-		if (mKeyCfg.getAcidSignKey(acid_sign_key) != true)
+		if (mKeyCfg.getAcidSignKey(acid_sign_key, key_generation) != true)
 			throw fnd::Exception();
 
 		acid.validateSignature(acid_sign_key);
@@ -114,19 +116,13 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 		std::cout << "[WARNING] ACI ProgramId: FAIL (Outside Legal Range)" << std::endl;
 	}
 
-	for (size_t i = 0; i < aci.getFileSystemAccessControl().getFsaRightsList().size(); i++)
+	auto fs_access = aci.getFileSystemAccessControl().getFsAccess();
+	auto desc_fs_access = acid.getFileSystemAccessControl().getFsAccess();
+	for (size_t i = 0; i < fs_access.size(); i++)
 	{
-		bool fsaRightFound = false;
-		for (size_t j = 0; j < acid.getFileSystemAccessControl().getFsaRightsList().size() && fsaRightFound == false; j++)
+		if (fs_access.test(i) && desc_fs_access.test(i) == false)
 		{
-			if (aci.getFileSystemAccessControl().getFsaRightsList()[i] == acid.getFileSystemAccessControl().getFsaRightsList()[j])
-				fsaRightFound = true;
-		}
-
-		if (fsaRightFound == false)
-		{
-
-			std::cout << "[WARNING] ACI/FAC FsaRights: FAIL (" << nn::hac::FileSystemAccessUtil::getFsaRightAsString(aci.getFileSystemAccessControl().getFsaRightsList()[i]) << " not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/FAC FsaRights: FAIL (" << nn::hac::FileSystemAccessUtil::getFsAccessFlagAsString(nn::hac::fac::FsAccessFlag(i)) << " not permitted)" << std::endl;
 		}
 	}
 
@@ -197,18 +193,13 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 		std::cout << "[WARNING] ACI/KC ThreadInfo/MinPriority: FAIL (" << std::dec << (uint32_t)aci.getKernelCapabilities().getThreadInfo().getMinPriority() << " not permitted)" << std::endl;
 	}
 	// check system calls
-	for (size_t i = 0; i < aci.getKernelCapabilities().getSystemCalls().getSystemCalls().size(); i++)
+	auto syscall_ids = aci.getKernelCapabilities().getSystemCalls().getSystemCallIds();
+	auto desc_syscall_ids = acid.getKernelCapabilities().getSystemCalls().getSystemCallIds();
+	for (size_t i = 0; i < syscall_ids.size(); i++)
 	{
-		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKernelCapabilities().getSystemCalls().getSystemCalls().size() && rightFound == false; j++)
+		if (syscall_ids.test(i) && desc_syscall_ids.test(i) == false)
 		{
-			if (aci.getKernelCapabilities().getSystemCalls().getSystemCalls()[i] == acid.getKernelCapabilities().getSystemCalls().getSystemCalls()[j])
-				rightFound = true;
-		}
-
-		if (rightFound == false)
-		{
-			std::cout << "[WARNING] ACI/KC SystemCallList: FAIL (" << nn::hac::KernelCapabilityUtil::getSystemCallAsString(aci.getKernelCapabilities().getSystemCalls().getSystemCalls()[i]) << " not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/KC SystemCallList: FAIL (" << nn::hac::KernelCapabilityUtil::getSystemCallIdAsString(nn::hac::kc::SystemCallId(i)) << " not permitted)" << std::endl;
 		}
 	}
 	// check memory maps
@@ -223,9 +214,9 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 
 		if (rightFound == false)
 		{
-			const nn::hac::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getMemoryMaps()[i];
+			auto map = aci.getKernelCapabilities().getMemoryMaps().getMemoryMaps()[i];
 
-			std::cout << "[WARNING] ACI/KC MemoryMap: FAIL (0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)map.addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(map.addr + map.size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(map.perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(map.type) << ") not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/KC MemoryMap: FAIL (0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)map.addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(map.addr + map.size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemoryPermissionAsString(map.perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMappingTypeAsString(map.type) << ") not permitted)" << std::endl;
 		}
 	}
 	for (size_t i = 0; i < aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps().size(); i++)
@@ -239,9 +230,9 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 
 		if (rightFound == false)
 		{
-			const nn::hac::MemoryMappingHandler::sMemoryMapping& map = aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps()[i];
+			auto map = aci.getKernelCapabilities().getMemoryMaps().getIoMemoryMaps()[i];
 
-			std::cout << "[WARNING] ACI/KC IoMemoryMap: FAIL (0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)map.addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(map.addr + map.size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(map.perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(map.type) << ") not permitted)" << std::endl;
+			std::cout << "[WARNING] ACI/KC IoMemoryMap: FAIL (0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)map.addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(map.addr + map.size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemoryPermissionAsString(map.perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMappingTypeAsString(map.type) << ") not permitted)" << std::endl;
 		}
 	}
 	// check interupts
@@ -277,29 +268,26 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 		std::cout << "[WARNING] ACI/KC HandleTableSize: FAIL (0x" << std::hex << (uint32_t)aci.getKernelCapabilities().getHandleTableSize().getHandleTableSize() << " too large)" << std::endl;
 	}
 	// check misc flags
-	for (size_t i = 0; i < aci.getKernelCapabilities().getMiscFlags().getFlagList().size(); i++)
+	auto misc_flags = aci.getKernelCapabilities().getMiscFlags().getMiscFlags();
+	auto desc_misc_flags = acid.getKernelCapabilities().getMiscFlags().getMiscFlags();
+	for (size_t i = 0; i < misc_flags.size(); i++)
 	{
-		bool rightFound = false;
-		for (size_t j = 0; j < acid.getKernelCapabilities().getMiscFlags().getFlagList().size() && rightFound == false; j++)
+		if (misc_flags.test(i) && desc_misc_flags.test(i) == false)
 		{
-			if (aci.getKernelCapabilities().getMiscFlags().getFlagList()[i] == acid.getKernelCapabilities().getMiscFlags().getFlagList()[j])
-				rightFound = true;
-		}
-
-		if (rightFound == false)
-		{
-			std::cout << "[WARNING] ACI/KC MiscFlag: FAIL (" << nn::hac::KernelCapabilityUtil::getMiscFlagAsString(aci.getKernelCapabilities().getMiscFlags().getFlagList()[i]) << " not permitted)" << std::endl;
-		}
+			std::cout << "[WARNING] ACI/KC MiscFlag: FAIL (" << nn::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(nn::hac::kc::MiscFlagsBit(i)) << " not permitted)" << std::endl;
+		}		
 	}
 }
 
 void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 {
 	std::cout << "[Meta Header]" << std::endl;
-	std::cout << "  ACID KeyGeneration: " << std::dec << hdr.getAcidKeyGeneration() << std::endl;
-	std::cout << "  Process Architecture Params:" << std::endl;
-	std::cout << "    Ins. Type:     " << nn::hac::MetaUtil::getInstructionTypeAsString(hdr.getInstructionType()) << std::endl;
-	std::cout << "    Addr Space:    " << nn::hac::MetaUtil::getProcAddressSpaceTypeAsString(hdr.getProcAddressSpaceType()) << std::endl;
+	std::cout << "  ACID KeyGeneration: " << std::dec << (uint32_t)hdr.getAccessControlInfoDescKeyGeneration() << std::endl;
+	std::cout << "  Flags:" << std::endl;
+	std::cout << "    Is64BitInstruction:       " << std::boolalpha << hdr.getIs64BitInstructionFlag() << std::endl;
+	std::cout << "    ProcessAddressSpace:      " << nn::hac::MetaUtil::getProcessAddressSpaceAsString(hdr.getProcessAddressSpace()) << std::endl;
+	std::cout << "    OptimizeMemoryAllocation: " << std::boolalpha << hdr.getOptimizeMemoryAllocationFlag() << std::endl;
+	std::cout << "  SystemResourceSize: 0x" << std::hex << hdr.getSystemResourceSize() << std::endl;
 	std::cout << "  Main Thread Params:" << std::endl;
 	std::cout << "    Priority:      " << std::dec << (uint32_t)hdr.getMainThreadPriority() << std::endl;
 	std::cout << "    CpuId:         " << std::dec << (uint32_t)hdr.getMainThreadCpuId() << std::endl;
@@ -322,15 +310,10 @@ void MetaProcess::displayAciHdr(const nn::hac::AccessControlInfo& aci)
 void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
 {
 	std::cout << "[Access Control Info Desc]" << std::endl;
-	if (acid.getFlagList().size() > 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-	{
-		std::cout << "  Flags:           " << std::endl;
-		for (size_t i = 0; i < acid.getFlagList().size(); i++)
-		{
-			std::cout << "    " << nn::hac::AccessControlInfoUtil::getAcidFlagAsString(acid.getFlagList()[i]) << " (" << std::dec << (uint32_t)acid.getFlagList()[i] << ")" << std::endl;
-		}
-	}
-	std::cout << "  Memory Region:   " << nn::hac::AccessControlInfoUtil::getMemoryRegionAsString(acid.getMemoryRegion()) << " (" << std::dec << (uint32_t)acid.getMemoryRegion() << ")" << std::endl;
+	std::cout << "  Flags:           " << std::endl;
+	std::cout << "    Production:            " << std::boolalpha << acid.getProductionFlag() << std::endl;
+	std::cout << "    Unqualified Approval:  " << std::boolalpha << acid.getUnqualifiedApprovalFlag() << std::endl;
+	std::cout << "    Memory Region:         " << nn::hac::AccessControlInfoUtil::getMemoryRegionAsString(acid.getMemoryRegion()) << " (" << std::dec << (uint32_t)acid.getMemoryRegion() << ")" << std::endl;
 	std::cout << "  ProgramID Restriction" << std::endl;
 	std::cout << "    Min:           0x" << std::hex << std::setw(16) << std::setfill('0') << acid.getProgramIdRestrict().min << std::endl;
 	std::cout << "    Max:           0x" << std::hex << std::setw(16) << std::setfill('0') << acid.getProgramIdRestrict().max << std::endl;
@@ -341,22 +324,37 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 	std::cout << "[FS Access Control]" << std::endl;
 	std::cout << "  Format Version:  " << std::dec << (uint32_t)fac.getFormatVersion() << std::endl;
 
-	if (fac.getFsaRightsList().size())
+	auto fs_access = fac.getFsAccess();
+	if (fs_access.any())
 	{
-		std::cout << "  FS Rights:" << std::endl;
-		for (size_t i = 0; i < fac.getFsaRightsList().size(); i++)
+		std::cout << "  FsAccess:" << std::endl;
+		// TODO this formatting loop could be a utils function
+		for (size_t flag = 0, printed = 0; flag < fs_access.size(); flag++)
 		{
-			if (i % 10 == 0)
+			// skip unset flags
+			if (fs_access.test(flag) == false)
+				continue;
+
+			// format the strings
+			// for each 10 printed we do a new line
+			if (printed % 10 == 0)
 			{
-				if (i != 0)
+				// skip new line when we haven't printed anything
+				if (printed != 0)
 					std::cout << std::endl;
 				std::cout << "    ";
 			}
-			std::cout << nn::hac::FileSystemAccessUtil::getFsaRightAsString(fac.getFsaRightsList()[i]);
+			// within a line we want to separate the next string from the last one with a comma and a space
+			else
+			{
+				std::cout << ", ";	
+			}
+			printed++;
+
+			// output string info
+			std::cout << nn::hac::FileSystemAccessUtil::getFsAccessFlagAsString(nn::hac::fac::FsAccessFlag(flag));
 			if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-				std::cout << " (bit " << std::dec << (uint32_t)fac.getFsaRightsList()[i] << ")";
-			if (fac.getFsaRightsList()[i] != fac.getFsaRightsList().atBack())
-				std::cout << ", ";
+				std::cout << " (bit " << std::dec << (uint32_t)flag << ")";				
 		}
 		std::cout << std::endl;
 	}
@@ -385,21 +383,12 @@ void MetaProcess::displaySac(const nn::hac::ServiceAccessControl& sac)
 {
 	std::cout << "[Service Access Control]" << std::endl;
 	std::cout << "  Service List:" << std::endl;
+	std::vector<std::string> service_name_list;
 	for (size_t i = 0; i < sac.getServiceList().size(); i++)
 	{
-		if (i % 10 == 0)
-		{
-			if (i != 0)
-				std::cout << std::endl;
-			std::cout << "    ";
-		}
-		std::cout << sac.getServiceList()[i].getName();
-		if (sac.getServiceList()[i].isServer())
-			std::cout << "(isSrv)";
-		if (sac.getServiceList()[i] != sac.getServiceList().atBack())
-			std::cout << ", ";
+		service_name_list.push_back(sac.getServiceList()[i].getName() + (sac.getServiceList()[i].isServer() ? "(isSrv)" : ""));
 	}
-	std::cout << std::endl;
+	fnd::SimpleTextOutput::dumpStringList(service_name_list, 60, 4);
 }
 
 void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
@@ -418,40 +407,30 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 
 	if (kern.getSystemCalls().isSet())
 	{
-		fnd::List<nn::hac::kc::SystemCall> syscalls = kern.getSystemCalls().getSystemCalls();
+		auto syscall_ids = kern.getSystemCalls().getSystemCallIds();
 		std::cout << "  SystemCalls:" << std::endl;
-		std::cout << "    ";
-		size_t lineLen = 0;
-		for (size_t i = 0; i < syscalls.size(); i++)
+		std::vector<std::string> syscall_names;
+		for (size_t syscall_id = 0; syscall_id < syscall_ids.size(); syscall_id++)
 		{
-			if (lineLen > 60)
-			{
-				lineLen = 0;
-				std::cout << std::endl;
-				std::cout << "    ";
-			}
-			std::string syscall_name = nn::hac::KernelCapabilityUtil::getSystemCallAsString(syscalls[i]);
-			std::cout << syscall_name;
-			if (syscalls[i] != syscalls.atBack())
-				std::cout << ", ";
-			lineLen += syscall_name.length();
+			if (syscall_ids.test(syscall_id))
+				syscall_names.push_back(nn::hac::KernelCapabilityUtil::getSystemCallIdAsString(nn::hac::kc::SystemCallId(syscall_id)));
 		}
-		std::cout << std::endl;
+		fnd::SimpleTextOutput::dumpStringList(syscall_names, 60, 4);
 	}
 	if (kern.getMemoryMaps().isSet())
 	{
-		fnd::List<nn::hac::MemoryMappingHandler::sMemoryMapping> maps = kern.getMemoryMaps().getMemoryMaps();
-		fnd::List<nn::hac::MemoryMappingHandler::sMemoryMapping> ioMaps = kern.getMemoryMaps().getIoMemoryMaps();
+		auto maps = kern.getMemoryMaps().getMemoryMaps();
+		auto ioMaps = kern.getMemoryMaps().getIoMemoryMaps();
 
 		std::cout << "  MemoryMaps:" << std::endl;
 		for (size_t i = 0; i < maps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(maps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(maps[i].type) << ")" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)maps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(maps[i].addr + maps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemoryPermissionAsString(maps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMappingTypeAsString(maps[i].type) << ")" << std::endl;
 		}
 		//std::cout << "  IoMaps:" << std::endl;
 		for (size_t i = 0; i < ioMaps.size(); i++)
 		{
-			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemMapPermAsString(ioMaps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMemMapTypeAsString(ioMaps[i].type) << ")" << std::endl;
+			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << ((uint64_t)ioMaps[i].addr << 12) << " - 0x" << std::hex << std::setw(16) << std::setfill('0') << (((uint64_t)(ioMaps[i].addr + ioMaps[i].size) << 12) - 1) << " (perm=" << nn::hac::KernelCapabilityUtil::getMemoryPermissionAsString(ioMaps[i].perm) << ") (type=" << nn::hac::KernelCapabilityUtil::getMappingTypeAsString(ioMaps[i].type) << ")" << std::endl;
 		}
 	}
 	if (kern.getInterupts().isSet())
@@ -474,7 +453,7 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getMiscParams().isSet())
 	{
-		std::cout << "  ProgramType:        " << std::dec << (uint32_t)kern.getMiscParams().getProgramType() << std::endl;
+		std::cout << "  ProgramType:        " << nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()) << " (" << std::dec << (uint32_t)kern.getMiscParams().getProgramType() << ")" << std::endl;
 	}
 	if (kern.getKernelVersion().isSet())
 	{
@@ -486,21 +465,14 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getMiscFlags().isSet())
 	{
-		fnd::List<nn::hac::kc::MiscFlags> flagList = kern.getMiscFlags().getFlagList();
-
+		auto misc_flags = kern.getMiscFlags().getMiscFlags();
 		std::cout << "  Misc Flags:" << std::endl;
-		for (uint32_t i = 0; i < flagList.size(); i++)
+		std::vector<std::string> misc_flags_names;
+		for (size_t misc_flags_bit = 0; misc_flags_bit < misc_flags.size(); misc_flags_bit++)
 		{
-			if (i % 10 == 0)
-			{
-				if (i != 0)
-					std::cout << std::endl;
-				std::cout << "    ";
-			}
-			std::cout << nn::hac::KernelCapabilityUtil::getMiscFlagAsString(flagList[i]);
-			if (flagList[i] != flagList.atBack())
-				std::cout << ", ";
-			std::cout << std::endl;
+			if (misc_flags.test(misc_flags_bit))
+				misc_flags_names.push_back(nn::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(nn::hac::kc::MiscFlagsBit(misc_flags_bit)));
 		}
+		fnd::SimpleTextOutput::dumpStringList(misc_flags_names, 60, 4);
 	}
 }

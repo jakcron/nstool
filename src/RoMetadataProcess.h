@@ -24,7 +24,7 @@ public:
 
 	void setCliOutputMode(CliOutputMode type);
 
-	void setInstructionType(nn::hac::meta::InstructionType type);
+	void setIs64BitInstruction(bool flag);
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
@@ -32,12 +32,13 @@ public:
 	const std::vector<SdkApiString>& getPublicApiList() const;
 	const std::vector<SdkApiString>& getDebugApiList() const;
 	const std::vector<SdkApiString>& getPrivateApiList() const;
+	const std::vector<SdkApiString>& getGuidelineApiList() const;
 	const fnd::List<ElfSymbolParser::sElfSymbol>& getSymbolList() const;
 private:
 	const std::string kModuleName = "RoMetadataProcess";
 
 	CliOutputMode mCliOutputMode;
-	nn::hac::meta::InstructionType mInstructionType;
+	bool mIs64BitInstruction;
 	bool mListApi;
 	bool mListSymbols;	
 
@@ -56,6 +57,7 @@ private:
 	std::vector<SdkApiString> mPublicApiList;
 	std::vector<SdkApiString> mDebugApiList;
 	std::vector<SdkApiString> mPrivateApiList;
+	std::vector<SdkApiString> mGuidelineApiList;
 	
 	ElfSymbolParser mSymbolList;
 

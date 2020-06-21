@@ -9,7 +9,10 @@
 NsoProcess::NsoProcess():
 	mFile(),
 	mCliOutputMode(_BIT(OUTPUT_BASIC)),
-	mVerify(false)
+	mVerify(false),
+	mIs64BitInstruction(true),
+	mListApi(false),
+	mListSymbols(false)
 {
 }
 
@@ -38,9 +41,9 @@ void NsoProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void NsoProcess::setInstructionType(nn::hac::meta::InstructionType type)
+void NsoProcess::setIs64BitInstruction(bool flag)
 {
-	mRoMeta.setInstructionType(type);
+	mRoMeta.setIs64BitInstruction(flag);
 }
 
 void NsoProcess::setListApi(bool listApi)
