@@ -31,7 +31,7 @@ PROJECT_SONAME = $(PROJECT_NAME).so.$(PROJECT_SO_VER_MAJOR)
 PROJECT_SO_FILENAME = $(PROJECT_SONAME).$(PROJECT_SO_VER_MINOR).$(PROJECT_SO_VER_PATCH)
 
 # Project Dependencies
-PROJECT_DEPEND_LOCAL = nintendo-hac-hb nintendo-hac nintendo-es nintendo-pki fnd polarssl lz4 
+PROJECT_DEPEND_LOCAL = nintendo-hac-hb nintendo-hac nintendo-es nintendo-pki fnd mbedtls lz4 
 PROJECT_DEPEND_EXTERNAL =
 
 # Generate compiler flags for including project include path

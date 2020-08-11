@@ -36,7 +36,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnintendo-pki", "..\..\de
 		{4E578016-34BA-4A1E-B8EC-37A48780B6CA} = {4E578016-34BA-4A1E-B8EC-37A48780B6CA}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpolarssl", "..\..\deps\libpolarssl\build\visualstudio\libpolarssl\libpolarssl.vcxproj", "{7A7C66F3-2B5B-4E23-85D8-2A74FEDAD92C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmbedtls", "..\..\deps\libmbedtls\build\visualstudio\libmbedtls\libmbedtls.vcxproj", "{7A7C66F3-2B5B-4E23-85D8-2A74FEDAD92C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -137,7 +137,7 @@
     <ProjectReference Include="..\..\..\deps\libnintendo-pki\build\visualstudio\libnintendo-pki\libnintendo-pki.vcxproj">
       <Project>{0bef63a0-2801-4563-ab65-1e2fd881c3af}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\deps\libpolarssl\build\visualstudio\libpolarssl\libpolarssl.vcxproj">
+    <ProjectReference Include="..\..\..\deps\libmbedtls\build\visualstudio\libmbedtls\libmbedtls.vcxproj">
       <Project>{7a7c66f3-2b5b-4e23-85d8-2a74fedad92c}</Project>
     </ProjectReference>
   </ItemGroup>
