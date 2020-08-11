@@ -1,9 +1,6 @@
 [submodule "deps/liblz4"]
 	path = deps/liblz4
 	url = https://github.com/jakcron/liblz4.git
-[submodule "deps/libpolarssl"]
-	path = deps/libpolarssl
-	url = https://github.com/jakcron/libpolarssl.git
 [submodule "deps/libfnd"]
 	path = deps/libfnd
 	url = https://github.com/jakcron/libfnd.git
@@ -19,3 +16,6 @@
 [submodule "deps/libnintendo-hac-hb"]
 	path = deps/libnintendo-hac-hb
 	url = https://github.com/jakcron/libnintendo-hac-hb.git
+[submodule "deps/libmbedtls"]
+	path = deps/libmbedtls
+	url = https://github.com/jakcron/libmbedtls
