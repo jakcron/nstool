@@ -3,6 +3,7 @@
 #include <fnd/SimpleTextOutput.h>
 #include <fnd/SimpleFile.h>
 #include <fnd/io.h>
+#include "CompressedArchiveIFile.h"
 #include "RomfsProcess.h"
 
 RomfsProcess::RomfsProcess() :
@@ -260,6 +261,52 @@ void RomfsProcess::resolveRomfs()
 	if (validateHeaderLayout(&mHdr) == false)
 	{
 		throw fnd::Exception(kModuleName, "Invalid ROMFS Header");
+	}
+
+	// check for romfs compression
+	size_t physical_size = (*mFile)->size();
+	size_t logical_size = mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].offset.get() + mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].size.get();
+	
+	// if logical size is greater than the physical size, check for compression meta footer
+	if (logical_size > physical_size)
+	{
+		// initial and final entries
+		nn::hac::sCompressionEntry entry[2];
+
+		(*mFile)->read((byte_t*)&entry[1], physical_size - sizeof(nn::hac::sCompressionEntry), sizeof(nn::hac::sCompressionEntry));
+		
+		// the final compression entry should be for the romfs footer, for which the logical offset is detailed in the romfs header
+		// the compression is always enabled for non-header compression entries
+		if (entry[1].virtual_offset.get() != mHdr.sections[nn::hac::romfs::DIR_HASHMAP_TABLE].offset.get() || \
+			entry[1].compression_type != (byte_t)nn::hac::compression::CompressionType::Lz4)
+		{
+			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad final compression entry)");
+		}
+		
+		// the first compression entry follows the physical placement of the final data chunk (specified in the final compression entry)
+		size_t first_entry_offset = align(entry[1].physical_offset.get() + entry[1].physical_size.get(), nn::hac::compression::kRomfsBlockAlign);
+
+		// quick check to make sure the offset at least before the last entry offset
+		if (first_entry_offset >= (physical_size - sizeof(nn::hac::sCompressionEntry)))
+		{
+			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad final compression entry)");
+		}
+
+		// read the first compression entry
+		(*mFile)->read((byte_t*)&entry[0], first_entry_offset, sizeof(nn::hac::sCompressionEntry));
+
+		// validate first compression entry
+		// this should be the same for all compressed romfs
+		if (entry[0].virtual_offset.get() != 0x0 || \
+			entry[0].physical_offset.get() != 0x0 || \
+			entry[0].physical_size.get() != 0x200 || \
+			entry[0].compression_type != (byte_t)nn::hac::compression::CompressionType::None)
+		{
+			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad first compression entry)");
+		}
+
+		// wrap mFile in a class to transparantly decompress the image.
+		mFile = new CompressedArchiveIFile(mFile, first_entry_offset);
 	}
 
 	// read directory nodes
