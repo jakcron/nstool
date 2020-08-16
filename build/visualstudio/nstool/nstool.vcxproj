@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\AssetProcess.cpp" />
     <ClCompile Include="..\..\..\src\CnmtProcess.cpp" />
+    <ClCompile Include="..\..\..\src\CompressedArchiveIFile.cpp" />
     <ClCompile Include="..\..\..\src\ElfSymbolParser.cpp" />
     <ClCompile Include="..\..\..\src\EsTikProcess.cpp" />
     <ClCompile Include="..\..\..\src\GameCardProcess.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="..\..\..\src\AssetProcess.h" />
     <ClInclude Include="..\..\..\src\CnmtProcess.h" />
     <ClInclude Include="..\..\..\src\common.h" />
+    <ClInclude Include="..\..\..\src\CompressedArchiveIFile.h" />
     <ClInclude Include="..\..\..\src\ElfSymbolParser.h" />
     <ClInclude Include="..\..\..\src\EsTikProcess.h" />
     <ClInclude Include="..\..\..\src\GameCardProcess.h" />
