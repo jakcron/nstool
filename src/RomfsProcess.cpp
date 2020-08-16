@@ -273,14 +273,18 @@ void RomfsProcess::resolveRomfs()
 		// initial and final entries
 		nn::hac::sCompressionEntry entry[2];
 
+		// read final compression entry
 		(*mFile)->read((byte_t*)&entry[1], physical_size - sizeof(nn::hac::sCompressionEntry), sizeof(nn::hac::sCompressionEntry));
 		
-		// the final compression entry should be for the romfs footer, for which the logical offset is detailed in the romfs header
+		// the final compression entry should be for the (final part, in the case of metadata > 0x10000) romfs footer, for which the logical offset is detailed in the romfs header
 		// the compression is always enabled for non-header compression entries
-		if (entry[1].virtual_offset.get() != mHdr.sections[nn::hac::romfs::DIR_HASHMAP_TABLE].offset.get() || \
+		uint64_t romfs_metadata_begin_offset = mHdr.sections[nn::hac::romfs::DIR_HASHMAP_TABLE].offset.get();
+		uint64_t romfs_metadata_end_offset = mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].offset.get() + mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].size.get();
+		
+		if ((entry[1].virtual_offset.get() >= romfs_metadata_begin_offset && entry[1].virtual_offset.get() < romfs_metadata_end_offset) == false || \
 			entry[1].compression_type != (byte_t)nn::hac::compression::CompressionType::Lz4)
 		{
-			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad final compression entry)");
+			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad final compression entry virtual offset/compression type)");
 		}
 		
 		// the first compression entry follows the physical placement of the final data chunk (specified in the final compression entry)
@@ -289,10 +293,10 @@ void RomfsProcess::resolveRomfs()
 		// quick check to make sure the offset at least before the last entry offset
 		if (first_entry_offset >= (physical_size - sizeof(nn::hac::sCompressionEntry)))
 		{
-			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad final compression entry)");
+			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad final compression entry physical offset/size)");
 		}
 
-		// read the first compression entry
+		// read first compression entry
 		(*mFile)->read((byte_t*)&entry[0], first_entry_offset, sizeof(nn::hac::sCompressionEntry));
 
 		// validate first compression entry
