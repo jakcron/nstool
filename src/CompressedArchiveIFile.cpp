@@ -42,7 +42,7 @@ CompressedArchiveIFile::CompressedArchiveIFile(const fnd::SharedPtr<fnd::IFile>&
 				throw fnd::Exception(kModuleName, "Entry was not virtually aligned with previous entry");
 
 			// set previous entry virtual_size = this->virtual_offset - prev->virtual_offset;
-			mCompEntries[mCompEntries.size() - 1].virtual_size = entries[idx].virtual_offset.get() - mCompEntries[mCompEntries.size() - 1].virtual_offset;
+			mCompEntries[mCompEntries.size() - 1].virtual_size = uint32_t(entries[idx].virtual_offset.get() - mCompEntries[mCompEntries.size() - 1].virtual_offset);
 		}
 
 		if (entries[idx].physical_size.get() > nn::hac::compression::kRomfsBlockSize)
@@ -97,6 +97,7 @@ void CompressedArchiveIFile::read(byte_t* out, size_t len)
 
 	for (size_t pos = 0, entry_index = getEntryIndexForLogicalOffset(mLogicalOffset); pos < len; entry_index++)
 	{
+		// importing entry into cache (this does nothing if the entry is already imported)
 		importEntryDataToCache(entry_index);
 
 		// write padding if required
@@ -105,12 +106,13 @@ void CompressedArchiveIFile::read(byte_t* out, size_t len)
 			memset(mCache.get() + mCurrentCacheDataSize, 0, mCompEntries[entry_index].virtual_size - mCurrentCacheDataSize);
 		}
 		
-		// determine 
+		// determine subset of cache to copy out
 		size_t read_offset = mLogicalOffset - (size_t)mCompEntries[entry_index].virtual_offset;
 		size_t read_size = std::min<size_t>(len, (size_t)mCompEntries[entry_index].virtual_size - read_offset);
 
 		memcpy(out + pos, mCache.get() + read_offset, read_size);
 
+		// update position/logical offset
 		pos += read_size;
 		mLogicalOffset += read_size;
 	}
@@ -154,7 +156,7 @@ void CompressedArchiveIFile::importEntryDataToCache(size_t entry_index)
 		(*mFile)->read(mScratch.get(), entry.physical_offset, entry.physical_size);
 
 		mCurrentCacheDataSize = 0;
-		fnd::lz4::decompressData(mScratch.get(), entry.physical_size, mCache.get(), mCacheCapacity, mCurrentCacheDataSize);
+		fnd::lz4::decompressData(mScratch.get(), entry.physical_size, mCache.get(), uint32_t(mCacheCapacity), mCurrentCacheDataSize);
 
 		if (mCurrentCacheDataSize == 0)
 		{
