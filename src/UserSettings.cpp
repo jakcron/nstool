@@ -924,12 +924,12 @@ void UserSettings::dumpKeyConfig() const
 		std::cout << "  NCA Keys:" << std::endl;
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
-			if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key, i) == true)
+			if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key, byte_t(i)) == true)
 				dumpRsa2048Key(rsa2048_key, "Header0-SignatureKey-" + kKeyIndex[i], 2);
 		}
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
-			if (mKeyCfg.getAcidSignKey(rsa2048_key, i) == true)
+			if (mKeyCfg.getAcidSignKey(rsa2048_key, byte_t(i)) == true)
 				dumpRsa2048Key(rsa2048_key, "Acid-SignatureKey-" + kKeyIndex[i], 2);
 		}
 		
@@ -938,28 +938,28 @@ void UserSettings::dumpKeyConfig() const
 		
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
-			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,0, aes_key) == true)
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 0, aes_key) == true)
 				dumpAesKey(aes_key, "KeyAreaEncryptionKey-Application-" + kKeyIndex[i], 2);
-			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,1, aes_key) == true)
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 1, aes_key) == true)
 				dumpAesKey(aes_key, "KeyAreaEncryptionKey-Ocean-" + kKeyIndex[i], 2);
-			if (mKeyCfg.getNcaKeyAreaEncryptionKey(i,2, aes_key) == true)
+			if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 2, aes_key) == true)
 				dumpAesKey(aes_key, "KeyAreaEncryptionKey-System-" + kKeyIndex[i], 2);
 		}
 
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
-			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,0, aes_key) == true)
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 0, aes_key) == true)
 				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Application-" + kKeyIndex[i], 2);
-			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,1, aes_key) == true)
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 1, aes_key) == true)
 				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Ocean-" + kKeyIndex[i], 2);
-			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(i,2, aes_key) == true)
+			if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 2, aes_key) == true)
 				dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-System-" + kKeyIndex[i], 2);
 		}
 		
 		std::cout << "  NRR Keys:" << std::endl;
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
-			if (mKeyCfg.getNrrCertificateSignKey(rsa2048_key, i) == true)
+			if (mKeyCfg.getNrrCertificateSignKey(rsa2048_key, byte_t(i)) == true)
 				dumpRsa2048Key(rsa2048_key, "Certificate-SignatureKey-" + kKeyIndex[i], 2);
 		}
 
@@ -975,7 +975,7 @@ void UserSettings::dumpKeyConfig() const
 		std::cout << "  Package1 Keys:" << std::endl;
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
-			if (mKeyCfg.getPkg1Key(i, aes_key) == true)
+			if (mKeyCfg.getPkg1Key(byte_t(i), aes_key) == true)
 				dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
 		}
 
@@ -984,14 +984,14 @@ void UserSettings::dumpKeyConfig() const
 			dumpRsa2048Key(rsa2048_key, "Signature Key", 2);
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
-			if (mKeyCfg.getPkg2Key(i, aes_key) == true)
+			if (mKeyCfg.getPkg2Key(byte_t(i), aes_key) == true)
 				dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
 		}
 
 		std::cout << "  ETicket Keys:" << std::endl;
 		for (size_t i = 0; i < kMasterKeyNum; i++)
 		{
-			if (mKeyCfg.getETicketCommonKey(i, aes_key) == true)
+			if (mKeyCfg.getETicketCommonKey(byte_t(i), aes_key) == true)
 				dumpAesKey(aes_key, "CommonKey-" + kKeyIndex[i], 2);
 		}
 		

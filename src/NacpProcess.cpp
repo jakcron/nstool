@@ -489,4 +489,37 @@ void NacpProcess::displayNacp()
 		std::cout << "    IsEnabled:  " << std::boolalpha << mNacp.getJitConfiguration().is_enabled << std::endl;
 		std::cout << "    MemorySize: 0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getJitConfiguration().memory_size << std::endl;
 	}
+	
+	// PlayReportPermission
+	if (mNacp.getPlayReportPermission() != nn::hac::nacp::PlayReportPermission::None || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		std::cout << "  PlayReportPermission:                   " << nn::hac::ApplicationControlPropertyUtil::getPlayReportPermissionAsString(mNacp.getPlayReportPermission()) << std::endl;
+	}
+
+	// CrashScreenshotForProd
+	if (mNacp.getCrashScreenshotForProd() != nn::hac::nacp::CrashScreenshotForProd::Deny || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		std::cout << "  CrashScreenshotForProd:                 " << nn::hac::ApplicationControlPropertyUtil::getCrashScreenshotForProdAsString(mNacp.getCrashScreenshotForProd()) << std::endl;
+	}
+
+	// CrashScreenshotForDev
+	if (mNacp.getCrashScreenshotForDev() != nn::hac::nacp::CrashScreenshotForDev::Deny || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		std::cout << "  CrashScreenshotForDev:                  " << nn::hac::ApplicationControlPropertyUtil::getCrashScreenshotForDevAsString(mNacp.getCrashScreenshotForDev()) << std::endl;
+	}
+
+	// AccessibleLaunchRequiredVersion
+	if (mNacp.getAccessibleLaunchRequiredVersionApplicationId().size() > 0)
+	{
+		std::cout << "  AccessibleLaunchRequiredVersion:" << std::endl;
+		std::cout << "    ApplicationId:" << std::endl;
+		for (auto itr = mNacp.getAccessibleLaunchRequiredVersionApplicationId().begin(); itr != mNacp.getAccessibleLaunchRequiredVersionApplicationId().end(); itr++)
+		{
+			std::cout << "      0x" << std::hex << std::setw(16) << std::setfill('0') << *itr << std::endl;
+		}
+	}
+	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	{
+		std::cout << "  AccessibleLaunchRequiredVersion:        None" << std::endl;
+	}
 }

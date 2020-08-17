@@ -4,8 +4,8 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 ## Supported File Formats
 * Meta (.npdm)
 * PartitionFS (and HashedPartitionFS) (includes raw .nsp)
-* RomFS
-* GameCard Image (.xci)
+* RomFS (and CompressedRomFS)
+* NX GameCard Image (.xci)
 * Nintendo Content Archive (.nca)
 * Content Metadata (.cnmt) 
 * Nintendo Software Object (.nso) 
