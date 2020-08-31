@@ -448,8 +448,8 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 			std::cout << "0x" << std::hex << (uint32_t)interupts[i];
 			if (interupts[i] != interupts.atBack())
 				std::cout << ", ";
-			std::cout << std::endl;
 		}
+		std::cout << std::endl;
 	}
 	if (kern.getMiscParams().isSet())
 	{
