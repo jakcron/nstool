@@ -570,43 +570,47 @@ void NcaProcess::processPartitions()
 			continue;
 		}
 
-		if (partition.format_type == nn::hac::nca::FormatType::PartitionFs)
-		{
-			PfsProcess pfs;
-			pfs.setInputFile(partition.reader);
-			pfs.setCliOutputMode(mCliOutputMode);
-			pfs.setListFs(mListFs);
-			if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
+		try {
+			if (partition.format_type == nn::hac::nca::FormatType::PartitionFs)
 			{
-				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index));
+				PfsProcess pfs;
+				pfs.setInputFile(partition.reader);
+				pfs.setCliOutputMode(mCliOutputMode);
+				pfs.setListFs(mListFs);
+				if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
+				{
+					pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index));
+				}
+				else
+				{
+					pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
+				}
+				
+				if (mPartitionPath[index].doExtract)
+					pfs.setExtractPath(mPartitionPath[index].path);
+				pfs.process();
 			}
-			else
+			else if (partition.format_type == nn::hac::nca::FormatType::RomFs)
 			{
-				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
-			}
-			
-			if (mPartitionPath[index].doExtract)
-				pfs.setExtractPath(mPartitionPath[index].path);
-			pfs.process();
-		}
-		else if (partition.format_type == nn::hac::nca::FormatType::RomFs)
-		{
-			RomfsProcess romfs;
-			romfs.setInputFile(partition.reader);
-			romfs.setCliOutputMode(mCliOutputMode);
-			romfs.setListFs(mListFs);
-			if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
-			{
-				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index));
-			}
-			else
-			{
-				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
-			}
+				RomfsProcess romfs;
+				romfs.setInputFile(partition.reader);
+				romfs.setCliOutputMode(mCliOutputMode);
+				romfs.setListFs(mListFs);
+				if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
+				{
+					romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index));
+				}
+				else
+				{
+					romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
+				}
 
-			if (mPartitionPath[index].doExtract)
-				romfs.setExtractPath(mPartitionPath[index].path);
-			romfs.process();
+				if (mPartitionPath[index].doExtract)
+					romfs.setExtractPath(mPartitionPath[index].path);
+				romfs.process();			
+			}
+		} catch (const fnd::Exception& e) {
+			std::cout <<  "[WARNING] NCA Partition " << std::dec << index << " not readable (" << e.error() << ")." << std::endl;
 		}
 	}
 }
