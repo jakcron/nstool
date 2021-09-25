@@ -22,3 +22,6 @@
 [submodule "deps/libtoolchain"]
 	path = deps/libtoolchain
 	url = https://github.com/jakcron/libtoolchain.git
+[submodule "deps/libfmt"]
+	path = deps/libfmt
+	url = https://github.com/jakcron/libfmt.git
