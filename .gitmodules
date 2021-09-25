@@ -19,3 +19,6 @@
 [submodule "deps/libmbedtls"]
 	path = deps/libmbedtls
 	url = https://github.com/jakcron/libmbedtls
+[submodule "deps/libtoolchain"]
+	path = deps/libtoolchain
+	url = https://github.com/jakcron/libtoolchain.git
