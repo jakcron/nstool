@@ -5,8 +5,8 @@
 
 #include "RoMetadataProcess.h"
 
-RoMetadataProcess::RoMetadataProcess() :
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+nstool::RoMetadataProcess::RoMetadataProcess() :
+	mCliOutputMode(true, false, false, false),
 	mIs64BitInstruction(true),
 	mListApi(false),
 	mListSymbols(false),
@@ -23,90 +23,90 @@ RoMetadataProcess::RoMetadataProcess() :
 
 }
 
-void RoMetadataProcess::process()
+void nstool::RoMetadataProcess::process()
 {
 	importApiList();
 	
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayRoMetaData();
 }
 
-void RoMetadataProcess::setRoBinary(const fnd::Vec<byte_t>& bin)
+void nstool::RoMetadataProcess::setRoBinary(const tc::ByteData& bin)
 {
 	mRoBlob = bin;
 }
 
-void RoMetadataProcess::setApiInfo(size_t offset, size_t size)
+void nstool::RoMetadataProcess::setApiInfo(size_t offset, size_t size)
 {
 	mApiInfo.offset = offset;
 	mApiInfo.size = size;
 }
-void RoMetadataProcess::setDynSym(size_t offset, size_t size)
+void nstool::RoMetadataProcess::setDynSym(size_t offset, size_t size)
 {
 	mDynSym.offset = offset;
 	mDynSym.size = size;
 }
-void RoMetadataProcess::setDynStr(size_t offset, size_t size)
+void nstool::RoMetadataProcess::setDynStr(size_t offset, size_t size)
 {
 	mDynStr.offset = offset;
 	mDynStr.size = size;
 }
 
-void RoMetadataProcess::setCliOutputMode(CliOutputMode type)
+void nstool::RoMetadataProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void RoMetadataProcess::setIs64BitInstruction(bool flag)
+void nstool::RoMetadataProcess::setIs64BitInstruction(bool flag)
 {
 	mIs64BitInstruction = flag;
 }
 
-void RoMetadataProcess::setListApi(bool listApi)
+void nstool::RoMetadataProcess::setListApi(bool listApi)
 {
 	mListApi = listApi;
 }
 
-void RoMetadataProcess::setListSymbols(bool listSymbols)
+void nstool::RoMetadataProcess::setListSymbols(bool listSymbols)
 {
 	mListSymbols = listSymbols;
 }
 
-const std::vector<SdkApiString>& RoMetadataProcess::getSdkVerApiList() const
+const std::vector<SdkApiString>& nstool::RoMetadataProcess::getSdkVerApiList() const
 {
 	return mSdkVerApiList;
 }
 
-const std::vector<SdkApiString>& RoMetadataProcess::getPublicApiList() const
+const std::vector<SdkApiString>& nstool::RoMetadataProcess::getPublicApiList() const
 {
 	return mPublicApiList;
 }
 
-const std::vector<SdkApiString>& RoMetadataProcess::getDebugApiList() const
+const std::vector<SdkApiString>& nstool::RoMetadataProcess::getDebugApiList() const
 {
 	return mDebugApiList;
 }
 
-const std::vector<SdkApiString>& RoMetadataProcess::getPrivateApiList() const
+const std::vector<SdkApiString>& nstool::RoMetadataProcess::getPrivateApiList() const
 {
 	return mPrivateApiList;
 }
 
-const std::vector<SdkApiString>& RoMetadataProcess::getGuidelineApiList() const
+const std::vector<SdkApiString>& nstool::RoMetadataProcess::getGuidelineApiList() const
 {
 	return mGuidelineApiList;
 }
 
-const fnd::List<ElfSymbolParser::sElfSymbol>& RoMetadataProcess::getSymbolList() const
+const std::vector<ElfSymbolParser::sElfSymbol>& nstool::RoMetadataProcess::getSymbolList() const
 {
 	return mSymbolList.getSymbolList();
 }
 
-void RoMetadataProcess::importApiList()
+void nstool::RoMetadataProcess::importApiList()
 {
 	if (mRoBlob.size() == 0)
 	{
-		throw fnd::Exception(kModuleName, "No ro binary set.");
+		throw tc::Exception(kModuleName, "No ro binary set.");
 	}
 
 	if (mApiInfo.size > 0)
@@ -147,11 +147,11 @@ void RoMetadataProcess::importApiList()
 	}
 }
 
-void RoMetadataProcess::displayRoMetaData()
+void nstool::RoMetadataProcess::displayRoMetaData()
 {
 	size_t api_num = mSdkVerApiList.size() + mPublicApiList.size() + mDebugApiList.size() + mPrivateApiList.size();
 	
-	if (api_num > 0 && (mListApi || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
+	if (api_num > 0 && (mListApi || mCliOutputMode.show_extended_info))
 	{
 		std::cout << "[SDK API List]" << std::endl;
 		if (mSdkVerApiList.size() > 0)
@@ -191,7 +191,7 @@ void RoMetadataProcess::displayRoMetaData()
 			}
 		}
 	}
-	if (mSymbolList.getSymbolList().size() > 0 && (mListSymbols || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED)))
+	if (mSymbolList.getSymbolList().size() > 0 && (mListSymbols || mCliOutputMode.show_extended_info))
 	{
 		std::cout << "[Symbol List]" << std::endl;
 		for (size_t i = 0; i < mSymbolList.getSymbolList().size(); i++)
@@ -202,7 +202,7 @@ void RoMetadataProcess::displayRoMetaData()
 	}
 }
 
-const char* RoMetadataProcess::getSectionIndexStr(uint16_t shn_index) const
+const char* nstool::RoMetadataProcess::getSectionIndexStr(uint16_t shn_index) const
 {
 	const char* str;
 	switch (shn_index)
@@ -235,7 +235,7 @@ const char* RoMetadataProcess::getSectionIndexStr(uint16_t shn_index) const
 	return str;
 }
 
-const char* RoMetadataProcess::getSymbolTypeStr(byte_t symbol_type) const
+const char* nstool::RoMetadataProcess::getSymbolTypeStr(byte_t symbol_type) const
 {
 	const char* str;
 	switch (symbol_type)
@@ -274,7 +274,7 @@ const char* RoMetadataProcess::getSymbolTypeStr(byte_t symbol_type) const
 	return str;
 }
 
-const char* RoMetadataProcess::getSymbolBindingStr(byte_t symbol_binding) const
+const char* nstool::RoMetadataProcess::getSymbolBindingStr(byte_t symbol_binding) const
 {
 	const char* str;
 	switch (symbol_binding)

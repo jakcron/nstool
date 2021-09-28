@@ -1,26 +1,26 @@
 #include "ElfSymbolParser.h"
 
-ElfSymbolParser::ElfSymbolParser()
+nstool::ElfSymbolParser::ElfSymbolParser()
 {
 	mSymbolList.clear();
 }
 
-void ElfSymbolParser::operator=(const ElfSymbolParser& other)
+void nstool::ElfSymbolParser::operator=(const ElfSymbolParser& other)
 {
 	mSymbolList = other.mSymbolList;
 }
 
-bool ElfSymbolParser::operator==(const ElfSymbolParser& other) const
+bool nstool::ElfSymbolParser::operator==(const ElfSymbolParser& other) const
 {
 	return mSymbolList == other.mSymbolList;
 }
 
-bool ElfSymbolParser::operator!=(const ElfSymbolParser& other) const
+bool nstool::ElfSymbolParser::operator!=(const ElfSymbolParser& other) const
 {
 	return !(*this == other);
 }
 
-void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, const byte_t *dyn_str, size_t dyn_str_size, bool is64Bit)
+void nstool::ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, const byte_t *dyn_str, size_t dyn_str_size, bool is64Bit)
 {
 	size_t dynSymSize = is64Bit ? sizeof(fnd::Elf64_Sym) : sizeof(fnd::Elf32_Sym);
 
@@ -46,17 +46,17 @@ void ElfSymbolParser::parseData(const byte_t *dyn_sym, size_t dyn_sym_size, cons
 
 		if (name_pos >= dyn_str_size)
 		{
-			throw fnd::Exception(kModuleName, "Out of bounds symbol name offset");
+			throw tc::Exception(kModuleName, "Out of bounds symbol name offset");
 		}
 
 		//for (; dyn_str[name_pos] == 0x00 && name_pos < dyn_str_size; name_pos++);
 		
 		symbol.name = std::string((char*)&dyn_str[name_pos]);
-		mSymbolList.addElement(symbol);
+		mSymbolList.push_back(symbol);
 	}
 }
 
-const fnd::List<ElfSymbolParser::sElfSymbol>& ElfSymbolParser::getSymbolList() const
+const std::vector<nstool::ElfSymbolParser::sElfSymbol>& nstool::ElfSymbolParser::getSymbolList() const
 {
 	return mSymbolList;
 }

@@ -1,11 +1,9 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
+#include "types.h"
+
 #include <nn/hac/PartitionFsHeader.h>
 
-#include "common.h"
+namespace nstool {
 
 class PfsProcess
 {
@@ -15,7 +13,7 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -30,7 +28,7 @@ private:
 	const std::string kModuleName = "PfsProcess";
 	static const size_t kCacheSize = 0x10000;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
@@ -39,7 +37,7 @@ private:
 	std::string mMountName;
 	bool mListFs;
 
-	fnd::Vec<byte_t> mCache;
+	tc::ByteData mCache;
 
 	nn::hac::PartitionFsHeader mPfs;
 
@@ -51,3 +49,5 @@ private:
 	void validateHfs();
 	void extractFs();
 };
+
+}

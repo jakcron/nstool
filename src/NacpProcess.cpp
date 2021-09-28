@@ -9,48 +9,48 @@
 
 #include <nn/hac/ApplicationControlPropertyUtil.h>
 
-NacpProcess::NacpProcess() :
+nstool::NacpProcess::NacpProcess() :
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode((1 << OUTPUT_BASIC)),
 	mVerify(false)
 {
 }
 
-void NacpProcess::process()
+void nstool::NacpProcess::process()
 {
 	importNacp();
 
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayNacp();
 }
 
-void NacpProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::NacpProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void NacpProcess::setCliOutputMode(CliOutputMode type)
+void nstool::NacpProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void NacpProcess::setVerifyMode(bool verify)
+void nstool::NacpProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-const nn::hac::ApplicationControlProperty& NacpProcess::getApplicationControlProperty() const
+const nn::hac::ApplicationControlProperty& nstool::NacpProcess::getApplicationControlProperty() const
 {
 	return mNacp;
 }
 
-void NacpProcess::importNacp()
+void nstool::NacpProcess::importNacp()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	scratch.alloc((*mFile)->size());
@@ -59,7 +59,7 @@ void NacpProcess::importNacp()
 	mNacp.fromBytes(scratch.data(), scratch.size());
 }
 
-void NacpProcess::displayNacp()
+void nstool::NacpProcess::displayNacp()
 {
 	std::cout << "[ApplicationControlProperty]" << std::endl;
 	
@@ -74,7 +74,7 @@ void NacpProcess::displayNacp()
 			std::cout << "      Publisher:  " << itr->publisher << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  Title:                                  None" << std::endl;
 	}
@@ -84,25 +84,25 @@ void NacpProcess::displayNacp()
 	{
 		std::cout << "  ISBN:                                   " << mNacp.getIsbn() << std::endl;
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  ISBN:                                   (NotSet)" << std::endl;
 	}
 	
 	// StartupUserAccount
-	if (mNacp.getStartupUserAccount() != nn::hac::nacp::StartupUserAccount::None || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getStartupUserAccount() != nn::hac::nacp::StartupUserAccount::None || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  StartupUserAccount:                     " << nn::hac::ApplicationControlPropertyUtil::getStartupUserAccountAsString(mNacp.getStartupUserAccount()) << std::endl;
 	}
 
 	// UserAccountSwitchLock
-	if (mNacp.getUserAccountSwitchLock() != nn::hac::nacp::UserAccountSwitchLock::Disable || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getUserAccountSwitchLock() != nn::hac::nacp::UserAccountSwitchLock::Disable || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  UserAccountSwitchLock:                  " << nn::hac::ApplicationControlPropertyUtil::getUserAccountSwitchLockAsString(mNacp.getUserAccountSwitchLock()) << std::endl;
 	}
 
 	// AddOnContentRegistrationType
-	if (mNacp.getAddOnContentRegistrationType() != nn::hac::nacp::AddOnContentRegistrationType::AllOnLaunch || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getAddOnContentRegistrationType() != nn::hac::nacp::AddOnContentRegistrationType::AllOnLaunch || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  AddOnContentRegistrationType:           " << nn::hac::ApplicationControlPropertyUtil::getAddOnContentRegistrationTypeAsString(mNacp.getAddOnContentRegistrationType()) << std::endl;
 	}
@@ -116,7 +116,7 @@ void NacpProcess::displayNacp()
 			std::cout << "    " << nn::hac::ApplicationControlPropertyUtil::getAttributeFlagAsString(*itr) << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  Attribute:                              None" << std::endl;
 	}
@@ -130,7 +130,7 @@ void NacpProcess::displayNacp()
 			std::cout << "    " << nn::hac::ApplicationControlPropertyUtil::getLanguageAsString(*itr) << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  SupportedLanguage:                      None" << std::endl;
 	}
@@ -144,37 +144,37 @@ void NacpProcess::displayNacp()
 			std::cout << "    " << nn::hac::ApplicationControlPropertyUtil::getParentalControlFlagAsString(*itr) << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  ParentalControl:                        None" << std::endl;
 	}
 
 	// Screenshot
-	if (mNacp.getScreenshot() != nn::hac::nacp::Screenshot::Allow || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getScreenshot() != nn::hac::nacp::Screenshot::Allow || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  Screenshot:                             " << nn::hac::ApplicationControlPropertyUtil::getScreenshotAsString(mNacp.getScreenshot()) << std::endl;
 	}
 
 	// VideoCapture
-	if (mNacp.getVideoCapture() != nn::hac::nacp::VideoCapture::Disable || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getVideoCapture() != nn::hac::nacp::VideoCapture::Disable || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  VideoCapture:                           " << nn::hac::ApplicationControlPropertyUtil::getVideoCaptureAsString(mNacp.getVideoCapture()) << std::endl;
 	}
 
 	// DataLossConfirmation
-	if (mNacp.getDataLossConfirmation() != nn::hac::nacp::DataLossConfirmation::None || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getDataLossConfirmation() != nn::hac::nacp::DataLossConfirmation::None || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  DataLossConfirmation:                   " << nn::hac::ApplicationControlPropertyUtil::getDataLossConfirmationAsString(mNacp.getDataLossConfirmation()) << std::endl;
 	}
 
 	// PlayLogPolicy
-	if (mNacp.getPlayLogPolicy() != nn::hac::nacp::PlayLogPolicy::All || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getPlayLogPolicy() != nn::hac::nacp::PlayLogPolicy::All || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  PlayLogPolicy:                          " << nn::hac::ApplicationControlPropertyUtil::getPlayLogPolicyAsString(mNacp.getPlayLogPolicy()) << std::endl;
 	}
 
 	// PresenceGroupId
-	if (mNacp.getPresenceGroupId() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getPresenceGroupId() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  PresenceGroupId:                        0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getPresenceGroupId() << std::endl;
 	}
@@ -190,7 +190,7 @@ void NacpProcess::displayNacp()
 			std::cout << "      Age: " << std::dec << (uint32_t)itr->age << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  RatingAge:                              None" << std::endl;
 	}
@@ -200,49 +200,49 @@ void NacpProcess::displayNacp()
 	{
 		std::cout << "  DisplayVersion:                         " << mNacp.getDisplayVersion() << std::endl;
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  DisplayVersion:                         (NotSet)" << std::endl;
 	}
 
 	// AddOnContentBaseId
-	if (mNacp.getAddOnContentBaseId() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getAddOnContentBaseId() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  AddOnContentBaseId:                     0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getAddOnContentBaseId() << std::endl;
 	}
 
 	// SaveDataOwnerId
-	if (mNacp.getSaveDataOwnerId() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getSaveDataOwnerId() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  SaveDataOwnerId:                        0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getSaveDataOwnerId() << std::endl;
 	}
 
 	// UserAccountSaveDataSize
-	if (mNacp.getUserAccountSaveDataSize().size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getUserAccountSaveDataSize().size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  UserAccountSaveDataSize:                " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getUserAccountSaveDataSize().size) << std::endl;
 	}
 
 	// UserAccountSaveDataJournalSize
-	if (mNacp.getUserAccountSaveDataSize().journal_size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getUserAccountSaveDataSize().journal_size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  UserAccountSaveDataJournalSize:         " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getUserAccountSaveDataSize().journal_size) << std::endl;
 	}
 
 	// DeviceSaveDataSize
-	if (mNacp.getDeviceSaveDataSize().size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getDeviceSaveDataSize().size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  DeviceSaveDataSize:                     " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getDeviceSaveDataSize().size) << std::endl;
 	}
 
 	// DeviceSaveDataJournalSize
-	if (mNacp.getDeviceSaveDataSize().journal_size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getDeviceSaveDataSize().journal_size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  DeviceSaveDataJournalSize:              " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getDeviceSaveDataSize().journal_size) << std::endl;
 	}
 
 	// BcatDeliveryCacheStorageSize
-	if (mNacp.getBcatDeliveryCacheStorageSize() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getBcatDeliveryCacheStorageSize() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  BcatDeliveryCacheStorageSize:           " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getBcatDeliveryCacheStorageSize()) << std::endl;
 	}
@@ -252,7 +252,7 @@ void NacpProcess::displayNacp()
 	{
 		std::cout << "  ApplicationErrorCodeCategory:           " << mNacp.getApplicationErrorCodeCategory() << std::endl;
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  ApplicationErrorCodeCategory:           (NotSet)" << std::endl;
 	}
@@ -266,49 +266,49 @@ void NacpProcess::displayNacp()
 			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << *itr << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  LocalCommunicationId:                   None" << std::endl;
 	}
 
 	// LogoType
-	//if (mNacp.getLogoType() != nn::hac::nacp::LogoType::Nintendo || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	//if (mNacp.getLogoType() != nn::hac::nacp::LogoType::Nintendo || mCliOutputMode.show_extended_info)
 	//{
 		std::cout << "  LogoType:                               " << nn::hac::ApplicationControlPropertyUtil::getLogoTypeAsString(mNacp.getLogoType()) << std::endl;
 	//}
 
 	// LogoHandling
-	if (mNacp.getLogoHandling() != nn::hac::nacp::LogoHandling::Auto || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getLogoHandling() != nn::hac::nacp::LogoHandling::Auto || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  LogoHandling:                           " << nn::hac::ApplicationControlPropertyUtil::getLogoHandlingAsString(mNacp.getLogoHandling()) << std::endl;
 	}
 
 	// RuntimeAddOnContentInstall
-	if (mNacp.getRuntimeAddOnContentInstall() != nn::hac::nacp::RuntimeAddOnContentInstall::Deny || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getRuntimeAddOnContentInstall() != nn::hac::nacp::RuntimeAddOnContentInstall::Deny || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  RuntimeAddOnContentInstall:             " << nn::hac::ApplicationControlPropertyUtil::getRuntimeAddOnContentInstallAsString(mNacp.getRuntimeAddOnContentInstall()) << std::endl;
 	}
 
 	// RuntimeParameterDelivery
-	if (mNacp.getRuntimeParameterDelivery() != nn::hac::nacp::RuntimeParameterDelivery::Always || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getRuntimeParameterDelivery() != nn::hac::nacp::RuntimeParameterDelivery::Always || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  RuntimeParameterDelivery:               " << nn::hac::ApplicationControlPropertyUtil::getRuntimeParameterDeliveryAsString(mNacp.getRuntimeParameterDelivery()) << std::endl;
 	}
 
 	// CrashReport
-	if (mNacp.getCrashReport() != nn::hac::nacp::CrashReport::Deny || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getCrashReport() != nn::hac::nacp::CrashReport::Deny || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  CrashReport:                            " << nn::hac::ApplicationControlPropertyUtil::getCrashReportAsString(mNacp.getCrashReport()) << std::endl;
 	}
 
 	// Hdcp
-	if (mNacp.getHdcp() != nn::hac::nacp::Hdcp::None || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getHdcp() != nn::hac::nacp::Hdcp::None || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  Hdcp:                                   " << nn::hac::ApplicationControlPropertyUtil::getHdcpAsString(mNacp.getHdcp()) << std::endl;
 	}
 
 	// SeedForPsuedoDeviceId
-	if (mNacp.getSeedForPsuedoDeviceId() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getSeedForPsuedoDeviceId() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  SeedForPsuedoDeviceId:                  0x" << std::hex << std::setw(16) << std::setfill('0') << mNacp.getSeedForPsuedoDeviceId() << std::endl;
 	}
@@ -318,7 +318,7 @@ void NacpProcess::displayNacp()
 	{
 		std::cout << "  BcatPassphase:                          " << mNacp.getBcatPassphase() << std::endl;
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  BcatPassphase:                          (NotSet)" << std::endl;
 	}
@@ -332,61 +332,61 @@ void NacpProcess::displayNacp()
 			std::cout << "    " << nn::hac::ApplicationControlPropertyUtil::getStartupUserAccountOptionFlagAsString(*itr) << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  StartupUserAccountOption:               None" << std::endl;
 	}
 
 	// UserAccountSaveDataSizeMax
-	if (mNacp.getUserAccountSaveDataMax().size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getUserAccountSaveDataMax().size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  UserAccountSaveDataSizeMax:             " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getUserAccountSaveDataMax().size) << std::endl;
 	}
 
 	// UserAccountSaveDataJournalSizeMax
-	if (mNacp.getUserAccountSaveDataMax().journal_size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getUserAccountSaveDataMax().journal_size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  UserAccountSaveDataJournalSizeMax:      " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getUserAccountSaveDataMax().journal_size) << std::endl;
 	}
 
 	// DeviceSaveDataSizeMax
-	if (mNacp.getDeviceSaveDataMax().size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getDeviceSaveDataMax().size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  DeviceSaveDataSizeMax:                  " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getDeviceSaveDataMax().size) << std::endl;
 	}
 
 	// DeviceSaveDataJournalSizeMax
-	if (mNacp.getDeviceSaveDataMax().journal_size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getDeviceSaveDataMax().journal_size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  DeviceSaveDataJournalSizeMax:           " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getDeviceSaveDataMax().journal_size) << std::endl;
 	}
 
 	// TemporaryStorageSize
-	if (mNacp.getTemporaryStorageSize() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getTemporaryStorageSize() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  TemporaryStorageSize:                   " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getTemporaryStorageSize()) << std::endl;
 	}
 
 	// CacheStorageSize
-	if (mNacp.getCacheStorageSize().size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getCacheStorageSize().size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  CacheStorageSize:                       " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getCacheStorageSize().size) << std::endl;
 	}
 
 	// CacheStorageJournalSize
-	if (mNacp.getCacheStorageSize().journal_size != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getCacheStorageSize().journal_size != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  CacheStorageJournalSize:                " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getCacheStorageSize().journal_size) << std::endl;
 	}
 
 	// CacheStorageDataAndJournalSizeMax
-	if (mNacp.getCacheStorageDataAndJournalSizeMax() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getCacheStorageDataAndJournalSizeMax() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  CacheStorageDataAndJournalSizeMax:      " << nn::hac::ApplicationControlPropertyUtil::getSaveDataSizeAsString(mNacp.getCacheStorageDataAndJournalSizeMax()) << std::endl;
 	}
 
 	// CacheStorageIndexMax
-	if (mNacp.getCacheStorageIndexMax() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getCacheStorageIndexMax() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  CacheStorageIndexMax:                   0x" << std::hex << std::setw(4) << std::setfill('0') << mNacp.getCacheStorageIndexMax() << std::endl;
 	}
@@ -400,13 +400,13 @@ void NacpProcess::displayNacp()
 			std::cout << "    0x" << std::hex << std::setw(16) << std::setfill('0') << *itr << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  PlayLogQueryableApplicationId:          None" << std::endl;
 	}
 
 	// PlayLogQueryCapability
-	if (mNacp.getPlayLogQueryCapability() != nn::hac::nacp::PlayLogQueryCapability::None || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getPlayLogQueryCapability() != nn::hac::nacp::PlayLogQueryCapability::None || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  PlayLogQueryCapability:                 " << nn::hac::ApplicationControlPropertyUtil::getPlayLogQueryCapabilityAsString(mNacp.getPlayLogQueryCapability()) << std::endl;
 	}
@@ -420,13 +420,13 @@ void NacpProcess::displayNacp()
 			std::cout << "    " << nn::hac::ApplicationControlPropertyUtil::getRepairFlagAsString(*itr) << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  Repair:                                 None" << std::endl;
 	}
 
 	// ProgramIndex
-	if (mNacp.getProgramIndex() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getProgramIndex() != 0 || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  ProgramIndex:                           0x" << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)mNacp.getProgramIndex() << std::endl;
 	}
@@ -440,7 +440,7 @@ void NacpProcess::displayNacp()
 			std::cout << "    " << nn::hac::ApplicationControlPropertyUtil::getRequiredNetworkServiceLicenseOnLaunchFlagAsString(*itr) << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  RequiredNetworkServiceLicenseOnLaunch:  None" << std::endl;
 	}
@@ -456,7 +456,7 @@ void NacpProcess::displayNacp()
 			std::cout << "      GroupId:  0x" << std::hex << std::setw(16) << std::setfill('0') << detect_config.send_data_configuration.group_id << std::endl;
 			std::cout << "        Key:    " << fnd::SimpleTextOutput::arrayToString(detect_config.send_data_configuration.key, nn::hac::nacp::kNeighborDetectionGroupConfigurationKeyLength, false, "") << std::endl;
 		}
-		else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		else if (mCliOutputMode.show_extended_info)
 		{
 			std::cout << "    SendGroupConfig: None" << std::endl;
 		}
@@ -472,18 +472,18 @@ void NacpProcess::displayNacp()
 				std::cout << "        Key:    " << fnd::SimpleTextOutput::arrayToString(detect_config.receivable_data_configuration[i].key, nn::hac::nacp::kNeighborDetectionGroupConfigurationKeyLength, false, "") << std::endl;
 			}
 		}
-		else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		else if (mCliOutputMode.show_extended_info)
 		{
 			std::cout << "    ReceivableGroupConfig: None" << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  NeighborDetectionClientConfiguration:   None" << std::endl;
 	}
 	
 	// JitConfiguration
-	if (mNacp.getJitConfiguration().is_enabled || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getJitConfiguration().is_enabled || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  JitConfiguration:" << std::endl;
 		std::cout << "    IsEnabled:  " << std::boolalpha << mNacp.getJitConfiguration().is_enabled << std::endl;
@@ -491,19 +491,19 @@ void NacpProcess::displayNacp()
 	}
 	
 	// PlayReportPermission
-	if (mNacp.getPlayReportPermission() != nn::hac::nacp::PlayReportPermission::None || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getPlayReportPermission() != nn::hac::nacp::PlayReportPermission::None || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  PlayReportPermission:                   " << nn::hac::ApplicationControlPropertyUtil::getPlayReportPermissionAsString(mNacp.getPlayReportPermission()) << std::endl;
 	}
 
 	// CrashScreenshotForProd
-	if (mNacp.getCrashScreenshotForProd() != nn::hac::nacp::CrashScreenshotForProd::Deny || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getCrashScreenshotForProd() != nn::hac::nacp::CrashScreenshotForProd::Deny || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  CrashScreenshotForProd:                 " << nn::hac::ApplicationControlPropertyUtil::getCrashScreenshotForProdAsString(mNacp.getCrashScreenshotForProd()) << std::endl;
 	}
 
 	// CrashScreenshotForDev
-	if (mNacp.getCrashScreenshotForDev() != nn::hac::nacp::CrashScreenshotForDev::Deny || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mNacp.getCrashScreenshotForDev() != nn::hac::nacp::CrashScreenshotForDev::Deny || mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  CrashScreenshotForDev:                  " << nn::hac::ApplicationControlPropertyUtil::getCrashScreenshotForDevAsString(mNacp.getCrashScreenshotForDev()) << std::endl;
 	}
@@ -518,7 +518,7 @@ void NacpProcess::displayNacp()
 			std::cout << "      0x" << std::hex << std::setw(16) << std::setfill('0') << *itr << std::endl;
 		}
 	}
-	else if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	else if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  AccessibleLaunchRequiredVersion:        None" << std::endl;
 	}

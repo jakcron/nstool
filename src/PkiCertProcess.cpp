@@ -6,51 +6,51 @@
 #include "PkiCertProcess.h"
 #include "PkiValidator.h"
 
-PkiCertProcess::PkiCertProcess() :
+nstool::PkiCertProcess::PkiCertProcess() :
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
 }
 
-void PkiCertProcess::process()
+void nstool::PkiCertProcess::process()
 {
 	importCerts();
 
 	if (mVerify)
 		validateCerts();
 
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayCerts();
 }
 
-void PkiCertProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::PkiCertProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void PkiCertProcess::setKeyCfg(const KeyConfiguration& keycfg)
+void nstool::PkiCertProcess::setKeyCfg(const KeyBag& keycfg)
 {
 	mKeyCfg = keycfg;
 }
 
-void PkiCertProcess::setCliOutputMode(CliOutputMode mode)
+void nstool::PkiCertProcess::setCliOutputMode(CliOutputMode mode)
 {
 	mCliOutputMode = mode;
 }
 
-void PkiCertProcess::setVerifyMode(bool verify)
+void nstool::PkiCertProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void PkiCertProcess::importCerts()
+void nstool::PkiCertProcess::importCerts()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	scratch.alloc((*mFile)->size());
@@ -60,11 +60,11 @@ void PkiCertProcess::importCerts()
 	for (size_t f_pos = 0; f_pos < scratch.size(); f_pos += cert.getBytes().size())
 	{
 		cert.fromBytes(scratch.data() + f_pos, scratch.size() - f_pos);
-		mCert.addElement(cert);
+		mCert.push_back(cert);
 	}
 }
 
-void PkiCertProcess::validateCerts()
+void nstool::PkiCertProcess::validateCerts()
 {
 	PkiValidator pki;
 	
@@ -73,14 +73,14 @@ void PkiCertProcess::validateCerts()
 		pki.setKeyCfg(mKeyCfg);
 		pki.addCertificates(mCert);
 	}
-	catch (const fnd::Exception& e)
+	catch (const tc::Exception& e)
 	{
 		std::cout << "[WARNING] " << e.error() << std::endl;
 		return;
 	}
 }
 
-void PkiCertProcess::displayCerts()
+void nstool::PkiCertProcess::displayCerts()
 {
 	for (size_t i = 0; i < mCert.size(); i++)
 	{
@@ -88,19 +88,19 @@ void PkiCertProcess::displayCerts()
 	}
 }
 
-void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
+void nstool::PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
 {
 	std::cout << "[NNPKI Certificate]" << std::endl;
 
 	std::cout << "  SignType       " << getSignTypeStr(cert.getSignature().getSignType());
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 		std::cout << " (0x" << std::hex << cert.getSignature().getSignType() << ") (" << getEndiannessStr(cert.getSignature().isLittleEndian()) << ")";
 	std::cout << std::endl;
 
 	std::cout << "  Issuer:        " << cert.getBody().getIssuer() << std::endl;
 	std::cout << "  Subject:       " << cert.getBody().getSubject() << std::endl;
 	std::cout << "  PublicKeyType: " << getPublicKeyTypeStr(cert.getBody().getPublicKeyType());
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 		std::cout << " (" << std::dec << cert.getBody().getPublicKeyType() << ")";
 	std::cout << std::endl;
 	std::cout << "  CertID:        0x" << std::hex << cert.getBody().getCertId() << std::endl;
@@ -131,12 +131,12 @@ void PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateB
 	}
 }
 
-size_t PkiCertProcess::getHexDumpLen(size_t max_size) const
+size_t nstool::PkiCertProcess::getHexDumpLen(size_t max_size) const
 {
-	return _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED) ? max_size : kSmallHexDumpLen;
+	return mCliOutputMode.show_extended_info ? max_size : kSmallHexDumpLen;
 }
 
-const char* PkiCertProcess::getSignTypeStr(nn::pki::sign::SignatureId type) const
+const char* nstool::PkiCertProcess::getSignTypeStr(nn::pki::sign::SignatureId type) const
 {
 	const char* str;
 	switch (type)
@@ -166,12 +166,12 @@ const char* PkiCertProcess::getSignTypeStr(nn::pki::sign::SignatureId type) cons
 	return str;
 }
 
-const char* PkiCertProcess::getEndiannessStr(bool isLittleEndian) const
+const char* nstool::PkiCertProcess::getEndiannessStr(bool isLittleEndian) const
 {
 	return isLittleEndian ? "LittleEndian" : "BigEndian";
 }
 
-const char* PkiCertProcess::getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const
+const char* nstool::PkiCertProcess::getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const
 {
 	const char* str;
 	switch (type)

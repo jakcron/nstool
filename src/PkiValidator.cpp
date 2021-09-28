@@ -4,15 +4,15 @@
 #include <nn/pki/SignUtils.h>
 #include "PkiValidator.h"
 
-PkiValidator::PkiValidator()
+nstool::PkiValidator::PkiValidator()
 {
 	clearCertificates();
 }
 
-void PkiValidator::setKeyCfg(const KeyConfiguration& keycfg)
+void nstool::PkiValidator::setKeyCfg(const KeyBag& keycfg)
 {
 	// save a copy of the certificate bank
-	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> old_certs = mCertificateBank;
+	std::vector<nn::pki::SignedData<nn::pki::CertificateBody>> old_certs = mCertificateBank;
 	
 	// clear the certificate bank
 	mCertificateBank.clear();
@@ -27,7 +27,7 @@ void PkiValidator::setKeyCfg(const KeyConfiguration& keycfg)
 	}
 }
 
-void PkiValidator::addCertificates(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs)
+void nstool::PkiValidator::addCertificates(const std::vector<nn::pki::SignedData<nn::pki::CertificateBody>>& certs)
 {
 	for (size_t i = 0; i < certs.size(); i++)
 	{
@@ -35,12 +35,12 @@ void PkiValidator::addCertificates(const fnd::List<nn::pki::SignedData<nn::pki::
 	}
 }
 
-void PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
+void nstool::PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
 {
 	std::string cert_ident;
 	nn::pki::sign::SignatureAlgo cert_sign_algo;
 	nn::pki::sign::HashAlgo cert_hash_algo;
-	fnd::Vec<byte_t> cert_hash;
+	tc::ByteData cert_hash;
 
 	try 
 	{	
@@ -48,7 +48,7 @@ void PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::Certificate
 
 		if (doesCertExist(cert_ident) == true)
 		{
-			throw fnd::Exception(kModuleName, "Certificate already exists");
+			throw tc::Exception(kModuleName, "Certificate already exists");
 		}
 
 		cert_sign_algo = nn::pki::sign::getSignatureAlgo(cert.getSignature().getSignType());
@@ -66,27 +66,27 @@ void PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::Certificate
 			fnd::sha::Sha256(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
 			break;
 		default:
-			throw fnd::Exception(kModuleName, "Unrecognised hash type");
+			throw tc::Exception(kModuleName, "Unrecognised hash type");
 		}
 
 		validateSignature(cert.getBody().getIssuer(), cert.getSignature().getSignType(), cert.getSignature().getSignature(), cert_hash);
 
-		mCertificateBank.addElement(cert);
+		mCertificateBank.push_back(cert);
 	}
-	catch (const fnd::Exception& e) 
+	catch (const tc::Exception& e) 
 	{
 		std::stringstream ss;
 		ss << "Failed to add certificate " << cert_ident << " (" << e.error() << ")";
-		throw fnd::Exception(kModuleName, ss.str());
+		throw tc::Exception(kModuleName, ss.str());
 	}
 }
 
-void PkiValidator::clearCertificates()
+void nstool::PkiValidator::clearCertificates()
 {
 	mCertificateBank.clear();
 }
 
-void PkiValidator::validateSignature(const std::string& issuer, nn::pki::sign::SignatureId signature_id, const fnd::Vec<byte_t>& signature, const fnd::Vec<byte_t>& hash) const
+void nstool::PkiValidator::validateSignature(const std::string& issuer, nn::pki::sign::SignatureId signature_id, const tc::ByteData& signature, const tc::ByteData& hash) const
 {	
 	nn::pki::sign::SignatureAlgo sign_algo = nn::pki::sign::getSignatureAlgo(signature_id);
 	nn::pki::sign::HashAlgo hash_algo = nn::pki::sign::getHashAlgo(signature_id);
@@ -112,11 +112,11 @@ void PkiValidator::validateSignature(const std::string& issuer, nn::pki::sign::S
 		}
 		else if (mKeyCfg.getPkiRootSignKey(issuer, ecdsa_pub) == true && sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
 		{
-			throw fnd::Exception(kModuleName, "ECDSA signatures are not supported");
+			throw tc::Exception(kModuleName, "ECDSA signatures are not supported");
 		}
 		else
 		{
-			throw fnd::Exception(kModuleName, "Public key for issuer \"" + issuer + "\" does not exist.");
+			throw tc::Exception(kModuleName, "Public key for issuer \"" + issuer + "\" does not exist.");
 		}
 	}
 	else
@@ -135,34 +135,34 @@ void PkiValidator::validateSignature(const std::string& issuer, nn::pki::sign::S
 		}
 		else if (issuer_pubk_type == nn::pki::cert::ECDSA240 && sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
 		{
-			throw fnd::Exception(kModuleName, "ECDSA signatures are not supported");
+			throw tc::Exception(kModuleName, "ECDSA signatures are not supported");
 		}
 		else
 		{
-			throw fnd::Exception(kModuleName, "Mismatch between issuer public key and signature type");
+			throw tc::Exception(kModuleName, "Mismatch between issuer public key and signature type");
 		}
 	}
 
 	if (sig_validate_res != 0)
 	{
-		throw fnd::Exception(kModuleName, "Incorrect signature");
+		throw tc::Exception(kModuleName, "Incorrect signature");
 	}
 
 	
 }
 
-void PkiValidator::makeCertIdent(const nn::pki::SignedData<nn::pki::CertificateBody>& cert, std::string& ident) const
+void nstool::PkiValidator::makeCertIdent(const nn::pki::SignedData<nn::pki::CertificateBody>& cert, std::string& ident) const
 {
 	makeCertIdent(cert.getBody().getIssuer(), cert.getBody().getSubject(), ident);
 }
 
-void PkiValidator::makeCertIdent(const std::string& issuer, const std::string& subject, std::string& ident) const
+void nstool::PkiValidator::makeCertIdent(const std::string& issuer, const std::string& subject, std::string& ident) const
 {
 	ident = issuer + nn::pki::sign::kIdentDelimiter + subject;
 	ident = ident.substr(0, _MIN(ident.length(),64));
 }
 
-bool PkiValidator::doesCertExist(const std::string& ident) const
+bool nstool::PkiValidator::doesCertExist(const std::string& ident) const
 {
 	bool exists = false;
 	std::string full_cert_name;
@@ -179,7 +179,7 @@ bool PkiValidator::doesCertExist(const std::string& ident) const
 	return exists;
 }
 
-const nn::pki::SignedData<nn::pki::CertificateBody>& PkiValidator::getCert(const std::string& ident) const
+const nn::pki::SignedData<nn::pki::CertificateBody>& nstool::PkiValidator::getCert(const std::string& ident) const
 {
 	std::string full_cert_name;
 	for (size_t i = 0; i < mCertificateBank.size(); i++)
@@ -191,10 +191,10 @@ const nn::pki::SignedData<nn::pki::CertificateBody>& PkiValidator::getCert(const
 		}
 	}
 
-	throw fnd::Exception(kModuleName, "Issuer certificate does not exist");
+	throw tc::Exception(kModuleName, "Issuer certificate does not exist");
 }
 
-fnd::sha::HashType PkiValidator::getCryptoHashAlgoFromEsSignHashAlgo(nn::pki::sign::HashAlgo hash_algo) const
+fnd::sha::HashType nstool::PkiValidator::getCryptoHashAlgoFromEsSignHashAlgo(nn::pki::sign::HashAlgo hash_algo) const
 {
 	fnd::sha::HashType hash_type = fnd::sha::HASH_SHA1;
 

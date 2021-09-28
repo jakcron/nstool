@@ -1,14 +1,11 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <fnd/List.h>
-#include <fnd/Vec.h>
+#include "types.h"
+#include "KeyBag.h"
+
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
-#include "KeyConfiguration.h"
-#include "common.h"
+
+namespace nstool {
 
 class PkiCertProcess
 {
@@ -17,8 +14,8 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
-	void setKeyCfg(const KeyConfiguration& keycfg);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
+	void setKeyCfg(const KeyBag& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -26,12 +23,12 @@ private:
 	const std::string kModuleName = "PkiCertProcess";
 	static const size_t kSmallHexDumpLen = 0x10;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
-	KeyConfiguration mKeyCfg;
+	std::shared_ptr<tc::io::IStream> mFile;
+	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> mCert;
+	std::vector<nn::pki::SignedData<nn::pki::CertificateBody>> mCert;
 
 	void importCerts();
 	void validateCerts();
@@ -43,3 +40,5 @@ private:
 	const char* getEndiannessStr(bool isLittleEndian) const;
 	const char* getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const;
 };
+
+}

@@ -9,20 +9,20 @@
 #include "KipProcess.h"
 
 
-IniProcess::IniProcess() :
+nstool::IniProcess::IniProcess() :
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false),
 	mDoExtractKip(false),
 	mKipExtractPath()
 {
 }
 
-void IniProcess::process()
+void nstool::IniProcess::process()
 {
 	importHeader();
 	importKipList();
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 	{
 		displayHeader();
 		displayKipList();
@@ -33,39 +33,39 @@ void IniProcess::process()
 	}
 }
 
-void IniProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::IniProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void IniProcess::setCliOutputMode(CliOutputMode type)
+void nstool::IniProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void IniProcess::setVerifyMode(bool verify)
+void nstool::IniProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void IniProcess::setKipExtractPath(const std::string& path)
+void nstool::IniProcess::setKipExtractPath(const std::string& path)
 {
 	mDoExtractKip = true;
 	mKipExtractPath = path;
 }
 
-void IniProcess::importHeader()
+void nstool::IniProcess::importHeader()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	if ((*mFile)->size() < sizeof(nn::hac::sIniHeader))
 	{
-		throw fnd::Exception(kModuleName, "Corrupt INI: file too small");
+		throw tc::Exception(kModuleName, "Corrupt INI: file too small");
 	}
 
 	scratch.alloc(sizeof(nn::hac::sIniHeader));
@@ -74,14 +74,14 @@ void IniProcess::importHeader()
 	mHdr.fromBytes(scratch.data(), scratch.size());
 }
 
-void IniProcess::importKipList()
+void nstool::IniProcess::importKipList()
 {
 	// kip pos info
 	size_t kip_pos = sizeof(nn::hac::sIniHeader);
 	size_t kip_size = 0;
 
 	// tmp data to determine size
-	fnd::Vec<byte_t> hdr_raw;
+	tc::ByteData hdr_raw;
 	nn::hac::KernelInitialProcessHeader hdr;
 
 	hdr_raw.alloc(sizeof(nn::hac::sKipHeader));
@@ -90,19 +90,19 @@ void IniProcess::importKipList()
 		(*mFile)->read(hdr_raw.data(), kip_pos, hdr_raw.size());
 		hdr.fromBytes(hdr_raw.data(), hdr_raw.size());		
 		kip_size = getKipSizeFromHeader(hdr);
-		mKipList.addElement(new fnd::OffsetAdjustedIFile(mFile, kip_pos, kip_size));
+		mKipList.push_back(new fnd::OffsetAdjustedIFile(mFile, kip_pos, kip_size));
 		kip_pos += kip_size;
 	}
 }
 
-void IniProcess::displayHeader()
+void nstool::IniProcess::displayHeader()
 {
 	std::cout << "[INI Header]" << std::endl;
 	std::cout << "  Size:         0x" << std::hex << mHdr.getSize() << std::endl;
 	std::cout << "  KIP Num:      " << std::dec << (uint32_t)mHdr.getKipNum() << std::endl;
 }
 
-void IniProcess::displayKipList()
+void nstool::IniProcess::displayKipList()
 {
 	for (size_t i = 0; i < mKipList.size(); i++)
 	{
@@ -116,9 +116,9 @@ void IniProcess::displayKipList()
 	}
 }
 
-void IniProcess::extractKipList()
+void nstool::IniProcess::extractKipList()
 {
-	fnd::Vec<byte_t> cache;
+	tc::ByteData cache;
 	nn::hac::KernelInitialProcessHeader hdr;
 	
 
@@ -151,7 +151,7 @@ void IniProcess::extractKipList()
 		// get kip file size
 		out_size = (*mKipList[i])->size();
 		// extract kip
-		if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+		if (mCliOutputMode.show_basic_info)
 			printf("extract=[%s]\n", out_path.c_str());
 
 		(*mKipList[i])->seek(0);
@@ -164,7 +164,7 @@ void IniProcess::extractKipList()
 	}
 }
 
-size_t IniProcess::getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const
+size_t nstool::IniProcess::getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const
 {
 	return sizeof(nn::hac::sKipHeader) + hdr.getTextSegmentInfo().file_layout.size + hdr.getRoSegmentInfo().file_layout.size + hdr.getDataSegmentInfo().file_layout.size;
 }

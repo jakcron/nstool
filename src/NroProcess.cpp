@@ -7,19 +7,19 @@
 #include <nn/hac/define/nro-hb.h>
 #include "NroProcess.h"
 
-NroProcess::NroProcess():
+nstool::NroProcess::NroProcess():
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
 }
 
-void NroProcess::process()
+void nstool::NroProcess::process()
 {
 	importHeader();
 	importCodeSegments();
 
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayHeader();
 
 	processRoMeta();
@@ -28,73 +28,73 @@ void NroProcess::process()
 		mAssetProc.process();
 }
 
-void NroProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::NroProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void NroProcess::setCliOutputMode(CliOutputMode type)
+void nstool::NroProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void NroProcess::setVerifyMode(bool verify)
+void nstool::NroProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void NroProcess::setIs64BitInstruction(bool flag)
+void nstool::NroProcess::setIs64BitInstruction(bool flag)
 {
 	mRoMeta.setIs64BitInstruction(flag);
 }
 
-void NroProcess::setListApi(bool listApi)
+void nstool::NroProcess::setListApi(bool listApi)
 {
 	mRoMeta.setListApi(listApi);
 }
 
-void NroProcess::setListSymbols(bool listSymbols)
+void nstool::NroProcess::setListSymbols(bool listSymbols)
 {
 	mRoMeta.setListSymbols(listSymbols);
 }
 
-void NroProcess::setAssetListFs(bool list)
+void nstool::NroProcess::setAssetListFs(bool list)
 {
 	mAssetProc.setListFs(list);
 }
 
-void NroProcess::setAssetIconExtractPath(const std::string& path)
+void nstool::NroProcess::setAssetIconExtractPath(const std::string& path)
 {
 	mAssetProc.setIconExtractPath(path);
 }
 
-void NroProcess::setAssetNacpExtractPath(const std::string& path)
+void nstool::NroProcess::setAssetNacpExtractPath(const std::string& path)
 {
 	mAssetProc.setNacpExtractPath(path);
 }
 
-void NroProcess::setAssetRomfsExtractPath(const std::string& path)
+void nstool::NroProcess::setAssetRomfsExtractPath(const std::string& path)
 {
 	mAssetProc.setRomfsExtractPath(path);
 }
 
-const RoMetadataProcess& NroProcess::getRoMetadataProcess() const
+const RoMetadataProcess& nstool::NroProcess::getRoMetadataProcess() const
 {
 	return mRoMeta;
 }
 
-void NroProcess::importHeader()
+void nstool::NroProcess::importHeader()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	if ((*mFile)->size() < sizeof(nn::hac::sNroHeader))
 	{
-		throw fnd::Exception(kModuleName, "Corrupt NRO: file too small");
+		throw tc::Exception(kModuleName, "Corrupt NRO: file too small");
 	}
 
 	scratch.alloc(sizeof(nn::hac::sNroHeader));
@@ -104,7 +104,7 @@ void NroProcess::importHeader()
 
 	// setup homebrew extension
 	nn::hac::sNroHeader* raw_hdr = (nn::hac::sNroHeader*)scratch.data();
-	if (((le_uint64_t*)raw_hdr->reserved_0)->get() == nn::hac::nro::kNroHomebrewStructMagic && (*mFile)->size() > mHdr.getNroSize())
+	if (((tc::bn::le64<uint64_t>*)raw_hdr->reserved_0)->get() == nn::hac::nro::kNroHomebrewStructMagic && (*mFile)->size() > mHdr.getNroSize())
 	{
 		mIsHomebrewNro = true;
 		mAssetProc.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getNroSize(), (*mFile)->size() - mHdr.getNroSize()));
@@ -115,7 +115,7 @@ void NroProcess::importHeader()
 		mIsHomebrewNro = false;
 }
 
-void NroProcess::importCodeSegments()
+void nstool::NroProcess::importCodeSegments()
 {
 	mTextBlob.alloc(mHdr.getTextInfo().size);
 	(*mFile)->read(mTextBlob.data(), mHdr.getTextInfo().memory_offset, mTextBlob.size());
@@ -125,7 +125,7 @@ void NroProcess::importCodeSegments()
 	(*mFile)->read(mDataBlob.data(), mHdr.getDataInfo().memory_offset, mDataBlob.size());
 }
 
-void NroProcess::displayHeader()
+void nstool::NroProcess::displayHeader()
 {
 	std::cout << "[NRO Header]" << std::endl;
 	std::cout << "  RoCrt:       " << std::endl;
@@ -140,7 +140,7 @@ void NroProcess::displayHeader()
 	std::cout << "    .ro:" << std::endl;
 	std::cout << "      Offset:     0x" << std::hex << mHdr.getRoInfo().memory_offset << std::endl;
 	std::cout << "      Size:       0x" << std::hex << mHdr.getRoInfo().size << std::endl;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "    .api_info:" << std::endl;
 		std::cout << "      Offset:     0x" << std::hex <<  mHdr.getRoEmbeddedInfo().memory_offset << std::endl;
@@ -159,7 +159,7 @@ void NroProcess::displayHeader()
 	std::cout << "      Size:       0x" << std::hex << mHdr.getBssSize() << std::endl;
 }
 
-void NroProcess::processRoMeta()
+void nstool::NroProcess::processRoMeta()
 {
 	if (mRoBlob.size())
 	{

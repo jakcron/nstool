@@ -7,9 +7,9 @@
 #include <nn/hac/ContentArchiveUtil.h>
 #include "GameCardProcess.h"
 
-GameCardProcess::GameCardProcess() :
+nstool::GameCardProcess::GameCardProcess() :
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false),
 	mListFs(false),
 	mProccessExtendedHeader(false),
@@ -18,7 +18,7 @@ GameCardProcess::GameCardProcess() :
 {
 }
 
-void GameCardProcess::process()
+void nstool::GameCardProcess::process()
 {
 	importHeader();
 
@@ -27,7 +27,7 @@ void GameCardProcess::process()
 		validateXciSignature();
 
 	// display header
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayHeader();
 
 	// process root partition
@@ -37,43 +37,43 @@ void GameCardProcess::process()
 	processPartitionPfs();
 }
 
-void GameCardProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::GameCardProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void GameCardProcess::setKeyCfg(const KeyConfiguration& keycfg)
+void nstool::GameCardProcess::setKeyCfg(const KeyBag& keycfg)
 {
 	mKeyCfg = keycfg;
 }
 
-void GameCardProcess::setCliOutputMode(CliOutputMode type)
+void nstool::GameCardProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void GameCardProcess::setVerifyMode(bool verify)
+void nstool::GameCardProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void GameCardProcess::setPartitionForExtract(const std::string& partition_name, const std::string& extract_path)
+void nstool::GameCardProcess::setPartitionForExtract(const std::string& partition_name, const std::string& extract_path)
 {
-	mExtractInfo.addElement({partition_name, extract_path});
+	mExtractInfo.push_back({partition_name, extract_path});
 }
 
-void GameCardProcess::setListFs(bool list_fs)
+void nstool::GameCardProcess::setListFs(bool list_fs)
 {
 	mListFs = list_fs;
 }
 
-void GameCardProcess::importHeader()
+void nstool::GameCardProcess::importHeader()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 	
 	// allocate memory for header
@@ -95,7 +95,7 @@ void GameCardProcess::importHeader()
 	}
 	else 
 	{
-		throw fnd::Exception(kModuleName, "GameCard image did not have expected magic bytes");
+		throw tc::Exception(kModuleName, "GameCard image did not have expected magic bytes");
 	}
 
 	nn::hac::sGcHeader_Rsa2048Signed* hdr_ptr = (nn::hac::sGcHeader_Rsa2048Signed*)(scratch.data() + mGcHeaderOffset);
@@ -107,7 +107,7 @@ void GameCardProcess::importHeader()
 	memcpy(mHdrSignature, hdr_ptr->signature, fnd::rsa::kRsa2048Size);
 	
 	// decrypt extended header
-	fnd::aes::sAes128Key header_key;
+	KeyBag::aes128_key_t header_key;
 	if (mKeyCfg.getXciHeaderKey(header_key))
 	{
 		nn::hac::GameCardUtil::decryptXciHeader(&hdr_ptr->header, header_key.key);
@@ -118,12 +118,12 @@ void GameCardProcess::importHeader()
 	mHdr.fromBytes((byte_t*)&hdr_ptr->header, sizeof(nn::hac::sGcHeader));
 }
 
-void GameCardProcess::displayHeader()
+void nstool::GameCardProcess::displayHeader()
 {
 	std::cout << "[GameCard Header]" << std::endl;
 	std::cout << "  CardHeaderVersion:      " << std::dec << (uint32_t)mHdr.getCardHeaderVersion() << std::endl;
 	std::cout << "  RomSize:                " << nn::hac::GameCardUtil::getRomSizeAsString((nn::hac::gc::RomSize)mHdr.getRomSizeType());
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 		std::cout << " (0x" << std::hex << (uint32_t)mHdr.getRomSizeType() << ")";
 	std::cout << std::endl;
 	std::cout << "  PackageId:              0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getPackageId() << std::endl;
@@ -138,7 +138,7 @@ void GameCardProcess::displayHeader()
 			}
 		}
 	}
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  KekIndex:               " << nn::hac::GameCardUtil::getKekIndexAsString((nn::hac::gc::KekIndex)mHdr.getKekIndex()) << " (" << std::dec << (uint32_t)mHdr.getKekIndex() << ")" << std::endl;
 		std::cout << "  TitleKeyDecIndex:       " << std::dec << (uint32_t)mHdr.getTitleKeyDecIndex() << std::endl;
@@ -147,7 +147,7 @@ void GameCardProcess::displayHeader()
 		std::cout << "      " << fnd::SimpleTextOutput::arrayToString(mHdr.getInitialDataHash().bytes, 0x10, true, ":") << std::endl;
 		std::cout << "      " << fnd::SimpleTextOutput::arrayToString(mHdr.getInitialDataHash().bytes+0x10, 0x10, true, ":") << std::endl;
 	}
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  Extended Header AesCbc IV:" << std::endl;
 		std::cout << "    " << fnd::SimpleTextOutput::arrayToString(mHdr.getAesCbcIv().iv, sizeof(mHdr.getAesCbcIv().iv), true, ":") << std::endl;
@@ -155,7 +155,7 @@ void GameCardProcess::displayHeader()
 	std::cout << "  SelSec:                 0x" << std::hex << mHdr.getSelSec() << std::endl;
 	std::cout << "  SelT1Key:               0x" << std::hex << mHdr.getSelT1Key() << std::endl;
 	std::cout << "  SelKey:                 0x" << std::hex << mHdr.getSelKey() << std::endl;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	if (mCliOutputMode.show_layout)
 	{
 		std::cout << "  RomAreaStartPage:       0x" << std::hex << mHdr.getRomAreaStartPage();
 		if (mHdr.getRomAreaStartPage() != (uint32_t)(-1))
@@ -180,7 +180,7 @@ void GameCardProcess::displayHeader()
 		std::cout << "  PartitionFs Header:" << std::endl;
 		std::cout << "    Offset:               0x" << std::hex << mHdr.getPartitionFsAddress() << std::endl;
 		std::cout << "    Size:                 0x" << std::hex << mHdr.getPartitionFsSize() << std::endl;
-		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		if (mCliOutputMode.show_extended_info)
 		{
 			std::cout << "    Hash:" << std::endl;
 			std::cout << "      " << fnd::SimpleTextOutput::arrayToString(mHdr.getPartitionFsHash().bytes, 0x10, true, ":") << std::endl;
@@ -208,9 +208,9 @@ void GameCardProcess::displayHeader()
 	}
 }
 
-bool GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash, bool use_salt, byte_t salt)
+bool nstool::GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash, bool use_salt, byte_t salt)
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 	fnd::sha::sSha256Hash calc_hash;
 	if (use_salt)
 	{
@@ -228,12 +228,12 @@ bool GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte
 	return calc_hash.compare(test_hash);
 }
 
-bool GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
+bool nstool::GameCardProcess::validateRegionOfFile(size_t offset, size_t len, const byte_t* test_hash)
 {
 	return validateRegionOfFile(offset, len, test_hash, false, 0);
 }
 
-void GameCardProcess::validateXciSignature()
+void nstool::GameCardProcess::validateXciSignature()
 {
 	fnd::rsa::sRsa2048Key header_sign_key;
 
@@ -244,7 +244,7 @@ void GameCardProcess::validateXciSignature()
 	}
 }
 
-void GameCardProcess::processRootPfs()
+void nstool::GameCardProcess::processRootPfs()
 {
 	if (mVerify && validateRegionOfFile(mHdr.getPartitionFsAddress(), mHdr.getPartitionFsSize(), mHdr.getPartitionFsHash().bytes, mHdr.getCompatibilityType() != nn::hac::gc::COMPAT_GLOBAL, mHdr.getCompatibilityType()) == false)
 	{
@@ -258,9 +258,9 @@ void GameCardProcess::processRootPfs()
 	mRootPfs.process();
 }
 
-void GameCardProcess::processPartitionPfs()
+void nstool::GameCardProcess::processPartitionPfs()
 {
-	const fnd::List<nn::hac::PartitionFsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
+	const std::vector<nn::hac::PartitionFsHeader::sFile>& rootPartitions = mRootPfs.getPfsHeader().getFileList();
 	for (size_t i = 0; i < rootPartitions.size(); i++)
 	{
 		// this must be validated here because only the size of the root partiton header is known at verification time

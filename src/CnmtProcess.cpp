@@ -3,53 +3,50 @@
 #include <iostream>
 #include <iomanip>
 
-#include <fnd/SimpleTextOutput.h>
-#include <fnd/OffsetAdjustedIFile.h>
-
 #include <nn/hac/ContentMetaUtil.h>
 
-CnmtProcess::CnmtProcess() :
+nstool::CnmtProcess::CnmtProcess() :
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
 }
 
-void CnmtProcess::process()
+void nstool::CnmtProcess::process()
 {
 	importCnmt();
 
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayCnmt();
 }
 
-void CnmtProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::CnmtProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void CnmtProcess::setCliOutputMode(CliOutputMode type)
+void nstool::CnmtProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void CnmtProcess::setVerifyMode(bool verify)
+void nstool::CnmtProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-const nn::hac::ContentMeta& CnmtProcess::getContentMeta() const
+const nn::hac::ContentMeta& nstool::CnmtProcess::getContentMeta() const
 {
 	return mCnmt;
 }
 
-void CnmtProcess::importCnmt()
+void nstool::CnmtProcess::importCnmt()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	scratch.alloc((*mFile)->size());
@@ -58,7 +55,7 @@ void CnmtProcess::importCnmt()
 	mCnmt.fromBytes(scratch.data(), scratch.size());
 }
 
-void CnmtProcess::displayCnmt()
+void nstool::CnmtProcess::displayCnmt()
 {
 	std::cout << "[ContentMeta]" << std::endl;
 	std::cout << "  TitleId:               0x" << std::hex << std::setw(16) << std::setfill('0') << mCnmt.getTitleId() << std::endl;
@@ -178,7 +175,7 @@ void CnmtProcess::displayCnmt()
 	std::cout << "  Digest:   " << fnd::SimpleTextOutput::arrayToString(mCnmt.getDigest().data(), mCnmt.getDigest().size(), false, "") << std::endl;
 }
 
-void CnmtProcess::displayContentMetaInfo(const nn::hac::ContentMetaInfo& content_meta_info, const std::string& prefix)
+void nstool::CnmtProcess::displayContentMetaInfo(const nn::hac::ContentMetaInfo& content_meta_info, const std::string& prefix)
 {
 	std::cout << prefix << "Id:           0x" << std::hex << std::setw(16) << std::setfill('0') << content_meta_info.getTitleId() << std::endl;
 	std::cout << prefix << "Version:      " << nn::hac::ContentMetaUtil::getVersionAsString(content_meta_info.getTitleVersion()) << " (v" << std::dec << content_meta_info.getTitleVersion() << ")"<< std::endl;
@@ -210,7 +207,7 @@ void CnmtProcess::displayContentMetaInfo(const nn::hac::ContentMetaInfo& content
 	}
 }
 
-void CnmtProcess::displayContentMetaInfoList(const std::vector<nn::hac::ContentMetaInfo>& content_meta_info_list, const std::string& prefix)
+void nstool::CnmtProcess::displayContentMetaInfoList(const std::vector<nn::hac::ContentMetaInfo>& content_meta_info_list, const std::string& prefix)
 {
 	for (size_t i = 0; i < content_meta_info_list.size(); i++)
 		{

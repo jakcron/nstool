@@ -1,13 +1,11 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <nn/hac/AssetHeader.h>
+#include "types.h"
 #include "NacpProcess.h"
 #include "RomfsProcess.h"
 
-#include "common.h"
+#include <nn/hac/AssetHeader.h>
+
+namespace nstool {
 
 class AssetProcess
 {
@@ -16,7 +14,7 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -30,12 +28,12 @@ public:
 private:
 	const std::string kModuleName = "AssetProcess";
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	sOptional<std::string> mIconExtractPath;
-	sOptional<std::string> mNacpExtractPath;
+	tc::Optional<tc::io::Path> mIconExtractPath;
+	tc::Optional<tc::io::Path> mNacpExtractPath;
 
 	nn::hac::AssetHeader mHdr;
 	NacpProcess mNacp;
@@ -45,3 +43,5 @@ private:
 	void processSections();
 	void displayHeader();
 };
+
+}

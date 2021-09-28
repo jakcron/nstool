@@ -1,14 +1,11 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <fnd/types.h>
-#include <fnd/Vec.h>
+#include "types.h"
+#include "SdkApiString.h"
+#include "ElfSymbolParser.h"
 
 #include <nn/hac/define/meta.h>
 
-#include "common.h"
-#include "SdkApiString.h"
-#include "ElfSymbolParser.h"
+namespace nstool {
 
 class RoMetadataProcess
 {
@@ -17,7 +14,7 @@ public:
 
 	void process();
 
-	void setRoBinary(const fnd::Vec<byte_t>& bin);
+	void setRoBinary(const tc::ByteData& bin);
 	void setApiInfo(size_t offset, size_t size);
 	void setDynSym(size_t offset, size_t size);
 	void setDynStr(size_t offset, size_t size);
@@ -33,7 +30,7 @@ public:
 	const std::vector<SdkApiString>& getDebugApiList() const;
 	const std::vector<SdkApiString>& getPrivateApiList() const;
 	const std::vector<SdkApiString>& getGuidelineApiList() const;
-	const fnd::List<ElfSymbolParser::sElfSymbol>& getSymbolList() const;
+	const std::vector<ElfSymbolParser::sElfSymbol>& getSymbolList() const;
 private:
 	const std::string kModuleName = "RoMetadataProcess";
 
@@ -52,7 +49,7 @@ private:
 	sLayout mApiInfo;
 	sLayout mDynSym;
 	sLayout mDynStr;
-	fnd::Vec<byte_t> mRoBlob;
+	tc::ByteData mRoBlob;
 	std::vector<SdkApiString> mSdkVerApiList;
 	std::vector<SdkApiString> mPublicApiList;
 	std::vector<SdkApiString> mDebugApiList;
@@ -68,3 +65,5 @@ private:
 	const char* getSymbolTypeStr(byte_t symbol_type) const;
 	const char* getSymbolBindingStr(byte_t symbol_binding) const;
 };
+
+}

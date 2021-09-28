@@ -8,57 +8,57 @@
 
 
 
-EsTikProcess::EsTikProcess() :
+nstool::EsTikProcess::EsTikProcess() :
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
 }
 
-void EsTikProcess::process()
+void nstool::EsTikProcess::process()
 {
 	importTicket();
 
 	if (mVerify)
 		verifyTicket();
 
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayTicket();
 }
 
-void EsTikProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::EsTikProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void EsTikProcess::setKeyCfg(const KeyConfiguration& keycfg)
+void nstool::EsTikProcess::setKeyCfg(const KeyBag& keycfg)
 {
 	mKeyCfg = keycfg;
 }
 
-void EsTikProcess::setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs)
+void nstool::EsTikProcess::setCertificateChain(const std::vector<nn::pki::SignedData<nn::pki::CertificateBody>>& certs)
 {
 	mCerts = certs;
 }
 
-void EsTikProcess::setCliOutputMode(CliOutputMode mode)
+void nstool::EsTikProcess::setCliOutputMode(CliOutputMode mode)
 {
 	mCliOutputMode = mode;
 }
 
-void EsTikProcess::setVerifyMode(bool verify)
+void nstool::EsTikProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void EsTikProcess::importTicket()
+void nstool::EsTikProcess::importTicket()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	scratch.alloc((*mFile)->size());
@@ -66,10 +66,10 @@ void EsTikProcess::importTicket()
 	mTik.fromBytes(scratch.data(), scratch.size());
 }
 
-void EsTikProcess::verifyTicket()
+void nstool::EsTikProcess::verifyTicket()
 {
 	PkiValidator pki_validator;
-	fnd::Vec<byte_t> tik_hash;
+	tc::ByteData tik_hash;
 
 	switch (nn::pki::sign::getHashAlgo(mTik.getSignature().getSignType()))
 	{
@@ -89,13 +89,13 @@ void EsTikProcess::verifyTicket()
 		pki_validator.addCertificates(mCerts);
 		pki_validator.validateSignature(mTik.getBody().getIssuer(), mTik.getSignature().getSignType(), mTik.getSignature().getSignature(), tik_hash);
 	}
-	catch (const fnd::Exception& e)
+	catch (const tc::Exception& e)
 	{
 		std::cout << "[WARNING] Ticket signature could not be validated (" << e.error() << ")" << std::endl;
 	}
 }
 
-void EsTikProcess::displayTicket()
+void nstool::EsTikProcess::displayTicket()
 {
 #define _SPLIT_VER(ver) (uint32_t)((ver>>10) & 0x3f) << "." << (uint32_t)((ver>>4) & 0x3f) << "." << (uint32_t)((ver>>0) & 0xf)
 
@@ -104,7 +104,7 @@ void EsTikProcess::displayTicket()
 	std::cout << "[ES Ticket]" << std::endl;
 
 	std::cout << "  SignType:         " << getSignTypeStr(mTik.getSignature().getSignType());
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 		std::cout << " (0x" << std::hex << mTik.getSignature().getSignType() << ")";
 	std::cout << std::endl;
 
@@ -129,7 +129,7 @@ void EsTikProcess::displayTicket()
 	}
 
 	std::cout << "  Version:          v" << _SPLIT_VER(body.getTicketVersion());
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 		std::cout << " (" << (uint32_t)body.getTicketVersion() << ")";
 	std::cout << std::endl;
 	
@@ -144,16 +144,16 @@ void EsTikProcess::displayTicket()
 		}
 	}
 	
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "  Reserved Region:" << std::endl;
 		fnd::SimpleTextOutput::hexDump(body.getReservedRegion(), 8, 0x10, 4);
 	}
 	
-	if (body.getTicketId() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (body.getTicketId() != 0 || mCliOutputMode.show_extended_info)
 		std::cout << "  TicketId:         0x" << std::hex << std::setw(16) << std::setfill('0') << body.getTicketId() << std::endl;
 	
-	if (body.getDeviceId() != 0 || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (body.getDeviceId() != 0 || mCliOutputMode.show_extended_info)
 		std::cout << "  DeviceId:         0x" << std::hex << std::setw(16) << std::setfill('0') << body.getDeviceId() << std::endl;
 	
 	std::cout << "  RightsId:         " <<  std::endl << "    ";
@@ -167,7 +167,7 @@ void EsTikProcess::displayTicket()
 #undef _SPLIT_VER
 }
 
-const char* EsTikProcess::getSignTypeStr(uint32_t type) const
+const char* nstool::EsTikProcess::getSignTypeStr(uint32_t type) const
 {
 	const char* str = nullptr;
 	switch(type)
@@ -197,7 +197,7 @@ const char* EsTikProcess::getSignTypeStr(uint32_t type) const
 	return str;
 }
 
-const char* EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) const
+const char* nstool::EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) const
 {
 	const char* str = nullptr;
 	switch(flag)
@@ -215,7 +215,7 @@ const char* EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) const
 	return str;
 }
 
-const char* EsTikProcess::getLicenseTypeStr(byte_t flag) const
+const char* nstool::EsTikProcess::getLicenseTypeStr(byte_t flag) const
 {
 	const char* str = nullptr;
 	switch(flag)
@@ -245,7 +245,7 @@ const char* EsTikProcess::getLicenseTypeStr(byte_t flag) const
 	return str;
 }
 
-const char* EsTikProcess::getPropertyFlagStr(byte_t flag) const
+const char* nstool::EsTikProcess::getPropertyFlagStr(byte_t flag) const
 {
 	const char* str = nullptr;
 	switch(flag)

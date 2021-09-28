@@ -1,13 +1,13 @@
 #include <sstream>
 #include "SdkApiString.h"
 
-SdkApiString::SdkApiString(const std::string& full_str) :
+nstool::SdkApiString::SdkApiString(const std::string& full_str) :
 	SdkApiString(API_MIDDLEWARE, "", "")
 {
 	resolveApiString(full_str);
 }
 
-SdkApiString::SdkApiString(ApiType type, const std::string& vender_name, const std::string& module_name) :
+nstool::SdkApiString::SdkApiString(ApiType type, const std::string& vender_name, const std::string& module_name) :
 	mApiType(type),
 	mVenderName(vender_name),
 	mModuleName(module_name)
@@ -15,44 +15,44 @@ SdkApiString::SdkApiString(ApiType type, const std::string& vender_name, const s
 
 }
 
-void SdkApiString::operator=(const SdkApiString& other)
+void nstool::SdkApiString::operator=(const SdkApiString& other)
 {
 	mApiType = other.mApiType;
 	mVenderName = other.mVenderName;
 	mModuleName = other.mModuleName;
 }
 
-SdkApiString::ApiType SdkApiString::getApiType() const
+nstool::SdkApiString::ApiType nstool::SdkApiString::getApiType() const
 {
 	return mApiType;
 }
 
-void SdkApiString::setApiType(ApiType type)
+void nstool::SdkApiString::setApiType(ApiType type)
 {
 	mApiType = type;
 }
 
-const std::string& SdkApiString::getVenderName() const
+const std::string& nstool::SdkApiString::getVenderName() const
 {
 	return mVenderName;
 }
 
-void SdkApiString::setVenderName(const std::string& name)
+void nstool::SdkApiString::setVenderName(const std::string& name)
 {
 	mVenderName = name;
 }
 
-const std::string& SdkApiString::getModuleName() const
+const std::string& nstool::SdkApiString::getModuleName() const
 {
 	return mModuleName;
 }
 
-void SdkApiString::setModuleName(const std::string& name)
+void nstool::SdkApiString::setModuleName(const std::string& name)
 {
 	mModuleName = name;
 }
 
-void SdkApiString::resolveApiString(const std::string& full_str)
+void nstool::SdkApiString::resolveApiString(const std::string& full_str)
 {
 	std::stringstream list_stream(full_str);
 	std::string api_type, vender, module;

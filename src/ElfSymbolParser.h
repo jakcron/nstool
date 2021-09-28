@@ -1,7 +1,8 @@
 #pragma once
-#include <string>
-#include <fnd/List.h>
-#include <fnd/elf.h>
+#include "types.h"
+#include "elf.h"
+
+namespace nstool {
 
 class ElfSymbolParser
 {
@@ -40,10 +41,12 @@ public:
 
 	void parseData(const byte_t *dyn_sym, size_t dyn_sym_size, const byte_t *dyn_str, size_t dyn_str_size, bool is64Bit);
 
-	const fnd::List<sElfSymbol>& getSymbolList() const;
+	const std::vector<sElfSymbol>& getSymbolList() const;
 private:
 	const std::string kModuleName = "ElfSymbolParser";
 
 	// data
-	fnd::List<sElfSymbol> mSymbolList;
+	std::vector<sElfSymbol> mSymbolList;
 };
+
+}

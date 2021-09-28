@@ -9,51 +9,51 @@
 
 #include <nn/hac/KernelCapabilityUtil.h>
 
-KipProcess::KipProcess():
+nstool::KipProcess::KipProcess():
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
 }
 
-void KipProcess::process()
+void nstool::KipProcess::process()
 {
 	importHeader();
 	//importCodeSegments();
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 	{
 		displayHeader();
 		displayKernelCap(mHdr.getKernelCapabilities());
 	}
 }
 
-void KipProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::KipProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void KipProcess::setCliOutputMode(CliOutputMode type)
+void nstool::KipProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void KipProcess::setVerifyMode(bool verify)
+void nstool::KipProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void KipProcess::importHeader()
+void nstool::KipProcess::importHeader()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	if ((*mFile)->size() < sizeof(nn::hac::sKipHeader))
 	{
-		throw fnd::Exception(kModuleName, "Corrupt KIP: file too small");
+		throw tc::Exception(kModuleName, "Corrupt KIP: file too small");
 	}
 
 	scratch.alloc(sizeof(nn::hac::sKipHeader));
@@ -62,10 +62,10 @@ void KipProcess::importHeader()
 	mHdr.fromBytes(scratch.data(), scratch.size());
 }
 
-void KipProcess::importCodeSegments()
+void nstool::KipProcess::importCodeSegments()
 {
 #ifdef _KIP_COMPRESSION_IMPLEMENTED
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 	uint32_t decompressed_len;
 #endif
 
@@ -79,7 +79,7 @@ void KipProcess::importCodeSegments()
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mTextBlob.data(), (uint32_t)mTextBlob.size(), decompressed_len);
 		if (decompressed_len != mTextBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "KIP text segment failed to decompress");
+			throw tc::Exception(kModuleName, "KIP text segment failed to decompress");
 		}
 	}
 	else
@@ -102,7 +102,7 @@ void KipProcess::importCodeSegments()
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mRoBlob.data(), (uint32_t)mRoBlob.size(), decompressed_len);
 		if (decompressed_len != mRoBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "KIP ro segment failed to decompress");
+			throw tc::Exception(kModuleName, "KIP ro segment failed to decompress");
 		}
 	}
 	else
@@ -125,7 +125,7 @@ void KipProcess::importCodeSegments()
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mDataBlob.data(), (uint32_t)mDataBlob.size(), decompressed_len);
 		if (decompressed_len != mDataBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "KIP data segment failed to decompress");
+			throw tc::Exception(kModuleName, "KIP data segment failed to decompress");
 		}
 	}
 	else
@@ -139,7 +139,7 @@ void KipProcess::importCodeSegments()
 #endif
 }
 
-void KipProcess::displayHeader()
+void nstool::KipProcess::displayHeader()
 {
 	std::cout << "[KIP Header]" << std::endl;
 	std::cout << "  Meta:" << std::endl;
@@ -151,7 +151,7 @@ void KipProcess::displayHeader()
 	std::cout << "    UseSecureMemory:     " << std::boolalpha << mHdr.getUseSecureMemoryFlag() << std::endl;
 	std::cout << "  Program Sections:" << std::endl;
 	std::cout << "     .text:" << std::endl;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	if (mCliOutputMode.show_layout)
 	{
 		std::cout << "      FileOffset:     0x" << std::hex << mHdr.getTextSegmentInfo().file_layout.offset << std::endl;
 		std::cout << "      FileSize:       0x" << std::hex << mHdr.getTextSegmentInfo().file_layout.size << (mHdr.getTextSegmentInfo().is_compressed? " (COMPRESSED)" : "") << std::endl;
@@ -159,7 +159,7 @@ void KipProcess::displayHeader()
 	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getTextSegmentInfo().memory_layout.offset << std::endl;
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getTextSegmentInfo().memory_layout.size << std::endl;
 	std::cout << "    .ro:" << std::endl;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	if (mCliOutputMode.show_layout)
 	{
 		std::cout << "      FileOffset:     0x" << std::hex << mHdr.getRoSegmentInfo().file_layout.offset << std::endl;
 		std::cout << "      FileSize:       0x" << std::hex << mHdr.getRoSegmentInfo().file_layout.size << (mHdr.getRoSegmentInfo().is_compressed? " (COMPRESSED)" : "") << std::endl;
@@ -167,7 +167,7 @@ void KipProcess::displayHeader()
 	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getRoSegmentInfo().memory_layout.offset << std::endl;
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getRoSegmentInfo().memory_layout.size << std::endl;
 	std::cout << "    .data:" << std::endl;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	if (mCliOutputMode.show_layout)
 	{
 		std::cout << "      FileOffset:     0x" << std::hex << mHdr.getDataSegmentInfo().file_layout.offset << std::endl;
 		std::cout << "      FileSize:       0x" << std::hex << mHdr.getDataSegmentInfo().file_layout.size << (mHdr.getDataSegmentInfo().is_compressed? " (COMPRESSED)" : "") << std::endl;
@@ -179,7 +179,7 @@ void KipProcess::displayHeader()
 
 }
 
-void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
+void nstool::KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 {
 	std::cout << "[Kernel Capabilities]" << std::endl;
 	if (kern.getThreadInfo().isSet())
@@ -207,8 +207,8 @@ void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getMemoryMaps().isSet())
 	{
-		fnd::List<nn::hac::MemoryMappingHandler::sMemoryMapping> maps = kern.getMemoryMaps().getMemoryMaps();
-		fnd::List<nn::hac::MemoryMappingHandler::sMemoryMapping> ioMaps = kern.getMemoryMaps().getIoMemoryMaps();
+		std::vector<nn::hac::MemoryMappingHandler::sMemoryMapping> maps = kern.getMemoryMaps().getMemoryMaps();
+		std::vector<nn::hac::MemoryMappingHandler::sMemoryMapping> ioMaps = kern.getMemoryMaps().getIoMemoryMaps();
 
 		std::cout << "  MemoryMaps:" << std::endl;
 		for (size_t i = 0; i < maps.size(); i++)
@@ -223,7 +223,7 @@ void KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getInterupts().isSet())
 	{
-		fnd::List<uint16_t> interupts = kern.getInterupts().getInteruptList();
+		std::vector<uint16_t> interupts = kern.getInterupts().getInteruptList();
 		std::cout << "  Interupts Flags:" << std::endl;
 		for (uint32_t i = 0; i < interupts.size(); i++)
 		{

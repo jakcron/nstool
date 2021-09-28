@@ -1,15 +1,12 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <nn/hac/define/meta.h>
-#include <nn/hac/NroHeader.h>
+#include "types.h"
+#include "RoMetadataProcess.h"
 #include "AssetProcess.h"
 
-#include "common.h"
-#include "RoMetadataProcess.h"
+#include <nn/hac/define/meta.h>
+#include <nn/hac/NroHeader.h>
+
+namespace nstool {
 
 class NroProcess
 {
@@ -18,7 +15,7 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -36,12 +33,12 @@ public:
 private:
 	const std::string kModuleName = "NroProcess";
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
 	nn::hac::NroHeader mHdr;
-	fnd::Vec<byte_t> mTextBlob, mRoBlob, mDataBlob;
+	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
 	RoMetadataProcess mRoMeta;
 	bool mIsHomebrewNro;
 	AssetProcess mAssetProc;
@@ -51,3 +48,5 @@ private:
 	void displayHeader();
 	void processRoMeta();
 };
+
+}

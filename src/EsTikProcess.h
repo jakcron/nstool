@@ -1,14 +1,12 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <fnd/Vec.h>
+#include "types.h"
+#include "KeyBag.h"
+
 #include <nn/pki/SignedData.h>
 #include <nn/pki/CertificateBody.h>
 #include <nn/es/TicketBody_V2.h>
-#include "KeyConfiguration.h"
-#include "common.h"
+
+namespace nstool {
 
 class EsTikProcess
 {
@@ -17,21 +15,21 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
-	void setKeyCfg(const KeyConfiguration& keycfg);
-	void setCertificateChain(const fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
+	void setKeyCfg(const KeyBag& keycfg);
+	void setCertificateChain(const std::vector<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
 	void setCliOutputMode(CliOutputMode mode);
 	void setVerifyMode(bool verify);
 
 private:
 	const std::string kModuleName = "EsTikProcess";
 
-	fnd::SharedPtr<fnd::IFile> mFile;
-	KeyConfiguration mKeyCfg;
+	std::shared_ptr<tc::io::IStream> mFile;
+	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	
-	fnd::List<nn::pki::SignedData<nn::pki::CertificateBody>> mCerts;
+	std::vector<nn::pki::SignedData<nn::pki::CertificateBody>> mCerts;
 
 	nn::pki::SignedData<nn::es::TicketBody_V2> mTik;
 
@@ -43,3 +41,5 @@ private:
 	const char* getLicenseTypeStr(byte_t flag) const;
 	const char* getPropertyFlagStr(byte_t flag) const;
 };
+
+}

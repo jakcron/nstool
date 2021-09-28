@@ -1,14 +1,11 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <fnd/List.h>
-#include <nn/hac/GameCardHeader.h>
-#include "KeyConfiguration.h"
+#include "types.h"
+#include "KeyBag.h"
 #include "PfsProcess.h"
 
-#include "common.h"
+#include <nn/hac/GameCardHeader.h>
+
+namespace nstool {
 
 class GameCardProcess
 {
@@ -18,8 +15,8 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
-	void setKeyCfg(const KeyConfiguration& keycfg);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
+	void setKeyCfg(const KeyBag& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -31,8 +28,8 @@ private:
 	const std::string kModuleName = "GameCardProcess";
 	const std::string kXciMountPointName = "gamecard:/";
 
-	fnd::SharedPtr<fnd::IFile> mFile;
-	KeyConfiguration mKeyCfg;
+	std::shared_ptr<tc::io::IStream> mFile;
+	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	bool mListFs;
@@ -65,7 +62,7 @@ private:
 	nn::hac::GameCardHeader mHdr;
 	
 	PfsProcess mRootPfs;
-	fnd::List<sExtractInfo> mExtractInfo;
+	std::vector<sExtractInfo> mExtractInfo;
 
 	void importHeader();
 	void displayHeader();
@@ -75,3 +72,5 @@ private:
 	void processRootPfs();
 	void processPartitionPfs();
 };
+
+}

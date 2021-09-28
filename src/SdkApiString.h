@@ -1,5 +1,7 @@
 #pragma once
-#include <string>
+#include "types.h"
+
+namespace nstool {
 
 class SdkApiString
 {
@@ -43,3 +45,5 @@ private:
 
 	void resolveApiString(const std::string& full_str);
 };
+
+}

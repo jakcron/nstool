@@ -1,13 +1,9 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <fnd/Vec.h>
-#include <fnd/List.h>
+#include "types.h"
+
 #include <nn/hac/define/romfs.h>
 
-#include "common.h"
+namespace nstool {
 
 class RomfsProcess
 {
@@ -18,8 +14,8 @@ public:
 	struct sDirectory
 	{
 		std::string name;
-		fnd::List<sDirectory> dir_list;
-		fnd::List<sFile> file_list;
+		std::vector<sDirectory> dir_list;
+		std::vector<sFile> file_list;
 
 		void operator=(const sDirectory& other)
 		{
@@ -82,7 +78,7 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -96,8 +92,13 @@ private:
 	const std::string kModuleName = "RomfsProcess";
 	static const size_t kCacheSize = 0x10000;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
+	bool mShowBasicInfo;
+	bool mShowExtendedInfo;
+	bool mShowLayoutInfo;
+	bool mShowKeydata;
+	bool mVerbose;
 	bool mVerify;
 
 	std::string mExtractPath;
@@ -105,13 +106,13 @@ private:
 	std::string mMountName;
 	bool mListFs;
 
-	fnd::Vec<byte_t> mCache;
+	tc::ByteData mCache;
 
 	size_t mDirNum;
 	size_t mFileNum;
 	nn::hac::sRomfsHeader mHdr;
-	fnd::Vec<byte_t> mDirNodes;
-	fnd::Vec<byte_t> mFileNodes;
+	tc::ByteData mDirNodes;
+	tc::ByteData mFileNodes;
 	sDirectory mRootDir;
 
 	inline nn::hac::sRomfsDirEntry* get_dir_node(uint32_t offset) { return (nn::hac::sRomfsDirEntry*)(mDirNodes.data() + offset); }
@@ -132,3 +133,5 @@ private:
 	void importDirectory(uint32_t dir_offset, sDirectory& dir);
 	void resolveRomfs();
 };
+
+}

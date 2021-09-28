@@ -1,14 +1,10 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <fnd/LayeredIntegrityMetadata.h>
+#include "types.h"
+#include "KeyBag.h"
+
 #include <nn/hac/ContentArchiveHeader.h>
-#include "KeyConfiguration.h"
 
-
-#include "common.h"
+namespace nstool {
 
 class NcaProcess
 {
@@ -18,8 +14,8 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
-	void setKeyCfg(const KeyConfiguration& keycfg);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
+	void setKeyCfg(const KeyBag& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -35,8 +31,8 @@ private:
 	const std::string kNpdmExefsPath = "main.npdm";
 
 	// user options
-	fnd::SharedPtr<fnd::IFile> mFile;
-	KeyConfiguration mKeyCfg;
+	std::shared_ptr<tc::io::IStream> mFile;
+	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
@@ -60,8 +56,8 @@ private:
 		{
 			byte_t index;
 			bool decrypted;
-			fnd::aes::sAes128Key enc;
-			fnd::aes::sAes128Key dec;
+			KeyBag::aes128_key_t enc;
+			KeyBag::aes128_key_t dec;
 
 			void operator=(const sKeyAreaKey& other)
 			{
@@ -84,14 +80,14 @@ private:
 				return !(*this == other);
 			}
 		};
-		fnd::List<sKeyAreaKey> kak_list;
+		std::vector<sKeyAreaKey> kak_list;
 
-		sOptional<fnd::aes::sAes128Key> aes_ctr;
+		tc::Optional<KeyBag::aes128_key_t> aes_ctr;
 	} mContentKey;
 	
 	struct sPartitionInfo
 	{
-		fnd::SharedPtr<fnd::IFile> reader;
+		std::shared_ptr<tc::io::IStream> reader;
 		std::string fail_reason;
 		size_t offset;
 		size_t size;
@@ -113,3 +109,5 @@ private:
 
 	const char* getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const;
 };
+
+}

@@ -10,14 +10,14 @@
 
 #include <fnd/SimpleTextOutput.h>
 
-MetaProcess::MetaProcess() :
+nstool::MetaProcess::MetaProcess() :
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
 }
 
-void MetaProcess::process()
+void nstool::MetaProcess::process()
 {
 	importMeta();
 
@@ -27,7 +27,7 @@ void MetaProcess::process()
 		validateAciFromAcid(mMeta.getAccessControlInfo(), mMeta.getAccessControlInfoDesc());
 	}
 
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 	{
 		// npdm binary
 		displayMetaHeader(mMeta);
@@ -39,7 +39,7 @@ void MetaProcess::process()
 		displayKernelCap(mMeta.getAccessControlInfo().getKernelCapabilities());
 
 		// acid binary
-		if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+		if (mCliOutputMode.show_extended_info)
 		{
 			displayAciDescHdr(mMeta.getAccessControlInfoDesc());
 			displayFac(mMeta.getAccessControlInfoDesc().getFileSystemAccessControl());
@@ -49,38 +49,38 @@ void MetaProcess::process()
 	}
 }
 
-void MetaProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::MetaProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void MetaProcess::setKeyCfg(const KeyConfiguration& keycfg)
+void nstool::MetaProcess::setKeyCfg(const KeyBag& keycfg)
 {
 	mKeyCfg = keycfg;
 }
 
-void MetaProcess::setCliOutputMode(CliOutputMode type)
+void nstool::MetaProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void MetaProcess::setVerifyMode(bool verify)
+void nstool::MetaProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-const nn::hac::Meta& MetaProcess::getMeta() const
+const nn::hac::Meta& nstool::MetaProcess::getMeta() const
 {
 	return mMeta;
 }
 
-void MetaProcess::importMeta()
+void nstool::MetaProcess::importMeta()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	scratch.alloc((*mFile)->size());
@@ -89,12 +89,12 @@ void MetaProcess::importMeta()
 	mMeta.fromBytes(scratch.data(), scratch.size());
 }
 
-void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid, byte_t key_generation)
+void nstool::MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid, byte_t key_generation)
 {
 	try {
 		fnd::rsa::sRsa2048Key acid_sign_key;
 		if (mKeyCfg.getAcidSignKey(acid_sign_key, key_generation) != true)
-			throw fnd::Exception();
+			throw tc::Exception();
 
 		acid.validateSignature(acid_sign_key);
 	}
@@ -104,7 +104,7 @@ void MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& ac
 	
 }
 
-void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, const nn::hac::AccessControlInfoDesc& acid)
+void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, const nn::hac::AccessControlInfoDesc& acid)
 {
 	// check Program ID
 	if (acid.getProgramIdRestrict().min > 0 && aci.getProgramId() < acid.getProgramIdRestrict().min)
@@ -279,7 +279,7 @@ void MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, con
 	}
 }
 
-void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
+void nstool::MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 {
 	std::cout << "[Meta Header]" << std::endl;
 	std::cout << "  ACID KeyGeneration: " << std::dec << (uint32_t)hdr.getAccessControlInfoDescKeyGeneration() << std::endl;
@@ -301,13 +301,13 @@ void MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 	}
 }
 
-void MetaProcess::displayAciHdr(const nn::hac::AccessControlInfo& aci)
+void nstool::MetaProcess::displayAciHdr(const nn::hac::AccessControlInfo& aci)
 {
 	std::cout << "[Access Control Info]" << std::endl;
 	std::cout << "  ProgramID:       0x" << std::hex << std::setw(16) << std::setfill('0') << aci.getProgramId() << std::endl;
 }
 
-void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
+void nstool::MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
 {
 	std::cout << "[Access Control Info Desc]" << std::endl;
 	std::cout << "  Flags:           " << std::endl;
@@ -319,7 +319,7 @@ void MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
 	std::cout << "    Max:           0x" << std::hex << std::setw(16) << std::setfill('0') << acid.getProgramIdRestrict().max << std::endl;
 }
 
-void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
+void nstool::MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 {
 	std::cout << "[FS Access Control]" << std::endl;
 	std::cout << "  Format Version:  " << std::dec << (uint32_t)fac.getFormatVersion() << std::endl;
@@ -353,7 +353,7 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 
 			// output string info
 			std::cout << nn::hac::FileSystemAccessUtil::getFsAccessFlagAsString(nn::hac::fac::FsAccessFlag(flag));
-			if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+			if (mCliOutputMode.show_extended_info)
 				std::cout << " (bit " << std::dec << (uint32_t)flag << ")";				
 		}
 		std::cout << std::endl;
@@ -379,7 +379,7 @@ void MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
 	
 }
 
-void MetaProcess::displaySac(const nn::hac::ServiceAccessControl& sac)
+void nstool::MetaProcess::displaySac(const nn::hac::ServiceAccessControl& sac)
 {
 	std::cout << "[Service Access Control]" << std::endl;
 	std::cout << "  Service List:" << std::endl;
@@ -391,7 +391,7 @@ void MetaProcess::displaySac(const nn::hac::ServiceAccessControl& sac)
 	fnd::SimpleTextOutput::dumpStringList(service_name_list, 60, 4);
 }
 
-void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
+void nstool::MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 {
 	std::cout << "[Kernel Capabilities]" << std::endl;
 	if (kern.getThreadInfo().isSet())
@@ -435,7 +435,7 @@ void MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
 	}
 	if (kern.getInterupts().isSet())
 	{
-		fnd::List<uint16_t> interupts = kern.getInterupts().getInteruptList();
+		std::vector<uint16_t> interupts = kern.getInterupts().getInteruptList();
 		std::cout << "  Interupts Flags:" << std::endl;
 		for (uint32_t i = 0; i < interupts.size(); i++)
 		{

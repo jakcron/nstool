@@ -6,9 +6,9 @@
 #include <fnd/lz4.h>
 #include "NsoProcess.h"
 
-NsoProcess::NsoProcess():
+nstool::NsoProcess::NsoProcess():
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false),
 	mIs64BitInstruction(true),
 	mListApi(false),
@@ -16,63 +16,63 @@ NsoProcess::NsoProcess():
 {
 }
 
-void NsoProcess::process()
+void nstool::NsoProcess::process()
 {
 	importHeader();
 	importCodeSegments();
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayNsoHeader();
 
 	processRoMeta();
 }
 
-void NsoProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::NsoProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void NsoProcess::setCliOutputMode(CliOutputMode type)
+void nstool::NsoProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void NsoProcess::setVerifyMode(bool verify)
+void nstool::NsoProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void NsoProcess::setIs64BitInstruction(bool flag)
+void nstool::NsoProcess::setIs64BitInstruction(bool flag)
 {
 	mRoMeta.setIs64BitInstruction(flag);
 }
 
-void NsoProcess::setListApi(bool listApi)
+void nstool::NsoProcess::setListApi(bool listApi)
 {
 	mRoMeta.setListApi(listApi);
 }
 
-void NsoProcess::setListSymbols(bool listSymbols)
+void nstool::NsoProcess::setListSymbols(bool listSymbols)
 {
 	mRoMeta.setListSymbols(listSymbols);
 }
 
-const RoMetadataProcess& NsoProcess::getRoMetadataProcess() const
+const RoMetadataProcess& nstool::NsoProcess::getRoMetadataProcess() const
 {
 	return mRoMeta;
 }
 
-void NsoProcess::importHeader()
+void nstool::NsoProcess::importHeader()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 
 	if (*mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(kModuleName, "No file reader set.");
 	}
 
 	if ((*mFile)->size() < sizeof(nn::hac::sNsoHeader))
 	{
-		throw fnd::Exception(kModuleName, "Corrupt NSO: file too small");
+		throw tc::Exception(kModuleName, "Corrupt NSO: file too small");
 	}
 
 	scratch.alloc(sizeof(nn::hac::sNsoHeader));
@@ -81,9 +81,9 @@ void NsoProcess::importHeader()
 	mHdr.fromBytes(scratch.data(), scratch.size());
 }
 
-void NsoProcess::importCodeSegments()
+void nstool::NsoProcess::importCodeSegments()
 {
-	fnd::Vec<byte_t> scratch;
+	tc::ByteData scratch;
 	uint32_t decompressed_len;
 	fnd::sha::sSha256Hash calc_hash;
 
@@ -96,7 +96,7 @@ void NsoProcess::importCodeSegments()
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mTextBlob.data(), (uint32_t)mTextBlob.size(), decompressed_len);
 		if (decompressed_len != mTextBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "NSO text segment failed to decompress");
+			throw tc::Exception(kModuleName, "NSO text segment failed to decompress");
 		}
 	}
 	else
@@ -109,7 +109,7 @@ void NsoProcess::importCodeSegments()
 		fnd::sha::Sha256(mTextBlob.data(), mTextBlob.size(), calc_hash.bytes);
 		if (calc_hash != mHdr.getTextSegmentInfo().hash)
 		{
-			throw fnd::Exception(kModuleName, "NSO text segment failed SHA256 verification");
+			throw tc::Exception(kModuleName, "NSO text segment failed SHA256 verification");
 		}
 	}
 
@@ -122,7 +122,7 @@ void NsoProcess::importCodeSegments()
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mRoBlob.data(), (uint32_t)mRoBlob.size(), decompressed_len);
 		if (decompressed_len != mRoBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "NSO ro segment failed to decompress");
+			throw tc::Exception(kModuleName, "NSO ro segment failed to decompress");
 		}
 	}
 	else
@@ -135,7 +135,7 @@ void NsoProcess::importCodeSegments()
 		fnd::sha::Sha256(mRoBlob.data(), mRoBlob.size(), calc_hash.bytes);
 		if (calc_hash != mHdr.getRoSegmentInfo().hash)
 		{
-			throw fnd::Exception(kModuleName, "NSO ro segment failed SHA256 verification");
+			throw tc::Exception(kModuleName, "NSO ro segment failed SHA256 verification");
 		}
 	}
 
@@ -148,7 +148,7 @@ void NsoProcess::importCodeSegments()
 		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mDataBlob.data(), (uint32_t)mDataBlob.size(), decompressed_len);
 		if (decompressed_len != mDataBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "NSO data segment failed to decompress");
+			throw tc::Exception(kModuleName, "NSO data segment failed to decompress");
 		}
 	}
 	else
@@ -161,16 +161,16 @@ void NsoProcess::importCodeSegments()
 		fnd::sha::Sha256(mDataBlob.data(), mDataBlob.size(), calc_hash.bytes);
 		if (calc_hash != mHdr.getDataSegmentInfo().hash)
 		{
-			throw fnd::Exception(kModuleName, "NSO data segment failed SHA256 verification");
+			throw tc::Exception(kModuleName, "NSO data segment failed SHA256 verification");
 		}
 	}
 }
 
-void NsoProcess::displayNsoHeader()
+void nstool::NsoProcess::displayNsoHeader()
 {
 	std::cout << "[NSO Header]" << std::endl;
 	std::cout << "  ModuleId:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getModuleId().data, nn::hac::nso::kModuleIdSize, false, "") << std::endl;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	if (mCliOutputMode.show_layout)
 	{
 		std::cout << "  Program Segments:" << std::endl;
 		std::cout << "     .module_name:" << std::endl;
@@ -190,18 +190,18 @@ void NsoProcess::displayNsoHeader()
 	std::cout << "     .text:" << std::endl;
 	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getTextSegmentInfo().memory_layout.offset << std::endl;
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getTextSegmentInfo().memory_layout.size << std::endl;
-	if (mHdr.getTextSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mHdr.getTextSegmentInfo().is_hashed && mCliOutputMode.show_extended_info)
 	{
 		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getTextSegmentInfo().hash.bytes, 32, false, "") << std::endl;
 	}
 	std::cout << "    .ro:" << std::endl;
 	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getRoSegmentInfo().memory_layout.offset << std::endl;
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getRoSegmentInfo().memory_layout.size << std::endl;
-	if (mHdr.getRoSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mHdr.getRoSegmentInfo().is_hashed && mCliOutputMode.show_extended_info)
 	{
 		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getRoSegmentInfo().hash.bytes, 32, false, "") << std::endl;
 	}
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 	{
 		std::cout << "    .api_info:" << std::endl;
 		std::cout << "      MemoryOffset:   0x" << std::hex <<  mHdr.getRoEmbeddedInfo().offset << std::endl;
@@ -217,7 +217,7 @@ void NsoProcess::displayNsoHeader()
 	std::cout << "    .data:" << std::endl;
 	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getDataSegmentInfo().memory_layout.offset << std::endl;
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getDataSegmentInfo().memory_layout.size << std::endl;
-	if (mHdr.getDataSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mHdr.getDataSegmentInfo().is_hashed && mCliOutputMode.show_extended_info)
 	{
 		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getDataSegmentInfo().hash.bytes, 32, false, "") << std::endl;
 	}
@@ -225,7 +225,7 @@ void NsoProcess::displayNsoHeader()
 	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getBssSize() << std::endl;
 }
 
-void NsoProcess::processRoMeta()
+void nstool::NsoProcess::processRoMeta()
 {
 	if (mRoBlob.size())
 	{
