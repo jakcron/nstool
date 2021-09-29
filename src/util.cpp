@@ -98,3 +98,21 @@ void nstool::writeStreamToStream(const std::shared_ptr<tc::io::IStream>& in_stre
 		remaining_data -= int64_t(cache_read_len);
 	}
 }
+
+std::string nstool::getTruncatedBytesString(const byte_t* data, size_t len, bool do_not_truncate)
+{
+	if (data == nullptr) { return fmt::format(""); }
+
+	std::string str = "";
+
+	if (len <= 8 || do_not_truncate)
+	{
+		str = tc::cli::FormatUtil::formatBytesAsString(data, len, true, "");
+	}
+	else
+	{
+		str = fmt::format("{:02X}{:02X}{:02X}{:02X}...{:02X}{:02X}{:02X}{:02X}", data[0], data[1], data[2], data[3], data[len-4], data[len-3], data[len-2], data[len-1]);
+	}
+
+	return str;
+}
