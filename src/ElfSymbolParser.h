@@ -43,7 +43,7 @@ public:
 
 	const std::vector<sElfSymbol>& getSymbolList() const;
 private:
-	const std::string kModuleName = "ElfSymbolParser";
+	std::string mModuleName;
 
 	// data
 	std::vector<sElfSymbol> mSymbolList;
