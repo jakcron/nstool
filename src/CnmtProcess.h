@@ -19,7 +19,7 @@ public:
 	const nn::hac::ContentMeta& getContentMeta() const;
 
 private:
-	const std::string kModuleName = "CnmtProcess";
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
