@@ -20,13 +20,13 @@ public:
 
 	void setListFs(bool list);
 
-	void setIconExtractPath(const std::string& path);
-	void setNacpExtractPath(const std::string& path);
-	void setRomfsExtractPath(const std::string& path);
+	void setIconExtractPath(const tc::io::Path& path);
+	void setNacpExtractPath(const tc::io::Path& path);
+	void setRomfsExtractPath(const tc::io::Path& path);
 
 
 private:
-	const std::string kModuleName = "AssetProcess";
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
