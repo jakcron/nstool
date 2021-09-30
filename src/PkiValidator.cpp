@@ -1,10 +1,11 @@
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <nn/pki/SignUtils.h>
 #include "PkiValidator.h"
 
-nstool::PkiValidator::PkiValidator()
+#include <tc/crypto.h>
+#include <nn/hac/define/types.h>
+#include <nn/pki/SignUtils.h>
+
+nstool::PkiValidator::PkiValidator() :
+	mModuleName("nstool::PkiValidator")
 {
 	clearCertificates();
 }
@@ -48,7 +49,7 @@ void nstool::PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::Cer
 
 		if (doesCertExist(cert_ident) == true)
 		{
-			throw tc::Exception(kModuleName, "Certificate already exists");
+			throw tc::Exception(mModuleName, "Certificate already exists");
 		}
 
 		cert_sign_algo = nn::pki::sign::getSignatureAlgo(cert.getSignature().getSignType());
@@ -58,15 +59,16 @@ void nstool::PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::Cer
 		switch (cert_hash_algo)
 		{
 		case (nn::pki::sign::HASH_ALGO_SHA1):
-			cert_hash.alloc(fnd::sha::kSha1HashLen);
-			fnd::sha::Sha1(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
+
+			cert_hash = tc::ByteData(tc::crypto::Sha1Generator::kHashSize);
+			tc::crypto::GenerateSha1Hash(cert_hash.data(), cert.getBody().getBytes().data(), cert.getBody().getBytes().size());
 			break;
 		case (nn::pki::sign::HASH_ALGO_SHA256):
-			cert_hash.alloc(fnd::sha::kSha256HashLen);
-			fnd::sha::Sha256(cert.getBody().getBytes().data(), cert.getBody().getBytes().size(), cert_hash.data());
+			cert_hash = tc::ByteData(tc::crypto::Sha256Generator::kHashSize);
+			tc::crypto::GenerateSha256Hash(cert_hash.data(), cert.getBody().getBytes().data(), cert.getBody().getBytes().size());
 			break;
 		default:
-			throw tc::Exception(kModuleName, "Unrecognised hash type");
+			throw tc::Exception(mModuleName, "Unrecognised hash type");
 		}
 
 		validateSignature(cert.getBody().getIssuer(), cert.getSignature().getSignType(), cert.getSignature().getSignature(), cert_hash);
@@ -75,9 +77,7 @@ void nstool::PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::Cer
 	}
 	catch (const tc::Exception& e) 
 	{
-		std::stringstream ss;
-		ss << "Failed to add certificate " << cert_ident << " (" << e.error() << ")";
-		throw tc::Exception(kModuleName, ss.str());
+		throw tc::Exception(mModuleName, fmt::format("Failed to add certificate {:s} ({:s})", cert_ident, e.error());
 	}
 }
 
@@ -93,31 +93,33 @@ void nstool::PkiValidator::validateSignature(const std::string& issuer, nn::pki:
 	
 
 	// validate signature
-	int sig_validate_res = -1;
+	bool sig_valid = false;
 
-	// special case if signed by Root
-	if (issuer.find('-', 0) == std::string::npos)
+	// get public key
+	// tc::crypto::EccKey ecc_key;
+	tc::crypto::RsaKey rsa_key;
+
+	// special case if signed by Root (legacy nstool only defers to keybag for "Root", it did not store certificates)
+	if (issuer == "Root")
 	{
-		fnd::rsa::sRsa4096Key rsa4096_pub;
-		fnd::rsa::sRsa2048Key rsa2048_pub;
-		fnd::ecdsa::sEcdsa240Key ecdsa_pub;
+		auto itr = mKeyCfg.broadon_signer.find(issuer);
 
-		if (mKeyCfg.getPkiRootSignKey(issuer, rsa4096_pub) == true && sign_algo == nn::pki::sign::SIGN_ALGO_RSA4096)
+		if (itr == mKeyCfg.broadon_signer.end())
 		{
-			sig_validate_res = fnd::rsa::pkcs::rsaVerify(rsa4096_pub, getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+			throw tc::Exception(mModuleName, fmt::print("Public key for issuer \"{:s}\" does not exist.", issuer);
 		}
-		else if (mKeyCfg.getPkiRootSignKey(issuer, rsa2048_pub) == true && sign_algo == nn::pki::sign::SIGN_ALGO_RSA2048)
+
+		if (sign_algo != itr->second.key_type)
 		{
-			sig_validate_res = fnd::rsa::pkcs::rsaVerify(rsa2048_pub, getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+			throw tc::Exception(mModuleName, fmt::print("Public key for issuer \"{:s}\" cannot verify this signature.", issuer);
 		}
-		else if (mKeyCfg.getPkiRootSignKey(issuer, ecdsa_pub) == true && sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
+
+		if (sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
 		{
-			throw tc::Exception(kModuleName, "ECDSA signatures are not supported");
+			throw tc::Exception(mModuleName, "ECDSA signatures are not supported");	
 		}
-		else
-		{
-			throw tc::Exception(kModuleName, "Public key for issuer \"" + issuer + "\" does not exist.");
-		}
+
+		rsa_key = itr->second.rsa_key;
 	}
 	else
 	{
@@ -127,25 +129,65 @@ void nstool::PkiValidator::validateSignature(const std::string& issuer, nn::pki:
 
 		if (issuer_pubk_type == nn::pki::cert::RSA4096 && sign_algo == nn::pki::sign::SIGN_ALGO_RSA4096)
 		{
-			sig_validate_res = fnd::rsa::pkcs::rsaVerify(issuer_cert.getRsa4098PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+			rsa_key = issuer_cert.getRsa4098PublicKey();
 		}
 		else if (issuer_pubk_type == nn::pki::cert::RSA2048 && sign_algo == nn::pki::sign::SIGN_ALGO_RSA2048)
 		{
-			sig_validate_res = fnd::rsa::pkcs::rsaVerify(issuer_cert.getRsa2048PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+			rsa_key = issuer_cert.getRsa2048PublicKey();
 		}
 		else if (issuer_pubk_type == nn::pki::cert::ECDSA240 && sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
 		{
-			throw tc::Exception(kModuleName, "ECDSA signatures are not supported");
+			// ecc_key = issuer_cert.getEcdsa240PublicKey();
+			throw tc::Exception(mModuleName, "ECDSA signatures are not supported");
 		}
 		else
 		{
-			throw tc::Exception(kModuleName, "Mismatch between issuer public key and signature type");
+			throw tc::Exception(mModuleName, "Mismatch between issuer public key and signature type");
 		}
 	}
 
-	if (sig_validate_res != 0)
+	// verify signature
+	switch (signature_id) {
+		case (SIGN_ID_RSA4096_SHA1):
+			sig_validate_res = tc::crypto::VerifyRsa4096Pkcs1Sha1(signature.data(), hash.data(), rsa_key);
+			break;
+		case (SIGN_ID_RSA2048_SHA1):
+			sig_validate_res = tc::crypto::VerifyRsa2048Pkcs1Sha1(signature.data(), hash.data(), rsa_key);
+			break;
+		case (SIGN_ID_ECDSA240_SHA1):
+			sig_validate_res = false;
+			break;
+		case (SIGN_ID_RSA4096_SHA256):
+			sig_validate_res = tc::crypto::VerifyRsa4096Pkcs1Sha256(signature.data(), hash.data(), rsa_key);
+			break;
+		case (SIGN_ID_RSA2048_SHA256):
+			sig_validate_res = tc::crypto::VerifyRsa2048Pkcs1Sha256(signature.data(), hash.data(), rsa_key);
+			break;
+		case (SIGN_ID_ECDSA240_SHA256):
+			sig_validate_res = false;
+			break;
+	}
+	if (sign_algo == nn::pki::sign::SIGN_ALGO_RSA4096)
 	{
-		throw tc::Exception(kModuleName, "Incorrect signature");
+		sig_validate_res = fnd::rsa::pkcs::rsaVerify(issuer_cert.getRsa4098PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+	}
+	else if (sign_algo == nn::pki::sign::SIGN_ALGO_RSA2048)
+	{
+		sig_validate_res = fnd::rsa::pkcs::rsaVerify(issuer_cert.getRsa2048PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
+	}
+	else if (sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
+	{
+		throw tc::Exception(mModuleName, "ECDSA signatures are not supported");
+	}
+	else
+	{
+		throw tc::Exception(mModuleName, "Mismatch between issuer public key and signature type");
+	}
+
+
+	if (sig_valid == false)
+	{
+		throw tc::Exception(mModuleName, "Incorrect signature");
 	}
 
 	
@@ -159,7 +201,7 @@ void nstool::PkiValidator::makeCertIdent(const nn::pki::SignedData<nn::pki::Cert
 void nstool::PkiValidator::makeCertIdent(const std::string& issuer, const std::string& subject, std::string& ident) const
 {
 	ident = issuer + nn::pki::sign::kIdentDelimiter + subject;
-	ident = ident.substr(0, _MIN(ident.length(),64));
+	ident = ident.substr(0, std::min<size_t>(ident.length(),64));
 }
 
 bool nstool::PkiValidator::doesCertExist(const std::string& ident) const
@@ -191,22 +233,5 @@ const nn::pki::SignedData<nn::pki::CertificateBody>& nstool::PkiValidator::getCe
 		}
 	}
 
-	throw tc::Exception(kModuleName, "Issuer certificate does not exist");
-}
-
-fnd::sha::HashType nstool::PkiValidator::getCryptoHashAlgoFromEsSignHashAlgo(nn::pki::sign::HashAlgo hash_algo) const
-{
-	fnd::sha::HashType hash_type = fnd::sha::HASH_SHA1;
-
-	switch (hash_algo)
-	{
-	case (nn::pki::sign::HASH_ALGO_SHA1):
-		hash_type = fnd::sha::HASH_SHA1;
-		break;
-	case (nn::pki::sign::HASH_ALGO_SHA256):
-		hash_type = fnd::sha::HASH_SHA256;
-		break;
-	};
-
-	return hash_type;
+	throw tc::Exception(mModuleName, "Issuer certificate does not exist");
 }
