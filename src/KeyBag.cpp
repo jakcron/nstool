@@ -417,7 +417,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 	// Save PKI Root Key
 	if (pki_root_sign_key.isSet())
 	{
-		broadon_rsa_signer["Root"] = { tc::ByteData(), pki_root_sign_key.get() };
+		broadon_signer["Root"] = { tc::ByteData(), nn::pki::sign::SIGN_ALGO_RSA4096, pki_root_sign_key.get() };
 	}
 }
 
@@ -465,12 +465,13 @@ void nstool::KeyBagInitializer::importCertificateChain(const tc::io::Path& cert_
 
 			switch (cert.getBody().getPublicKeyType()) {
 				case nn::pki::cert::PublicKeyType::RSA2048:
-					broadon_rsa_signer[cert_identity] = { cert.getBytes(), cert.getBody().getRsa2048PublicKey() };
+					broadon_signer[cert_identity] = { cert.getBytes(), nn::pki::sign::SIGN_ALGO_RSA2048, cert.getBody().getRsa2048PublicKey() };
 					break;
 				case nn::pki::cert::PublicKeyType::RSA4096:
-					broadon_rsa_signer[cert_identity] = { cert.getBytes(), cert.getBody().getRsa4096PublicKey() };
+					broadon_signer[cert_identity] = { cert.getBytes(), nn::pki::sign::SIGN_ALGO_RSA4096, cert.getBody().getRsa4096PublicKey() };
 					break;
 				case nn::pki::cert::PublicKeyType::ECDSA240:
+					// broadon_signer[cert_identity] = { cert.getBytes(), nn::pki::sign::SIGN_ALGO_ECDSA240, cert.getBody().getRsa4096PublicKey() };
 					fmt::print("[WARNING] Certificate {:s} will not be imported. ecc233 public keys are not supported yet.\n", cert_identity);
 					break;
 				default:

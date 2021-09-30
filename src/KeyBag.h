@@ -15,6 +15,7 @@ struct KeyBag
 	using aes128_key_t = nn::hac::detail::aes128_key_t;
 	using aes128_xtskey_t = nn::hac::detail::aes128_xtskey_t;
 	using rsa_key_t = tc::crypto::RsaKey;
+	//using ecc_key_t = tc::crypto::EccKey;
 	using rights_id_t = nn::hac::detail::rights_id_t;
 	using key_generation_t = byte_t;
 	using broadon_issuer_t = std::string;
@@ -51,13 +52,16 @@ struct KeyBag
 	std::map<key_generation_t, aes128_key_t> etik_common_key;
 
 	// BroadOn signer profiles (for es cert and es tik)
-	// BroadOn RSA Keys
-	struct BroadOnRsaSignerProfile
+	// BroadOn Keys
+	struct BroadOnSignerProfile
 	{
 		tc::ByteData certificate;
-		rsa_key_t key;
+
+		nn::pki::sign::SignatureAlgo key_type;
+		rsa_key_t rsa_key;
+		// ecc_key_t ecc_key;
 	};
-	std::map<broadon_issuer_t, BroadOnRsaSignerProfile> broadon_rsa_signer;
+	std::map<broadon_issuer_t, BroadOnSignerProfile> broadon_signer;
 };
 
 class KeyBagInitializer : public KeyBag
