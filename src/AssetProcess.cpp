@@ -95,11 +95,11 @@ void nstool::AssetProcess::processSections()
 			writeSubStreamToFile(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size, mNacpExtractPath.get());
 		}
 		
-		//mNacp.setInputFile(std::make_shared<tc::io::SubStream>(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size));
-		//mNacp.setCliOutputMode(mCliOutputMode);
-		//mNacp.setVerifyMode(mVerify);
+		mNacp.setInputFile(std::make_shared<tc::io::SubStream>(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size));
+		mNacp.setCliOutputMode(mCliOutputMode);
+		mNacp.setVerifyMode(mVerify);
 
-		//mNacp.process();
+		mNacp.process();
 	}
 
 	if (mHdr.getRomfsInfo().size > 0)

@@ -11,7 +11,7 @@
 #include "CnmtProcess.h"
 //#include "NsoProcess.h"
 //#include "NroProcess.h"
-//#include "NacpProcess.h"
+#include "NacpProcess.h"
 //#include "IniProcess.h"
 //#include "KipProcess.h"
 //#include "PkiCertProcess.h"
@@ -162,6 +162,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
+		*/
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_NACP)
 		{
 			nstool::NacpProcess obj;
@@ -172,6 +173,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
+		/*
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_INI)
 		{
 			nstool::IniProcess obj;

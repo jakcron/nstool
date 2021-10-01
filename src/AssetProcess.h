@@ -36,7 +36,7 @@ private:
 	tc::Optional<tc::io::Path> mNacpExtractPath;
 
 	nn::hac::AssetHeader mHdr;
-	//NacpProcess mNacp;
+	NacpProcess mNacp;
 	//RomfsProcess mRomfs;
 
 	void importHeader();
