@@ -25,14 +25,14 @@ public:
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
-	const std::vector<SdkApiString>& getSdkVerApiList() const;
-	const std::vector<SdkApiString>& getPublicApiList() const;
-	const std::vector<SdkApiString>& getDebugApiList() const;
-	const std::vector<SdkApiString>& getPrivateApiList() const;
-	const std::vector<SdkApiString>& getGuidelineApiList() const;
-	const std::vector<ElfSymbolParser::sElfSymbol>& getSymbolList() const;
+	const std::vector<nstool::SdkApiString>& getSdkVerApiList() const;
+	const std::vector<nstool::SdkApiString>& getPublicApiList() const;
+	const std::vector<nstool::SdkApiString>& getDebugApiList() const;
+	const std::vector<nstool::SdkApiString>& getPrivateApiList() const;
+	const std::vector<nstool::SdkApiString>& getGuidelineApiList() const;
+	const std::vector<nstool::ElfSymbolParser::sElfSymbol>& getSymbolList() const;
 private:
-	const std::string kModuleName = "RoMetadataProcess";
+	std::string mModuleName;
 
 	CliOutputMode mCliOutputMode;
 	bool mIs64BitInstruction;
@@ -61,9 +61,9 @@ private:
 	void importApiList();
 	void displayRoMetaData();
 
-	const char* getSectionIndexStr(uint16_t shn_index) const;
-	const char* getSymbolTypeStr(byte_t symbol_type) const;
-	const char* getSymbolBindingStr(byte_t symbol_binding) const;
+	std::string getSectionIndexStr(uint16_t shn_index) const;
+	std::string getSymbolTypeStr(byte_t symbol_type) const;
+	std::string getSymbolBindingStr(byte_t symbol_binding) const;
 };
 
 }
