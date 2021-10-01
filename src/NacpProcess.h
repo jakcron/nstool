@@ -19,7 +19,7 @@ public:
 	const nn::hac::ApplicationControlProperty& getApplicationControlProperty() const;
 
 private:
-	const std::string kModuleName = "NacpProcess";
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
