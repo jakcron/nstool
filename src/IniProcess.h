@@ -17,7 +17,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	void setKipExtractPath(const std::string& path);
+	void setKipExtractPath(const tc::io::Path& path);
 private:
 	const std::string kModuleName = "IniProcess";
 	const std::string kKipExtention = ".kip";
@@ -27,8 +27,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	
-	bool mDoExtractKip;
-	std::string mKipExtractPath;
+	tc::Optional<tc::io::Path> mKipExtractPath;
 
 	nn::hac::IniHeader mHdr;
 	std::vector<std::shared_ptr<tc::io::IStream>> mKipList;

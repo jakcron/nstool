@@ -1,5 +1,6 @@
 #pragma once
 #include <tc/types.h>
+#include <tc/Exception.h>
 #include <tc/Optional.h>
 #include <tc/io.h>
 #include <tc/io/IOUtil.h>

@@ -44,7 +44,6 @@ void nstool::CnmtProcess::importCnmt()
 	{
 		throw tc::Exception(mModuleName, "No file reader set.");
 	}
-
 	
 	// check if file_size is greater than 20MB, don't import.
 	size_t cnmt_file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());
@@ -68,7 +67,7 @@ void nstool::CnmtProcess::displayCnmt()
 	fmt::print("[ContentMeta]\n");
 	fmt::print("  TitleId:               0x{:016x}\n", mCnmt.getTitleId());
 	fmt::print("  Version:               {:s} (v{:d})\n", nn::hac::ContentMetaUtil::getVersionAsString(mCnmt.getTitleVersion()), mCnmt.getTitleVersion());
-	fmt::print("  Type:                  {:s} (v{:d})\n", nn::hac::ContentMetaUtil::getContentMetaTypeAsString(mCnmt.getContentMetaType()), (uint32_t)mCnmt.getContentMetaType());
+	fmt::print("  Type:                  {:s} ({:d})\n", nn::hac::ContentMetaUtil::getContentMetaTypeAsString(mCnmt.getContentMetaType()), (uint32_t)mCnmt.getContentMetaType());
 	fmt::print("  Attributes:            0x{:x}", *((byte_t*)&cnmt_hdr->attributes));
 	if (mCnmt.getAttribute().size())
 	{

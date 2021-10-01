@@ -20,10 +20,10 @@ public:
 	void setVerifyMode(bool verify);
 
 	// nca specfic
-	void setPartition0ExtractPath(const std::string& path);
-	void setPartition1ExtractPath(const std::string& path);
-	void setPartition2ExtractPath(const std::string& path);
-	void setPartition3ExtractPath(const std::string& path);
+	void setPartition0ExtractPath(const tc::io::Path& path);
+	void setPartition1ExtractPath(const tc::io::Path& path);
+	void setPartition2ExtractPath(const tc::io::Path& path);
+	void setPartition3ExtractPath(const tc::io::Path& path);
 	void setListFs(bool list_fs);
 
 private:
@@ -36,11 +36,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	struct sExtract
-	{
-		std::string path;
-		bool doExtract;
-	} mPartitionPath[nn::hac::nca::kPartitionNum];
+	std::array<tc::Optional<tc::io::Path>, nn::hac::nca::kPartitionNum> mPartitionPath;
 
 	bool mListFs;
 
@@ -82,23 +78,25 @@ private:
 		};
 		std::vector<sKeyAreaKey> kak_list;
 
-		tc::Optional<KeyBag::aes128_key_t> aes_ctr;
+		tc::Optional<nn::hac::detail::aes128_key_t> aes_ctr;
 	} mContentKey;
 	
 	struct sPartitionInfo
 	{
 		std::shared_ptr<tc::io::IStream> reader;
 		std::string fail_reason;
-		size_t offset;
-		size_t size;
+		int64_t offset;
+		int64_t size;
 
 		// meta data
 		nn::hac::nca::FormatType format_type;
 		nn::hac::nca::HashType hash_type;
 		nn::hac::nca::EncryptionType enc_type;
-		fnd::LayeredIntegrityMetadata layered_intergrity_metadata;
-		fnd::aes::sAesIvCtr aes_ctr;
-	} mPartitions[nn::hac::nca::kPartitionNum];
+		//fnd::LayeredIntegrityMetadata layered_intergrity_metadata;
+		nn::hac::detail::aes_iv_t aes_ctr;
+	} 
+	
+	std::array<sPartitionInfo, nn::hac::nca::kPartitionNum> mPartitions;
 
 	void importHeader();
 	void generateNcaBodyEncryptionKeys();

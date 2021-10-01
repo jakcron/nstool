@@ -45,8 +45,8 @@ public:
 	struct sFile
 	{
 		std::string name;
-		uint64_t offset;
-		uint64_t size;
+		int64_t offset;
+		int64_t size;
 
 		void operator=(const sFile& other)
 		{
@@ -84,7 +84,7 @@ public:
 
 	// romfs specific
 	void setMountPointName(const std::string& mount_name);
-	void setExtractPath(const std::string& path);
+	void setExtractPath(const tc::io::Path& path);
 	void setListFs(bool list_fs);
 
 	const sDirectory& getRootDir() const;
@@ -101,8 +101,7 @@ private:
 	bool mVerbose;
 	bool mVerify;
 
-	std::string mExtractPath;
-	bool mExtract;
+	tc::Optional<tc::io::Path> mExtractPath;
 	std::string mMountName;
 	bool mListFs;
 

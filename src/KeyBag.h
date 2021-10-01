@@ -5,6 +5,7 @@
 #include <map>
 #include <tc/Optional.h>
 #include <tc/io.h>
+#include <nn/pki/SignUtils.h>
 #include <nn/hac/define/types.h>
 #include <nn/hac/define/nca.h>
 

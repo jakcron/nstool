@@ -25,9 +25,9 @@ public:
 
 	// for homebrew NROs with Asset blobs appended
 	void setAssetListFs(bool list);
-	void setAssetIconExtractPath(const std::string& path);
-	void setAssetNacpExtractPath(const std::string& path);
-	void setAssetRomfsExtractPath(const std::string& path);
+	void setAssetIconExtractPath(const tc::io::Path& path);
+	void setAssetNacpExtractPath(const tc::io::Path& path);
+	void setAssetRomfsExtractPath(const tc::io::Path& path);
 
 	const RoMetadataProcess& getRoMetadataProcess() const;
 private:

@@ -19,7 +19,7 @@ public:
 
 	// pfs specific
 	void setMountPointName(const std::string& mount_name);
-	void setExtractPath(const std::string& path);
+	void setExtractPath(const tc::io::Path& path);
 	void setListFs(bool list_fs);
 
 	const nn::hac::PartitionFsHeader& getPfsHeader() const;
@@ -32,8 +32,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	std::string mExtractPath;
-	bool mExtract;
+	tc::Optional<tc::io::Path> mExtractPath;
 	std::string mMountName;
 	bool mListFs;
 

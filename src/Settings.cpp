@@ -349,6 +349,9 @@ private:
 nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>& args) :
 	Settings(),
 	mModuleLabel("nstool::SettingsInitializer"),
+	mShowLayout(false),
+	mShowKeydata(false),
+	mVerbose(false),
 	mTitleKey(),
 	mBodyKey(),
 	mTikPath(),
@@ -358,6 +361,23 @@ nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>&
 	parse_args(args);
 	if (infile.path.isNull())
 		throw tc::ArgumentException(mModuleLabel, "No input file was specified.");
+
+	// determine CLI output mode
+	opt.cli_output_mode.show_basic_info = true;
+	if (mVerbose)
+	{
+		opt.cli_output_mode.show_extended_info = true;
+		opt.cli_output_mode.show_layout = true;
+		opt.cli_output_mode.show_keydata = true;
+	}
+	if (mShowKeydata)
+	{
+		opt.cli_output_mode.show_keydata = true;
+	}
+	if (mShowLayout)
+	{
+		opt.cli_output_mode.show_layout = true;
+	}
 
 	// locate key file, if not specfied
 	if (mKeysetPath.isNull())
@@ -431,9 +451,9 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 	// none just yet
 
 	// get option flags
-	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(opt.show_layout, {"--showlayout"})));
-	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(opt.show_keydata, { "--showkeys" })));
-	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(opt.verbose, {"-v", "--verbose"})));
+	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(mShowLayout, {"--showlayout"})));
+	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(mShowKeydata, { "--showkeys" })));
+	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(mVerbose, {"-v", "--verbose"})));
 	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(opt.verify, {"-y", "--verify"})));
 	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(opt.is_dev, {"-d", "--dev"})));
 

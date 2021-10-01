@@ -22,7 +22,7 @@ public:
 	void setVerifyMode(bool verify);
 
 private:
-	const std::string kModuleName = "EsTikProcess";
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	KeyBag mKeyCfg;
@@ -36,10 +36,11 @@ private:
 	void importTicket();
 	void verifyTicket();
 	void displayTicket();
-	const char* getSignTypeStr(uint32_t type) const;
-	const char* getTitleKeyPersonalisationStr(byte_t flag) const;
-	const char* getLicenseTypeStr(byte_t flag) const;
-	const char* getPropertyFlagStr(byte_t flag) const;
+	std::string getSignTypeStr(uint32_t type) const;
+	std::string getTitleKeyPersonalisationStr(byte_t flag) const;
+	std::string getLicenseTypeStr(byte_t flag) const;
+	std::string getPropertyFlagStr(byte_t flag) const;
+	std::string getTitleVersionStr(uint16_t version) const;
 };
 
 }

@@ -1,14 +1,10 @@
-#include <iostream>
-#include <iomanip>
-#include <fnd/SimpleTextOutput.h>
-#include <fnd/OffsetAdjustedIFile.h>
-#include <nn/pki/SignUtils.h>
 #include "EsTikProcess.h"
 #include "PkiValidator.h"
 
-
+#include <nn/pki/SignUtils.h>
 
 nstool::EsTikProcess::EsTikProcess() :
+	mModuleName("nstool::EsTikProcess"),
 	mFile(),
 	mCliOutputMode(true, false, false, false),
 	mVerify(false)
@@ -53,16 +49,23 @@ void nstool::EsTikProcess::setVerifyMode(bool verify)
 
 void nstool::EsTikProcess::importTicket()
 {
-	tc::ByteData scratch;
-
-
-	if (*mFile == nullptr)
+	if (mFile == nullptr)
 	{
-		throw tc::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(mModuleName, "No file reader set.");
 	}
 
-	scratch.alloc((*mFile)->size());
-	(*mFile)->read(scratch.data(), 0, scratch.size());
+	// check if file_size is greater than 20MB, don't import.
+	size_t file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());
+	if (file_size > (0x100000 * 20))
+	{
+		throw tc::Exception(mModuleName, "File too large.");
+	}
+
+	// read cnmt
+	tc::ByteData scratch = tc::ByteData(file_size);
+	mFile->seek(0, tc::io::SeekOrigin::Begin);
+	mFile->read(scratch.data(), scratch.size());
+
 	mTik.fromBytes(scratch.data(), scratch.size());
 }
 
@@ -74,12 +77,12 @@ void nstool::EsTikProcess::verifyTicket()
 	switch (nn::pki::sign::getHashAlgo(mTik.getSignature().getSignType()))
 	{
 	case (nn::pki::sign::HASH_ALGO_SHA1):
-		tik_hash.alloc(fnd::sha::kSha1HashLen);
-		fnd::sha::Sha1(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
+		tik_hash = tc::ByteData(tc::crypto::Sha1Generator::kHashSize);
+		tc::crypto::GenerateSha1Hash(tik_hash.data(), mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size());
 		break;
 	case (nn::pki::sign::HASH_ALGO_SHA256):
-		tik_hash.alloc(fnd::sha::kSha256HashLen);
-		fnd::sha::Sha256(mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size(), tik_hash.data());
+		tik_hash = tc::ByteData(tc::crypto::Sha256Generator::kHashSize);
+		tc::crypto::GenerateSha256Hash(tik_hash.data(), mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size());
 		break;
 	}
 
@@ -91,85 +94,73 @@ void nstool::EsTikProcess::verifyTicket()
 	}
 	catch (const tc::Exception& e)
 	{
-		std::cout << "[WARNING] Ticket signature could not be validated (" << e.error() << ")" << std::endl;
+		fmt::print("[WARNING] Ticket signature could not be validated ({:s})\n", e.error());
 	}
 }
 
 void nstool::EsTikProcess::displayTicket()
 {
-#define _SPLIT_VER(ver) (uint32_t)((ver>>10) & 0x3f) << "." << (uint32_t)((ver>>4) & 0x3f) << "." << (uint32_t)((ver>>0) & 0xf)
-
 	const nn::es::TicketBody_V2& body = mTik.getBody();	
 
-	std::cout << "[ES Ticket]" << std::endl;
-
-	std::cout << "  SignType:         " << getSignTypeStr(mTik.getSignature().getSignType());
+	fmt::print("[ES Ticket]\n");
+	fmt::print("  SignType:         {:s}", getSignTypeStr(mTik.getSignature().getSignType()));
 	if (mCliOutputMode.show_extended_info)
-		std::cout << " (0x" << std::hex << mTik.getSignature().getSignType() << ")";
-	std::cout << std::endl;
+		fmt::print(" (0x{:x})", mTik.getSignature().getSignType());
+	fmt::print("\n");
 
-	std::cout << "  Issuer:           " << body.getIssuer() << std::endl;
-	std::cout << "  Title Key:" << std::endl;
-	std::cout << "    EncMode:        " << getTitleKeyPersonalisationStr(body.getTitleKeyEncType()) << std::endl;
-	std::cout << "    KeyGeneration:  " << std::dec << (uint32_t)body.getCommonKeyId() << std::endl;
+	fmt::print("  Issuer:           {:s}\n", body.getIssuer());
+	fmt::print("  Title Key:\n");
+	fmt::print("    EncMode:        {:s}\n", getTitleKeyPersonalisationStr(body.getTitleKeyEncType()));
+	fmt::print("    KeyGeneration:  {:d}\n", (uint32_t)body.getCommonKeyId());
 	if (body.getTitleKeyEncType() == nn::es::ticket::RSA2048)
 	{
-		std::cout << "    Data:" << std::endl;
-		for (size_t i = 0; i < 0x10; i++)
-			std::cout << "      " << fnd::SimpleTextOutput::arrayToString(body.getEncTitleKey() + 0x10*i, 0x10, true, ":") << std::endl;
+		fmt::print("    Data:\n");
+		fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(body.getEncTitleKey(), 0x100, true, ":", 0x10, 6, false));
 	}
 	else if (body.getTitleKeyEncType() == nn::es::ticket::AES128_CBC)
 	{
-		std::cout << "    Data:" << std::endl;
-		std::cout << "      " << fnd::SimpleTextOutput::arrayToString(body.getEncTitleKey(), 0x10, true, ":") << std::endl;
+		fmt::print("    Data:\n");
+		fmt::print("      {:s}\n", tc::cli::FormatUtil::formatBytesAsString(body.getEncTitleKey(), 0x10, true, ":"));
 	}
 	else
 	{
-		std::cout << "    Data:           <cannot display>" << std::endl;
+		fmt::print("    Data:           <cannot display>\n");
 	}
-
-	std::cout << "  Version:          v" << _SPLIT_VER(body.getTicketVersion());
-	if (mCliOutputMode.show_extended_info)
-		std::cout << " (" << (uint32_t)body.getTicketVersion() << ")";
-	std::cout << std::endl;
-	
-	std::cout << "  License Type:     " << getLicenseTypeStr(body.getLicenseType()) << std::endl; 
-	
+	fmt::print("  Version:          {:s} (v{:d})\n", getTitleVersionStr(body.getTicketVersion()), body.getTicketVersion());
+	fmt::print("  License Type:     {:s}\n", getLicenseTypeStr(body.getLicenseType())); 
 	if (body.getPropertyFlags().size() > 0)
 	{
-		std::cout << "  Flags:" << std::endl;
+		nn::es::sTicketBody_v2* raw_body = (nn::es::sTicketBody_v2*)body.getBytes().data();
+		fmt::print("  PropertyMask:     0x{:04x}\n", ((tc::bn::le16<uint16_t>*)&raw_body->property_mask)->unwrap());
 		for (size_t i = 0; i < body.getPropertyFlags().size(); i++)
 		{
-			std::cout << "    " << getPropertyFlagStr(body.getPropertyFlags()[i]) << std::endl;
+			fmt::print("    {:s}\n", getPropertyFlagStr(body.getPropertyFlags()[i]));
 		}
 	}
-	
 	if (mCliOutputMode.show_extended_info)
 	{
-		std::cout << "  Reserved Region:" << std::endl;
-		fnd::SimpleTextOutput::hexDump(body.getReservedRegion(), 8, 0x10, 4);
+		fmt::print("  Reserved Region:\n");
+		fmt::print("    {:s}\n", tc::cli::FormatUtil::formatBytesAsString(body.getReservedRegion(), 8, true, ""));
 	}
 	
 	if (body.getTicketId() != 0 || mCliOutputMode.show_extended_info)
-		std::cout << "  TicketId:         0x" << std::hex << std::setw(16) << std::setfill('0') << body.getTicketId() << std::endl;
+		fmt::print("  TicketId:         0x{:016x}\n", body.getTicketId());
 	
 	if (body.getDeviceId() != 0 || mCliOutputMode.show_extended_info)
-		std::cout << "  DeviceId:         0x" << std::hex << std::setw(16) << std::setfill('0') << body.getDeviceId() << std::endl;
+		fmt::print("  DeviceId:         0x{:016x}\n", body.getDeviceId());
 	
-	std::cout << "  RightsId:         " <<  std::endl << "    ";
-	fnd::SimpleTextOutput::hexDump(body.getRightsId(), 16);
+	fmt::print("  RightsId:         \n");
+	fmt::print("    {:s}\n", tc::cli::FormatUtil::formatBytesAsString(body.getRightsId(), 16, true, ""));
 
-	std::cout << "  SectionTotalSize:       0x" << std::hex << body.getSectionTotalSize() << std::endl;
-	std::cout << "  SectionHeaderOffset:    0x" << std::hex << body.getSectionHeaderOffset() << std::endl;
-	std::cout << "  SectionNum:             0x" << std::hex << body.getSectionNum() << std::endl;
-	std::cout << "  SectionEntrySize:       0x" << std::hex << body.getSectionEntrySize() << std::endl;
-
-#undef _SPLIT_VER
+	fmt::print("  SectionTotalSize:       0x{:x}\n", body.getSectionTotalSize());
+	fmt::print("  SectionHeaderOffset:    0x{:x}\n", body.getSectionHeaderOffset());
+	fmt::print("  SectionNum:             0x{:x}\n", body.getSectionNum());
+	fmt::print("  SectionEntrySize:       0x{:x}\n", body.getSectionEntrySize());
 }
 
-const char* nstool::EsTikProcess::getSignTypeStr(uint32_t type) const
+std::string nstool::EsTikProcess::getSignTypeStr(uint32_t type) const
 {
-	const char* str = nullptr;
+	std::string str;
 	switch(type)
 	{
 	case (nn::pki::sign::SIGN_ID_RSA4096_SHA1):
@@ -197,9 +188,9 @@ const char* nstool::EsTikProcess::getSignTypeStr(uint32_t type) const
 	return str;
 }
 
-const char* nstool::EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) const
+std::string nstool::EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) const
 {
-	const char* str = nullptr;
+	std::string str;
 	switch(flag)
 	{
 	case (nn::es::ticket::AES128_CBC):
@@ -209,15 +200,15 @@ const char* nstool::EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) con
 		str = "Personalised (RSA2048)";
 		break;
 	default:
-		str = "Unknown";
+		str = fmt::format("Unknown ({:d})", flag);
 		break;
 	}
 	return str;
 }
 
-const char* nstool::EsTikProcess::getLicenseTypeStr(byte_t flag) const
+std::string nstool::EsTikProcess::getLicenseTypeStr(byte_t flag) const
 {
-	const char* str = nullptr;
+	std::string str;
 	switch(flag)
 	{
 	case (nn::es::ticket::LICENSE_PERMANENT):
@@ -239,15 +230,15 @@ const char* nstool::EsTikProcess::getLicenseTypeStr(byte_t flag) const
 		str = "Service";
 		break;
 	default:
-		str = "Unknown";
+		str = fmt::format("Unknown ({:d})", flag);
 		break;
 	}
 	return str;
 }
 
-const char* nstool::EsTikProcess::getPropertyFlagStr(byte_t flag) const
+std::string nstool::EsTikProcess::getPropertyFlagStr(byte_t flag) const
 {
-	const char* str = nullptr;
+	std::string str;
 	switch(flag)
 	{
 	case (nn::es::ticket::FLAG_PRE_INSTALL):
@@ -259,9 +250,23 @@ const char* nstool::EsTikProcess::getPropertyFlagStr(byte_t flag) const
 	case (nn::es::ticket::FLAG_ALLOW_ALL_CONTENT):
 		str = "AllContent";
 		break;
+	case (nn::es::ticket::FLAG_DEVICE_LINK_INDEPENDENT):
+		str = "DeviceLinkIndependent";
+		break;
+	case (nn::es::ticket::FLAG_VOLATILE):
+		str = "Volatile";
+		break;
+	case (nn::es::ticket::FLAG_ELICENSE_REQUIRED):
+		str = "ELicenseRequired";
+		break;
 	default:
-		str = "Unknown";
+		str = fmt::format("Unknown ({:d})", flag);
 		break;
 	}
 	return str;
+}
+
+std::string nstool::EsTikProcess::getTitleVersionStr(uint16_t version) const
+{
+	return fmt::format("{:d}.{:d}.{:d}", ((version>>10) & 0x3f), ((version>>4) & 0x3f), ((version>>0) & 0xf));
 }

@@ -35,7 +35,7 @@ void nstool::AssetProcess::setVerifyMode(bool verify)
 
 void nstool::AssetProcess::setListFs(bool list)
 {
-	mRomfs.setListFs(list);
+	//mRomfs.setListFs(list);
 }
 
 void nstool::AssetProcess::setIconExtractPath(const tc::io::Path& path)
@@ -50,7 +50,7 @@ void nstool::AssetProcess::setNacpExtractPath(const tc::io::Path& path)
 
 void nstool::AssetProcess::setRomfsExtractPath(const tc::io::Path& path)
 {
-	mRomfs.setExtractPath(path);
+	//mRomfs.setExtractPath(path);
 }
 
 
@@ -95,11 +95,11 @@ void nstool::AssetProcess::processSections()
 			writeSubStreamToFile(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size, mNacpExtractPath.get());
 		}
 		
-		mNacp.setInputFile(std::make_shared<tc::io::SubStream>(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size));
-		mNacp.setCliOutputMode(mCliOutputMode);
-		mNacp.setVerifyMode(mVerify);
+		//mNacp.setInputFile(std::make_shared<tc::io::SubStream>(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size));
+		//mNacp.setCliOutputMode(mCliOutputMode);
+		//mNacp.setVerifyMode(mVerify);
 
-		mNacp.process();
+		//mNacp.process();
 	}
 
 	if (mHdr.getRomfsInfo().size > 0)
@@ -107,11 +107,11 @@ void nstool::AssetProcess::processSections()
 		if ((mHdr.getRomfsInfo().size + mHdr.getRomfsInfo().offset) > file_size) 
 			throw tc::Exception(mModuleName, "ASET geometry for romfs beyond file size");
 
-		mRomfs.setInputFile(std::make_shared<tc::io::SubStream>(mFile, mHdr.getRomfsInfo().offset, mHdr.getRomfsInfo().size));
-		mRomfs.setCliOutputMode(mCliOutputMode);
-		mRomfs.setVerifyMode(mVerify);
+		//mRomfs.setInputFile(std::make_shared<tc::io::SubStream>(mFile, mHdr.getRomfsInfo().offset, mHdr.getRomfsInfo().size));
+		//mRomfs.setCliOutputMode(mCliOutputMode);
+		//mRomfs.setVerifyMode(mVerify);
 
-		mRomfs.process();
+		//mRomfs.process();
 	}
 }
 

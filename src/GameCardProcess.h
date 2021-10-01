@@ -21,7 +21,7 @@ public:
 	void setVerifyMode(bool verify);
 
 	// xci specific
-	void setPartitionForExtract(const std::string& partition_name, const std::string& extract_path);
+	void setPartitionForExtract(const std::string& partition_name, const tc::io::Path& extract_path);
 	void setListFs(bool list_fs);
 
 private:
@@ -37,7 +37,7 @@ private:
 	struct sExtractInfo
 	{
 		std::string partition_name;
-		std::string extract_path;
+		tc::io::Path extract_path;
 
 		void operator=(const sExtractInfo& other)
 		{
@@ -45,7 +45,7 @@ private:
 			extract_path = other.extract_path;
 		}
 
-		bool operator==(const std::string& name) const
+		bool operator==(const tc::io::Path& name) const
 		{
 			return name == partition_name;
 		}
@@ -57,7 +57,7 @@ private:
 	bool mIsSdkXciEncrypted;
 	size_t mGcHeaderOffset;
 	bool mProccessExtendedHeader;
-	byte_t mHdrSignature[fnd::rsa::kRsa2048Size];
+	nn::hac::detail::rsa2048_signature_t mHdrSignature;
 	fnd::sha::sSha256Hash mHdrHash;
 	nn::hac::GameCardHeader mHdr;
 	

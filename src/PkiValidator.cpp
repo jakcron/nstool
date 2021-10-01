@@ -77,7 +77,7 @@ void nstool::PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::Cer
 	}
 	catch (const tc::Exception& e) 
 	{
-		throw tc::Exception(mModuleName, fmt::format("Failed to add certificate {:s} ({:s})", cert_ident, e.error());
+		throw tc::Exception(mModuleName, fmt::format("Failed to add certificate {:s} ({:s})", cert_ident, e.error()));
 	}
 }
 
@@ -88,9 +88,7 @@ void nstool::PkiValidator::clearCertificates()
 
 void nstool::PkiValidator::validateSignature(const std::string& issuer, nn::pki::sign::SignatureId signature_id, const tc::ByteData& signature, const tc::ByteData& hash) const
 {	
-	nn::pki::sign::SignatureAlgo sign_algo = nn::pki::sign::getSignatureAlgo(signature_id);
-	nn::pki::sign::HashAlgo hash_algo = nn::pki::sign::getHashAlgo(signature_id);
-	
+	nn::pki::sign::SignatureAlgo sign_algo = nn::pki::sign::getSignatureAlgo(signature_id);	
 
 	// validate signature
 	bool sig_valid = false;
@@ -106,12 +104,12 @@ void nstool::PkiValidator::validateSignature(const std::string& issuer, nn::pki:
 
 		if (itr == mKeyCfg.broadon_signer.end())
 		{
-			throw tc::Exception(mModuleName, fmt::print("Public key for issuer \"{:s}\" does not exist.", issuer);
+			throw tc::Exception(mModuleName, fmt::format("Public key for issuer \"{:s}\" does not exist.", issuer));
 		}
 
 		if (sign_algo != itr->second.key_type)
 		{
-			throw tc::Exception(mModuleName, fmt::print("Public key for issuer \"{:s}\" cannot verify this signature.", issuer);
+			throw tc::Exception(mModuleName, fmt::format("Public key for issuer \"{:s}\" cannot verify this signature.", issuer));
 		}
 
 		if (sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
@@ -129,7 +127,7 @@ void nstool::PkiValidator::validateSignature(const std::string& issuer, nn::pki:
 
 		if (issuer_pubk_type == nn::pki::cert::RSA4096 && sign_algo == nn::pki::sign::SIGN_ALGO_RSA4096)
 		{
-			rsa_key = issuer_cert.getRsa4098PublicKey();
+			rsa_key = issuer_cert.getRsa4096PublicKey();
 		}
 		else if (issuer_pubk_type == nn::pki::cert::RSA2048 && sign_algo == nn::pki::sign::SIGN_ALGO_RSA2048)
 		{
@@ -148,42 +146,25 @@ void nstool::PkiValidator::validateSignature(const std::string& issuer, nn::pki:
 
 	// verify signature
 	switch (signature_id) {
-		case (SIGN_ID_RSA4096_SHA1):
-			sig_validate_res = tc::crypto::VerifyRsa4096Pkcs1Sha1(signature.data(), hash.data(), rsa_key);
+		case (nn::pki::sign::SIGN_ID_RSA4096_SHA1):
+			sig_valid = tc::crypto::VerifyRsa4096Pkcs1Sha1(signature.data(), hash.data(), rsa_key);
 			break;
-		case (SIGN_ID_RSA2048_SHA1):
-			sig_validate_res = tc::crypto::VerifyRsa2048Pkcs1Sha1(signature.data(), hash.data(), rsa_key);
+		case (nn::pki::sign::SIGN_ID_RSA2048_SHA1):
+			sig_valid = tc::crypto::VerifyRsa2048Pkcs1Sha1(signature.data(), hash.data(), rsa_key);
 			break;
-		case (SIGN_ID_ECDSA240_SHA1):
-			sig_validate_res = false;
+		case (nn::pki::sign::SIGN_ID_ECDSA240_SHA1):
+			sig_valid = false;
 			break;
-		case (SIGN_ID_RSA4096_SHA256):
-			sig_validate_res = tc::crypto::VerifyRsa4096Pkcs1Sha256(signature.data(), hash.data(), rsa_key);
+		case (nn::pki::sign::SIGN_ID_RSA4096_SHA256):
+			sig_valid = tc::crypto::VerifyRsa4096Pkcs1Sha256(signature.data(), hash.data(), rsa_key);
 			break;
-		case (SIGN_ID_RSA2048_SHA256):
-			sig_validate_res = tc::crypto::VerifyRsa2048Pkcs1Sha256(signature.data(), hash.data(), rsa_key);
+		case (nn::pki::sign::SIGN_ID_RSA2048_SHA256):
+			sig_valid = tc::crypto::VerifyRsa2048Pkcs1Sha256(signature.data(), hash.data(), rsa_key);
 			break;
-		case (SIGN_ID_ECDSA240_SHA256):
-			sig_validate_res = false;
+		case (nn::pki::sign::SIGN_ID_ECDSA240_SHA256):
+			sig_valid = false;
 			break;
 	}
-	if (sign_algo == nn::pki::sign::SIGN_ALGO_RSA4096)
-	{
-		sig_validate_res = fnd::rsa::pkcs::rsaVerify(issuer_cert.getRsa4098PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
-	}
-	else if (sign_algo == nn::pki::sign::SIGN_ALGO_RSA2048)
-	{
-		sig_validate_res = fnd::rsa::pkcs::rsaVerify(issuer_cert.getRsa2048PublicKey(), getCryptoHashAlgoFromEsSignHashAlgo(hash_algo), hash.data(), signature.data()); 
-	}
-	else if (sign_algo == nn::pki::sign::SIGN_ALGO_ECDSA240)
-	{
-		throw tc::Exception(mModuleName, "ECDSA signatures are not supported");
-	}
-	else
-	{
-		throw tc::Exception(mModuleName, "Mismatch between issuer public key and signature type");
-	}
-
 
 	if (sig_valid == false)
 	{
