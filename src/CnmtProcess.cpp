@@ -171,9 +171,7 @@ void nstool::CnmtProcess::displayCnmt()
 				}
 			}
 		}
-	} 
-
-	
+	}
 
 	fmt::print("  Digest:   {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mCnmt.getDigest().data(), mCnmt.getDigest().size(), false, ""));
 }
