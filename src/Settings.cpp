@@ -723,6 +723,10 @@ void nstool::SettingsInitializer::dump_keys() const
 	{
 		fmt::print("    ExtendedHeader-EncryptionKey-{:02x}:\n      {:s}\n", itr->first, tc::cli::FormatUtil::formatBytesAsString(itr->second.data(), itr->second.size(), true, ":"));
 	}
+	if (opt.keybag.xci_cert_sign_key.isSet())
+	{
+		dump_rsa_key(opt.keybag.xci_cert_sign_key.get(), fmt::format("CERT-SignatureKey"), 4, opt.cli_output_mode.show_extended_info);
+	}
 
 	fmt::print("  Package1 Keys:\n");
 	for (auto itr = opt.keybag.pkg1_key.begin(); itr != opt.keybag.pkg1_key.end(); itr++)
@@ -774,84 +778,6 @@ void nstool::SettingsInitializer::dump_keys() const
 				break;
 		}
 	}
-	
-	/*
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key, byte_t(i)) == true)
-			dumpRsa2048Key(rsa2048_key, "Header0-SignatureKey-" + kKeyIndex[i], 2);
-	}
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (mKeyCfg.getAcidSignKey(rsa2048_key, byte_t(i)) == true)
-			dumpRsa2048Key(rsa2048_key, "Acid-SignatureKey-" + kKeyIndex[i], 2);
-	}
-	
-	if (mKeyCfg.getContentArchiveHeaderKey(aesxts_key) == true)
-		dumpAesXtsKey(aesxts_key, "Header-EncryptionKey", 2);
-	
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 0, aes_key) == true)
-			dumpAesKey(aes_key, "KeyAreaEncryptionKey-Application-" + kKeyIndex[i], 2);
-		if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 1, aes_key) == true)
-			dumpAesKey(aes_key, "KeyAreaEncryptionKey-Ocean-" + kKeyIndex[i], 2);
-		if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 2, aes_key) == true)
-			dumpAesKey(aes_key, "KeyAreaEncryptionKey-System-" + kKeyIndex[i], 2);
-	}
-
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 0, aes_key) == true)
-			dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Application-" + kKeyIndex[i], 2);
-		if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 1, aes_key) == true)
-			dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Ocean-" + kKeyIndex[i], 2);
-		if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 2, aes_key) == true)
-			dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-System-" + kKeyIndex[i], 2);
-	}
-	
-	std::cout << "  NRR Keys:" << std::endl;
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (mKeyCfg.getNrrCertificateSignKey(rsa2048_key, byte_t(i)) == true)
-			dumpRsa2048Key(rsa2048_key, "Certificate-SignatureKey-" + kKeyIndex[i], 2);
-	}
-
-	std::cout << "  XCI Keys:" << std::endl;
-	if (mKeyCfg.getXciHeaderSignKey(rsa2048_key) == true)
-		dumpRsa2048Key(rsa2048_key, "Header-SignatureKey", 2);
-	if (mKeyCfg.getXciHeaderKey(aes_key) == true)
-		dumpAesKey(aes_key, "ExtendedHeader-EncryptionKey", 2);
-	
-
-	
-	
-	std::cout << "  Package1 Keys:" << std::endl;
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (mKeyCfg.getPkg1Key(byte_t(i), aes_key) == true)
-			dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
-	}
-
-	std::cout << "  Package2 Keys:" << std::endl;
-	if (mKeyCfg.getPkg2SignKey(rsa2048_key) == true)
-		dumpRsa2048Key(rsa2048_key, "Signature Key", 2);
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (mKeyCfg.getPkg2Key(byte_t(i), aes_key) == true)
-			dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
-	}
-
-	std::cout << "  ETicket Keys:" << std::endl;
-	for (size_t i = 0; i < kMasterKeyNum; i++)
-	{
-		if (mKeyCfg.getETicketCommonKey(byte_t(i), aes_key) == true)
-			dumpAesKey(aes_key, "CommonKey-" + kKeyIndex[i], 2);
-	}
-	
-	if (mKeyCfg.getPkiRootSignKey("Root", rsa4096_key) == true)
-		dumpRsa4096Key(rsa4096_key, "NNPKI Root Key", 1);
-	*/
 }
 
 void nstool::SettingsInitializer::dump_rsa_key(const KeyBag::rsa_key_t& key, const std::string& label, size_t indent, bool expanded_key_data) const
