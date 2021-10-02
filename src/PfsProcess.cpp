@@ -4,17 +4,21 @@
 #include <nn/hac/PartitionFsUtil.h>
 #include <tc/io/LocalStorage.h>
 
+#include "FsProcess.h"
+#include <tc/io/VirtualFileSystem.h>
+#include <nn/hac/PartitionFsMetaGenerator.h>
+
 
 nstool::PfsProcess::PfsProcess() :
 	mModuleName("nstool::PfsProcess"),
 	mFile(),
 	mCliOutputMode(true, false, false, false),
 	mVerify(false),
-	mExtractPath(),
-	mMountName(),
-	mListFs(false),
-	mPfs()
+	mPfs(),
+	mFileSystem(),
+	mFsProcess()
 {
+	mFsProcess.setFsLabel("PartitionFS");
 }
 
 void nstool::PfsProcess::process()
@@ -24,13 +28,9 @@ void nstool::PfsProcess::process()
 	if (mCliOutputMode.show_basic_info)
 	{
 		displayHeader();
-		if (mListFs || mCliOutputMode.show_extended_info)
-			displayFs();
 	}
-	if (mPfs.getFsType() == mPfs.TYPE_HFS0 && mVerify)
-		validateHfs();
-	if (mExtractPath.isSet())
-		extractFs();
+
+	mFsProcess.process();
 }
 
 void nstool::PfsProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
@@ -50,22 +50,27 @@ void nstool::PfsProcess::setVerifyMode(bool verify)
 
 void nstool::PfsProcess::setMountPointName(const std::string& mount_name)
 {
-	mMountName = mount_name;
+	mFsProcess.setFsLabel(mount_name);
 }
 
 void nstool::PfsProcess::setExtractPath(const tc::io::Path& path)
 {
-	mExtractPath = path;
+	mFsProcess.setExtractPath(path);
 }
 
 void nstool::PfsProcess::setListFs(bool list_fs)
 {
-	mListFs = list_fs;
+	mFsProcess.setCliOutputMode(list_fs);
 }
 
 const nn::hac::PartitionFsHeader& nstool::PfsProcess::getPfsHeader() const
 {
 	return mPfs;
+}
+
+const std::shared_ptr<tc::io::IStorage>& nstool::PfsProcess::getFileSystem() const
+{
+	return mFileSystem;
 }
 
 void nstool::PfsProcess::importHeader()
@@ -104,6 +109,10 @@ void nstool::PfsProcess::importHeader()
 
 	// process PFS
 	mPfs.fromBytes(scratch.data(), scratch.size());
+
+	// create virtual filesystem
+	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::PartitionFsMetaGenerator(mFile, mVerify ? nn::hac::PartitionFsMetaGenerator::ValidationMode_Warn : nn::hac::PartitionFsMetaGenerator::ValidationMode_None)));
+	mFsProcess.setInputFileSystem(mFileSystem);
 }
 
 void nstool::PfsProcess::displayHeader()
@@ -111,36 +120,6 @@ void nstool::PfsProcess::displayHeader()
 	fmt::print("[PartitionFS]\n");
 	fmt::print("  Type:        {:s}\n", nn::hac::PartitionFsUtil::getFsTypeAsString(mPfs.getFsType()));
 	fmt::print("  FileNum:     {:d}\n", mPfs.getFileList().size());
-	if (mMountName.empty() == false)
-	{
-		fmt::print("  MountPoint:  {:s}");
-		if (mMountName.at(mMountName.length()-1) != '/')
-			fmt::print("/");
-		fmt::print("\n");
-	}
-}
-
-void nstool::PfsProcess::displayFs()
-{	
-	auto file_list = mPfs.getFileList();
-	for (auto itr = file_list.begin(); itr != file_list.end(); itr++)
-	{
-		fmt::print("    {:s}", itr->name);
-		if (mCliOutputMode.show_layout)
-		{
-			switch (mPfs.getFsType())
-			{
-			case (nn::hac::PartitionFsHeader::TYPE_PFS0):
-				fmt::print(" (offset=0x{:x}, size=0x{:x})", itr->offset, itr->size);
-				break;
-			case (nn::hac::PartitionFsHeader::TYPE_HFS0):
-				fmt::print(" (offset=0x{:x}, size=0x{:x}, hash_protected_size=0x{:x})", itr->offset, itr->size, itr->hash_protected_size);
-				break;
-			}
-			
-		}
-		fmt::print("\n");
-	}
 }
 
 size_t nstool::PfsProcess::determineHeaderSize(const nn::hac::sPfsHeader* hdr)
@@ -157,39 +136,4 @@ size_t nstool::PfsProcess::determineHeaderSize(const nn::hac::sPfsHeader* hdr)
 bool nstool::PfsProcess::validateHeaderMagic(const nn::hac::sPfsHeader* hdr)
 {
 	return hdr->st_magic.unwrap() == nn::hac::pfs::kPfsStructMagic || hdr->st_magic.unwrap() == nn::hac::pfs::kHashedPfsStructMagic;
-}
-
-void nstool::PfsProcess::validateHfs()
-{
-	nn::hac::detail::sha256_hash_t hash;
-	auto file_list = mPfs.getFileList();
-	for (auto itr = file_list.begin(); itr != file_list.end(); itr++)
-	{
-		tc::ByteData cache = tc::ByteData(tc::io::IOUtil::castInt64ToSize(itr->hash_protected_size));
-		mFile->seek(itr->offset, tc::io::SeekOrigin::Begin);
-		mFile->read(cache.data(), cache.size());
-		tc::crypto::GenerateSha256Hash(hash.data(), cache.data(), cache.size());
-		if (hash != itr->hash)
-		{
-			fmt::print("[WARNING] HFS0 {:s}{:s}{:s}: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", itr->name);
-		}
-	}
-}
-
-void nstool::PfsProcess::extractFs()
-{
-	// create extract directory
-	tc::io::LocalStorage fs;
-	fs.createDirectory(mExtractPath.get());
-
-	// extract files
-	tc::ByteData cache_for_extract = tc::ByteData(kCacheSize);
-
-	auto file_list = mPfs.getFileList();
-	for (auto itr = file_list.begin(); itr != file_list.end(); itr++)
-	{
-		tc::io::Path extract_path = mExtractPath.get() + itr->name;
-
-		writeSubStreamToFile(mFile, itr->offset, itr->size, extract_path, cache_for_extract);
-	}
 }
