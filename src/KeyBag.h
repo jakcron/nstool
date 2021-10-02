@@ -48,6 +48,7 @@ struct KeyBag
 	// xci
 	tc::Optional<rsa_key_t> xci_header_sign_key;
 	std::map<byte_t, aes128_key_t> xci_header_key;
+	tc::Optional<rsa_key_t> xci_cert_sign_key;
 
 	// ticket
 	std::map<key_generation_t, aes128_key_t> etik_common_key;
@@ -76,6 +77,8 @@ private:
 	void importTitleKeyFile(const tc::io::Path& keyfile_path);
 	void importCertificateChain(const tc::io::Path& cert_path);
 	void importTicket(const tc::io::Path& tik_path);
+
+	void importKnownKeys(bool isDev);
 };
 
 }
