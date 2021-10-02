@@ -413,7 +413,7 @@ nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>&
 	opt.keybag.fallback_content_key = mBodyKey;
 
 	// dump keys if requires
-	if (opt.cli_output_mode.show_keydata)
+	if (mShowKeydata) // but not opt.cli_output_mode.show_keydata, since this that enabled by toggling -v,--verbose, personally I don't think a summary of imported keydata should be included in verbose output.
 	{
 		dump_keys();
 	}
