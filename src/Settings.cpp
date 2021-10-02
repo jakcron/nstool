@@ -1,11 +1,15 @@
+#include "Settings.h"
+#include "types.h"
+#include "version.h"
+#include "util.h"
+
 #include <tc/cli.h>
 #include <tc/os/Environment.h>
 #include <tc/ArgumentException.h>
 #include <tc/io/FileStream.h>
 #include <tc/io/StreamSource.h>
-#include "types.h"
-#include "version.h"
-#include "Settings.h"
+
+
 
 #include <nn/hac/ContentArchiveUtil.h>
 #include <nn/hac/AesKeygen.h>
@@ -408,6 +412,12 @@ nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>&
 	opt.keybag.fallback_enc_content_key = mTitleKey;
 	opt.keybag.fallback_content_key = mBodyKey;
 
+	// dump keys if requires
+	if (opt.cli_output_mode.show_keydata)
+	{
+		dump_keys();
+	}
+
 	// determine filetype if not manually specified
 	if (infile.filetype == FILE_TYPE_ERROR)
 	{
@@ -614,7 +624,7 @@ void nstool::SettingsInitializer::determine_filetype()
 #undef _ASSERT_FILE_SIZE
 }
 
-void nstool::SettingsInitializer::usage_text()
+void nstool::SettingsInitializer::usage_text() const
 {
 	fmt::print("{:s} v{:d}.{:d}.{:d} (C) {:s}\n", APP_NAME, VER_MAJOR, VER_MINOR, VER_PATCH, AUTHORS);
 	fmt::print("Built: {:s} {:s}\n\n", __TIME__, __DATE__);
@@ -665,6 +675,222 @@ void nstool::SettingsInitializer::usage_text()
 	fmt::print("      --nacp          Extract NACP partition to file.\n");
 	fmt::print("      --fsdir         Extract RomFS partition to directory.\n");
 }
+
+void nstool::SettingsInitializer::dump_keys() const
+{
+	fmt::print("[KeyConfiguration]\n");
+	fmt::print("  NCA Keys:\n");
+	for (auto itr = opt.keybag.nca_header_sign0_key.begin(); itr != opt.keybag.nca_header_sign0_key.end(); itr++)
+	{
+		dump_rsa_key(itr->second, fmt::format("Header0-SignatureKey-{:02x}", itr->first), 4, opt.cli_output_mode.show_extended_info);
+	}
+	for (auto itr = opt.keybag.acid_sign_key.begin(); itr != opt.keybag.acid_sign_key.end(); itr++)
+	{
+		dump_rsa_key(itr->second, fmt::format("Acid-SignatureKey-{:02x}", itr->first), 4, opt.cli_output_mode.show_extended_info);
+	}
+	if (opt.keybag.nca_header_key.isSet())
+	{
+		fmt::print("    Header-EncryptionKey:\n");
+		fmt::print("      Key0: {:s}\n", tc::cli::FormatUtil::formatBytesAsString(opt.keybag.nca_header_key.get()[0].data(), opt.keybag.nca_header_key.get()[0].size(), true, ":"));
+		fmt::print("      Key1: {:s}\n", tc::cli::FormatUtil::formatBytesAsString(opt.keybag.nca_header_key.get()[1].data(), opt.keybag.nca_header_key.get()[1].size(), true, ":"));
+	}
+	std::vector<std::string> kaek_label = {"Application", "Ocean", "System"};
+	for (size_t kaek_index = 0; kaek_index < opt.keybag.nca_key_area_encryption_key.size(); kaek_index++)
+	{
+		for (auto itr = opt.keybag.nca_key_area_encryption_key[kaek_index].begin(); itr != opt.keybag.nca_key_area_encryption_key[kaek_index].end(); itr++)
+		{
+			fmt::print("    KeyAreaEncryptionKey-{:s}-{:02x}:\n      {:s}\n", kaek_label[kaek_index], itr->first, tc::cli::FormatUtil::formatBytesAsString(itr->second.data(), itr->second.size(), true, ":"));
+		}
+	}
+	for (size_t kaek_index = 0; kaek_index < opt.keybag.nca_key_area_encryption_key_hw.size(); kaek_index++)
+	{
+		for (auto itr = opt.keybag.nca_key_area_encryption_key_hw[kaek_index].begin(); itr != opt.keybag.nca_key_area_encryption_key_hw[kaek_index].end(); itr++)
+		{
+			fmt::print("    KeyAreaEncryptionKeyHw-{:s}-{:02x}:\n      {:s}\n", kaek_label[kaek_index], itr->first, tc::cli::FormatUtil::formatBytesAsString(itr->second.data(), itr->second.size(), true, ":"));
+		}
+	}
+	fmt::print("  NRR Keys:\n");
+	for (auto itr = opt.keybag.nrr_certificate_sign_key.begin(); itr != opt.keybag.nrr_certificate_sign_key.end(); itr++)
+	{
+		dump_rsa_key(itr->second, fmt::format("Certificate-SignatureKey-{:02x}", itr->first), 4, opt.cli_output_mode.show_extended_info);
+	}
+	fmt::print("  XCI Keys:\n");
+	if (opt.keybag.xci_header_sign_key.isSet())
+	{
+		dump_rsa_key(opt.keybag.xci_header_sign_key.get(), fmt::format("Header-SignatureKey"), 4, opt.cli_output_mode.show_extended_info);
+	}
+	for (auto itr = opt.keybag.xci_header_key.begin(); itr != opt.keybag.xci_header_key.end(); itr++)
+	{
+		fmt::print("    ExtendedHeader-EncryptionKey-{:02x}:\n      {:s}\n", itr->first, tc::cli::FormatUtil::formatBytesAsString(itr->second.data(), itr->second.size(), true, ":"));
+	}
+
+	fmt::print("  Package1 Keys:\n");
+	for (auto itr = opt.keybag.pkg1_key.begin(); itr != opt.keybag.pkg1_key.end(); itr++)
+	{
+		fmt::print("    EncryptionKey-{:02x}:\n      {:s}\n", itr->first, tc::cli::FormatUtil::formatBytesAsString(itr->second.data(), itr->second.size(), true, ":"));
+	}
+
+	fmt::print("  Package2 Keys:\n");
+	if (opt.keybag.pkg2_sign_key.isSet())
+	{
+		dump_rsa_key(opt.keybag.pkg2_sign_key.get(), fmt::format("Header-SignatureKey"), 4, opt.cli_output_mode.show_extended_info);
+	}
+	for (auto itr = opt.keybag.pkg2_key.begin(); itr != opt.keybag.pkg2_key.end(); itr++)
+	{
+		fmt::print("    EncryptionKey-{:02x}:\n      {:s}\n", itr->first, tc::cli::FormatUtil::formatBytesAsString(itr->second.data(), itr->second.size(), true, ":"));
+	}
+
+	fmt::print("  ETicket Keys:\n");
+	for (auto itr = opt.keybag.etik_common_key.begin(); itr != opt.keybag.etik_common_key.end(); itr++)
+	{
+		fmt::print("    CommonKey-{:02x}:\n      {:s}\n", itr->first, tc::cli::FormatUtil::formatBytesAsString(itr->second.data(), itr->second.size(), true, ":"));
+	}
+
+	fmt::print("  BroadOn Signer Profiles:\n");
+	for (auto itr = opt.keybag.broadon_signer.begin(); itr != opt.keybag.broadon_signer.end(); itr++)
+	{
+		fmt::print("    {:s}:\n", itr->first);
+		fmt::print("      SignType: ");
+		switch(itr->second.key_type) {
+			case nn::pki::sign::SIGN_ALGO_RSA2048:
+				fmt::print("RSA-2048\n");
+				break;
+			case nn::pki::sign::SIGN_ALGO_RSA4096:
+				fmt::print("RSA-4096\n");
+				break;
+			case nn::pki::sign::SIGN_ALGO_ECDSA240:
+				fmt::print("ECDSA-240\n");
+				break;
+			default:
+				fmt::print("Unknown\n");
+		}
+		switch(itr->second.key_type) {
+			case nn::pki::sign::SIGN_ALGO_RSA2048:
+			case nn::pki::sign::SIGN_ALGO_RSA4096:
+				dump_rsa_key(itr->second.rsa_key, "RsaKey", 6, opt.cli_output_mode.show_extended_info);
+				break;
+			case nn::pki::sign::SIGN_ALGO_ECDSA240:
+			default:
+				break;
+		}
+	}
+	
+	/*
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		if (mKeyCfg.getContentArchiveHeader0SignKey(rsa2048_key, byte_t(i)) == true)
+			dumpRsa2048Key(rsa2048_key, "Header0-SignatureKey-" + kKeyIndex[i], 2);
+	}
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		if (mKeyCfg.getAcidSignKey(rsa2048_key, byte_t(i)) == true)
+			dumpRsa2048Key(rsa2048_key, "Acid-SignatureKey-" + kKeyIndex[i], 2);
+	}
+	
+	if (mKeyCfg.getContentArchiveHeaderKey(aesxts_key) == true)
+		dumpAesXtsKey(aesxts_key, "Header-EncryptionKey", 2);
+	
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 0, aes_key) == true)
+			dumpAesKey(aes_key, "KeyAreaEncryptionKey-Application-" + kKeyIndex[i], 2);
+		if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 1, aes_key) == true)
+			dumpAesKey(aes_key, "KeyAreaEncryptionKey-Ocean-" + kKeyIndex[i], 2);
+		if (mKeyCfg.getNcaKeyAreaEncryptionKey(byte_t(i), 2, aes_key) == true)
+			dumpAesKey(aes_key, "KeyAreaEncryptionKey-System-" + kKeyIndex[i], 2);
+	}
+
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 0, aes_key) == true)
+			dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Application-" + kKeyIndex[i], 2);
+		if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 1, aes_key) == true)
+			dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-Ocean-" + kKeyIndex[i], 2);
+		if (mKeyCfg.getNcaKeyAreaEncryptionKeyHw(byte_t(i), 2, aes_key) == true)
+			dumpAesKey(aes_key, "KeyAreaEncryptionKeyHw-System-" + kKeyIndex[i], 2);
+	}
+	
+	std::cout << "  NRR Keys:" << std::endl;
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		if (mKeyCfg.getNrrCertificateSignKey(rsa2048_key, byte_t(i)) == true)
+			dumpRsa2048Key(rsa2048_key, "Certificate-SignatureKey-" + kKeyIndex[i], 2);
+	}
+
+	std::cout << "  XCI Keys:" << std::endl;
+	if (mKeyCfg.getXciHeaderSignKey(rsa2048_key) == true)
+		dumpRsa2048Key(rsa2048_key, "Header-SignatureKey", 2);
+	if (mKeyCfg.getXciHeaderKey(aes_key) == true)
+		dumpAesKey(aes_key, "ExtendedHeader-EncryptionKey", 2);
+	
+
+	
+	
+	std::cout << "  Package1 Keys:" << std::endl;
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		if (mKeyCfg.getPkg1Key(byte_t(i), aes_key) == true)
+			dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
+	}
+
+	std::cout << "  Package2 Keys:" << std::endl;
+	if (mKeyCfg.getPkg2SignKey(rsa2048_key) == true)
+		dumpRsa2048Key(rsa2048_key, "Signature Key", 2);
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		if (mKeyCfg.getPkg2Key(byte_t(i), aes_key) == true)
+			dumpAesKey(aes_key, "EncryptionKey-" + kKeyIndex[i], 2);
+	}
+
+	std::cout << "  ETicket Keys:" << std::endl;
+	for (size_t i = 0; i < kMasterKeyNum; i++)
+	{
+		if (mKeyCfg.getETicketCommonKey(byte_t(i), aes_key) == true)
+			dumpAesKey(aes_key, "CommonKey-" + kKeyIndex[i], 2);
+	}
+	
+	if (mKeyCfg.getPkiRootSignKey("Root", rsa4096_key) == true)
+		dumpRsa4096Key(rsa4096_key, "NNPKI Root Key", 1);
+	*/
+}
+
+void nstool::SettingsInitializer::dump_rsa_key(const KeyBag::rsa_key_t& key, const std::string& label, size_t indent, bool expanded_key_data) const
+{
+	std::string indent_str;
+
+	indent_str.clear();
+	for (size_t i = 0; i < indent; i++)
+	{
+		indent_str += " ";
+	}
+
+	fmt::print("{:s}{:s}:\n", indent_str, label);
+	if (key.n.size() > 0)
+	{
+		if (expanded_key_data)
+		{
+			fmt::print("{:s}  Modulus:\n", indent_str);
+			fmt::print("{:s}    {:s}", indent_str, tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(key.n.data(), key.n.size(), true, ":", 0x10, indent + 4, false));
+		}
+		else
+		{
+			fmt::print("{:s}  Modulus: {:s}\n", indent_str, getTruncatedBytesString(key.n.data(), key.n.size()));
+		}
+	}
+	if (key.d.size() > 0)
+	{
+		if (expanded_key_data)
+		{
+			fmt::print("{:s}  Private Exponent:\n", indent_str);
+			fmt::print("{:s}    {:s}", indent_str, tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(key.d.data(), key.d.size(), true, ":", 0x10, indent + 4, false));
+		}
+		else
+		{
+			fmt::print("{:s}  Private Exponent: {:s}\n", indent_str, getTruncatedBytesString(key.d.data(), key.d.size()));
+		}
+	}
+}
+
 
 bool nstool::SettingsInitializer::determineValidNcaFromSample(const tc::ByteData& sample) const
 {

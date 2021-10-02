@@ -132,7 +132,9 @@ public:
 private:
 	void parse_args(const std::vector<std::string>& args);
 	void determine_filetype();
-	void usage_text();
+	void usage_text() const;
+	void dump_keys() const;
+	void dump_rsa_key(const KeyBag::rsa_key_t& key, const std::string& label, size_t indent, bool expanded_key_data) const;
 
 	std::string mModuleLabel;
 
