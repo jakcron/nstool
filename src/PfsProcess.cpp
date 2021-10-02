@@ -1,20 +1,16 @@
 #include "PfsProcess.h"
-
-#include <iostream>
-#include <iomanip>
-
-#include <fnd/SimpleFile.h>
-#include <fnd/io.h>
+#include "util.h"
 
 #include <nn/hac/PartitionFsUtil.h>
+#include <tc/io/LocalStorage.h>
 
 
 nstool::PfsProcess::PfsProcess() :
+	mModuleName("nstool::PfsProcess"),
 	mFile(),
 	mCliOutputMode(true, false, false, false),
 	mVerify(false),
 	mExtractPath(),
-	mExtract(false),
 	mMountName(),
 	mListFs(false),
 	mPfs()
@@ -33,7 +29,7 @@ void nstool::PfsProcess::process()
 	}
 	if (mPfs.getFsType() == mPfs.TYPE_HFS0 && mVerify)
 		validateHfs();
-	if (mExtract)
+	if (mExtractPath.isSet())
 		extractFs();
 }
 
@@ -57,9 +53,8 @@ void nstool::PfsProcess::setMountPointName(const std::string& mount_name)
 	mMountName = mount_name;
 }
 
-void nstool::PfsProcess::setExtractPath(const std::string& path)
+void nstool::PfsProcess::setExtractPath(const tc::io::Path& path)
 {
-	mExtract = true;
 	mExtractPath = path;
 }
 
@@ -75,125 +70,126 @@ const nn::hac::PartitionFsHeader& nstool::PfsProcess::getPfsHeader() const
 
 void nstool::PfsProcess::importHeader()
 {
+	if (mFile == nullptr)
+	{
+		throw tc::Exception(mModuleName, "No file reader set.");
+	}
+
 	tc::ByteData scratch;
 
-	if (*mFile == nullptr)
+	// read base header to determine complete header size
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sPfsHeader)))
 	{
-		throw tc::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(mModuleName, "Corrupt PartitionFs: File too small");
 	}
-	
-	// open minimum header to get full header size
-	scratch.alloc(sizeof(nn::hac::sPfsHeader));
-	(*mFile)->read(scratch.data(), 0, scratch.size());
+
+	scratch = tc::ByteData(sizeof(nn::hac::sPfsHeader));
+	mFile->seek(0, tc::io::SeekOrigin::Begin);
+	mFile->read(scratch.data(), scratch.size());
 	if (validateHeaderMagic(((nn::hac::sPfsHeader*)scratch.data())) == false)
 	{
-		throw tc::Exception(kModuleName, "Corrupt Header");
+		throw tc::Exception(mModuleName, "Corrupt PartitionFs: Header had incorrect struct magic.");
 	}
+
+	// read complete size header
 	size_t pfsHeaderSize = determineHeaderSize(((nn::hac::sPfsHeader*)scratch.data()));
-	
-	// open minimum header to get full header size
-	scratch.alloc(pfsHeaderSize);
-	(*mFile)->read(scratch.data(), 0, scratch.size());
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(pfsHeaderSize))
+	{
+		throw tc::Exception(mModuleName, "Corrupt PartitionFs: File too small");
+	}
+
+	scratch = tc::ByteData(pfsHeaderSize);
+	mFile->seek(0, tc::io::SeekOrigin::Begin);
+	mFile->read(scratch.data(), scratch.size());
+
+	// process PFS
 	mPfs.fromBytes(scratch.data(), scratch.size());
 }
 
 void nstool::PfsProcess::displayHeader()
 {
-	std::cout << "[PartitionFS]" << std::endl;
-	std::cout << "  Type:        " << nn::hac::PartitionFsUtil::getFsTypeAsString(mPfs.getFsType()) << std::endl;
-	std::cout << "  FileNum:     " << std::dec << mPfs.getFileList().size() << std::endl;
+	fmt::print("[PartitionFS]\n");
+	fmt::print("  Type:        {:s}\n", nn::hac::PartitionFsUtil::getFsTypeAsString(mPfs.getFsType()));
+	fmt::print("  FileNum:     {:d}\n", mPfs.getFileList().size());
 	if (mMountName.empty() == false)
 	{
-		std::cout << "  MountPoint:  " << mMountName;
+		fmt::print("  MountPoint:  {:s}");
 		if (mMountName.at(mMountName.length()-1) != '/')
-			std::cout << "/";
-		std::cout << std::endl;
+			fmt::print("/");
+		fmt::print("\n");
 	}
 }
 
 void nstool::PfsProcess::displayFs()
 {	
-	for (size_t i = 0; i < mPfs.getFileList().size(); i++)
+	auto file_list = mPfs.getFileList();
+	for (auto itr = file_list.begin(); itr != file_list.end(); itr++)
 	{
-		const nn::hac::PartitionFsHeader::sFile& file = mPfs.getFileList()[i];
-		std::cout << "    " << file.name;
+		fmt::print("    {:s}", itr->name);
 		if (mCliOutputMode.show_layout)
 		{
 			switch (mPfs.getFsType())
 			{
 			case (nn::hac::PartitionFsHeader::TYPE_PFS0):
-				std::cout << std::hex << " (offset=0x" << file.offset << ", size=0x" << file.size << ")";
+				fmt::print(" (offset=0x{:x}, size=0x{:x})", itr->offset, itr->size);
 				break;
 			case (nn::hac::PartitionFsHeader::TYPE_HFS0):
-				std::cout << std::hex << " (offset=0x" << file.offset << ", size=0x" << file.size << ", hash_protected_size=0x" << file.hash_protected_size << ")";
+				fmt::print(" (offset=0x{:x}, size=0x{:x}, hash_protected_size=0x{:x})", itr->offset, itr->size, itr->hash_protected_size);
 				break;
 			}
 			
 		}
-		std::cout << std::endl;
+		fmt::print("\n");
 	}
 }
 
 size_t nstool::PfsProcess::determineHeaderSize(const nn::hac::sPfsHeader* hdr)
 {
 	size_t fileEntrySize = 0;
-	if (hdr->st_magic.get() == nn::hac::pfs::kPfsStructMagic)
+	if (hdr->st_magic.unwrap() == nn::hac::pfs::kPfsStructMagic)
 		fileEntrySize = sizeof(nn::hac::sPfsFile);
 	else
 		fileEntrySize = sizeof(nn::hac::sHashedPfsFile);
 
-	return sizeof(nn::hac::sPfsHeader) + hdr->file_num.get() * fileEntrySize + hdr->name_table_size.get();
+	return sizeof(nn::hac::sPfsHeader) + hdr->file_num.unwrap() * fileEntrySize + hdr->name_table_size.unwrap();
 }
 
 bool nstool::PfsProcess::validateHeaderMagic(const nn::hac::sPfsHeader* hdr)
 {
-	return hdr->st_magic.get() == nn::hac::pfs::kPfsStructMagic || hdr->st_magic.get() == nn::hac::pfs::kHashedPfsStructMagic;
+	return hdr->st_magic.unwrap() == nn::hac::pfs::kPfsStructMagic || hdr->st_magic.unwrap() == nn::hac::pfs::kHashedPfsStructMagic;
 }
 
 void nstool::PfsProcess::validateHfs()
 {
-	fnd::sha::sSha256Hash hash;
-	const std::vector<nn::hac::PartitionFsHeader::sFile>& file = mPfs.getFileList();
-	for (size_t i = 0; i < file.size(); i++)
+	nn::hac::detail::sha256_hash_t hash;
+	auto file_list = mPfs.getFileList();
+	for (auto itr = file_list.begin(); itr != file_list.end(); itr++)
 	{
-		mCache.alloc(file[i].hash_protected_size);
-		(*mFile)->read(mCache.data(), file[i].offset, file[i].hash_protected_size);
-		fnd::sha::Sha256(mCache.data(), file[i].hash_protected_size, hash.bytes);
-		if (hash != file[i].hash)
+		tc::ByteData cache = tc::ByteData(tc::io::IOUtil::castInt64ToSize(itr->hash_protected_size));
+		mFile->seek(itr->offset, tc::io::SeekOrigin::Begin);
+		mFile->read(cache.data(), cache.size());
+		tc::crypto::GenerateSha256Hash(hash.data(), cache.data(), cache.size());
+		if (hash != itr->hash)
 		{
-			printf("[WARNING] HFS0 %s%s%s: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", file[i].name.c_str());
+			fmt::print("[WARNING] HFS0 {:s}{:s}{:s}: FAIL (bad hash)\n", !mMountName.empty()? mMountName.c_str() : "", (!mMountName.empty() && mMountName.at(mMountName.length()-1) != '/' )? "/" : "", itr->name);
 		}
 	}
 }
 
 void nstool::PfsProcess::extractFs()
 {
-	// allocate only when extractDir is invoked
-	mCache.alloc(kCacheSize);
+	// create extract directory
+	tc::io::LocalStorage fs;
+	fs.createDirectory(mExtractPath.get());
 
-	// make extract dir
-	fnd::io::makeDirectory(mExtractPath);
+	// extract files
+	tc::ByteData cache_for_extract = tc::ByteData(kCacheSize);
 
-	fnd::SimpleFile outFile;
-	const std::vector<nn::hac::PartitionFsHeader::sFile>& file = mPfs.getFileList();
-
-	std::string file_path;
-	for (size_t i = 0; i < file.size(); i++)
+	auto file_list = mPfs.getFileList();
+	for (auto itr = file_list.begin(); itr != file_list.end(); itr++)
 	{
-		file_path.clear();
-		fnd::io::appendToPath(file_path, mExtractPath);
-		fnd::io::appendToPath(file_path, file[i].name);
+		tc::io::Path extract_path = mExtractPath.get() + itr->name;
 
-		if (mCliOutputMode.show_basic_info)
-			printf("extract=[%s]\n", file_path.c_str());
-
-		outFile.open(file_path, outFile.Create);
-		(*mFile)->seek(file[i].offset);
-		for (size_t j = 0; j < ((file[i].size / kCacheSize) + ((file[i].size % kCacheSize) != 0)); j++)
-		{
-			(*mFile)->read(mCache.data(), _MIN(file[i].size - (kCacheSize * j),kCacheSize));
-			outFile.write(mCache.data(), _MIN(file[i].size - (kCacheSize * j),kCacheSize));
-		}		
-		outFile.close();
+		writeSubStreamToFile(mFile, itr->offset, itr->size, extract_path, cache_for_extract);
 	}
 }

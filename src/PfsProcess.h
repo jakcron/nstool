@@ -25,8 +25,9 @@ public:
 	const nn::hac::PartitionFsHeader& getPfsHeader() const;
 
 private:
-	const std::string kModuleName = "PfsProcess";
 	static const size_t kCacheSize = 0x10000;
+
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
@@ -35,8 +36,6 @@ private:
 	tc::Optional<tc::io::Path> mExtractPath;
 	std::string mMountName;
 	bool mListFs;
-
-	tc::ByteData mCache;
 
 	nn::hac::PartitionFsHeader mPfs;
 

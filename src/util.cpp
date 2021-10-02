@@ -66,21 +66,29 @@ void nstool::processResFile(const std::shared_ptr<tc::io::IStream>& file, std::m
 
 }
 
+void nstool::writeSubStreamToFile(const std::shared_ptr<tc::io::IStream>& in_stream, int64_t offset, int64_t length, const tc::io::Path& out_path, tc::ByteData& cache)
+{
+	writeStreamToStream(std::make_shared<tc::io::SubStream>(tc::io::SubStream(in_stream, offset, length)), std::make_shared<tc::io::FileStream>(tc::io::FileStream(out_path, tc::io::FileMode::OpenOrCreate, tc::io::FileAccess::Write)), cache);
+}
+
 void nstool::writeSubStreamToFile(const std::shared_ptr<tc::io::IStream>& in_stream, int64_t offset, int64_t length, const tc::io::Path& out_path, size_t cache_size)
 {
 	writeStreamToStream(std::make_shared<tc::io::SubStream>(tc::io::SubStream(in_stream, offset, length)), std::make_shared<tc::io::FileStream>(tc::io::FileStream(out_path, tc::io::FileMode::OpenOrCreate, tc::io::FileAccess::Write)), cache_size);
 }
 
+void nstool::writeStreamToFile(const std::shared_ptr<tc::io::IStream>& in_stream, const tc::io::Path& out_path, tc::ByteData& cache)
+{
+	writeStreamToStream(in_stream, std::make_shared<tc::io::FileStream>(tc::io::FileStream(out_path, tc::io::FileMode::OpenOrCreate, tc::io::FileAccess::Write)), cache);
+}
 
 void nstool::writeStreamToFile(const std::shared_ptr<tc::io::IStream>& in_stream, const tc::io::Path& out_path, size_t cache_size)
 {
 	writeStreamToStream(in_stream, std::make_shared<tc::io::FileStream>(tc::io::FileStream(out_path, tc::io::FileMode::OpenOrCreate, tc::io::FileAccess::Write)), cache_size);
 }
 
-void nstool::writeStreamToStream(const std::shared_ptr<tc::io::IStream>& in_stream, const std::shared_ptr<tc::io::IStream>& out_stream, size_t cache_size)
+void nstool::writeStreamToStream(const std::shared_ptr<tc::io::IStream>& in_stream, const std::shared_ptr<tc::io::IStream>& out_stream, tc::ByteData& cache)
 {
 	// iterate thru child files
-	tc::ByteData cache = tc::ByteData(cache_size);
 	size_t cache_read_len;
 	
 	in_stream->seek(0, tc::io::SeekOrigin::Begin);
@@ -97,6 +105,12 @@ void nstool::writeStreamToStream(const std::shared_ptr<tc::io::IStream>& in_stre
 
 		remaining_data -= int64_t(cache_read_len);
 	}
+}
+
+void nstool::writeStreamToStream(const std::shared_ptr<tc::io::IStream>& in_stream, const std::shared_ptr<tc::io::IStream>& out_stream, size_t cache_size)
+{
+	tc::ByteData cache = tc::ByteData(cache_size);
+	writeStreamToStream(in_stream, out_stream, cache);
 }
 
 std::string nstool::getTruncatedBytesString(const byte_t* data, size_t len)

@@ -4,7 +4,7 @@
 
 
 //#include "GameCardProcess.h"
-//#include "PfsProcess.h"
+#include "PfsProcess.h"
 //#include "RomfsProcess.h"
 //#include "NcaProcess.h"
 //#include "MetaProcess.h"
@@ -50,9 +50,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
-		*/
-		/*
-		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_PARTITIONFS || set.infile.filetype == nstool::Settings::FILE_TYPE_NSP)
+		else*/ if (set.infile.filetype == nstool::Settings::FILE_TYPE_PARTITIONFS || set.infile.filetype == nstool::Settings::FILE_TYPE_NSP)
 		{
 			nstool::PfsProcess obj;
 
@@ -66,6 +64,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			
 			obj.process();
 		}
+		/*
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_ROMFS)
 		{
 			nstool::RomfsProcess obj;
@@ -113,8 +112,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
-		
-		else*/ if (set.infile.filetype == nstool::Settings::FILE_TYPE_CNMT)
+		*/
+		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_CNMT)
 		{
 			nstool::CnmtProcess obj;
 
