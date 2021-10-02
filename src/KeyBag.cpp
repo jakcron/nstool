@@ -132,6 +132,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 	std::vector<std::string> kPkg1Base = { "package1" };
 	std::vector<std::string> kPkg2Base = { "package2" };
 	std::vector<std::string> kXciHeaderBase = { "xci_header" };
+	std::vector<std::string> kXciCertBase = { "xci_cert" };
 	std::vector<std::string> kContentArchiveHeaderBase = { "nca_header", "header" };
 	std::vector<std::string> kAcidBase = { "acid" };
 	std::vector<std::string> kNrrCertBase = { "nrr_certificate" };
@@ -356,6 +357,12 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 			//fmt::print("{:s}_{:s}_{:s}\n", kXciHeaderBase[name_idx], kSignKey, kPrivateStr);
 			//fmt::print("{:s}_{:s}_{:s}\n", kXciHeaderBase[name_idx], kSignKey, kModulusStr);
 			_SAVE_RSAKEY(fmt::format("{:s}_{:s}", kXciHeaderBase[name_idx], kSignKey), xci_header_sign_key, 2048);
+		}
+		/* XCI cert */
+		if (name_idx < kXciCertBase.size())
+		{
+			// xci cert sign key
+			_SAVE_RSAKEY(fmt::format("{:s}_{:s}", kXciCertBase[name_idx], kSignKey), xci_cert_sign_key, 2048);
 		}
 
 		/* PKI */
