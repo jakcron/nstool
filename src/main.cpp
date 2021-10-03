@@ -5,7 +5,7 @@
 
 //#include "GameCardProcess.h"
 #include "PfsProcess.h"
-//#include "RomfsProcess.h"
+#include "RomfsProcess.h"
 //#include "NcaProcess.h"
 //#include "MetaProcess.h"
 #include "CnmtProcess.h"
@@ -64,7 +64,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			
 			obj.process();
 		}
-		/*
+		
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_ROMFS)
 		{
 			nstool::RomfsProcess obj;
@@ -79,6 +79,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
+		/*
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_NCA)
 		{
 			nstool::NcaProcess obj;

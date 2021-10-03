@@ -37,7 +37,7 @@ private:
 
 	nn::hac::AssetHeader mHdr;
 	NacpProcess mNacp;
-	//RomfsProcess mRomfs;
+	RomfsProcess mRomfs;
 
 	void importHeader();
 	void processSections();
