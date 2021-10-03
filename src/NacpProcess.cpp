@@ -44,12 +44,16 @@ void nstool::NacpProcess::importNacp()
 	{
 		throw tc::Exception(mModuleName, "No file reader set.");
 	}
-
-	// check if file_size is greater than 20MB, don't import.
-	size_t file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());
-	if (file_size > (0x100000 * 20))
+	if (mFile->canRead() == false || mFile->canSeek() == false)
 	{
-		throw tc::Exception(mModuleName, "File too large.");
+		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
+	}
+
+	// check if file_size does matches expected size
+	size_t file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());
+	if (file_size != sizeof(nn::hac::sApplicationControlProperty))
+	{
+		throw tc::Exception(mModuleName, "File was incorrect size.");
 	}
 
 	// read cnmt

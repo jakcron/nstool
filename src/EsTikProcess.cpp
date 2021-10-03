@@ -53,6 +53,10 @@ void nstool::EsTikProcess::importTicket()
 	{
 		throw tc::Exception(mModuleName, "No file reader set.");
 	}
+	if (mFile->canRead() == false || mFile->canSeek() == false)
+	{
+		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
+	}
 
 	// check if file_size is greater than 20MB, don't import.
 	size_t file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());

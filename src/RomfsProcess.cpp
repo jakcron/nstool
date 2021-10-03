@@ -71,6 +71,10 @@ void nstool::RomfsProcess::importHeader()
 	{
 		throw tc::Exception(mModuleName, "No file reader set.");
 	}
+	if (mFile->canRead() == false || mFile->canSeek() == false)
+	{
+		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
+	}
 
 	tc::ByteData scratch;
 
