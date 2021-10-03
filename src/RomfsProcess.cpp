@@ -83,10 +83,10 @@ void nstool::RomfsProcess::importHeader()
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read((byte_t*)&mRomfsHeader, sizeof(mRomfsHeader));
 	if (mRomfsHeader.header_size.unwrap() != sizeof(nn::hac::sRomfsHeader) ||
-	    mRomfsHeader.dir_hash_bucket.offset.unwrap() != sizeof(nn::hac::sRomfsHeader) ||
+	    mRomfsHeader.dir_entry.offset.unwrap() != (mRomfsHeader.dir_hash_bucket.offset.unwrap() + mRomfsHeader.dir_hash_bucket.size.unwrap()) ||
 	    mRomfsHeader.data_offset.unwrap() != align<int64_t>(mRomfsHeader.header_size.unwrap(), nn::hac::romfs::kRomfsHeaderAlign))
 	{
-		throw tc::ArgumentOutOfRangeException("nn::hac::RomFsMetaGenerator", "Corrupt RomFs: RomFsHeader is corrupted.");
+		throw tc::ArgumentOutOfRangeException(mModuleName, "Corrupt RomFs: RomFsHeader is corrupted.");
 	}
 
 	// get dir entry ptr
@@ -105,7 +105,11 @@ void nstool::RomfsProcess::importHeader()
 	{
 		uint32_t total_size = sizeof(nn::hac::sRomfsDirEntry) + align<uint32_t>(((nn::hac::sRomfsDirEntry*)(dir_entry_table.data() + v_addr))->name_size.unwrap(), 4);
 
-		mDirNum += 1;
+		// don't count root directory
+		if (v_addr != 0)
+		{
+			mDirNum += 1;
+		}
 
 		v_addr += total_size;
 	}
