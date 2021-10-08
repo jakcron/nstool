@@ -24,4 +24,9 @@ struct CliOutputMode
 	{}
 };
 
+struct ExtractJob {
+	tc::io::Path virtual_path;
+	tc::io::Path extract_path;
+};
+
 }
