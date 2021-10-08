@@ -350,6 +350,68 @@ private:
 	std::vector<std::string> mOptStrings;
 };
 
+class ExtractDataPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
+{
+public:
+	ExtractDataPathOptionHandler(std::vector<nstool::ExtractJob>& jobs, const std::vector<std::string>& opts) : 
+		mJobs(jobs),
+		mOptStrings(opts)
+	{}
+
+	const std::vector<std::string>& getOptionStrings() const
+	{
+		return mOptStrings;
+	}
+
+	void processOption(const std::string& option, const std::vector<std::string>& params)
+	{
+		if (params.size() == 1)
+		{
+			mJobs.push_back({tc::io::Path("/"), tc::io::Path(params[0])});
+		}
+		else if (params.size() == 2)
+		{
+			mJobs.push_back({tc::io::Path(params[0]), tc::io::Path(params[1])});
+		} 
+		else
+		{
+			throw tc::ArgumentOutOfRangeException(fmt::format("Option \"{:s}\" requires parameters in the format \"[<internal path>] <extract path>\".", option));
+		}
+	}
+private:
+	std::vector<nstool::ExtractJob>& mJobs;
+	std::vector<std::string> mOptStrings;
+};
+
+class CustomExtractDataPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
+{
+public:
+	CustomExtractDataPathOptionHandler(std::vector<nstool::ExtractJob>& jobs, const std::vector<std::string>& opts, const tc::io::Path& custom_path) : 
+		mJobs(jobs),
+		mOptStrings(opts),
+		mCustomPath(custom_path)
+	{}
+
+	const std::vector<std::string>& getOptionStrings() const
+	{
+		return mOptStrings;
+	}
+
+	void processOption(const std::string& option, const std::vector<std::string>& params)
+	{
+		if (params.size() != 1)
+		{
+			throw tc::ArgumentOutOfRangeException(fmt::format("Option \"{:s}\" requires a parameter.", option));
+		}
+
+		mJobs.push_back({mCustomPath, tc::io::Path(params[0])});
+	}
+private:
+	std::vector<nstool::ExtractJob>& mJobs;
+	std::vector<std::string> mOptStrings;
+	tc::io::Path mCustomPath;
+};
+
 nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>& args) :
 	Settings(),
 	mModuleLabel("nstool::SettingsInitializer"),
@@ -484,19 +546,19 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 
 	// fs options
 	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(fs.show_fs_tree, { "--listfs" })));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(fs.extract_path, { "--fsdir" })));
+	opts.registerOptionHandler(std::shared_ptr<ExtractDataPathOptionHandler>(new ExtractDataPathOptionHandler(fs.extract_jobs, { "--fsdir", "-x", "--extract" })));
 
 	// xci options
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(xci.update_extract_path, { "--update" })));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(xci.normal_extract_path, { "--normal" })));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(xci.secure_extract_path, { "--secure" })));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(xci.logo_extract_path, { "--logo" })));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--update" }, tc::io::Path("/update/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--normal" }, tc::io::Path("/normal/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--secure" }, tc::io::Path("/secure/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--logo" }, tc::io::Path("/logo/"))));
 
 	// nca options
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(nca.part0_extract_path, { "--part0" })));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(nca.part1_extract_path, { "--part1" })));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(nca.part2_extract_path, { "--part2" })));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(nca.part3_extract_path, { "--part3" })));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part0" }, tc::io::Path("/0/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part1" }, tc::io::Path("/1/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part2" }, tc::io::Path("/2/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part3" }, tc::io::Path("/3/"))));
 
 	// kip options
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(kip.extract_path, { "--kipdir" })));
@@ -552,7 +614,7 @@ void nstool::SettingsInitializer::determine_filetype()
 	// detect ROMFS
 	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sRomfsHeader))
 		&& _TYPE_PTR(nn::hac::sRomfsHeader)->header_size.unwrap() == sizeof(nn::hac::sRomfsHeader)
-		&& _TYPE_PTR(nn::hac::sRomfsHeader)->sections[1].offset.unwrap() == (_TYPE_PTR(nn::hac::sRomfsHeader)->sections[0].offset.unwrap() + _TYPE_PTR(nn::hac::sRomfsHeader)->sections[0].size.unwrap()))
+		&& _TYPE_PTR(nn::hac::sRomfsHeader)->dir_entry.offset.unwrap() == (_TYPE_PTR(nn::hac::sRomfsHeader)->dir_hash_bucket.offset.unwrap() + _TYPE_PTR(nn::hac::sRomfsHeader)->dir_hash_bucket.size.unwrap()))
 	{
 		infile.filetype = FILE_TYPE_ROMFS;
 	}

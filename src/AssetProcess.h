@@ -12,18 +12,17 @@ class AssetProcess
 public:
 	AssetProcess();
 
-	void process();
-
 	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	void setListFs(bool list);
-
 	void setIconExtractPath(const tc::io::Path& path);
 	void setNacpExtractPath(const tc::io::Path& path);
-	void setRomfsExtractPath(const tc::io::Path& path);
+	
+	void setRomfsShowFsTree(bool show_fs_tree);
+	void setRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
+	void process();
 
 private:
 	std::string mModuleName;

@@ -13,18 +13,33 @@ public:
 	FsProcess();
 
 	void setInputFileSystem(const std::shared_ptr<tc::io::IStorage>& input_fs);
-	void setFsLabel(const std::string& fs_label);
-	void setCliOutputMode(bool show_fs);
-	void setExtractPath(const tc::io::Path& extract_path);
+	void setFsFormatName(const std::string& fs_format_name);
+	void setFsProperties(const std::vector<std::string>& properties);
+	void setShowFsInfo(bool show_fs_info);
+	void setShowFsTree(bool show_fs_tree);
+	void setFsRootLabel(const std::string& root_label);
+	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
 	void process();
 private:
 	std::string mModuleLabel;
 
 	std::shared_ptr<tc::io::IStorage> mInputFs;
-	tc::Optional<std::string> mFsLabel;
-	bool mShowFs;
-	tc::Optional<tc::io::Path> mExtractPath;
+
+	// fs info
+	tc::Optional<std::string> mFsFormatName;
+	bool mShowFsInfo;
+	std::vector<std::string> mProperties;
+
+	// fs tree
+	bool mShowFsTree;
+	tc::Optional<std::string> mFsRootLabel;
+
+	// extract jobs
+	std::vector<nstool::ExtractJob> mExtractJobs;
+
+	// cache for file extract
+	tc::ByteData mDataCache;
 	
 	void printFs();
 	void extractFs();

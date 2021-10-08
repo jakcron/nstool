@@ -11,18 +11,19 @@ class PfsProcess
 public:
 	PfsProcess();
 
-	void process();
-
 	// generic
 	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	// pfs specific
-	void setMountPointName(const std::string& mount_name);
-	void setExtractPath(const tc::io::Path& path);
-	void setListFs(bool list_fs);
+	// fs specific
+	void setShowFsTree(bool show_fs_tree);
+	void setFsRootLabel(const std::string& root_label);
+	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
+	void process();
+
+	// post process() get PFS/FS out
 	const nn::hac::PartitionFsHeader& getPfsHeader() const;
 	const std::shared_ptr<tc::io::IStorage>& getFileSystem() const;
 
@@ -39,9 +40,7 @@ private:
 
 	std::shared_ptr<tc::io::IStorage> mFileSystem;
 	FsProcess mFsProcess;
-
-	void importHeader();
-	void displayHeader();
+	
 	size_t determineHeaderSize(const nn::hac::sPfsHeader* hdr);
 	bool validateHeaderMagic(const nn::hac::sPfsHeader* hdr);
 };

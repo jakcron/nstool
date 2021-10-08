@@ -57,7 +57,7 @@ struct Settings
 	struct FsOptions 
 	{
 		bool show_fs_tree;
-		tc::Optional<tc::io::Path> extract_path;
+		std::vector<ExtractJob> extract_jobs;
 	} fs;
 
 	// XCI options
@@ -105,18 +105,8 @@ struct Settings
 		code.list_symbols = false;
 		code.is_64bit_instruction = true;
 
-		xci.update_extract_path = tc::Optional<tc::io::Path>();
-		xci.logo_extract_path = tc::Optional<tc::io::Path>();
-		xci.normal_extract_path = tc::Optional<tc::io::Path>();
-		xci.secure_extract_path = tc::Optional<tc::io::Path>();
-
 		fs.show_fs_tree = false;
-		fs.extract_path = tc::Optional<tc::io::Path>();
-
-		nca.part0_extract_path = tc::Optional<tc::io::Path>();
-		nca.part1_extract_path = tc::Optional<tc::io::Path>();
-		nca.part2_extract_path = tc::Optional<tc::io::Path>();
-		nca.part3_extract_path = tc::Optional<tc::io::Path>();
+		fs.extract_jobs = std::vector<ExtractJob>();
 
 		kip.extract_path = tc::Optional<tc::io::Path>();
 

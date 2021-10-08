@@ -11,20 +11,17 @@ class RomfsProcess
 public:
 	RomfsProcess();
 
-	void process();
-
 	// generic
 	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	// pfs specific
-	void setMountPointName(const std::string& mount_name);
-	void setExtractPath(const tc::io::Path& path);
-	void setListFs(bool list_fs);
+	// fs specific
+	void setFsRootLabel(const std::string& root_label);
+	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
+	void setShowFsTree(bool show_fs_tree);
 
-	const std::shared_ptr<tc::io::IStorage>& getFileSystem() const;
-
+	void process();
 private:
 	static const size_t kCacheSize = 0x10000;
 
@@ -40,9 +37,6 @@ private:
 
 	std::shared_ptr<tc::io::IStorage> mFileSystem;
 	FsProcess mFsProcess;
-
-	void importHeader();
-	void displayHeader();
 };
 
 }

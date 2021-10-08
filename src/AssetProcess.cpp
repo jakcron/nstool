@@ -8,15 +8,7 @@ nstool::AssetProcess::AssetProcess() :
 	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
-}
-
-void nstool::AssetProcess::process()
-{
-	importHeader();
-	if (mCliOutputMode.show_basic_info)
-		displayHeader();
-	processSections();
-}                 
+}         
 
 void nstool::AssetProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
@@ -33,11 +25,6 @@ void nstool::AssetProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void nstool::AssetProcess::setListFs(bool list)
-{
-	mRomfs.setListFs(list);
-}
-
 void nstool::AssetProcess::setIconExtractPath(const tc::io::Path& path)
 {
 	mIconExtractPath = path;
@@ -48,11 +35,23 @@ void nstool::AssetProcess::setNacpExtractPath(const tc::io::Path& path)
 	mNacpExtractPath = path;
 }
 
-void nstool::AssetProcess::setRomfsExtractPath(const tc::io::Path& path)
+void nstool::AssetProcess::setRomfsShowFsTree(bool show_fs_tree)
 {
-	mRomfs.setExtractPath(path);
+	mRomfs.setShowFsTree(show_fs_tree);
 }
 
+void nstool::AssetProcess::setRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
+{
+	mRomfs.setExtractJobs(extract_jobs);
+}
+
+void nstool::AssetProcess::process()
+{
+	importHeader();
+	if (mCliOutputMode.show_basic_info)
+		displayHeader();
+	processSections();
+}
 
 void nstool::AssetProcess::importHeader()
 {

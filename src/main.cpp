@@ -3,7 +3,7 @@
 #include "Settings.h"
 
 
-//#include "GameCardProcess.h"
+#include "GameCardProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
 //#include "NcaProcess.h"
@@ -27,7 +27,6 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 		
 		std::shared_ptr<tc::io::IStream> infile_stream = std::make_shared<tc::io::FileStream>(tc::io::FileStream(set.infile.path.get(), tc::io::FileMode::Open, tc::io::FileAccess::Read));
 
-		/*
 		if (set.infile.filetype == nstool::Settings::FILE_TYPE_GAMECARD)
 		{	
 			nstool::GameCardProcess obj;
@@ -38,29 +37,22 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
 
-			if (set.xci.update_extract_path.isSet())
-				obj.setPartitionForExtract(nn::hac::gc::kUpdatePartitionStr, set.xci.update_extract_path.get());
-			if (set.xci.logo_extract_path.isSet())
-				obj.setPartitionForExtract(nn::hac::gc::kLogoPartitionStr, set.xci.logo_extract_path.get());
-			if (set.xci.normal_extract_path.isSet())
-				obj.setPartitionForExtract(nn::hac::gc::kNormalPartitionStr, set.xci.normal_extract_path.get());
-			if (set.xci.secure_extract_path.isSet())
-				obj.setPartitionForExtract(nn::hac::gc::kSecurePartitionStr, set.xci.secure_extract_path.get());
-			obj.setListFs(set.fs.show_fs_tree);
-
+			obj.setShowFsTree(set.fs.show_fs_tree);
+			obj.setExtractJobs(set.fs.extract_jobs);
+		
 			obj.process();
 		}
-		else*/ if (set.infile.filetype == nstool::Settings::FILE_TYPE_PARTITIONFS || set.infile.filetype == nstool::Settings::FILE_TYPE_NSP)
+		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_PARTITIONFS || set.infile.filetype == nstool::Settings::FILE_TYPE_NSP)
 		{
 			nstool::PfsProcess obj;
 
 			obj.setInputFile(infile_stream);
+
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
 
-			if (set.fs.extract_path.isSet())
-				obj.setExtractPath(set.fs.extract_path.get());
-			obj.setListFs(set.fs.show_fs_tree);
+			obj.setShowFsTree(set.fs.show_fs_tree);
+			obj.setExtractJobs(set.fs.extract_jobs);
 			
 			obj.process();
 		}
@@ -73,9 +65,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
 
-			if (set.fs.extract_path.isSet())
-				obj.setExtractPath(set.fs.extract_path.get());
-			obj.setListFs(set.fs.show_fs_tree);
+			obj.setShowFsTree(set.fs.show_fs_tree);
+			obj.setExtractJobs(set.fs.extract_jobs);
 
 			obj.process();
 		}
@@ -234,9 +225,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			if (set.aset.nacp_extract_path.isSet())
 				obj.setNacpExtractPath(set.aset.nacp_extract_path.get());
 
-			if (set.fs.extract_path.isSet())
-				obj.setRomfsExtractPath(set.fs.extract_path.get());
-			obj.setListFs(set.fs.show_fs_tree);
+			obj.setRomfsShowFsTree(set.fs.show_fs_tree);
+			obj.setRomfsExtractJobs(set.fs.extract_jobs);
 
 			obj.process();
 		}

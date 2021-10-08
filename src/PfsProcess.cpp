@@ -17,19 +17,7 @@ nstool::PfsProcess::PfsProcess() :
 	mFileSystem(),
 	mFsProcess()
 {
-	mFsProcess.setFsLabel("PartitionFS");
-}
-
-void nstool::PfsProcess::process()
-{
-	importHeader();
-
-	if (mCliOutputMode.show_basic_info)
-	{
-		displayHeader();
-	}
-
-	mFsProcess.process();
+	mFsProcess.setFsFormatName("PartitionFS");
 }
 
 void nstool::PfsProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
@@ -40,6 +28,7 @@ void nstool::PfsProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& fi
 void nstool::PfsProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
+	mFsProcess.setShowFsInfo(mCliOutputMode.show_basic_info);
 }
 
 void nstool::PfsProcess::setVerifyMode(bool verify)
@@ -47,32 +36,22 @@ void nstool::PfsProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void nstool::PfsProcess::setMountPointName(const std::string& mount_name)
+void nstool::PfsProcess::setShowFsTree(bool show_fs_tree)
 {
-	mFsProcess.setFsLabel(mount_name);
+	mFsProcess.setShowFsTree(show_fs_tree);
 }
 
-void nstool::PfsProcess::setExtractPath(const tc::io::Path& path)
+void nstool::PfsProcess::setFsRootLabel(const std::string& root_label)
 {
-	mFsProcess.setExtractPath(path);
+	mFsProcess.setFsRootLabel(root_label);
 }
 
-void nstool::PfsProcess::setListFs(bool list_fs)
+void nstool::PfsProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
-	mFsProcess.setCliOutputMode(list_fs);
+	mFsProcess.setExtractJobs(extract_jobs);
 }
 
-const nn::hac::PartitionFsHeader& nstool::PfsProcess::getPfsHeader() const
-{
-	return mPfs;
-}
-
-const std::shared_ptr<tc::io::IStorage>& nstool::PfsProcess::getFileSystem() const
-{
-	return mFileSystem;
-}
-
-void nstool::PfsProcess::importHeader()
+void nstool::PfsProcess::process()
 {
 	if (mFile == nullptr)
 	{
@@ -116,13 +95,24 @@ void nstool::PfsProcess::importHeader()
 	// create virtual filesystem
 	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::PartitionFsMetaGenerator(mFile, mVerify ? nn::hac::PartitionFsMetaGenerator::ValidationMode_Warn : nn::hac::PartitionFsMetaGenerator::ValidationMode_None)));
 	mFsProcess.setInputFileSystem(mFileSystem);
+
+	// set properties for FsProcess
+	mFsProcess.setFsProperties({
+		fmt::format("Type:        {:s}", nn::hac::PartitionFsUtil::getFsTypeAsString(mPfs.getFsType())), 
+		fmt::format("FileNum:     {:d}", mPfs.getFileList().size())
+	});
+	
+	mFsProcess.process();
 }
 
-void nstool::PfsProcess::displayHeader()
+const nn::hac::PartitionFsHeader& nstool::PfsProcess::getPfsHeader() const
 {
-	fmt::print("[PartitionFS]\n");
-	fmt::print("  Type:        {:s}\n", nn::hac::PartitionFsUtil::getFsTypeAsString(mPfs.getFsType()));
-	fmt::print("  FileNum:     {:d}\n", mPfs.getFileList().size());
+	return mPfs;
+}
+
+const std::shared_ptr<tc::io::IStorage>& nstool::PfsProcess::getFileSystem() const
+{
+	return mFileSystem;
 }
 
 size_t nstool::PfsProcess::determineHeaderSize(const nn::hac::sPfsHeader* hdr)

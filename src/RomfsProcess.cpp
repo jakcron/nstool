@@ -15,19 +15,7 @@ nstool::RomfsProcess::RomfsProcess() :
 	mFileSystem(),
 	mFsProcess()
 {
-	mFsProcess.setFsLabel("RomFS");
-}
-
-void nstool::RomfsProcess::process()
-{
-	importHeader();
-
-	if (mCliOutputMode.show_basic_info)
-	{
-		displayHeader();
-	}
-
-	mFsProcess.process();
+	mFsProcess.setFsFormatName("RomFS");
 }
 
 void nstool::RomfsProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
@@ -38,6 +26,7 @@ void nstool::RomfsProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& 
 void nstool::RomfsProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
+	mFsProcess.setShowFsInfo(mCliOutputMode.show_basic_info);
 }
 
 void nstool::RomfsProcess::setVerifyMode(bool verify)
@@ -45,27 +34,22 @@ void nstool::RomfsProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void nstool::RomfsProcess::setMountPointName(const std::string& mount_name)
+void nstool::RomfsProcess::setFsRootLabel(const std::string& root_label)
 {
-	mFsProcess.setFsLabel(mount_name);
+	mFsProcess.setFsRootLabel(root_label);
 }
 
-void nstool::RomfsProcess::setExtractPath(const tc::io::Path& path)
+void nstool::RomfsProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
-	mFsProcess.setExtractPath(path);
+	mFsProcess.setExtractJobs(extract_jobs);
 }
 
-void nstool::RomfsProcess::setListFs(bool list_fs)
+void nstool::RomfsProcess::setShowFsTree(bool list_fs)
 {
-	mFsProcess.setCliOutputMode(list_fs);
+	mFsProcess.setShowFsTree(list_fs);
 }
 
-const std::shared_ptr<tc::io::IStorage>& nstool::RomfsProcess::getFileSystem() const
-{
-	return mFileSystem;
-}
-
-void nstool::RomfsProcess::importHeader()
+void nstool::RomfsProcess::process()
 {
 	if (mFile == nullptr)
 	{
@@ -132,11 +116,13 @@ void nstool::RomfsProcess::importHeader()
 	// create virtual filesystem
 	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::RomFsMetaGenerator(mFile)));
 	mFsProcess.setInputFileSystem(mFileSystem);
-}
 
-void nstool::RomfsProcess::displayHeader()
-{
-	fmt::print("[RomFS]\n");
-	fmt::print("  DirNum:      {:d}\n", mDirNum);
-	fmt::print("  FileNum:     {:d}\n", mFileNum);
+	// set properties for FsProcess
+	mFsProcess.setFsProperties({
+		fmt::format("DirNum:      {:d}", mDirNum), 
+		fmt::format("FileNum:     {:d}", mFileNum)
+	});
+
+	// process filesystem
+	mFsProcess.process();
 }
