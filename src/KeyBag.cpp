@@ -132,6 +132,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 	std::vector<std::string> kPkg1Base = { "package1" };
 	std::vector<std::string> kPkg2Base = { "package2" };
 	std::vector<std::string> kXciHeaderBase = { "xci_header" };
+	std::vector<std::string> kXciInitialDataBase = { "xci_initial_data" };
 	std::vector<std::string> kXciCertBase = { "xci_cert" };
 	std::vector<std::string> kContentArchiveHeaderBase = { "nca_header", "header" };
 	std::vector<std::string> kAcidBase = { "acid" };
@@ -358,6 +359,18 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 			//fmt::print("{:s}_{:s}_{:s}\n", kXciHeaderBase[name_idx], kSignKey, kModulusStr);
 			_SAVE_RSAKEY(fmt::format("{:s}_{:s}", kXciHeaderBase[name_idx], kSignKey), xci_header_sign_key, 2048);
 		}
+
+		/* XCI InitialData */
+		if (name_idx < kXciInitialDataBase.size())
+		{
+			// xci initial data key (based on index)
+			for (size_t kek_index = 0; kek_index < 8; kek_index++)
+			{
+				//fmt::print("{:s}_{:s}_{:02x}\n", kXciInitialDataBase[name_idx], kKekStr, kek_index);
+				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kXciInitialDataBase[name_idx], kKekStr, kek_index), xci_initial_data_kek[kek_index]);
+			}
+		}
+
 		/* XCI cert */
 		if (name_idx < kXciCertBase.size())
 		{

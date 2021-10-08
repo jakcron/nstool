@@ -48,6 +48,7 @@ struct KeyBag
 	// xci
 	tc::Optional<rsa_key_t> xci_header_sign_key;
 	std::map<byte_t, aes128_key_t> xci_header_key;
+	std::map<byte_t, aes128_key_t> xci_initial_data_kek;
 	tc::Optional<rsa_key_t> xci_cert_sign_key;
 
 	// ticket
