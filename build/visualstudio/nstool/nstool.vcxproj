@@ -154,8 +154,10 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\AssetProcess.h" />
     <ClInclude Include="..\..\..\src\CnmtProcess.h" />
+    <ClInclude Include="..\..\..\src\elf.h" />
     <ClInclude Include="..\..\..\src\ElfSymbolParser.h" />
     <ClInclude Include="..\..\..\src\EsTikProcess.h" />
+    <ClInclude Include="..\..\..\src\FsProcess.h" />
     <ClInclude Include="..\..\..\src\GameCardProcess.h" />
     <ClInclude Include="..\..\..\src\IniProcess.h" />
     <ClInclude Include="..\..\..\src\KeyBag.h" />
@@ -181,18 +183,12 @@
     <ClCompile Include="..\..\..\src\CnmtProcess.cpp" />
     <ClCompile Include="..\..\..\src\ElfSymbolParser.cpp" />
     <ClCompile Include="..\..\..\src\EsTikProcess.cpp" />
+    <ClCompile Include="..\..\..\src\FsProcess.cpp" />
     <ClCompile Include="..\..\..\src\GameCardProcess.cpp" />
-    <ClCompile Include="..\..\..\src\IniProcess.cpp" />
     <ClCompile Include="..\..\..\src\KeyBag.cpp" />
-    <ClCompile Include="..\..\..\src\KipProcess.cpp" />
     <ClCompile Include="..\..\..\src\main.cpp" />
-    <ClCompile Include="..\..\..\src\MetaProcess.cpp" />
     <ClCompile Include="..\..\..\src\NacpProcess.cpp" />
-    <ClCompile Include="..\..\..\src\NcaProcess.cpp" />
-    <ClCompile Include="..\..\..\src\NroProcess.cpp" />
-    <ClCompile Include="..\..\..\src\NsoProcess.cpp" />
     <ClCompile Include="..\..\..\src\PfsProcess.cpp" />
-    <ClCompile Include="..\..\..\src\PkiCertProcess.cpp" />
     <ClCompile Include="..\..\..\src\PkiValidator.cpp" />
     <ClCompile Include="..\..\..\src\RoMetadataProcess.cpp" />
     <ClCompile Include="..\..\..\src\RomfsProcess.cpp" />

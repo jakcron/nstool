@@ -137,7 +137,7 @@ void nstool::FsProcess::extractFs()
 
 				continue;
 
-			} catch (tc::io::DirectoryNotFoundException& e) {
+			} catch (tc::io::DirectoryNotFoundException&) {
 				// acceptable exception, just means directory didn't exist
 			}
 
@@ -168,7 +168,7 @@ void nstool::FsProcess::extractFs()
 				writeStreamToFile(file_stream, itr->extract_path, mDataCache);
 
 				continue;
-			} catch (tc::io::DirectoryNotFoundException& e) {
+			} catch (tc::io::DirectoryNotFoundException&) {
 				// acceptable exception, just means the parent directory didn't exist
 			}
 
@@ -178,7 +178,7 @@ void nstool::FsProcess::extractFs()
 			tc::io::PathUtil::pathToUnixUTF8(itr->extract_path, literal_extract_path_str);
 			fmt::print("[WARNING] Extract path was invalid, and was skipped: {:s}\n", literal_extract_path_str);
 			continue;
-		} catch (tc::io::FileNotFoundException& e) {
+		} catch (tc::io::FileNotFoundException&) {
 			// acceptable exception, just means file didn't exist
 		}
 
@@ -195,7 +195,7 @@ void nstool::FsProcess::extractFs()
 			// directory extract successful, continue to next job
 			continue;
 
-		} catch (tc::io::DirectoryNotFoundException& e) {
+		} catch (tc::io::DirectoryNotFoundException&) {
 			// acceptable exception, just means directory didn't exist
 		}
 

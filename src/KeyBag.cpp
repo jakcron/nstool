@@ -153,7 +153,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 	const std::string kPrivateStr = "private";
 	std::vector<std::string> kNcaKeyAreaKeyIndexStr = { "application", "ocean", "system" };
 
-	static const size_t kMasterKeyMax = 0x20;
+	static const size_t kKeyGenerationNum = 0x100;
 	/**/
 
 	// import key data
@@ -162,11 +162,11 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		/* internal key sources */
 		if (name_idx < kMasterBase.size())
 		{
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
 				// std::map<byte_t, aes128_key_t> master_key;
-				//fmt::print("{:s}_key_{:02x}\n", kMasterBase[name_idx], mkey_rev);
-				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kMasterBase[name_idx], kKeyStr, mkey_rev), master_key[mkey_rev]);
+				//fmt::print("{:s}_key_{:02x}\n", kMasterBase[name_idx], keygen_rev);
+				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kMasterBase[name_idx], kKeyStr, keygen_rev), master_key[(byte_t)keygen_rev]);
 			}
 		}
 
@@ -227,10 +227,10 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		// package1_key_xx
 		if (name_idx < kPkg1Base.size())
 		{
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
-				//fmt::print("{:s}_key_{:02x}\n", kPkg1Base[name_idx], mkey_rev);
-				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kPkg1Base[name_idx], kKeyStr, mkey_rev), pkg1_key[mkey_rev]);
+				//fmt::print("{:s}_key_{:02x}\n", kPkg1Base[name_idx], keygen_rev);
+				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kPkg1Base[name_idx], kKeyStr, keygen_rev), pkg1_key[(byte_t)keygen_rev]);
 			}
 		}
 
@@ -238,10 +238,10 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		if (name_idx < kPkg2Base.size())
 		{
 			// package2_key_xx
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
-				//fmt::print("{:s}_key_{:02x}\n", kPkg2Base[name_idx], mkey_rev);
-				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kPkg2Base[name_idx], kKeyStr, mkey_rev), pkg2_key[mkey_rev]);
+				//fmt::print("{:s}_key_{:02x}\n", kPkg2Base[name_idx], keygen_rev);
+				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kPkg2Base[name_idx], kKeyStr, keygen_rev), pkg2_key[(byte_t)keygen_rev]);
 			}
 
 			// package2_sign_key
@@ -254,10 +254,10 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		// ticket common key
 		if (name_idx < kTicketCommonKeyBase.size())
 		{
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
-				//fmt::print("{:s}_{:02x}\n", kTicketCommonKeyBase[name_idx], mkey_rev);
-				_SAVE_AES128KEY(fmt::format("{:s}_{:02x}", kTicketCommonKeyBase[name_idx], mkey_rev), etik_common_key[mkey_rev]);
+				//fmt::print("{:s}_{:02x}\n", kTicketCommonKeyBase[name_idx], keygen_rev);
+				_SAVE_AES128KEY(fmt::format("{:s}_{:02x}", kTicketCommonKeyBase[name_idx], keygen_rev), etik_common_key[(byte_t)keygen_rev]);
 			}
 		}
 
@@ -269,11 +269,11 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 			//_SAVE_AES128XTSKEY(fmt::format("{:s}_{:s}", kContentArchiveHeaderBase[name_idx], kKeyStr), nca_header_key);
 			
 			// nca header sign0 key (generations)
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
-				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kContentArchiveHeaderBase[name_idx], kSignKey, mkey_rev, kPrivateStr);
-				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kContentArchiveHeaderBase[name_idx], kSignKey, mkey_rev, kModulusStr);
-				_SAVE_RSAKEY(fmt::format("{:s}_{:s}_{:02x}", kContentArchiveHeaderBase[name_idx], kSignKey, mkey_rev), nca_header_sign0_key[mkey_rev], 2048);
+				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kContentArchiveHeaderBase[name_idx], kSignKey, keygen_rev, kPrivateStr);
+				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kContentArchiveHeaderBase[name_idx], kSignKey, keygen_rev, kModulusStr);
+				_SAVE_RSAKEY(fmt::format("{:s}_{:s}_{:02x}", kContentArchiveHeaderBase[name_idx], kSignKey, keygen_rev), nca_header_sign0_key[(byte_t)keygen_rev], 2048);
 			}
 			// nca header sign0 key (generation 0)
 			//fmt::print("{:s}_{:s}_{:s}\n", kContentArchiveHeaderBase[name_idx], kSignKey, kPrivateStr);
@@ -287,24 +287,24 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		// nca key area encryption keys
 		if (name_idx < kNcaKeyAreaEncKeyBase.size())
 		{
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
 				for (size_t keak_idx = 0; keak_idx < kNcaKeyAreaKeyIndexStr.size(); keak_idx++)
 				{
-					//fmt::print("{:s}_{:s}_{:02x}\n", kNcaKeyAreaEncKeyBase[name_idx], kNcaKeyAreaKeyIndexStr[keak_idx], mkey_rev);
-					_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kNcaKeyAreaEncKeyBase[name_idx], kNcaKeyAreaKeyIndexStr[keak_idx], mkey_rev), nca_key_area_encryption_key[keak_idx][mkey_rev]);
+					//fmt::print("{:s}_{:s}_{:02x}\n", kNcaKeyAreaEncKeyBase[name_idx], kNcaKeyAreaKeyIndexStr[keak_idx], keygen_rev);
+					_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kNcaKeyAreaEncKeyBase[name_idx], kNcaKeyAreaKeyIndexStr[keak_idx], keygen_rev), nca_key_area_encryption_key[keak_idx][(byte_t)keygen_rev]);
 				}
 			}
 		}
 		// nca key area "hw" encryption keys
 		if (name_idx < kNcaKeyAreaEncKeyHwBase.size())
 		{
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
 				for (size_t keak_idx = 0; keak_idx < kNcaKeyAreaKeyIndexStr.size(); keak_idx++)
 				{
-					//fmt::print("{:s}_{:s}_{:02x}\n", kNcaKeyAreaEncKeyHwBase[name_idx], kNcaKeyAreaKeyIndexStr[keak_idx], mkey_rev);
-					_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kNcaKeyAreaEncKeyHwBase[name_idx], kNcaKeyAreaKeyIndexStr[keak_idx], mkey_rev), nca_key_area_encryption_key_hw[keak_idx][mkey_rev]);
+					//fmt::print("{:s}_{:s}_{:02x}\n", kNcaKeyAreaEncKeyHwBase[name_idx], kNcaKeyAreaKeyIndexStr[keak_idx], keygen_rev);
+					_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kNcaKeyAreaEncKeyHwBase[name_idx], kNcaKeyAreaKeyIndexStr[keak_idx], keygen_rev), nca_key_area_encryption_key_hw[keak_idx][(byte_t)keygen_rev]);
 				}
 			}
 		}
@@ -313,11 +313,11 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		if (name_idx < kAcidBase.size())
 		{
 			// acid sign key (generations)
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
-				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kAcidBase[name_idx], kSignKey, mkey_rev, kPrivateStr);
-				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kAcidBase[name_idx], kSignKey, mkey_rev, kModulusStr);
-				_SAVE_RSAKEY(fmt::format("{:s}_{:s}_{:02x}", kAcidBase[name_idx], kSignKey, mkey_rev), acid_sign_key[mkey_rev], 2048);
+				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kAcidBase[name_idx], kSignKey, keygen_rev, kPrivateStr);
+				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kAcidBase[name_idx], kSignKey, keygen_rev, kModulusStr);
+				_SAVE_RSAKEY(fmt::format("{:s}_{:s}_{:02x}", kAcidBase[name_idx], kSignKey, keygen_rev), acid_sign_key[(byte_t)keygen_rev], 2048);
 			}
 			// acid sign key (generation 0)
 			//fmt::print("{:s}_{:s}_{:s}\n", kAcidBase[name_idx], kSignKey, kPrivateStr);
@@ -329,11 +329,11 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		if (name_idx < kNrrCertBase.size())
 		{
 			// nrr certificate sign key (generations)
-			for (size_t mkey_rev = 0; mkey_rev < kMasterKeyMax; mkey_rev++)
+			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
 			{
-				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kNrrCertBase[name_idx], kSignKey, mkey_rev, kPrivateStr);
-				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kNrrCertBase[name_idx], kSignKey, mkey_rev, kModulusStr);
-				_SAVE_RSAKEY(fmt::format("{:s}_{:s}_{:02x}", kNrrCertBase[name_idx], kSignKey, mkey_rev), nrr_certificate_sign_key[mkey_rev], 2048);
+				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kNrrCertBase[name_idx], kSignKey, keygen_rev, kPrivateStr);
+				//fmt::print("{:s}_{:s}_{:02x}_{:s}\n", kNrrCertBase[name_idx], kSignKey, keygen_rev, kModulusStr);
+				_SAVE_RSAKEY(fmt::format("{:s}_{:s}_{:02x}", kNrrCertBase[name_idx], kSignKey, keygen_rev), nrr_certificate_sign_key[(byte_t)keygen_rev], 2048);
 			}
 			// nrr certificate sign key (generation 0)
 			//fmt::print("{:s}_{:s}_{:s}\n", kNrrCertBase[name_idx], kSignKey, kPrivateStr);
@@ -345,7 +345,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		if (name_idx < kXciHeaderBase.size())
 		{
 			// xci header key (based on index)
-			for (size_t kek_index = 0; kek_index < 8; kek_index++)
+			for (byte_t kek_index = 0; kek_index < 8; kek_index++)
 			{
 				//fmt::print("{:s}_{:s}_{:02x}\n", kXciHeaderBase[name_idx], kKeyStr, kek_index);
 				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kXciHeaderBase[name_idx], kKeyStr, kek_index), xci_header_key[kek_index]);
@@ -364,7 +364,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		if (name_idx < kXciInitialDataBase.size())
 		{
 			// xci initial data key (based on index)
-			for (size_t kek_index = 0; kek_index < 8; kek_index++)
+			for (byte_t kek_index = 0; kek_index < 8; kek_index++)
 			{
 				//fmt::print("{:s}_{:s}_{:02x}\n", kXciInitialDataBase[name_idx], kKekStr, kek_index);
 				_SAVE_AES128KEY(fmt::format("{:s}_{:s}_{:02x}", kXciInitialDataBase[name_idx], kKekStr, kek_index), xci_initial_data_kek[kek_index]);
