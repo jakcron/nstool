@@ -20,8 +20,7 @@ public:
 	void setVerifyMode(bool verify);
 
 private:
-	const std::string kModuleName = "PkiCertProcess";
-	static const size_t kSmallHexDumpLen = 0x10;
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	KeyBag mKeyCfg;
@@ -35,10 +34,9 @@ private:
 	void displayCerts();
 	void displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert);
 
-	size_t getHexDumpLen(size_t max_size) const;
-	const char* getSignTypeStr(nn::pki::sign::SignatureId type) const;
-	const char* getEndiannessStr(bool isLittleEndian) const;
-	const char* getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const;
+	std::string getSignTypeStr(nn::pki::sign::SignatureId type) const;
+	std::string getEndiannessStr(bool isLittleEndian) const;
+	std::string getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const;
 };
 
 }

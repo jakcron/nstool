@@ -189,6 +189,7 @@
     <ClCompile Include="..\..\..\src\main.cpp" />
     <ClCompile Include="..\..\..\src\NacpProcess.cpp" />
     <ClCompile Include="..\..\..\src\PfsProcess.cpp" />
+    <ClCompile Include="..\..\..\src\PkiCertProcess.cpp" />
     <ClCompile Include="..\..\..\src\PkiValidator.cpp" />
     <ClCompile Include="..\..\..\src\RoMetadataProcess.cpp" />
     <ClCompile Include="..\..\..\src\RomfsProcess.cpp" />

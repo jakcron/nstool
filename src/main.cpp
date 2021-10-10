@@ -14,7 +14,7 @@
 #include "NacpProcess.h"
 //#include "IniProcess.h"
 //#include "KipProcess.h"
-//#include "PkiCertProcess.h"
+#include "PkiCertProcess.h"
 #include "EsTikProcess.h"
 #include "AssetProcess.h"
 
@@ -188,6 +188,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
+		*/
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_PKI_CERT)
 		{
 			nstool::PkiCertProcess obj;
@@ -199,7 +200,6 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
-		*/
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_ES_TIK)
 		{
 			nstool::EsTikProcess obj;
