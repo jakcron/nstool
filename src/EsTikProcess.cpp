@@ -65,7 +65,7 @@ void nstool::EsTikProcess::importTicket()
 		throw tc::Exception(mModuleName, "File too large.");
 	}
 
-	// read cnmt
+	// read ticket
 	tc::ByteData scratch = tc::ByteData(file_size);
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read(scratch.data(), scratch.size());
