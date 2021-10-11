@@ -187,6 +187,7 @@
     <ClCompile Include="..\..\..\src\GameCardProcess.cpp" />
     <ClCompile Include="..\..\..\src\KeyBag.cpp" />
     <ClCompile Include="..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\src\MetaProcess.cpp" />
     <ClCompile Include="..\..\..\src\NacpProcess.cpp" />
     <ClCompile Include="..\..\..\src\NroProcess.cpp" />
     <ClCompile Include="..\..\..\src\NsoProcess.cpp" />

@@ -7,7 +7,7 @@
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
 //#include "NcaProcess.h"
-//#include "MetaProcess.h"
+#include "MetaProcess.h"
 #include "CnmtProcess.h"
 #include "NsoProcess.h"
 #include "NroProcess.h"
@@ -93,6 +93,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
+		*/
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_META)
 		{
 			nstool::MetaProcess obj;
@@ -104,7 +105,6 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
-		*/
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_CNMT)
 		{
 			nstool::CnmtProcess obj;

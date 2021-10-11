@@ -21,7 +21,7 @@ public:
 	const nn::hac::Meta& getMeta() const;
 
 private:
-	const std::string kModuleName = "MetaProcess";
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	KeyBag mKeyCfg;
@@ -41,6 +41,8 @@ private:
 	void displayFac(const nn::hac::FileSystemAccessControl& fac);
 	void displaySac(const nn::hac::ServiceAccessControl& sac);
 	void displayKernelCap(const nn::hac::KernelCapabilityControl& kern);
+
+	std::string formatMappingAsString(const nn::hac::MemoryMappingHandler::sMemoryMapping& map) const;
 };
 
 }
