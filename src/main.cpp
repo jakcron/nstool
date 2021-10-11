@@ -9,8 +9,8 @@
 //#include "NcaProcess.h"
 //#include "MetaProcess.h"
 #include "CnmtProcess.h"
-//#include "NsoProcess.h"
-//#include "NroProcess.h"
+#include "NsoProcess.h"
+#include "NroProcess.h"
 #include "NacpProcess.h"
 //#include "IniProcess.h"
 //#include "KipProcess.h"
@@ -115,7 +115,6 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
-		/*
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_NSO)
 		{
 			nstool::NsoProcess obj;
@@ -147,13 +146,11 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			if (set.aset.nacp_extract_path.isSet())
 				obj.setAssetNacpExtractPath(set.aset.nacp_extract_path.get());
 
-			if (set.fs.extract_path.isSet())
-				obj.setAssetRomfsExtractPath(set.fs.extract_path.get());
-			obj.setAssetListFs(set.fs.show_fs_tree);
+			obj.setAssetRomfsShowFsTree(set.fs.show_fs_tree);
+			obj.setAssetRomfsExtractJobs(set.fs.extract_jobs);
 
 			obj.process();
 		}
-		*/
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_NACP)
 		{
 			nstool::NacpProcess obj;

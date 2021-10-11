@@ -22,9 +22,9 @@ public:
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
-	const RoMetadataProcess& getRoMetadataProcess() const;
+	const nstool::RoMetadataProcess& getRoMetadataProcess() const;
 private:
-	const std::string kModuleName = "NsoProcess";
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
@@ -35,12 +35,15 @@ private:
 
 	nn::hac::NsoHeader mHdr;
 	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
-	RoMetadataProcess mRoMeta;
+	nstool::RoMetadataProcess mRoMeta;
 
 	void importHeader();
 	void importCodeSegments();
 	void displayNsoHeader();
 	void processRoMeta();
+
+	size_t decompressData(const byte_t* src, size_t src_len, byte_t* dst, size_t dst_capacity);
+
 };
 
 }

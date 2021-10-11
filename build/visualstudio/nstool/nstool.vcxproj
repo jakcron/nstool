@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -86,7 +86,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -98,7 +98,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -114,7 +114,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -188,6 +188,8 @@
     <ClCompile Include="..\..\..\src\KeyBag.cpp" />
     <ClCompile Include="..\..\..\src\main.cpp" />
     <ClCompile Include="..\..\..\src\NacpProcess.cpp" />
+    <ClCompile Include="..\..\..\src\NroProcess.cpp" />
+    <ClCompile Include="..\..\..\src\NsoProcess.cpp" />
     <ClCompile Include="..\..\..\src\PfsProcess.cpp" />
     <ClCompile Include="..\..\..\src\PkiCertProcess.cpp" />
     <ClCompile Include="..\..\..\src\PkiValidator.cpp" />

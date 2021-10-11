@@ -3,7 +3,6 @@
 #include "RoMetadataProcess.h"
 #include "AssetProcess.h"
 
-#include <nn/hac/define/meta.h>
 #include <nn/hac/NroHeader.h>
 
 namespace nstool {
@@ -24,14 +23,14 @@ public:
 	void setListSymbols(bool listSymbols);
 
 	// for homebrew NROs with Asset blobs appended
-	void setAssetListFs(bool list);
 	void setAssetIconExtractPath(const tc::io::Path& path);
 	void setAssetNacpExtractPath(const tc::io::Path& path);
-	void setAssetRomfsExtractPath(const tc::io::Path& path);
+	void setAssetRomfsShowFsTree(bool show_fs_tree);
+	void setAssetRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
-	const RoMetadataProcess& getRoMetadataProcess() const;
+	const nstool::RoMetadataProcess& getRoMetadataProcess() const;
 private:
-	const std::string kModuleName = "NroProcess";
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
@@ -39,9 +38,9 @@ private:
 
 	nn::hac::NroHeader mHdr;
 	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
-	RoMetadataProcess mRoMeta;
+	nstool::RoMetadataProcess mRoMeta;
 	bool mIsHomebrewNro;
-	AssetProcess mAssetProc;
+	nstool::AssetProcess mAssetProc;
 
 	void importHeader();
 	void importCodeSegments();
