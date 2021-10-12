@@ -10,6 +10,7 @@
 
 
 nstool::IniProcess::IniProcess() :
+	mModuleName("nstool::IniProcess"),
 	mFile(),
 	mCliOutputMode(true, false, false, false),
 	mVerify(false),
@@ -27,7 +28,7 @@ void nstool::IniProcess::process()
 		displayHeader();
 		displayKipList();
 	}
-	if (mDoExtractKip)
+	if (mKipExtractPath.isSet())
 	{
 		extractKipList();
 	}
@@ -48,29 +49,35 @@ void nstool::IniProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void nstool::IniProcess::setKipExtractPath(const std::string& path)
+void nstool::IniProcess::setKipExtractPath(const tc::io::Path& path)
 {
-	mDoExtractKip = true;
 	mKipExtractPath = path;
 }
 
 void nstool::IniProcess::importHeader()
 {
-	tc::ByteData scratch;
-
-	if (*mFile == nullptr)
+	if (mFile == nullptr)
 	{
-		throw tc::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(mModuleName, "No file reader set.");
+	}
+	if (mFile->canRead() == false || mFile->canSeek() == false)
+	{
+		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
 	}
 
-	if ((*mFile)->size() < sizeof(nn::hac::sIniHeader))
+	// check if file_size is smaller than INI header size
+	size_t file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());
+	if (file_size < sizeof(nn::hac::sIniHeader))
 	{
-		throw tc::Exception(kModuleName, "Corrupt INI: file too small");
+		throw tc::Exception(mModuleName, "Corrupt NSO: file too small.");
 	}
 
-	scratch.alloc(sizeof(nn::hac::sIniHeader));
-	(*mFile)->read(scratch.data(), 0, scratch.size());
+	// read ini
+	tc::ByteData scratch = tc::ByteData(sizeof(nn::hac::sIniHeader));
+	mFile->seek(0, tc::io::SeekOrigin::Begin);
+	mFile->read(scratch.data(), scratch.size());
 
+	// parse ini header
 	mHdr.fromBytes(scratch.data(), scratch.size());
 }
 
@@ -97,9 +104,9 @@ void nstool::IniProcess::importKipList()
 
 void nstool::IniProcess::displayHeader()
 {
-	std::cout << "[INI Header]" << std::endl;
-	std::cout << "  Size:         0x" << std::hex << mHdr.getSize() << std::endl;
-	std::cout << "  KIP Num:      " << std::dec << (uint32_t)mHdr.getKipNum() << std::endl;
+	fmt::print("[INI Header]\n");
+	fmt::print("  Size:         0x{:x}\n", mHdr.getSize());
+	fmt::print("  KIP Num:      {:d}\n", mHdr.getKipNum());
 }
 
 void nstool::IniProcess::displayKipList()
@@ -123,7 +130,7 @@ void nstool::IniProcess::extractKipList()
 	
 
 	// allocate cache memory
-	cache.alloc(kCacheSize);
+	cache = tc::ByteData(kCacheSize);
 
 	// make extract dir
 	fnd::io::makeDirectory(mKipExtractPath);
