@@ -19,7 +19,6 @@ public:
 
 	void setKipExtractPath(const tc::io::Path& path);
 private:
-	const std::string kKipExtention = ".kip";
 	const size_t kCacheSize = 0x10000;
 
 	std::string mModuleName;
