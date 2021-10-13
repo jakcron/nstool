@@ -16,7 +16,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 private:
-	const std::string kModuleName = "KipProcess";
+	std::string mModuleName;
 
 	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
@@ -27,8 +27,11 @@ private:
 
 	void importHeader();
 	void importCodeSegments();
+	size_t decompressData(const byte_t* src, size_t src_len, byte_t* dst, size_t dst_capacity);
 	void displayHeader();
 	void displayKernelCap(const nn::hac::KernelCapabilityControl& kern);
+
+	std::string formatMappingAsString(const nn::hac::MemoryMappingHandler::sMemoryMapping& map) const;
 };
 
 }

@@ -1,5 +1,6 @@
 #include "IniProcess.h"
 
+#include "util.h"
 #include "KipProcess.h"
 
 nstool::IniProcess::IniProcess() :
@@ -58,10 +59,9 @@ void nstool::IniProcess::importHeader()
 	}
 
 	// check if file_size is smaller than INI header size
-	size_t file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());
-	if (file_size < sizeof(nn::hac::sIniHeader))
+	if (tc::io::IOUtil::castInt64ToSize(mFile->length()) < sizeof(nn::hac::sIniHeader))
 	{
-		throw tc::Exception(mModuleName, "Corrupt NSO: file too small.");
+		throw tc::Exception(mModuleName, "Corrupt INI: file too small.");
 	}
 
 	// read ini
@@ -76,7 +76,7 @@ void nstool::IniProcess::importHeader()
 void nstool::IniProcess::importKipList()
 {
 	// kip pos info
-	int64_t kip_pos = sizeof(nn::hac::sIniHeader);
+	int64_t kip_pos = tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sIniHeader));
 	int64_t kip_size = 0;
 
 	// tmp data to determine size
@@ -89,7 +89,7 @@ void nstool::IniProcess::importKipList()
 		mFile->read((byte_t*)&hdr_raw, sizeof(hdr_raw));
 		hdr.fromBytes((byte_t*)&hdr_raw, sizeof(hdr_raw));		
 		kip_size = getKipSizeFromHeader(hdr);
-		mKipList.push_back(std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, kip_pos, kip_size)));
+		mKipList.push_back({hdr, std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, kip_pos, kip_size))});
 		kip_pos += kip_size;
 	}
 }
@@ -103,11 +103,11 @@ void nstool::IniProcess::displayHeader()
 
 void nstool::IniProcess::displayKipList()
 {
-	for (size_t i = 0; i < mKipList.size(); i++)
+	for (auto itr = mKipList.begin(); itr != mKipList.end(); itr++)
 	{
 		KipProcess obj;
 
-		obj.setInputFile(mKipList[i]);
+		obj.setInputFile(itr->stream);
 		obj.setCliOutputMode(mCliOutputMode);
 		obj.setVerifyMode(mVerify);
 
@@ -117,53 +117,34 @@ void nstool::IniProcess::displayKipList()
 
 void nstool::IniProcess::extractKipList()
 {
-	tc::ByteData cache;
-	nn::hac::KernelInitialProcessHeader hdr;
-	
-
 	// allocate cache memory
-	cache = tc::ByteData(kCacheSize);
+	tc::ByteData cache = tc::ByteData(kCacheSize);
 
 	// make extract dir
-	fnd::io::makeDirectory(mKipExtractPath);
-
+	tc::io::LocalStorage local_fs;
+	local_fs.createDirectory(mKipExtractPath.get());
 	
-	// outfile object for writing KIP
-	fnd::SimpleFile out_file;
-	std::string out_path;
-	size_t out_size;
+	// out path for extracted KIP
+	tc::io::Path out_path;
+	std::string out_path_str;
 
-	for (size_t i = 0; i < mKipList.size(); i++)
+	// extract KIPs
+	for (auto itr = mKipList.begin(); itr != mKipList.end(); itr++)
 	{
-		// read header
-		(*mKipList[i])->read(cache.data(), 0, cache.size());
-		hdr.fromBytes(cache.data(), cache.size());		
+		out_path = mKipExtractPath.get();
+		out_path += fmt::format("{:s}.kip", itr->hdr.getName());
 
-		// generate path
-		out_path.clear();
-		fnd::io::appendToPath(out_path, mKipExtractPath);
-		fnd::io::appendToPath(out_path, hdr.getName() + kKipExtention);
+		tc::io::PathUtil::pathToUnixUTF8(out_path, out_path_str);
 
-		// open file
-		out_file.open(out_path, fnd::SimpleFile::Create);
-
-		// get kip file size
-		out_size = (*mKipList[i])->size();
-		// extract kip
 		if (mCliOutputMode.show_basic_info)
-			printf("extract=[%s]\n", out_path.c_str());
+			fmt::print("Saving {:s}...\n", out_path_str);
 
-		(*mKipList[i])->seek(0);
-		for (size_t j = 0; j < ((out_size / kCacheSize) + ((out_size % kCacheSize) != 0)); j++)
-		{
-			(*mKipList[i])->read(cache.data(), _MIN(out_size - (kCacheSize * j), kCacheSize));
-			out_file.write(cache.data(), _MIN(out_size - (kCacheSize * j), kCacheSize));
-		}			
-		out_file.close();
+		writeStreamToFile(itr->stream, out_path, cache);
 	}
 }
 
 int64_t nstool::IniProcess::getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const
-{
-	return sizeof(nn::hac::sKipHeader) + hdr.getTextSegmentInfo().file_layout.size + hdr.getRoSegmentInfo().file_layout.size + hdr.getDataSegmentInfo().file_layout.size;
+{	
+	// the order of elements in a KIP are sequential, there are no file offsets
+	return int64_t(sizeof(nn::hac::sKipHeader)) + int64_t(hdr.getTextSegmentInfo().file_layout.size + hdr.getRoSegmentInfo().file_layout.size + hdr.getDataSegmentInfo().file_layout.size);
 }
