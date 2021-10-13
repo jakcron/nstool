@@ -11,6 +11,8 @@ class PfsProcess
 public:
 	PfsProcess();
 
+	void process();
+
 	// generic
 	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
@@ -20,8 +22,6 @@ public:
 	void setShowFsTree(bool show_fs_tree);
 	void setFsRootLabel(const std::string& root_label);
 	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
-
-	void process();
 
 	// post process() get PFS/FS out
 	const nn::hac::PartitionFsHeader& getPfsHeader() const;

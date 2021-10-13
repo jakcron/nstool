@@ -17,7 +17,6 @@ public:
 	void setVerifyMode(bool verify);
 
 	const nn::hac::ContentMeta& getContentMeta() const;
-
 private:
 	std::string mModuleName;
 

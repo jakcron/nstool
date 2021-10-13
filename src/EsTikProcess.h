@@ -20,7 +20,6 @@ public:
 	void setCertificateChain(const std::vector<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
 	void setCliOutputMode(CliOutputMode mode);
 	void setVerifyMode(bool verify);
-
 private:
 	std::string mModuleName;
 

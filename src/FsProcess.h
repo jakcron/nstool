@@ -12,6 +12,8 @@ class FsProcess
 public:
 	FsProcess();
 
+	void process();
+
 	void setInputFileSystem(const std::shared_ptr<tc::io::IStorage>& input_fs);
 	void setFsFormatName(const std::string& fs_format_name);
 	void setFsProperties(const std::vector<std::string>& properties);
@@ -19,8 +21,6 @@ public:
 	void setShowFsTree(bool show_fs_tree);
 	void setFsRootLabel(const std::string& root_label);
 	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
-
-	void process();
 private:
 	std::string mModuleLabel;
 

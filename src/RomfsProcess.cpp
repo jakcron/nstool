@@ -18,37 +18,6 @@ nstool::RomfsProcess::RomfsProcess() :
 	mFsProcess.setFsFormatName("RomFS");
 }
 
-void nstool::RomfsProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
-{
-	mFile = file;
-}
-
-void nstool::RomfsProcess::setCliOutputMode(CliOutputMode type)
-{
-	mCliOutputMode = type;
-	mFsProcess.setShowFsInfo(mCliOutputMode.show_basic_info);
-}
-
-void nstool::RomfsProcess::setVerifyMode(bool verify)
-{
-	mVerify = verify;
-}
-
-void nstool::RomfsProcess::setFsRootLabel(const std::string& root_label)
-{
-	mFsProcess.setFsRootLabel(root_label);
-}
-
-void nstool::RomfsProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
-{
-	mFsProcess.setExtractJobs(extract_jobs);
-}
-
-void nstool::RomfsProcess::setShowFsTree(bool list_fs)
-{
-	mFsProcess.setShowFsTree(list_fs);
-}
-
 void nstool::RomfsProcess::process()
 {
 	if (mFile == nullptr)
@@ -125,4 +94,35 @@ void nstool::RomfsProcess::process()
 
 	// process filesystem
 	mFsProcess.process();
+}
+
+void nstool::RomfsProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
+{
+	mFile = file;
+}
+
+void nstool::RomfsProcess::setCliOutputMode(CliOutputMode type)
+{
+	mCliOutputMode = type;
+	mFsProcess.setShowFsInfo(mCliOutputMode.show_basic_info);
+}
+
+void nstool::RomfsProcess::setVerifyMode(bool verify)
+{
+	mVerify = verify;
+}
+
+void nstool::RomfsProcess::setFsRootLabel(const std::string& root_label)
+{
+	mFsProcess.setFsRootLabel(root_label);
+}
+
+void nstool::RomfsProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
+{
+	mFsProcess.setExtractJobs(extract_jobs);
+}
+
+void nstool::RomfsProcess::setShowFsTree(bool list_fs)
+{
+	mFsProcess.setShowFsTree(list_fs);
 }

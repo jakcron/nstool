@@ -19,6 +19,34 @@ nstool::FsProcess::FsProcess() :
 
 }
 
+void nstool::FsProcess::process()
+{
+	if (mInputFs == nullptr)
+	{
+		throw tc::InvalidOperationException(mModuleLabel, "No input filesystem");
+	}
+
+	if (mShowFsInfo)
+	{
+		fmt::print("[{:s}]\n", mFsFormatName.isSet() ? mFsFormatName.get() : "FileSystem/Info");
+		for (auto itr = mProperties.begin(); itr != mProperties.end(); itr++)
+		{
+			fmt::print("  {:s}\n", *itr);
+		}
+	}
+
+	if (mShowFsTree)
+	{
+		printFs();
+	}
+		
+
+	if (mExtractJobs.empty() == false)
+	{
+		extractFs();
+	}
+}
+
 void nstool::FsProcess::setInputFileSystem(const std::shared_ptr<tc::io::IStorage>& input_fs)
 {
 	mInputFs = input_fs;
@@ -52,34 +80,6 @@ void nstool::FsProcess::setFsRootLabel(const std::string& root_label)
 void nstool::FsProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
 	mExtractJobs = extract_jobs;
-}
-
-void nstool::FsProcess::process()
-{
-	if (mInputFs == nullptr)
-	{
-		throw tc::InvalidOperationException(mModuleLabel, "No input filesystem");
-	}
-
-	if (mShowFsInfo)
-	{
-		fmt::print("[{:s}]\n", mFsFormatName.isSet() ? mFsFormatName.get() : "FileSystem/Info");
-		for (auto itr = mProperties.begin(); itr != mProperties.end(); itr++)
-		{
-			fmt::print("  {:s}\n", *itr);
-		}
-	}
-
-	if (mShowFsTree)
-	{
-		printFs();
-	}
-		
-
-	if (mExtractJobs.empty() == false)
-	{
-		extractFs();
-	}
 }
 
 void nstool::FsProcess::printFs()

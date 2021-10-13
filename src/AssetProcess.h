@@ -12,6 +12,8 @@ class AssetProcess
 public:
 	AssetProcess();
 
+	void process();
+
 	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
@@ -21,9 +23,6 @@ public:
 	
 	void setRomfsShowFsTree(bool show_fs_tree);
 	void setRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
-
-	void process();
-
 private:
 	std::string mModuleName;
 

@@ -11,6 +11,8 @@ class RomfsProcess
 public:
 	RomfsProcess();
 
+	void process();
+
 	// generic
 	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
@@ -20,8 +22,6 @@ public:
 	void setFsRootLabel(const std::string& root_label);
 	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 	void setShowFsTree(bool show_fs_tree);
-
-	void process();
 private:
 	static const size_t kCacheSize = 0x10000;
 

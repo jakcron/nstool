@@ -8,7 +8,15 @@ nstool::AssetProcess::AssetProcess() :
 	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
-}         
+}    
+
+void nstool::AssetProcess::process()
+{
+	importHeader();
+	if (mCliOutputMode.show_basic_info)
+		displayHeader();
+	processSections();
+}     
 
 void nstool::AssetProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
@@ -43,14 +51,6 @@ void nstool::AssetProcess::setRomfsShowFsTree(bool show_fs_tree)
 void nstool::AssetProcess::setRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
 	mRomfs.setExtractJobs(extract_jobs);
-}
-
-void nstool::AssetProcess::process()
-{
-	importHeader();
-	if (mCliOutputMode.show_basic_info)
-		displayHeader();
-	processSections();
 }
 
 void nstool::AssetProcess::importHeader()

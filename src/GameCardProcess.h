@@ -12,6 +12,8 @@ class GameCardProcess
 public:
 	GameCardProcess();
 
+	void process();
+
 	// generic
 	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setKeyCfg(const KeyBag& keycfg);
@@ -21,9 +23,6 @@ public:
 	// fs specific
 	void setShowFsTree(bool show_fs_tree);
 	void setExtractJobs(const std::vector<nstool::ExtractJob> extract_jobs);
-
-	void process();
-
 private:
 	const std::string kXciMountPointName = "gamecard";
 
