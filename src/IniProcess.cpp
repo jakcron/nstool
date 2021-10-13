@@ -1,20 +1,12 @@
-#include <iostream>
-#include <iomanip>
-#include <fnd/io.h>
-#include <fnd/SimpleFile.h>
-#include <fnd/SimpleTextOutput.h>
-#include <fnd/OffsetAdjustedIFile.h>
-#include <fnd/Vec.h>
 #include "IniProcess.h"
-#include "KipProcess.h"
 
+#include "KipProcess.h"
 
 nstool::IniProcess::IniProcess() :
 	mModuleName("nstool::IniProcess"),
 	mFile(),
 	mCliOutputMode(true, false, false, false),
 	mVerify(false),
-	mDoExtractKip(false),
 	mKipExtractPath()
 {
 }
@@ -84,20 +76,20 @@ void nstool::IniProcess::importHeader()
 void nstool::IniProcess::importKipList()
 {
 	// kip pos info
-	size_t kip_pos = sizeof(nn::hac::sIniHeader);
-	size_t kip_size = 0;
+	int64_t kip_pos = sizeof(nn::hac::sIniHeader);
+	int64_t kip_size = 0;
 
 	// tmp data to determine size
-	tc::ByteData hdr_raw;
+	nn::hac::sKipHeader hdr_raw;
 	nn::hac::KernelInitialProcessHeader hdr;
 
-	hdr_raw.alloc(sizeof(nn::hac::sKipHeader));
 	for (size_t i = 0; i < mHdr.getKipNum(); i++)
 	{
-		(*mFile)->read(hdr_raw.data(), kip_pos, hdr_raw.size());
-		hdr.fromBytes(hdr_raw.data(), hdr_raw.size());		
+		mFile->seek(kip_pos, tc::io::SeekOrigin::Begin);
+		mFile->read((byte_t*)&hdr_raw, sizeof(hdr_raw));
+		hdr.fromBytes((byte_t*)&hdr_raw, sizeof(hdr_raw));		
 		kip_size = getKipSizeFromHeader(hdr);
-		mKipList.push_back(new fnd::OffsetAdjustedIFile(mFile, kip_pos, kip_size));
+		mKipList.push_back(std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, kip_pos, kip_size)));
 		kip_pos += kip_size;
 	}
 }
@@ -171,7 +163,7 @@ void nstool::IniProcess::extractKipList()
 	}
 }
 
-size_t nstool::IniProcess::getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const
+int64_t nstool::IniProcess::getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const
 {
 	return sizeof(nn::hac::sKipHeader) + hdr.getTextSegmentInfo().file_layout.size + hdr.getRoSegmentInfo().file_layout.size + hdr.getDataSegmentInfo().file_layout.size;
 }

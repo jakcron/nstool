@@ -31,7 +31,12 @@ private:
 	tc::Optional<tc::io::Path> mKipExtractPath;
 
 	nn::hac::IniHeader mHdr;
-	std::vector<std::shared_ptr<tc::io::IStream>> mKipList;
+	struct InnerKipInfo
+	{
+		nn::hac::KernelInitialProcessHeader hdr;
+		std::shared_ptr<tc::io::IStream> stream;
+	};
+	std::vector<InnerKipInfo> mKipList;
 
 	void importHeader();
 	void importKipList();
@@ -39,7 +44,7 @@ private:
 	void displayKipList();
 	void extractKipList();
 
-	size_t getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const;
+	int64_t getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const;
 };
 
 }
