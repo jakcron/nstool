@@ -191,6 +191,7 @@
     <ClCompile Include="..\..\..\src\main.cpp" />
     <ClCompile Include="..\..\..\src\MetaProcess.cpp" />
     <ClCompile Include="..\..\..\src\NacpProcess.cpp" />
+    <ClCompile Include="..\..\..\src\NcaProcess.cpp" />
     <ClCompile Include="..\..\..\src\NroProcess.cpp" />
     <ClCompile Include="..\..\..\src\NsoProcess.cpp" />
     <ClCompile Include="..\..\..\src\PfsProcess.cpp" />
