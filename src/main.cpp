@@ -6,7 +6,7 @@
 #include "GameCardProcess.h"
 #include "PfsProcess.h"
 #include "RomfsProcess.h"
-//#include "NcaProcess.h"
+#include "NcaProcess.h"
 #include "MetaProcess.h"
 #include "CnmtProcess.h"
 #include "NsoProcess.h"
@@ -70,7 +70,6 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
-		/*
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_NCA)
 		{
 			nstool::NcaProcess obj;
@@ -80,7 +79,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
 
-
+			/*
 			if (set.nca.part0_extract_path.isSet())
 				obj.setPartition0ExtractPath(set.nca.part0_extract_path.get());
 			if (set.nca.part1_extract_path.isSet())
@@ -90,10 +89,10 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			if (set.nca.part3_extract_path.isSet())
 				obj.setPartition3ExtractPath(set.nca.part3_extract_path.get());
 			obj.setListFs(set.fs.show_fs_tree);
+			*/
 
 			obj.process();
 		}
-		*/
 		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_META)
 		{
 			nstool::MetaProcess obj;

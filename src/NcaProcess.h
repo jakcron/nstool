@@ -1,8 +1,10 @@
 #pragma once
 #include "types.h"
 #include "KeyBag.h"
+#include "FsProcess.h"
 
 #include <nn/hac/ContentArchiveHeader.h>
+#include <nn/hac/HierarchicalValidatedStream.h>
 
 namespace nstool {
 
@@ -19,16 +21,17 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	// nca specfic
-	void setPartition0ExtractPath(const tc::io::Path& path);
-	void setPartition1ExtractPath(const tc::io::Path& path);
-	void setPartition2ExtractPath(const tc::io::Path& path);
-	void setPartition3ExtractPath(const tc::io::Path& path);
-	void setListFs(bool list_fs);
+	// fs specific
+	void setShowFsTree(bool show_fs_tree);
+	void setFsRootLabel(const std::string& root_label);
+	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
+	// post process() get FS out
+	const std::shared_ptr<tc::io::IStorage>& getFileSystem() const;
 private:
-	const std::string kModuleName = "NcaProcess";
-	const std::string kNpdmExefsPath = "main.npdm";
+	const std::string kNpdmExefsPath = "/main.npdm";
+
+	std::string mModuleName;
 
 	// user options
 	std::shared_ptr<tc::io::IStream> mFile;
@@ -36,13 +39,13 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	std::array<tc::Optional<tc::io::Path>, nn::hac::nca::kPartitionNum> mPartitionPath;
+	// fs processing
+	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	FsProcess mFsProcess;
 
-	bool mListFs;
-
-	// data
+	// nca data
 	nn::hac::sContentArchiveHeaderBlock mHdrBlock;
-	fnd::sha::sSha256Hash mHdrHash;
+	nn::hac::detail::sha256_hash_t mHdrHash;
 	nn::hac::ContentArchiveHeader mHdr;
 
 	// crypto
@@ -81,9 +84,12 @@ private:
 		tc::Optional<nn::hac::detail::aes128_key_t> aes_ctr;
 	} mContentKey;
 	
+	// raw partition data
 	struct sPartitionInfo
 	{
 		std::shared_ptr<tc::io::IStream> reader;
+		tc::io::VirtualFileSystem::FileSystemMeta fs_meta;
+		std::shared_ptr<tc::io::IStorage> fs_reader;
 		std::string fail_reason;
 		int64_t offset;
 		int64_t size;
@@ -92,11 +98,13 @@ private:
 		nn::hac::nca::FormatType format_type;
 		nn::hac::nca::HashType hash_type;
 		nn::hac::nca::EncryptionType enc_type;
+		nn::hac::HierarchicalValidatedStream::StreamInfo hashed_stream_info;
 		//fnd::LayeredIntegrityMetadata layered_intergrity_metadata;
 		nn::hac::detail::aes_iv_t aes_ctr;
-	} 
+	};
 	
 	std::array<sPartitionInfo, nn::hac::nca::kPartitionNum> mPartitions;
+
 
 	void importHeader();
 	void generateNcaBodyEncryptionKeys();
