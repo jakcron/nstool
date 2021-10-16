@@ -3,8 +3,8 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 
 ## Supported File Formats
 * Meta (.npdm)
-* PartitionFS (and HashedPartitionFS) (includes raw .nsp)
-* RomFS (and CompressedRomFS)
+* PartitionFS (and Sha256PartitionFS) (includes raw .nsp)
+* RomFS
 * NX GameCard Image (.xci)
 * Nintendo Content Archive (.nca)
 * Content Metadata (.cnmt) 
@@ -13,8 +13,8 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 * Kernel Initial Process List (.ini)
 * Kernel Initial Process (.kip)
 * Nintendo Application Control Property (.nacp)
+* ES Certificate (.cert)
 * ES Ticket (v2 only) (.tik)
-* PKI Certificate (.cert)
 
 # Usage
 ```
