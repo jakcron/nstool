@@ -1,18 +1,18 @@
-#include "PkiCertProcess.h"
+#include "EsCertProcess.h"
 #include "PkiValidator.h"
 #include "util.h"
 
 #include <nn/pki/SignUtils.h>
 
-nstool::PkiCertProcess::PkiCertProcess() :
-	mModuleName("nstool::PkiCertProcess"),
+nstool::EsCertProcess::EsCertProcess() :
+	mModuleName("nstool::EsCertProcess"),
 	mFile(),
 	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
 }
 
-void nstool::PkiCertProcess::process()
+void nstool::EsCertProcess::process()
 {
 	importCerts();
 
@@ -23,27 +23,27 @@ void nstool::PkiCertProcess::process()
 		displayCerts();
 }
 
-void nstool::PkiCertProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
+void nstool::EsCertProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void nstool::PkiCertProcess::setKeyCfg(const KeyBag& keycfg)
+void nstool::EsCertProcess::setKeyCfg(const KeyBag& keycfg)
 {
 	mKeyCfg = keycfg;
 }
 
-void nstool::PkiCertProcess::setCliOutputMode(CliOutputMode mode)
+void nstool::EsCertProcess::setCliOutputMode(CliOutputMode mode)
 {
 	mCliOutputMode = mode;
 }
 
-void nstool::PkiCertProcess::setVerifyMode(bool verify)
+void nstool::EsCertProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void nstool::PkiCertProcess::importCerts()
+void nstool::EsCertProcess::importCerts()
 {
 	if (mFile == nullptr)
 	{
@@ -74,7 +74,7 @@ void nstool::PkiCertProcess::importCerts()
 	}
 }
 
-void nstool::PkiCertProcess::validateCerts()
+void nstool::EsCertProcess::validateCerts()
 {
 	PkiValidator pki;
 	
@@ -90,7 +90,7 @@ void nstool::PkiCertProcess::validateCerts()
 	}
 }
 
-void nstool::PkiCertProcess::displayCerts()
+void nstool::EsCertProcess::displayCerts()
 {
 	for (size_t i = 0; i < mCert.size(); i++)
 	{
@@ -98,9 +98,9 @@ void nstool::PkiCertProcess::displayCerts()
 	}
 }
 
-void nstool::PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
+void nstool::EsCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
 {
-	fmt::print("[NNPKI Certificate]\n");
+	fmt::print("[ES Certificate]\n");
 
 	fmt::print("  SignType       {:s}", getSignTypeStr(cert.getSignature().getSignType()));
 	if (mCliOutputMode.show_extended_info)
@@ -171,7 +171,7 @@ void nstool::PkiCertProcess::displayCert(const nn::pki::SignedData<nn::pki::Cert
 	}
 }
 
-std::string nstool::PkiCertProcess::getSignTypeStr(nn::pki::sign::SignatureId type) const
+std::string nstool::EsCertProcess::getSignTypeStr(nn::pki::sign::SignatureId type) const
 {
 	std::string str;
 	switch (type)
@@ -201,12 +201,12 @@ std::string nstool::PkiCertProcess::getSignTypeStr(nn::pki::sign::SignatureId ty
 	return str;
 }
 
-std::string nstool::PkiCertProcess::getEndiannessStr(bool isLittleEndian) const
+std::string nstool::EsCertProcess::getEndiannessStr(bool isLittleEndian) const
 {
 	return isLittleEndian ? "LittleEndian" : "BigEndian";
 }
 
-std::string nstool::PkiCertProcess::getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const
+std::string nstool::EsCertProcess::getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const
 {
 	std::string str;
 	switch (type)

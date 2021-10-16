@@ -156,6 +156,7 @@
     <ClInclude Include="..\..\..\src\CnmtProcess.h" />
     <ClInclude Include="..\..\..\src\elf.h" />
     <ClInclude Include="..\..\..\src\ElfSymbolParser.h" />
+    <ClInclude Include="..\..\..\src\EsCertProcess.h" />
     <ClInclude Include="..\..\..\src\EsTikProcess.h" />
     <ClInclude Include="..\..\..\src\FsProcess.h" />
     <ClInclude Include="..\..\..\src\GameCardProcess.h" />
@@ -168,7 +169,6 @@
     <ClInclude Include="..\..\..\src\NroProcess.h" />
     <ClInclude Include="..\..\..\src\NsoProcess.h" />
     <ClInclude Include="..\..\..\src\PfsProcess.h" />
-    <ClInclude Include="..\..\..\src\PkiCertProcess.h" />
     <ClInclude Include="..\..\..\src\PkiValidator.h" />
     <ClInclude Include="..\..\..\src\RoMetadataProcess.h" />
     <ClInclude Include="..\..\..\src\RomfsProcess.h" />
@@ -182,6 +182,7 @@
     <ClCompile Include="..\..\..\src\AssetProcess.cpp" />
     <ClCompile Include="..\..\..\src\CnmtProcess.cpp" />
     <ClCompile Include="..\..\..\src\ElfSymbolParser.cpp" />
+    <ClCompile Include="..\..\..\src\EsCertProcess.cpp" />
     <ClCompile Include="..\..\..\src\EsTikProcess.cpp" />
     <ClCompile Include="..\..\..\src\FsProcess.cpp" />
     <ClCompile Include="..\..\..\src\GameCardProcess.cpp" />
@@ -195,7 +196,6 @@
     <ClCompile Include="..\..\..\src\NroProcess.cpp" />
     <ClCompile Include="..\..\..\src\NsoProcess.cpp" />
     <ClCompile Include="..\..\..\src\PfsProcess.cpp" />
-    <ClCompile Include="..\..\..\src\PkiCertProcess.cpp" />
     <ClCompile Include="..\..\..\src\PkiValidator.cpp" />
     <ClCompile Include="..\..\..\src\RoMetadataProcess.cpp" />
     <ClCompile Include="..\..\..\src\RomfsProcess.cpp" />

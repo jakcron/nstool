@@ -7,10 +7,10 @@
 
 namespace nstool {
 
-class PkiCertProcess
+class EsCertProcess
 {
 public:
-	PkiCertProcess();
+	EsCertProcess();
 
 	void process();
 

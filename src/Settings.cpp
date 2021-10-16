@@ -292,7 +292,7 @@ public:
 		}
 		else if (params[0] == "cert")
 		{
-			mParam = nstool::Settings::FILE_TYPE_PKI_CERT;
+			mParam = nstool::Settings::FILE_TYPE_ES_CERT;
 		}
 		else if (params[0] == "tik")
 		{
@@ -665,7 +665,7 @@ void nstool::SettingsInitializer::determine_filetype()
 	// detect Certificate
 	else if (determineValidEsCertFromSample(raw_data))
 	{
-		infile.filetype = FILE_TYPE_PKI_CERT;
+		infile.filetype = FILE_TYPE_ES_CERT;
 	}
 	// detect Ticket
 	else if (determineValidEsTikFromSample(raw_data))

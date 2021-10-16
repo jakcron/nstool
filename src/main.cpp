@@ -14,7 +14,7 @@
 #include "NacpProcess.h"
 #include "IniProcess.h"
 #include "KipProcess.h"
-#include "PkiCertProcess.h"
+#include "EsCertProcess.h"
 #include "EsTikProcess.h"
 #include "AssetProcess.h"
 
@@ -174,9 +174,9 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
-		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_PKI_CERT)
+		else if (set.infile.filetype == nstool::Settings::FILE_TYPE_ES_CERT)
 		{
-			nstool::PkiCertProcess obj;
+			nstool::EsCertProcess obj;
 
 			obj.setInputFile(infile_stream);
 			obj.setKeyCfg(set.opt.keybag);
@@ -215,59 +215,6 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.process();
 		}
-
-		switch (set.infile.filetype)
-		{
-			case nstool::Settings::FILE_TYPE_GAMECARD :
-				fmt::print("## FILE_TYPE_GAMECARD ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_NSP :
-				fmt::print("## FILE_TYPE_NSP ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_PARTITIONFS :
-				fmt::print("## FILE_TYPE_PARTITIONFS ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_ROMFS :
-				fmt::print("## FILE_TYPE_ROMFS ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_NCA :
-				fmt::print("## FILE_TYPE_NCA ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_META :
-				fmt::print("## FILE_TYPE_META ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_CNMT :
-				fmt::print("## FILE_TYPE_CNMT ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_NSO :
-				fmt::print("## FILE_TYPE_NSO ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_NRO :
-				fmt::print("## FILE_TYPE_NRO ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_NACP :
-				fmt::print("## FILE_TYPE_NACP ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_INI :
-				fmt::print("## FILE_TYPE_INI ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_KIP :
-				fmt::print("## FILE_TYPE_KIP ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_PKI_CERT :
-				fmt::print("## FILE_TYPE_PKI_CERT ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_ES_TIK :
-				fmt::print("## FILE_TYPE_ES_TIK ##\n");
-				break;
-			case nstool::Settings::FILE_TYPE_HB_ASSET :
-				fmt::print("## FILE_TYPE_HB_ASSET ##\n");
-				break;
-			default:
-				fmt::print("## unknown({}) ##\n", (int)set.infile.filetype);
-				break;
-		}
-		
 	}
 	catch (tc::Exception& e)
 	{
