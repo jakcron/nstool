@@ -460,7 +460,7 @@ void nstool::NcaProcess::displayHeader()
 			if (mContentKey.kak_list[i].decrypted)
 				fmt::print("{:s}", tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].dec.data(), mContentKey.kak_list[i].dec.size(), true, ":"));
 			else
-				fmt::print("<unable to decrypt>             ");
+				fmt::print("<unable to decrypt>                            ");
 			
 			fmt::print(" |\n");
 		}
