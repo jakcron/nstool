@@ -601,10 +601,6 @@ void nstool::NcaProcess::processPartitions()
 
 	mFsProcess.setInputFileSystem(nca_fs);
 	mFsProcess.setFsFormatName("ContentArchive");
-	mFsProcess.setFsProperties({
-		fmt::format("DirNum:   {:d}", fs_meta.dir_entries.size()-1),
-		fmt::format("FileNum:  {:d}", fs_meta.file_entries.size()-1)
-	});
 	mFsProcess.setFsRootLabel(getContentTypeForMountStr(mHdr.getContentType()));
 	mFsProcess.process();
 }
