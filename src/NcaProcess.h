@@ -84,7 +84,12 @@ private:
 
 		tc::Optional<nn::hac::detail::aes128_key_t> aes_ctr;
 	} mContentKey;
-	
+
+	struct SparseInfo
+	{
+
+	};
+
 	// raw partition data
 	struct sPartitionInfo
 	{
@@ -106,6 +111,9 @@ private:
 
 		// crypto metadata
 		nn::hac::detail::aes_iv_t aes_ctr;
+
+		// sparse metadata
+		SparseInfo sparse_info;
 	};
 	
 	std::array<sPartitionInfo, nn::hac::nca::kPartitionNum> mPartitions;

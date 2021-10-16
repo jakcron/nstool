@@ -239,6 +239,21 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Version({:d}): UNSUPPORTED", partition.header_index, fs_header.version.unwrap()));
 		}
 
+		// detect sparse 
+		if (fs_header.sparse_info.generation.unwrap() != 0)
+		{
+			fmt::print("[IsSparse]\n");
+			fmt::print(" bucket:\n");
+			fmt::print("  offset:         0x{:x}\n", fs_header.sparse_info.bucket.offset.unwrap());
+			fmt::print("  size:           0x{:x}\n", fs_header.sparse_info.bucket.offset.unwrap());
+			fmt::print("  header:\n");
+			fmt::print("   st_magic:      {:s}\n", ((tc::bn::string<4>*)&fs_header.sparse_info.bucket.header.st_magic)->str());
+			fmt::print("   version:       0x{:x}\n", fs_header.sparse_info.bucket.header.version.unwrap());
+			fmt::print("   entry_count:   {:d}\n", fs_header.sparse_info.bucket.header.entry_count.unwrap());
+			fmt::print(" physical_offset: 0x{:x}\n", fs_header.sparse_info.physical_offset.unwrap());
+			fmt::print(" generation:      0x{:x}\n", fs_header.sparse_info.generation.unwrap());
+		}
+
 		// setup AES-CTR 
 		nn::hac::ContentArchiveUtil::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.data());
 
