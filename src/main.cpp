@@ -79,17 +79,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
 
-			/*
-			if (set.nca.part0_extract_path.isSet())
-				obj.setPartition0ExtractPath(set.nca.part0_extract_path.get());
-			if (set.nca.part1_extract_path.isSet())
-				obj.setPartition1ExtractPath(set.nca.part1_extract_path.get());
-			if (set.nca.part2_extract_path.isSet())
-				obj.setPartition2ExtractPath(set.nca.part2_extract_path.get());
-			if (set.nca.part3_extract_path.isSet())
-				obj.setPartition3ExtractPath(set.nca.part3_extract_path.get());
-			obj.setListFs(set.fs.show_fs_tree);
-			*/
+			obj.setShowFsTree(set.fs.show_fs_tree);
+			obj.setExtractJobs(set.fs.extract_jobs);
 
 			obj.process();
 		}

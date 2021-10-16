@@ -1,24 +1,17 @@
 #include "NcaProcess.h"
-
-#include "PfsProcess.h"
-#include "RomfsProcess.h"
 #include "MetaProcess.h"
 
-//#include <iostream>
-//#include <iomanip>
-//#include <sstream>
-
-//#include <fnd/SimpleTextOutput.h>
-//#include <fnd/OffsetAdjustedIFile.h>
-//#include <fnd/AesCtrWrappedIFile.h>
-//#include <fnd/LayeredIntegrityWrappedIFile.h>
+//mak#include <memory>
+#include <tc/crypto/detail/BlockUtilImpl.h>
 
 #include <nn/hac/ContentArchiveUtil.h>
 #include <nn/hac/AesKeygen.h>
-#include <nn/hac/HierarchicalSha256Header.h>
-#include <nn/hac/HierarchicalIntegrityHeader.h>
+#include <nn/hac/HierarchicalSha256Stream.h>
+#include <nn/hac/HierarchicalIntegrityStream.h>
 #include <nn/hac/PartitionFsMetaGenerator.h>
 #include <nn/hac/RomFsMetaGenerator.h>
+#include <nn/hac/CombinedFsMetaGenerator.h>
+
 
 nstool::NcaProcess::NcaProcess() :
 	mModuleName("nstool::NcaProcess"),
@@ -138,15 +131,12 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 
 	// process key area
 	sKeys::sKeyAreaKey kak;
-	//KeyBag::aes128_key_t key_area_enc_key;
-	const KeyBag::aes128_key_t* key_area = (const KeyBag::aes128_key_t*) mHdr.getKeyArea();
-
-	for (size_t i = 0; i < nn::hac::nca::kKeyAreaKeyNum; i++)
+	for (size_t i = 0; i < mHdr.getKeyArea().size(); i++)
 	{
-		if (key_area[i] != zero_aesctr_key)
+		if (mHdr.getKeyArea()[i] != zero_aesctr_key)
 		{
 			kak.index = (byte_t)i;
-			kak.enc = key_area[i];
+			kak.enc = mHdr.getKeyArea()[i];
 			kak.decrypted = false;
 			// key[0-3]
 			if (i < 4 && mKeyCfg.nca_key_area_encryption_key[keak_index].find(masterkey_rev) != mKeyCfg.nca_key_area_encryption_key[keak_index].end())
@@ -252,24 +242,16 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 		// setup AES-CTR 
 		nn::hac::ContentArchiveUtil::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.data());
 
-		// save partition config
-		if (tc::is_uint64_t_too_large_for_int64_t(partition.offset))
-		{
-			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Offset({:x}): Too large", partition.header_index, partition.offset));
-		}
-		if (tc::is_uint64_t_too_large_for_int64_t(partition.size))
-		{
-			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Size({:x}): Too large", partition.header_index, partition.size));
-		}
-
-		info.reader = nullptr;
-		info.offset = int64_t(partition.offset);
-		info.size = int64_t(partition.size);
+		// save partition configinfo
+		info.offset = partition.offset;
+		info.size = partition.size;
 		info.format_type = (nn::hac::nca::FormatType)fs_header.format_type;
 		info.hash_type = (nn::hac::nca::HashType)fs_header.hash_type;
 		info.enc_type = (nn::hac::nca::EncryptionType)fs_header.encryption_type;
 		if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
 		{
+			info.hierarchicalsha256_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
+			/*
 			nn::hac::HierarchicalSha256Header hdr;
 
 			// import raw data
@@ -290,10 +272,13 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 				}
 			}
 			info.hashed_stream_info.master_hash_data = tc::ByteData(hdr.getMasterHash().data(), hdr.getMasterHash().size());
-			info.hashed_stream_info.align_hash_layer_to_block = false;
+			info.hashed_stream_info.align_partial_block_to_blocksize = false;
+			*/
 		}	
 		else if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
 		{
+			info.hierarchicalintegrity_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
+			/*
 			// info.hash_tree_meta.importData(fs_header.hash_info, nn::hac::nca::kHashInfoLen, LayeredIntegrityMetadata::HASH_TYPE_INTEGRITY);
 			nn::hac::HierarchicalIntegrityHeader hdr;
 
@@ -318,14 +303,13 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			{
 				((nn::hac::detail::sha256_hash_t*)info.hashed_stream_info.master_hash_data.data())[i] = hdr.getMasterHashList()[i];
 			}
-			info.hashed_stream_info.align_hash_layer_to_block = false;
+			info.hashed_stream_info.align_partial_block_to_blocksize = false;
+			*/
 		}
 
 		// create reader
 		try 
 		{
-			
-
 			// create reader based on encryption type0
 			if (info.enc_type == nn::hac::nca::EncryptionType::None)
 			{
@@ -350,13 +334,15 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			}
 
 			// filter out unrecognised hash types, and hash based readers
-			if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256 || info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
-			{	
-				//info.reader = new fnd::LayeredIntegrityWrappedIFile(info.reader, info.layered_intergrity_metadata);
-				info.reader = std::make_shared<nn::hac::HierarchicalValidatedStream>(nn::hac::HierarchicalValidatedStream(info.reader, info.hashed_stream_info));
-			}
-			else if (info.hash_type != nn::hac::nca::HashType::None)
+			switch (info.hash_type)
 			{
+			case (nn::hac::nca::HashType::HierarchicalSha256):
+				info.reader = std::make_shared<nn::hac::HierarchicalSha256Stream>(nn::hac::HierarchicalSha256Stream(info.reader, info.hierarchicalsha256_hdr));
+				break;
+			case (nn::hac::nca::HashType::HierarchicalIntegrity):
+				info.reader = std::make_shared<nn::hac::HierarchicalIntegrityStream>(nn::hac::HierarchicalIntegrityStream(info.reader, info.hierarchicalintegrity_hdr));
+				break;
+			default:
 				throw tc::Exception(mModuleName, fmt::format("HashType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type)));
 			}
 
@@ -499,49 +485,57 @@ void nstool::NcaProcess::displayHeader()
 			if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
 			{
 				nn::hac::detail::aes_iv_t aes_ctr;
-				//fnd::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
+				memcpy(aes_ctr.data(), info.aes_ctr.data(), aes_ctr.size());
+				tc::crypto::detail::incr_counter<16>(aes_ctr.data(), info.offset>>4);
 				fmt::print("      AesCtr Counter:\n");
 				fmt::print("        {:s}\n", tc::cli::FormatUtil::formatBytesAsString(aes_ctr.data(), aes_ctr.size(), true, ":"));
 			}
 			if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
 			{
-				auto hash_hdr = info.hashed_stream_info;
+				auto hash_hdr = info.hierarchicalintegrity_hdr;
 				fmt::print("      HierarchicalIntegrity Header:\n");
-				for (size_t j = 0; j < hash_hdr.hash_layer_info.size(); j++)
+				for (size_t j = 0; j < hash_hdr.getLayerInfo().size(); j++)
 				{
-					fmt::print("        Hash Layer {:d}:\n", j);
-					fmt::print("          Offset:          0x{:x}\n", hash_hdr.hash_layer_info[j].offset);
-					fmt::print("          Size:            0x{:x}\n", hash_hdr.hash_layer_info[j].size);
-					fmt::print("          BlockSize:       0x{:x}\n", hash_hdr.hash_layer_info[j].block_size);
+					if (j+1 == hash_hdr.getLayerInfo().size())
+					{
+						fmt::print("        Data Layer:\n");
+					}
+					else
+					{
+						fmt::print("        Hash Layer {:d}:\n", j);
+					}
+					fmt::print("          Offset:          0x{:x}\n", hash_hdr.getLayerInfo()[j].offset);
+					fmt::print("          Size:            0x{:x}\n", hash_hdr.getLayerInfo()[j].size);
+					fmt::print("          BlockSize:       0x{:x}\n", hash_hdr.getLayerInfo()[j].block_size);
 				}
-
-				fmt::print("        Data Layer:\n");
-				fmt::print("          Offset:          0x{:x}\n", hash_hdr.data_layer_info.offset);
-				fmt::print("          Size:            0x{:x}\n", hash_hdr.data_layer_info.size);
-				fmt::print("          BlockSize:       0x{:x}\n", hash_hdr.data_layer_info.block_size);
-				size_t master_hash_num = hash_hdr.master_hash_data.size() / sizeof(nn::hac::detail::sha256_hash_t);
-				nn::hac::detail::sha256_hash_t* master_hash_table = (nn::hac::detail::sha256_hash_t*)hash_hdr.master_hash_data.data();
-				for (size_t j = 0; j < master_hash_num; j++)
+				for (size_t j = 0; j < hash_hdr.getMasterHashList().size(); j++)
 				{
 					fmt::print("        Master Hash {:d}:\n", j);
-					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(master_hash_table[j].data(), 0x10, true, ":"));
-					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(master_hash_table[j].data()+0x10, 0x10, true, ":"));
+					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data(), 0x10, true, ":"));
+					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data()+0x10, 0x10, true, ":"));
 				}
 			}
 			else if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
 			{
-				auto hash_hdr = info.hashed_stream_info;
+				auto hash_hdr = info.hierarchicalsha256_hdr;
 				fmt::print("      HierarchicalSha256 Header:\n");
 				fmt::print("        Master Hash:\n");
-				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.master_hash_data.data(), 0x10, true, ":"));
-				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.master_hash_data.data()+0x10, 0x10, true, ":"));
-				fmt::print("        HashBlockSize:     0x{:x}\n", hash_hdr.data_layer_info.block_size);
-				fmt::print("        Hash Layer:\n");
-				fmt::print("          Offset:          0x{:x}\n", hash_hdr.hash_layer_info[0].offset);
-				fmt::print("          Size:            0x{:x}\n", hash_hdr.hash_layer_info[0].size);
-				fmt::print("        Data Layer:\n");
-				fmt::print("          Offset:          0x{:x}\n", hash_hdr.data_layer_info.offset);
-				fmt::print("          Size:            0x{:x}\n", hash_hdr.data_layer_info.size);
+				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHash().data(), 0x10, true, ":"));
+				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHash().data()+0x10, 0x10, true, ":"));
+				fmt::print("        HashBlockSize:     0x{:x}\n", hash_hdr.getHashBlockSize());
+				for (size_t j = 0; j < hash_hdr.getLayerInfo().size(); j++)
+				{
+					if (j+1 == hash_hdr.getLayerInfo().size())
+					{
+						fmt::print("        Data Layer:\n");
+					}
+					else
+					{
+						fmt::print("        Hash Layer {:d}:\n", j);
+					}
+					fmt::print("          Offset:          0x{:x}\n", hash_hdr.getLayerInfo()[j].offset);
+					fmt::print("          Size:            0x{:x}\n", hash_hdr.getLayerInfo()[j].size);
+				}
 			}
 		}
 	}
@@ -550,6 +544,8 @@ void nstool::NcaProcess::displayHeader()
 
 void nstool::NcaProcess::processPartitions()
 {
+	std::vector<nn::hac::CombinedFsMetaGenerator::MountPointInfo> mount_points;
+
 	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 	{
 		uint32_t index = mHdr.getPartitionEntryList()[i].header_index;
@@ -566,6 +562,21 @@ void nstool::NcaProcess::processPartitions()
 			fmt::print("\n");
 			continue;
 		}
+
+		std::string mount_point_name;
+		/*
+		if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
+		{
+			mount_point_name = nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index);
+		}
+		else
+		*/
+		{
+			mount_point_name = fmt::format("{:d}", index);
+		}
+
+		mount_points.push_back( { mount_point_name, partition.fs_meta } );
+
 		/*
 		try {
 			if (partition.format_type == nn::hac::nca::FormatType::PartitionFs)
@@ -611,11 +622,24 @@ void nstool::NcaProcess::processPartitions()
 		}
 		*/
 	}
+
+	tc::io::VirtualFileSystem::FileSystemMeta fs_meta = nn::hac::CombinedFsMetaGenerator(mount_points);
+
+	std::shared_ptr<tc::io::IStorage> nca_fs = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(fs_meta));
+
+	mFsProcess.setInputFileSystem(nca_fs);
+	mFsProcess.setFsFormatName("ContentArchive");
+	mFsProcess.setFsProperties({
+		fmt::format("DirNum:   {:d}", fs_meta.dir_entries.size()-1),
+		fmt::format("FileNum:  {:d}", fs_meta.file_entries.size()-1)
+	});
+	mFsProcess.setFsRootLabel(getContentTypeForMountStr(mHdr.getContentType()));
+	mFsProcess.process();
 }
 
-const char* nstool::NcaProcess::getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const
+std::string nstool::NcaProcess::getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const
 {
-	const char* str = nullptr;
+	std::string str;
 
 	switch (cont_type)
 	{

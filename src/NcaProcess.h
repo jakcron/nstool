@@ -4,7 +4,8 @@
 #include "FsProcess.h"
 
 #include <nn/hac/ContentArchiveHeader.h>
-#include <nn/hac/HierarchicalValidatedStream.h>
+#include <nn/hac/HierarchicalIntegrityHeader.h>
+#include <nn/hac/HierarchicalSha256Header.h>
 
 namespace nstool {
 
@@ -98,13 +99,16 @@ private:
 		nn::hac::nca::FormatType format_type;
 		nn::hac::nca::HashType hash_type;
 		nn::hac::nca::EncryptionType enc_type;
-		nn::hac::HierarchicalValidatedStream::StreamInfo hashed_stream_info;
-		//fnd::LayeredIntegrityMetadata layered_intergrity_metadata;
+
+		// hash meta data
+		nn::hac::HierarchicalIntegrityHeader hierarchicalintegrity_hdr;
+		nn::hac::HierarchicalSha256Header hierarchicalsha256_hdr;
+
+		// crypto metadata
 		nn::hac::detail::aes_iv_t aes_ctr;
 	};
 	
 	std::array<sPartitionInfo, nn::hac::nca::kPartitionNum> mPartitions;
-
 
 	void importHeader();
 	void generateNcaBodyEncryptionKeys();
@@ -113,7 +117,7 @@ private:
 	void displayHeader();
 	void processPartitions();
 
-	const char* getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const;
+	std::string getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const;
 };
 
 }
