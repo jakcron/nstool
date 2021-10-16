@@ -336,6 +336,8 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			// filter out unrecognised hash types, and hash based readers
 			switch (info.hash_type)
 			{
+			case (nn::hac::nca::HashType::None):
+				break;
 			case (nn::hac::nca::HashType::HierarchicalSha256):
 				info.reader = std::make_shared<nn::hac::HierarchicalSha256Stream>(nn::hac::HierarchicalSha256Stream(info.reader, info.hierarchicalsha256_hdr));
 				break;
@@ -576,51 +578,6 @@ void nstool::NcaProcess::processPartitions()
 		}
 
 		mount_points.push_back( { mount_point_name, partition.fs_meta } );
-
-		/*
-		try {
-			if (partition.format_type == nn::hac::nca::FormatType::PartitionFs)
-			{
-				PfsProcess pfs;
-				pfs.setInputFile(partition.reader);
-				pfs.setCliOutputMode(mCliOutputMode);
-				pfs.setListFs(mListFs);
-				if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
-				{
-					pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index));
-				}
-				else
-				{
-					pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
-				}
-				
-				if (mPartitionPath[index].doExtract)
-					pfs.setExtractPath(mPartitionPath[index].path);
-				pfs.process();
-			}
-			else if (partition.format_type == nn::hac::nca::FormatType::RomFs)
-			{
-				RomfsProcess romfs;
-				romfs.setInputFile(partition.reader);
-				romfs.setCliOutputMode(mCliOutputMode);
-				romfs.setListFs(mListFs);
-				if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
-				{
-					romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index));
-				}
-				else
-				{
-					romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
-				}
-
-				if (mPartitionPath[index].doExtract)
-					romfs.setExtractPath(mPartitionPath[index].path);
-				romfs.process();			
-			}
-		} catch (const tc::Exception& e) {
-			std::cout <<  "[WARNING] NCA Partition " << std::dec << index << " not readable (" << e.error() << ")." << std::endl;
-		}
-		*/
 	}
 
 	tc::io::VirtualFileSystem::FileSystemMeta fs_meta = nn::hac::CombinedFsMetaGenerator(mount_points);
