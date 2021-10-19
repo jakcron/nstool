@@ -568,15 +568,22 @@ void nstool::KeyBagInitializer::importTicket(const tc::io::Path& tik_path)
 		byte_t common_key_index = tik.getBody().getCommonKeyId();
 
 		// work around for bad scene tickets where they don't set the commonkey id field (detect scene ticket with ffff.... signature)
-		if (common_key_index != rights_id[15] && tik.getSignature().getBytes()[0x00] == 0xff && tik.getSignature().getBytes()[0x01] == 0xff)
+		auto signature_bytes = tik.getSignature().getSignature();
+		if (common_key_index != rights_id[15] && *((uint64_t*)signature_bytes.data()) == (uint64_t)0xffffffffffffffff)
 		{
 			common_key_index = rights_id[15];
 		}
-		if (etik_common_key.find(tik.getBody().getCommonKeyId()) == etik_common_key.end())
+
+		// convert key_generation
+		common_key_index = nn::hac::AesKeygen::getMasterKeyRevisionFromKeyGeneration(common_key_index);
+
+		if (etik_common_key.find(common_key_index) == etik_common_key.end())
 		{
 			fmt::print("[WARNING] Ticket \"{:s}\" will not be imported. Could not decrypt title key.\n", tc::cli::FormatUtil::formatBytesAsString(rights_id.data(), rights_id.size(), true, ""));
 			return;
 		}
+
+		fmt::print("[TIK] decrypt title key with index 0x{:x}\n", common_key_index);
 
 		// decrypt title key
 		aes128_key_t dec_title_key;

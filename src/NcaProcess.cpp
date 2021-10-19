@@ -1,7 +1,7 @@
 #include "NcaProcess.h"
 #include "MetaProcess.h"
+#include "util.h"
 
-//mak#include <memory>
 #include <tc/crypto/detail/BlockUtilImpl.h>
 
 #include <nn/hac/ContentArchiveUtil.h>
@@ -126,7 +126,7 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 	memset(zero_aesctr_key.data(), 0, zero_aesctr_key.size());
 	
 	// get key data from header
-	byte_t masterkey_rev = nn::hac::ContentArchiveUtil::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
+	byte_t masterkey_rev = nn::hac::AesKeygen::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
 	byte_t keak_index = mHdr.getKeyAreaEncryptionKeyIndex();
 
 	// process key area
@@ -232,26 +232,109 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 		{
 			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Hash: FAIL", partition.header_index));
 		}
-			
 
 		if (fs_header.version.unwrap() != nn::hac::nca::kDefaultFsHeaderVersion)
 		{
 			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Version({:d}): UNSUPPORTED", partition.header_index, fs_header.version.unwrap()));
 		}
 
-		// detect sparse 
+		// detect sparse layer
 		if (fs_header.sparse_info.generation.unwrap() != 0)
 		{
-			fmt::print("[IsSparse]\n");
+			fmt::print("[IsSparse {:d}]\n", partition.header_index);
+			fmt::print(" > raw data\n");
 			fmt::print(" bucket:\n");
 			fmt::print("  offset:         0x{:x}\n", fs_header.sparse_info.bucket.offset.unwrap());
-			fmt::print("  size:           0x{:x}\n", fs_header.sparse_info.bucket.offset.unwrap());
+			fmt::print("  size:           0x{:x}\n", fs_header.sparse_info.bucket.size.unwrap());
 			fmt::print("  header:\n");
 			fmt::print("   st_magic:      {:s}\n", ((tc::bn::string<4>*)&fs_header.sparse_info.bucket.header.st_magic)->str());
 			fmt::print("   version:       0x{:x}\n", fs_header.sparse_info.bucket.header.version.unwrap());
 			fmt::print("   entry_count:   {:d}\n", fs_header.sparse_info.bucket.header.entry_count.unwrap());
 			fmt::print(" physical_offset: 0x{:x}\n", fs_header.sparse_info.physical_offset.unwrap());
 			fmt::print(" generation:      0x{:x}\n", fs_header.sparse_info.generation.unwrap());
+
+			fmt::print(" > processed data\n");
+			fmt::print(" file_size:       0x{:x}\n", mFile->length());
+			int64_t phys_offset = fs_header.sparse_info.physical_offset.unwrap();
+			int64_t phys_size = fs_header.sparse_info.bucket.offset.unwrap() + fs_header.sparse_info.bucket.size.unwrap();
+			fmt::print(" phys_offset:     0x{:x}\n", phys_offset);
+			fmt::print(" phys_size:       0x{:x}\n", phys_size);
+
+			nn::hac::detail::aes_iv_t sparse_iv;
+
+			nn::hac::ContentArchiveUtil::getNcaPartitionAesCtr(uint32_t(fs_header.sparse_info.generation.unwrap()) << 16, fs_header.secure_value.unwrap(), sparse_iv.data());
+
+			if (phys_size != 0 && mContentKey.aes_ctr.isSet())
+			{
+				std::shared_ptr<tc::io::IStream> sparse_layer;
+				
+				sparse_layer = mFile;
+				sparse_layer = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(sparse_layer, mContentKey.aes_ctr.get(), sparse_iv));
+				sparse_layer = std::make_shared<tc::io::SubStream>(tc::io::SubStream(sparse_layer, phys_offset, phys_size));
+
+				tc::ByteData sparse_bktr = tc::ByteData(fs_header.sparse_info.bucket.size.unwrap());
+				sparse_layer->seek(fs_header.sparse_info.bucket.offset.unwrap(), tc::io::SeekOrigin::Begin);
+				sparse_layer->read(sparse_bktr.data(), sparse_bktr.size());
+
+				//writeSubStreamToFile(sparse_layer, fs_header.sparse_info.bucket.offset.unwrap(), fs_header.sparse_info.bucket.size.unwrap(), tc::io::Path("./data/sparse_bktr.bin"));
+
+#pragma pack(push,1)
+				struct sRelocationHeader
+				{
+					tc::bn::pad<4> padding;
+					tc::bn::le32<uint32_t> bucket_num;
+					tc::bn::le64<int64_t> virtual_image_size;
+					std::array<tc::bn::le64<int64_t>, 2046> bucket_base_virtual_offset;
+				};
+				static_assert(sizeof(sRelocationHeader) == 0x4000, "sRelocationHeader size.");
+
+				struct sRelocationBucketHeader
+				{
+					tc::bn::pad<4> padding;
+					tc::bn::le32<uint32_t> bucket_num;
+					tc::bn::le64<int64_t> bucket_end_offset;
+				};
+				static_assert(sizeof(sRelocationBucketHeader) == 0x10, "sRelocationBucketHeader size.");
+
+				struct sRelocationBucketEntry
+				{
+					tc::bn::le64<int64_t> patch_addr;
+					tc::bn::le64<int64_t> base_addr;
+					tc::bn::le32<uint32_t> storage_index; // 0 = base, 1 = patch
+				};
+				static_assert(sizeof(sRelocationBucketEntry) == 0x14, "sRelocationBucketEntry size.");
+
+				struct sRelocationBucket
+				{
+					sRelocationBucketHeader                 head;
+					std::array<sRelocationBucketEntry, 818> entry;
+					tc::bn::pad<8>                          padding;
+				};
+				static_assert(sizeof(sRelocationBucket) == 0x4000, "sRelocationBucket size.");
+#pragma pack(pop)
+
+				sRelocationHeader* header = (sRelocationHeader*)sparse_bktr.data();
+				sRelocationBucket* bucket = (sRelocationBucket*)(sparse_bktr.data() + sizeof(sRelocationHeader));
+				fmt::print("[RelocationHeader]\n");
+				fmt::print(" head:\n");
+				fmt::print("  bucket_num:          {:d}\n", header->bucket_num.unwrap());
+				fmt::print("  virtual_image_size:  0x{:016x}\n", header->virtual_image_size.unwrap());
+				for (size_t bucket_idx = 0; bucket_idx < header->bucket_num.unwrap(); bucket_idx++)
+				{
+					fmt::print("  bucket {:d}:\n", bucket_idx);
+					fmt::print("    start_offset:       0x{:016x}\n", header->bucket_base_virtual_offset[bucket_idx].unwrap());
+					fmt::print("    end_offset:         0x{:016x}\n", bucket[bucket_idx].head.bucket_end_offset.unwrap());
+					fmt::print("    entry_num:          {:d}\n", bucket[bucket_idx].head.bucket_num.unwrap());
+					for (size_t entry_idx = 0; entry_idx < bucket[bucket_idx].head.bucket_num.unwrap(); entry_idx++)
+					{
+						fmt::print("    entry {:d}\n", entry_idx);
+						fmt::print("      patch_addr:       0x{:016x}\n", bucket[bucket_idx].entry[entry_idx].patch_addr.unwrap());
+						fmt::print("      base_addr:        0x{:016x}{:s}\n", bucket[bucket_idx].entry[entry_idx].base_addr.unwrap(), (bucket[bucket_idx].entry[entry_idx].storage_index.unwrap() == 0 && bucket[bucket_idx].entry[entry_idx].base_addr.unwrap() == 0) ? " NEEDED A VALID OFFSET" : "");
+						fmt::print("      storage_index:    {:s}\n", bucket[bucket_idx].entry[entry_idx].storage_index.unwrap() == 0 ? "BASE" : "PATCH");
+					}
+					
+				}
+			}
 		}
 
 		// setup AES-CTR 
