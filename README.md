@@ -56,13 +56,13 @@ Usage: nstool [options... ] <file>
       --part2         Extract "partition 2" to directory.
       --part3         Extract "partition 3" to directory.
 
-  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)
+  NSO (Nintendo Shared Object), NRO (Nintendo Relocatable Object)
     nstool [--listapi --listsym] [--insttype <inst. type>] <file>
       --listapi       Print SDK API List.
       --listsym       Print Code Symbols.
       --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).
 
-  INI (Initial Process List Blob)
+  INI (Initial Process List)
     nstool [--kipdir <dir>] <file>
       --kipdir        Extract embedded KIPs to directory.
 
