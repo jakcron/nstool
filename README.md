@@ -39,7 +39,7 @@ Usage: nstool [options... ] <file>
       --normal        Extract "normal" partition to directory.
       --secure        Extract "secure" partition to directory.
 
-  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)
+  PFS0/HFS0 (PartitionFs), RomFs, NSP (Nintendo Submission Package)
     nstool [--listfs] [--fsdir <dir>] <file>
       --listfs        Print file system.
       --fsdir         Extract file system to directory.
