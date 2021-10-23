@@ -39,8 +39,7 @@ void nstool::FsProcess::process()
 	{
 		printFs();
 	}
-		
-
+	
 	if (mExtractJobs.empty() == false)
 	{
 		extractFs();
