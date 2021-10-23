@@ -266,7 +266,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		{
 			// nca header key
 			//fmt::print("{:s}_{:s}\n", kContentArchiveHeaderBase[name_idx], kKeyStr);
-			//_SAVE_AES128XTSKEY(fmt::format("{:s}_{:s}", kContentArchiveHeaderBase[name_idx], kKeyStr), nca_header_key);
+			_SAVE_AES128XTSKEY(fmt::format("{:s}_{:s}", kContentArchiveHeaderBase[name_idx], kKeyStr), nca_header_key);
 			
 			// nca header sign0 key (generations)
 			for (size_t keygen_rev = 0; keygen_rev < kKeyGenerationNum; keygen_rev++)
