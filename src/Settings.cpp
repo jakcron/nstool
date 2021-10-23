@@ -727,7 +727,7 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("      --listapi       Print SDK API List.\n");
 	fmt::print("      --listsym       Print Code Symbols.\n");
 	fmt::print("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
-	fmt::print("\n  INI (Initial Process List Blob)\n");
+	fmt::print("\n  INI (Initial Process List)\n");
 	fmt::print("    {:s} [--kipdir <dir>] <file>\n", BIN_NAME);
 	fmt::print("      --kipdir        Extract embedded KIPs to directory.\n");
 	fmt::print("\n  ASET (Homebrew Asset Blob)\n");
