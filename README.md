@@ -5,16 +5,16 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 * Meta (.npdm)
 * PartitionFS (and Sha256PartitionFS) (includes raw .nsp)
 * RomFS
-* NX GameCard Image (.xci)
-* Nintendo Content Archive (.nca)
-* Content Metadata (.cnmt) 
-* Nintendo Software Object (.nso) 
-* Nintendo Relocatable Software Object (.nro)
-* Kernel Initial Process List (.ini)
-* Kernel Initial Process (.kip)
-* Nintendo Application Control Property (.nacp)
-* ES Certificate (.cert)
-* ES Ticket (v2 only) (.tik)
+* N**X** Game**C**ard **I**mage (.xci)
+* **N**intendo **C**ontent **A**rchive (.nca)
+* **C**o**n**tent **M**e**t**adata (.cnmt) 
+* **N**intendo **S**hared **O**bject (.nso) 
+* **N**intendo **R**elocatable **O**bject (.nro)
+* **Ini**tial Process List (.ini)
+* **K**ernel **I**nitial **P**rocess (.kip)
+* **N**intendo **A**pplication **C**ontrol **P**roperty (.nacp)
+* ES **Cert**ificate (.cert)
+* ES **Ti**c**k**et (v2 only) (.tik)
 
 # Usage
 ```
