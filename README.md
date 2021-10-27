@@ -5,16 +5,16 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 * Meta (.npdm)
 * PartitionFS (and Sha256PartitionFS) (includes raw .nsp)
 * RomFS
-* NX GameCard Image (.xci)
-* Nintendo Content Archive (.nca)
-* Content Metadata (.cnmt) 
-* Nintendo Software Object (.nso) 
-* Nintendo Relocatable Software Object (.nro)
-* Kernel Initial Process List (.ini)
-* Kernel Initial Process (.kip)
-* Nintendo Application Control Property (.nacp)
-* ES Certificate (.cert)
-* ES Ticket (v2 only) (.tik)
+* N**X** Game**C**ard **I**mage (.xci)
+* **N**intendo **C**ontent **A**rchive (.nca)
+* **C**o**n**tent **M**e**t**adata (.cnmt) 
+* **N**intendo **S**hared **O**bject (.nso) 
+* **N**intendo **R**elocatable **O**bject (.nro)
+* **Ini**tial Process List (.ini)
+* **K**ernel **I**nitial **P**rocess (.kip)
+* **N**intendo **A**pplication **C**ontrol **P**roperty (.nacp)
+* ES **Cert**ificate (.cert)
+* ES **Ti**c**k**et (v2 only) (.tik)
 
 # Usage
 ```
@@ -39,7 +39,7 @@ Usage: nstool [options... ] <file>
       --normal        Extract "normal" partition to directory.
       --secure        Extract "secure" partition to directory.
 
-  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)
+  PFS0/HFS0 (PartitionFs), RomFs, NSP (Nintendo Submission Package)
     nstool [--listfs] [--fsdir <dir>] <file>
       --listfs        Print file system.
       --fsdir         Extract file system to directory.
@@ -56,13 +56,13 @@ Usage: nstool [options... ] <file>
       --part2         Extract "partition 2" to directory.
       --part3         Extract "partition 3" to directory.
 
-  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)
+  NSO (Nintendo Shared Object), NRO (Nintendo Relocatable Object)
     nstool [--listapi --listsym] [--insttype <inst. type>] <file>
       --listapi       Print SDK API List.
       --listsym       Print Code Symbols.
       --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).
 
-  INI (Initial Process List Blob)
+  INI (Initial Process List)
     nstool [--kipdir <dir>] <file>
       --kipdir        Extract embedded KIPs to directory.
 

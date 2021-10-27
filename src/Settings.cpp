@@ -707,7 +707,7 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("      --logo          Extract \"logo\" partition to directory.\n");
 	fmt::print("      --normal        Extract \"normal\" partition to directory.\n");
 	fmt::print("      --secure        Extract \"secure\" partition to directory.\n");
-	fmt::print("\n  PFS0/HFS0 (PartitionFs), RomFs, NSP (Ninendo Submission Package)\n");
+	fmt::print("\n  PFS0/HFS0 (PartitionFs), RomFs, NSP (Nintendo Submission Package)\n");
 	fmt::print("    {:s} [--listfs] [--fsdir <dir>] <file>\n", BIN_NAME);
 	fmt::print("      --listfs        Print file system.\n");
 	fmt::print("      --fsdir         Extract file system to directory.\n");
@@ -722,12 +722,12 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("      --part1         Extract \"partition 1\" to directory.\n");
 	fmt::print("      --part2         Extract \"partition 2\" to directory.\n");
 	fmt::print("      --part3         Extract \"partition 3\" to directory.\n");
-	fmt::print("\n  NSO (Nintendo Software Object), NRO (Nintendo Relocatable Object)\n");
+	fmt::print("\n  NSO (Nintendo Shared Object), NRO (Nintendo Relocatable Object)\n");
 	fmt::print("    {:s} [--listapi --listsym] [--insttype <inst. type>] <file>\n", BIN_NAME);
 	fmt::print("      --listapi       Print SDK API List.\n");
 	fmt::print("      --listsym       Print Code Symbols.\n");
 	fmt::print("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
-	fmt::print("\n  INI (Initial Process List Blob)\n");
+	fmt::print("\n  INI (Initial Process List)\n");
 	fmt::print("    {:s} [--kipdir <dir>] <file>\n", BIN_NAME);
 	fmt::print("      --kipdir        Extract embedded KIPs to directory.\n");
 	fmt::print("\n  ASET (Homebrew Asset Blob)\n");

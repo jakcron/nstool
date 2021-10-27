@@ -132,7 +132,7 @@ void nstool::EsTikProcess::displayTicket()
 	}
 	fmt::print("  Version:          {:s} (v{:d})\n", getTitleVersionStr(body.getTicketVersion()), body.getTicketVersion());
 	fmt::print("  License Type:     {:s}\n", getLicenseTypeStr(body.getLicenseType())); 
-	if (body.getPropertyFlags().size() > 0)
+	if (body.getPropertyFlags().size() > 0 || mCliOutputMode.show_extended_info)
 	{
 		nn::es::sTicketBody_v2* raw_body = (nn::es::sTicketBody_v2*)body.getBytes().data();
 		fmt::print("  PropertyMask:     0x{:04x}\n", ((tc::bn::le16<uint16_t>*)&raw_body->property_mask)->unwrap());
