@@ -585,8 +585,6 @@ void nstool::KeyBagInitializer::importTicket(const tc::io::Path& tik_path)
 			return;
 		}
 
-		fmt::print("[TIK] decrypt title key with index 0x{:x}\n", common_key_index);
-
 		// decrypt title key
 		aes128_key_t dec_title_key;
 		tc::crypto::DecryptAes128Ecb(dec_title_key.data(), enc_title_key.data(), sizeof(aes128_key_t), etik_common_key[common_key_index].data(), sizeof(aes128_key_t));
