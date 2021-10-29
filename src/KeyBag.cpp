@@ -570,7 +570,7 @@ void nstool::KeyBagInitializer::importTicket(const tc::io::Path& tik_path)
 		// work around for bad scene tickets where they don't set the commonkey id field (detect scene ticket with ffff.... signature)
 		if (common_key_index == 0 && *((uint64_t*)tik.getSignature().getSignature().data()) == (uint64_t)0xffffffffffffffff)
 		{
-			fmt::print("[WARNING] Ticket \"{:s}\" is fake-signed, and NCA decryption may fail if ticket was incorrectly generated.", tc::cli::FormatUtil::formatBytesAsString(rights_id.data(), rights_id.size(), true, ""));
+			fmt::print("[WARNING] Ticket \"{:s}\" is fake-signed, and NCA decryption may fail if ticket was incorrectly generated.\n", tc::cli::FormatUtil::formatBytesAsString(rights_id.data(), rights_id.size(), true, ""));
 			// the keygeneration was included in the rights_id from keygeneration 0x03 and onwards, so in those cases we can copy from there
 			if (rights_id[15] >= 0x03)
 				common_key_index = rights_id[15];
