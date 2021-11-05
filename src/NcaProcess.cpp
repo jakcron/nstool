@@ -12,7 +12,6 @@
 #include <nn/hac/RomFsMetaGenerator.h>
 #include <nn/hac/CombinedFsMetaGenerator.h>
 
-
 nstool::NcaProcess::NcaProcess() :
 	mModuleName("nstool::NcaProcess"),
 	mFile(),
@@ -238,12 +237,6 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Version({:d}): UNSUPPORTED", partition.header_index, fs_header.version.unwrap()));
 		}
 
-		// detect compacted partition (sparse layer)
-		if (fs_header.sparse_info.generation.unwrap() != 0)
-		{
-			// TODO
-		}
-
 		// setup AES-CTR 
 		nn::hac::ContentArchiveUtil::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.data());
 
@@ -256,86 +249,55 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 		if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
 		{
 			info.hierarchicalsha256_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
-			/*
-			nn::hac::HierarchicalSha256Header hdr;
-
-			// import raw data
-			hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
-			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
-			{
-				nn::hac::HierarchicalValidatedStream::StreamInfo::LayerInfo layer;
-				layer.offset = hdr.getLayerInfo()[i].offset;
-				layer.size = hdr.getLayerInfo()[i].size;
-				layer.block_size = hdr.getHashBlockSize();
-				if (i + 1 == hdr.getLayerInfo().size())
-				{
-					info.hashed_stream_info.data_layer_info = layer;
-				}
-				else
-				{
-					info.hashed_stream_info.hash_layer_info.push_back(layer);
-				}
-			}
-			info.hashed_stream_info.master_hash_data = tc::ByteData(hdr.getMasterHash().data(), hdr.getMasterHash().size());
-			info.hashed_stream_info.align_partial_block_to_blocksize = false;
-			*/
 		}	
 		else if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
 		{
 			info.hierarchicalintegrity_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
-			/*
-			// info.hash_tree_meta.importData(fs_header.hash_info, nn::hac::nca::kHashInfoLen, LayeredIntegrityMetadata::HASH_TYPE_INTEGRITY);
-			nn::hac::HierarchicalIntegrityHeader hdr;
-
-			hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
-			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
-			{
-				nn::hac::HierarchicalValidatedStream::StreamInfo::LayerInfo layer;
-				layer.offset = hdr.getLayerInfo()[i].offset;
-				layer.size = hdr.getLayerInfo()[i].size;
-				layer.block_size = (1 << hdr.getLayerInfo()[i].block_size);
-				if (i + 1 == hdr.getLayerInfo().size())
-				{
-					info.hashed_stream_info.data_layer_info = layer;
-				}
-				else
-				{
-					info.hashed_stream_info.hash_layer_info.push_back(layer);
-				}
-			}
-			info.hashed_stream_info.master_hash_data = tc::ByteData(hdr.getMasterHashList().size() * sizeof(nn::hac::detail::sha256_hash_t));
-			for (size_t i = 0; i < hdr.getMasterHashList().size(); i++)
-			{
-				((nn::hac::detail::sha256_hash_t*)info.hashed_stream_info.master_hash_data.data())[i] = hdr.getMasterHashList()[i];
-			}
-			info.hashed_stream_info.align_partial_block_to_blocksize = false;
-			*/
 		}
 
 		// create reader
 		try 
 		{
-			// create reader based on encryption type0
-			if (info.enc_type == nn::hac::nca::EncryptionType::None)
+			// handle partition encryption and partition compaction (sparse layer)
+			if (fs_header.sparse_info.generation.unwrap() != 0)
 			{
-				info.reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, info.offset, info.size));
-			}
-			else if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
-			{
-				if (mContentKey.aes_ctr.isNull())
-					throw tc::Exception(mModuleName, "AES-CTR Key was not determined");
-				//info.reader = new fnd::OffsetAdjustedIFile(new fnd::AesCtrWrappedIFile(mFile, mContentKey.aes_ctr.get(), info.aes_ctr), info.offset, info.size);
-				info.reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(mFile, mContentKey.aes_ctr.get(), info.aes_ctr));
-				info.reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(info.reader, info.offset, info.size));
-
-			}
-			else if (info.enc_type == nn::hac::nca::EncryptionType::AesXts || info.enc_type == nn::hac::nca::EncryptionType::AesCtrEx)
-			{
-				throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+				throw tc::Exception("SparseStorage: Not currently supported.");
 			}
 			else
 			{
-				throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+				// create raw partition
+				info.reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, info.offset, info.size));
+
+				// handle encryption if required reader based on encryption type
+				if (info.enc_type == nn::hac::nca::EncryptionType::None)
+				{
+					// no encryption so do nothing
+					//info.reader = info.reader;
+				}
+				else if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+				{
+					if (mContentKey.aes_ctr.isNull())
+						throw tc::Exception(mModuleName, "AES-CTR Key was not determined");
+
+					// get partition key
+					nn::hac::detail::aes128_key_t partition_key = mContentKey.aes_ctr.get();
+
+					// get partition counter
+					nn::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
+					tc::crypto::detail::incr_counter<16>(partition_ctr.data(), info.offset>>4);
+
+					// create decryption stream
+					info.reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.reader, partition_key, partition_ctr));
+
+				}
+				else if (info.enc_type == nn::hac::nca::EncryptionType::AesXts || info.enc_type == nn::hac::nca::EncryptionType::AesCtrEx)
+				{
+					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+				}
+				else
+				{
+					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+				}
 			}
 
 			// filter out unrecognised hash types, and hash based readers
