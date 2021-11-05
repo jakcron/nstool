@@ -153,12 +153,12 @@ void nstool::GameCardProcess::displayHeader()
 		fmt::print("  TitleKeyDecIndex:       {:d}\n", mHdr.getTitleKeyDecIndex());
 		fmt::print("  InitialData:\n");
 		fmt::print("    Hash:\n");
-		fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(mHdr.getInitialDataHash().data(), mHdr.getInitialDataHash().size(), true, ":", 0x10, 6, false));
+		fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(mHdr.getInitialDataHash().data(), mHdr.getInitialDataHash().size(), true, "", 0x10, 6, false));
 	}
 	if (mCliOutputMode.show_extended_info)
 	{
 		fmt::print("  Extended Header AesCbc IV:\n");
-		fmt::print("    {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getAesCbcIv().data(), mHdr.getAesCbcIv().size(), true, ":"));
+		fmt::print("    {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getAesCbcIv().data(), mHdr.getAesCbcIv().size(), true, ""));
 	}
 	fmt::print("  SelSec:                 0x{:x}\n", mHdr.getSelSec());
 	fmt::print("  SelT1Key:               0x{:x}\n", mHdr.getSelT1Key());
@@ -191,7 +191,7 @@ void nstool::GameCardProcess::displayHeader()
 		if (mCliOutputMode.show_extended_info)
 		{
 			fmt::print("    Hash:\n");
-			fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(mHdr.getPartitionFsHash().data(), mHdr.getPartitionFsHash().size(), true, ":", 0x10, 6, false));
+			fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(mHdr.getPartitionFsHash().data(), mHdr.getPartitionFsHash().size(), true, "", 0x10, 6, false));
 		}
 	}
 
@@ -211,7 +211,7 @@ void nstool::GameCardProcess::displayHeader()
 		fmt::print("  Update Partition Info:\n");
 		fmt::print("    CUP Version:          {:s} (v{:d})\n", nn::hac::ContentMetaUtil::getVersionAsString(mHdr.getUppVersion()), mHdr.getUppVersion());
 		fmt::print("    CUP TitleId:          0x{:016x}\n", mHdr.getUppId());
-		fmt::print("    CUP Digest:           {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getUppHash().data(), mHdr.getUppHash().size(), true, ":"));
+		fmt::print("    CUP Digest:           {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getUppHash().data(), mHdr.getUppHash().size(), true, ""));
 	}
 }
 

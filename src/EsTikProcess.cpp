@@ -119,12 +119,12 @@ void nstool::EsTikProcess::displayTicket()
 	if (body.getTitleKeyEncType() == nn::es::ticket::RSA2048)
 	{
 		fmt::print("    Data:\n");
-		fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(body.getEncTitleKey(), 0x100, true, ":", 0x10, 6, false));
+		fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(body.getEncTitleKey(), 0x100, true, "", 0x10, 6, false));
 	}
 	else if (body.getTitleKeyEncType() == nn::es::ticket::AES128_CBC)
 	{
 		fmt::print("    Data:\n");
-		fmt::print("      {:s}\n", tc::cli::FormatUtil::formatBytesAsString(body.getEncTitleKey(), 0x10, true, ":"));
+		fmt::print("      {:s}\n", tc::cli::FormatUtil::formatBytesAsString(body.getEncTitleKey(), 0x10, true, ""));
 	}
 	else
 	{

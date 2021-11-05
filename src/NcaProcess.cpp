@@ -208,7 +208,7 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 		if (mContentKey.aes_ctr.isSet())
 		{
 			fmt::print("[NCA Content Key]\n");
-			fmt::print("  AES-CTR Key: {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mContentKey.aes_ctr.get().data(), mContentKey.aes_ctr.get().size(), true, ":"));
+			fmt::print("  AES-CTR Key: {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mContentKey.aes_ctr.get().data(), mContentKey.aes_ctr.get().size(), true, ""));
 		}
 	}
 }
@@ -423,11 +423,11 @@ void nstool::NcaProcess::displayHeader()
 		fmt::print("    |-----|-------------------------------------------------|-------------------------------------------------|\n");
 		for (size_t i = 0; i < mContentKey.kak_list.size(); i++)
 		{
-			fmt::print("    | {:3d} | {:s} | ", mContentKey.kak_list[i].index, tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].enc.data(), mContentKey.kak_list[i].enc.size(), true, ":"));
+			fmt::print("    | {:3d} | {:s} | ", mContentKey.kak_list[i].index, tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].enc.data(), mContentKey.kak_list[i].enc.size(), true, ""));
 						
 			
 			if (mContentKey.kak_list[i].decrypted)
-				fmt::print("{:s}", tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].dec.data(), mContentKey.kak_list[i].dec.size(), true, ":"));
+				fmt::print("{:s}", tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].dec.data(), mContentKey.kak_list[i].dec.size(), true, ""));
 			else
 				fmt::print("<unable to decrypt>                            ");
 			
@@ -457,7 +457,7 @@ void nstool::NcaProcess::displayHeader()
 				memcpy(aes_ctr.data(), info.aes_ctr.data(), aes_ctr.size());
 				tc::crypto::detail::incr_counter<16>(aes_ctr.data(), info.offset>>4);
 				fmt::print("      AesCtr Counter:\n");
-				fmt::print("        {:s}\n", tc::cli::FormatUtil::formatBytesAsString(aes_ctr.data(), aes_ctr.size(), true, ":"));
+				fmt::print("        {:s}\n", tc::cli::FormatUtil::formatBytesAsString(aes_ctr.data(), aes_ctr.size(), true, ""));
 			}
 			if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
 			{
@@ -480,8 +480,8 @@ void nstool::NcaProcess::displayHeader()
 				for (size_t j = 0; j < hash_hdr.getMasterHashList().size(); j++)
 				{
 					fmt::print("        Master Hash {:d}:\n", j);
-					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data(), 0x10, true, ":"));
-					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data()+0x10, 0x10, true, ":"));
+					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data(), 0x10, true, ""));
+					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data()+0x10, 0x10, true, ""));
 				}
 			}
 			else if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
@@ -489,8 +489,8 @@ void nstool::NcaProcess::displayHeader()
 				auto hash_hdr = info.hierarchicalsha256_hdr;
 				fmt::print("      HierarchicalSha256 Header:\n");
 				fmt::print("        Master Hash:\n");
-				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHash().data(), 0x10, true, ":"));
-				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHash().data()+0x10, 0x10, true, ":"));
+				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHash().data(), 0x10, true, ""));
+				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHash().data()+0x10, 0x10, true, ""));
 				fmt::print("        HashBlockSize:     0x{:x}\n", hash_hdr.getHashBlockSize());
 				for (size_t j = 0; j < hash_hdr.getLayerInfo().size(); j++)
 				{
