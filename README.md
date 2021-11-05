@@ -5,16 +5,16 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 * Meta (.npdm)
 * PartitionFS (and Sha256PartitionFS) (includes raw .nsp)
 * RomFS
-* N**X** Game**C**ard **I**mage (.xci)
-* **N**intendo **C**ontent **A**rchive (.nca)
-* **C**o**n**tent **M**e**t**adata (.cnmt) 
-* **N**intendo **S**hared **O**bject (.nso) 
-* **N**intendo **R**elocatable **O**bject (.nro)
-* **Ini**tial Process List (.ini)
-* **K**ernel **I**nitial **P**rocess (.kip)
-* **N**intendo **A**pplication **C**ontrol **P**roperty (.nacp)
-* ES **Cert**ificate (.cert)
-* ES **Ti**c**k**et (v2 only) (.tik)
+* NX GameCard Image (.xci)
+* Nintendo Content Archive (.nca)
+* Content Metadata (.cnmt) 
+* Nintendo Shared Object (`NSO0`) (.nso) 
+* Nintendo Relocatable Object (`NRO0`) (.nro)
+* Initial Program Bundle (`INI1`) (.ini)
+* Initial Program (`KIP1`) (.kip)
+* Nintendo Application Control Property (.nacp)
+* ES Certificate (.cert)
+* ES Ticket (v2 only) (.tik)
 
 # Usage
 ```
@@ -62,9 +62,9 @@ Usage: nstool [options... ] <file>
       --listsym       Print Code Symbols.
       --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).
 
-  INI (Initial Process List)
+  INI1 (Initial Program Bundle)
     nstool [--kipdir <dir>] <file>
-      --kipdir        Extract embedded KIPs to directory.
+      --kipdir        Extract embedded Initial Programs to directory.
 
   ASET (Homebrew Asset Blob)
     nstool [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>
