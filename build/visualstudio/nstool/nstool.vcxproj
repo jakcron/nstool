@@ -126,9 +126,6 @@
     <ProjectReference Include="$(SolutionDir)..\..\deps\libfmt\build\visualstudio\libfmt\libfmt.vcxproj">
       <Project>{f4b0540e-0aae-4006-944b-356944ef61fa}</Project>
     </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)..\..\deps\libfnd\build\visualstudio\libfnd\libfnd.vcxproj">
-      <Project>{4e578016-34ba-4a1e-b8ec-37a48780b6ca}</Project>
-    </ProjectReference>
     <ProjectReference Include="$(SolutionDir)..\..\deps\liblz4\build\visualstudio\liblz4\liblz4.vcxproj">
       <Project>{e741aded-7900-4e07-8db0-d008c336c3fb}</Project>
     </ProjectReference>

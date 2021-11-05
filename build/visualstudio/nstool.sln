@@ -7,34 +7,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nstool", "nstool\nstool.vcx
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deps", "deps", "{05929EAE-4471-4E8E-A6F3-793A81623D7F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libfnd", "..\..\deps\libfnd\build\visualstudio\libfnd\libfnd.vcxproj", "{4E578016-34BA-4A1E-B8EC-37A48780B6CA}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E741ADED-7900-4E07-8DB0-D008C336C3FB} = {E741ADED-7900-4E07-8DB0-D008C336C3FB}
-		{7A7C66F3-2B5B-4E23-85D8-2A74FEDAD92C} = {7A7C66F3-2B5B-4E23-85D8-2A74FEDAD92C}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblz4", "..\..\deps\liblz4\build\visualstudio\liblz4\liblz4.vcxproj", "{E741ADED-7900-4E07-8DB0-D008C336C3FB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnintendo-es", "..\..\deps\libnintendo-es\build\visualstudio\libnintendo-es\libnintendo-es.vcxproj", "{8616D6C9-C8DE-4C3F-AFC2-625636664C2B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA} = {4E578016-34BA-4A1E-B8EC-37A48780B6CA}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnintendo-hac", "..\..\deps\libnintendo-hac\build\visualstudio\libnintendo-hac\libnintendo-hac.vcxproj", "{8885C125-83FB-4F73-A93A-C712B1434D54}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA} = {4E578016-34BA-4A1E-B8EC-37A48780B6CA}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnintendo-hac-hb", "..\..\deps\libnintendo-hac-hb\build\visualstudio\libnintendo-hac-hb\libnintendo-hac-hb.vcxproj", "{24D001B4-D439-4967-9371-DC3E0523EB19}"
 	ProjectSection(ProjectDependencies) = postProject
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA} = {4E578016-34BA-4A1E-B8EC-37A48780B6CA}
 		{8885C125-83FB-4F73-A93A-C712B1434D54} = {8885C125-83FB-4F73-A93A-C712B1434D54}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnintendo-pki", "..\..\deps\libnintendo-pki\build\visualstudio\libnintendo-pki\libnintendo-pki.vcxproj", "{0BEF63A0-2801-4563-AB65-1E2FD881C3AF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA} = {4E578016-34BA-4A1E-B8EC-37A48780B6CA}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmbedtls", "..\..\deps\libmbedtls\build\visualstudio\libmbedtls\libmbedtls.vcxproj", "{7A7C66F3-2B5B-4E23-85D8-2A74FEDAD92C}"
 EndProject
@@ -58,14 +42,6 @@ Global
 		{775EF5EB-CA49-4994-8AC4-47B4A5385266}.Release|x64.Build.0 = Release|x64
 		{775EF5EB-CA49-4994-8AC4-47B4A5385266}.Release|x86.ActiveCfg = Release|Win32
 		{775EF5EB-CA49-4994-8AC4-47B4A5385266}.Release|x86.Build.0 = Release|Win32
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA}.Debug|x64.ActiveCfg = Debug|x64
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA}.Debug|x64.Build.0 = Debug|x64
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA}.Debug|x86.ActiveCfg = Debug|Win32
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA}.Debug|x86.Build.0 = Debug|Win32
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA}.Release|x64.ActiveCfg = Release|x64
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA}.Release|x64.Build.0 = Release|x64
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA}.Release|x86.ActiveCfg = Release|Win32
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA}.Release|x86.Build.0 = Release|Win32
 		{E741ADED-7900-4E07-8DB0-D008C336C3FB}.Debug|x64.ActiveCfg = Debug|x64
 		{E741ADED-7900-4E07-8DB0-D008C336C3FB}.Debug|x64.Build.0 = Debug|x64
 		{E741ADED-7900-4E07-8DB0-D008C336C3FB}.Debug|x86.ActiveCfg = Debug|Win32
@@ -135,7 +111,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{4E578016-34BA-4A1E-B8EC-37A48780B6CA} = {05929EAE-4471-4E8E-A6F3-793A81623D7F}
 		{E741ADED-7900-4E07-8DB0-D008C336C3FB} = {05929EAE-4471-4E8E-A6F3-793A81623D7F}
 		{8616D6C9-C8DE-4C3F-AFC2-625636664C2B} = {05929EAE-4471-4E8E-A6F3-793A81623D7F}
 		{8885C125-83FB-4F73-A93A-C712B1434D54} = {05929EAE-4471-4E8E-A6F3-793A81623D7F}
