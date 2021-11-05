@@ -1,6 +1,15 @@
 [submodule "deps/liblz4"]
 	path = deps/liblz4
 	url = https://github.com/jakcron/liblz4.git
+[submodule "deps/libmbedtls"]
+	path = deps/libmbedtls
+	url = https://github.com/jakcron/libmbedtls
+[submodule "deps/libtoolchain"]
+	path = deps/libtoolchain
+	url = https://github.com/jakcron/libtoolchain.git
+[submodule "deps/libfmt"]
+	path = deps/libfmt
+	url = https://github.com/jakcron/libfmt.git
 [submodule "deps/libnintendo-pki"]
 	path = deps/libnintendo-pki
 	url = https://github.com/jakcron/libnintendo-pki.git
@@ -13,12 +22,3 @@
 [submodule "deps/libnintendo-hac-hb"]
 	path = deps/libnintendo-hac-hb
 	url = https://github.com/jakcron/libnintendo-hac-hb.git
-[submodule "deps/libmbedtls"]
-	path = deps/libmbedtls
-	url = https://github.com/jakcron/libmbedtls
-[submodule "deps/libtoolchain"]
-	path = deps/libtoolchain
-	url = https://github.com/jakcron/libtoolchain.git
-[submodule "deps/libfmt"]
-	path = deps/libfmt
-	url = https://github.com/jakcron/libfmt.git
