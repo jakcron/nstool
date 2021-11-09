@@ -407,7 +407,17 @@ public:
 		std::string custom_path_str;
 		tc::io::PathUtil::pathToUnixUTF8(mCustomPath, custom_path_str);
 
-		fmt::print("[WARNING] \"{:s} {:s}\" is deprecated. Consider using \"-x {:s} {:s}\" instead.\n", option, params[0], custom_path_str, params[0]);
+		fmt::print("[WARNING] \"{:s} {:s}\" is deprecated. ", option, params[0]);
+		// if custom path is root path, use the shortened version of -x
+		if (mCustomPath == tc::io::Path("/"))
+		{
+			fmt::print("Consider using \"-x {:s}\" instead.\n", params[0]);
+		}
+		else
+		{
+			fmt::print("Consider using \"-x {:s} {:s}\" instead.\n", custom_path_str, params[0]);
+		}
+			
 
 		mJobs.push_back({mCustomPath, tc::io::Path(params[0])});
 	}
@@ -550,8 +560,9 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 	opts.registerOptionHandler(std::shared_ptr<InstructionTypeOptionHandler>(new InstructionTypeOptionHandler(code.is_64bit_instruction, { "--insttype" })));
 
 	// fs options
-	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(fs.show_fs_tree, { "--listfs" })));
-	opts.registerOptionHandler(std::shared_ptr<ExtractDataPathOptionHandler>(new ExtractDataPathOptionHandler(fs.extract_jobs, { "--fsdir", "-x", "--extract" })));
+	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(fs.show_fs_tree, { "--fstree", "--listfs" })));
+	opts.registerOptionHandler(std::shared_ptr<ExtractDataPathOptionHandler>(new ExtractDataPathOptionHandler(fs.extract_jobs, { "-x", "--extract" })));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--fsdir" }, tc::io::Path("/"))));
 
 	// xci options
 	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--update" }, tc::io::Path("/update/"))));
@@ -706,29 +717,29 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("      --showlayout    Show layout metadata.\n");
 	fmt::print("      -v, --verbose   Verbose output.\n");
 	fmt::print("\n  PFS0/HFS0 (PartitionFs), RomFs, NSP (Nintendo Submission Package)\n");
-	fmt::print("    {:s} [--listfs] [--fsdir [<virtual path>] <out path>] <file>\n", BIN_NAME);
-	fmt::print("      --listfs        Print file system.\n");
-	fmt::print("      -x, --fsdir     Extract file system to directory.\n");
+	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] <file>\n", BIN_NAME);
+	fmt::print("      --fstree        Print filesystem tree.\n");
+	fmt::print("      -x, --extract   Extract a file or directory to local filesystem.\n");
 	fmt::print("\n  XCI (GameCard Image)\n");
-	fmt::print("    {:s} [--listfs] [--fsdir [<virtual path>] <out path>] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>\n", BIN_NAME);
-	fmt::print("      --listfs        Print file system.\n");
-	fmt::print("      -x, --fsdir     Extract file system to directory.\n");
+	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] <.xci file>\n", BIN_NAME);
+	fmt::print("      --fstree        Print filesystem tree.\n");
+	fmt::print("      -x, --extract   Extract a file or directory to local filesystem.\n");
 	fmt::print("      --update        Extract \"update\" partition to directory. (Alias for \"-x /update <out path>\")\n");
 	fmt::print("      --logo          Extract \"logo\" partition to directory. (Alias for \"-x /logo <out path>\")\n");
 	fmt::print("      --normal        Extract \"normal\" partition to directory. (Alias for \"-x /normal <out path>\")\n");
 	fmt::print("      --secure        Extract \"secure\" partition to directory. (Alias for \"-x /secure <out path>\")\n");
 	fmt::print("\n  NCA (Nintendo Content Archive)\n");
-	fmt::print("    {:s} [--listfs] [--bodykey <key> --titlekey <key>] [--fsdir [<virtual path>] <out path>] [--part0 <dir> ...] <.nca file>\n", BIN_NAME);
-	fmt::print("      --listfs        Print file system.\n");
-	fmt::print("      -x, --fsdir     Extract file system to directory.\n");
+	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] [--bodykey <key> --titlekey <key> -tik <tik path>] <.nca file>\n", BIN_NAME);
+	fmt::print("      --fstree        Print filesystem tree.\n");
+	fmt::print("      -x, --extract   Extract a file or directory to local filesystem.\n");
 	fmt::print("      --titlekey      Specify title key extracted from ticket.\n");
-	//fmt::print("      --bodykey       Specify body encryption key.\n");
+	fmt::print("      --bodykey       Specify body encryption key.\n");
 	fmt::print("      --tik           Specify ticket to source title key.\n");
 	fmt::print("      --cert          Specify certificate chain to verify ticket.\n");
-	fmt::print("      --part0         Extract \"partition 0\" to directory. (Alias for \"-x /0 <out path>\")\n");
-	fmt::print("      --part1         Extract \"partition 1\" to directory. (Alias for \"-x /1 <out path>\")\n");
-	fmt::print("      --part2         Extract \"partition 2\" to directory. (Alias for \"-x /2 <out path>\")\n");
-	fmt::print("      --part3         Extract \"partition 3\" to directory. (Alias for \"-x /3 <out path>\")\n");
+	fmt::print("      --part0         Extract partition \"0\" to directory. (Alias for \"-x /0 <out path>\")\n");
+	fmt::print("      --part1         Extract partition \"1\" to directory. (Alias for \"-x /1 <out path>\")\n");
+	fmt::print("      --part2         Extract partition \"2\" to directory. (Alias for \"-x /2 <out path>\")\n");
+	fmt::print("      --part3         Extract partition \"3\" to directory. (Alias for \"-x /3 <out path>\")\n");
 	fmt::print("\n  NSO (Nintendo Shared Object), NRO (Nintendo Relocatable Object)\n");
 	fmt::print("    {:s} [--listapi --listsym] [--insttype <inst. type>] <file>\n", BIN_NAME);
 	fmt::print("      --listapi       Print SDK API List.\n");
@@ -738,11 +749,11 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("    {:s} [--kipdir <dir>] <file>\n", BIN_NAME);
 	fmt::print("      --kipdir        Extract embedded Inital Programs to directory.\n");
 	fmt::print("\n  ASET (Homebrew Asset Blob)\n");
-	fmt::print("    {:s} [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>\n", BIN_NAME);
-	fmt::print("      --listfs        Print filesystem in embedded RomFS partition.\n");
+	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] [--icon <file> --nacp <file>] <file>\n", BIN_NAME);
+	fmt::print("      --fstree        Print RomFS filesystem tree.\n");
+	fmt::print("      -x, --extract   Extract a file or directory from RomFS to local filesystem.\n");
 	fmt::print("      --icon          Extract icon partition to file.\n");
 	fmt::print("      --nacp          Extract NACP partition to file.\n");
-	fmt::print("      -x, --fsdir     Extract RomFS partition to directory.\n");
 }
 
 void nstool::SettingsInitializer::dump_keys() const

@@ -32,30 +32,31 @@ Usage: nstool [options... ] <file>
       -v, --verbose   Verbose output.
 
   PFS0/HFS0 (PartitionFs), RomFs, NSP (Nintendo Submission Package)
-    nstool [--listfs] [--fsdir [<virtual path>] <out path>] <file>
-      --listfs        Print file system.
-      -x, --fsdir     Extract file system to directory.
+    nstool [--fstree] [-x [<virtual path>] <out path>] <file>
+      --fstree        Print filesystem tree.
+      -x, --extract   Extract a file or directory to local filesystem.
 
   XCI (GameCard Image)
-    nstool [--listfs] [--fsdir [<virtual path>] <out path>] [--update <dir> --logo <dir> --normal <dir> --secure <dir>] <.xci file>
-      --listfs        Print file system.
-      -x, --fsdir     Extract file system to directory.
+    nstool [--fstree] [-x [<virtual path>] <out path>] <.xci file>
+      --fstree        Print filesystem tree.
+      -x, --extract   Extract a file or directory to local filesystem.
       --update        Extract "update" partition to directory. (Alias for "-x /update <out path>")
       --logo          Extract "logo" partition to directory. (Alias for "-x /logo <out path>")
       --normal        Extract "normal" partition to directory. (Alias for "-x /normal <out path>")
       --secure        Extract "secure" partition to directory. (Alias for "-x /secure <out path>")
 
   NCA (Nintendo Content Archive)
-    nstool [--listfs] [--bodykey <key> --titlekey <key>] [--fsdir [<virtual path>] <out path>] [--part0 <dir> ...] <.nca file>
-      --listfs        Print file system.
-      -x, --fsdir     Extract file system to directory.
+    nstool [--fstree] [-x [<virtual path>] <out path>] [--bodykey <key> --titlekey <key> -tik <tik path>] <.nca file>
+      --fstree        Print filesystem tree.
+      -x, --extract   Extract a file or directory to local filesystem.
       --titlekey      Specify title key extracted from ticket.
+      --bodykey       Specify body encryption key.
       --tik           Specify ticket to source title key.
       --cert          Specify certificate chain to verify ticket.
-      --part0         Extract "partition 0" to directory. (Alias for "-x /0 <out path>")
-      --part1         Extract "partition 1" to directory. (Alias for "-x /1 <out path>")
-      --part2         Extract "partition 2" to directory. (Alias for "-x /2 <out path>")
-      --part3         Extract "partition 3" to directory. (Alias for "-x /3 <out path>")
+      --part0         Extract partition "0" to directory. (Alias for "-x /0 <out path>")
+      --part1         Extract partition "1" to directory. (Alias for "-x /1 <out path>")
+      --part2         Extract partition "2" to directory. (Alias for "-x /2 <out path>")
+      --part3         Extract partition "3" to directory. (Alias for "-x /3 <out path>")
 
   NSO (Nintendo Shared Object), NRO (Nintendo Relocatable Object)
     nstool [--listapi --listsym] [--insttype <inst. type>] <file>
@@ -68,11 +69,11 @@ Usage: nstool [options... ] <file>
       --kipdir        Extract embedded Inital Programs to directory.
 
   ASET (Homebrew Asset Blob)
-    nstool [--listfs] [--icon <file> --nacp <file> --fsdir <dir>] <file>
-      --listfs        Print filesystem in embedded RomFS partition.
+    nstool [--fstree] [-x [<virtual path>] <out path>] [--icon <file> --nacp <file>] <file>
+      --fstree        Print RomFS filesystem tree.
+      -x, --extract   Extract a file or directory from RomFS to local filesystem.
       --icon          Extract icon partition to file.
       --nacp          Extract NACP partition to file.
-      -x, --fsdir     Extract RomFS partition to directory.
 ```
 
 # External Keys
