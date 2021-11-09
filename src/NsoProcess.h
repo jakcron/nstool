@@ -43,7 +43,6 @@ private:
 	void processRoMeta();
 
 	size_t decompressData(const byte_t* src, size_t src_len, byte_t* dst, size_t dst_capacity);
-
 };
 
 }
