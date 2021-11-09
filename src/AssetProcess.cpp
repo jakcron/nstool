@@ -3,7 +3,7 @@
 #include "util.h"
 
 nstool::AssetProcess::AssetProcess() :
-	mModuleName("nstool::AssetProcess::"),
+	mModuleName("nstool::AssetProcess"),
 	mFile(),
 	mCliOutputMode(true, false, false, false),
 	mVerify(false)
