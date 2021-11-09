@@ -12,9 +12,9 @@
 * `make deps` - Compile locally included dependency libraries
 * `make clean_deps` - Remove compiled library binaries and object files
 
-## Native Win32 - Visual Studio
+## Native Windows - Visual Studio
 ### Requirements
-* [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) 2015 or 2017
+* [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) 2015 / 2017 / 2019
 
 ### Compiling NSTool
 * Open `build/visualstudio/nstool.sln` in Visual Studio
