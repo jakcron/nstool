@@ -46,7 +46,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.0
+      uses: microsoft/setup-msbuild@v1.1
     - name: Clone submodules
       run: git submodule init && git submodule update
     - name: Compile ${{ matrix.prog }}
