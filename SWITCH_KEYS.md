@@ -10,10 +10,8 @@ Some switch files formats feature encryption and or cryptographic signatures. In
 
 This keyset file can be provided via the command line (refer to usage for details).
 
-
-
 ## Format
-The following keys are recognised (## represents a hexadecimal number between 00 and 1F):
+The following keys are recognised (## represents a hexadecimal number between 00 and FF):
 
 ```
 ; Key Sources
@@ -47,18 +45,24 @@ pki_root_sign_key_private             : RSA4096 Private Exponent (0x200 bytes)
 nca_header_key                        : AES128-XTS Key (0x20 bytes)
 nca_header_sign_key_##_modulus        : RSA2048 Modulus (0x100 bytes)
 nca_header_sign_key_##_private        : RSA2048 Private Exponent (0x100 bytes)
-nca_body_keak_application_##          : AES128 Key (0x10 bytes)
-nca_body_keak_ocean_##                : AES128 Key (0x10 bytes)
-nca_body_keak_system_##               : AES128 Key (0x10 bytes)
+nca_key_area_key_application_##       : AES128 Key (0x10 bytes)
+nca_key_area_key_ocean_##             : AES128 Key (0x10 bytes)
+nca_key_area_key_system_##            : AES128 Key (0x10 bytes)
+nca_key_area_key_hw_application_##    : AES128 Key (0x10 bytes)
+nca_key_area_key_hw_ocean_##          : AES128 Key (0x10 bytes)
+nca_key_area_key_hw_system_##         : AES128 Key (0x10 bytes)
 
 ; NRR Keys
 nrr_certificate_sign_key_##_modulus   : RSA2048 Modulus (0x100 bytes)
 nrr_certificate_sign_key_##_private   : RSA2048 Private Exponent (0x100 bytes)
 
 ; XCI Keys
-xci_header_key                        : AES128 Key (0x10 bytes)
+xci_header_key_##                     : AES128 Key (0x10 bytes)
 xci_header_sign_key_modulus           : RSA2048 Modulus (0x100 bytes)
 xci_header_sign_key_private           : RSA2048 Private Exponent (0x100 bytes)
+xci_initial_data_kek_##               : AES128 Key (0x10 bytes)
+xci_cert_sign_key_modulus             : RSA2048 Modulus (0x100 bytes)
+xci_cert_sign_key_private             : RSA2048 Private Exponent (0x100 bytes)
 
 ; ACID Keys
 acid_sign_key_##_modulus              : RSA2048 Modulus (0x100 bytes)
