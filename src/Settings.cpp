@@ -599,7 +599,7 @@ void nstool::SettingsInitializer::determine_filetype()
 	auto raw_data = file.pullData(0, 0x5000);
 
 #define _TYPE_PTR(st) ((st*)(raw_data.data()))
-#define _ASSERT_FILE_SIZE(sz) (file.length() >= (sz))
+#define _ASSERT_FILE_SIZE(sz) (file.length() >= tc::io::IOUtil::castSizeToInt64(sz))
 
 	// do easy tests
 
