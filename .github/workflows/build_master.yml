@@ -14,19 +14,24 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        dist: [ubuntu_x86_64, macos_x86_64]
+        dist: [ubuntu_x86_64, macos_x86_64, macos_arm64]
         prog: [nstool]
         include:
          - dist: ubuntu_x86_64
            os: ubuntu-latest
+           arch: x86_64
          - dist: macos_x86_64
            os: macos-latest
+           arch: x86_64
+         - dist: macos_arm64
+           os: macos-latest
+           arch: arm64
     steps:
     - uses: actions/checkout@v1
     - name: Clone submodules
       run: git submodule init && git submodule update
     - name: Compile ${{ matrix.prog }}
-      run: make deps && make
+      run: make PROJECT_PLATFORM_ARCH=${{ matrix.dist_arch }} deps all
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.prog }}-${{ matrix.dist }}
@@ -36,13 +41,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        dist: [win_x86_64]
+        dist: [win_x64, win_x86]
         prog: [nstool]
         include:
-         - dist: win_x86_64
+         - dist: win_x64
            os: windows-latest
            platform: x64
            configuration: Release
+           build_path: x64\Release
+         - dist: win_x86
+           os: windows-latest
+           platform: x86
+           configuration: Release
+           build_path: Release
     steps:
     - uses: actions/checkout@v1
     - name: Add msbuild to PATH
@@ -54,5 +65,5 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.prog }}-${{ matrix.dist }}
-        path: .\build\visualstudio\${{ matrix.platform }}\${{ matrix.configuration }}\${{ matrix.prog }}.exe
+        path: .\build\visualstudio\${{ matrix.build_path }}\${{ matrix.prog }}.exe
 
