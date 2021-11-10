@@ -66,7 +66,7 @@ Usage: nstool [options... ] <file>
 
   INI (Initial Program Bundle)
     nstool [--kipdir <dir>] <file>
-      --kipdir        Extract embedded Inital Programs to directory.
+      --kipdir        Extract embedded Initial Programs to directory.
 
   ASET (Homebrew Asset Blob)
     nstool [--fstree] [-x [<virtual path>] <out path>] [--icon <file> --nacp <file>] <file>

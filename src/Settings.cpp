@@ -747,7 +747,7 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("      --insttype      Specify instruction type [64bit|32bit] (64bit is assumed).\n");
 	fmt::print("\n  INI (Initial Program Bundle)\n");
 	fmt::print("    {:s} [--kipdir <dir>] <file>\n", BIN_NAME);
-	fmt::print("      --kipdir        Extract embedded Inital Programs to directory.\n");
+	fmt::print("      --kipdir        Extract embedded Initial Programs to directory.\n");
 	fmt::print("\n  ASET (Homebrew Asset Blob)\n");
 	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] [--icon <file> --nacp <file>] <file>\n", BIN_NAME);
 	fmt::print("      --fstree        Print RomFS filesystem tree.\n");
