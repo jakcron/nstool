@@ -165,13 +165,13 @@ shared_lib: $(SRC_OBJ) create_binary_dir
 # Build Program
 program: $(SRC_OBJ) create_binary_dir
 	@echo LINK $(PROJECT_BIN_PATH)/$(PROJECT_NAME)
-	@$(CXX) $(SRC_OBJ) $(LIB) -o "$(PROJECT_BIN_PATH)/$(PROJECT_NAME)"
+	@$(CXX) $(ARCHFLAGS) $(SRC_OBJ) $(LIB) -o "$(PROJECT_BIN_PATH)/$(PROJECT_NAME)"
 
 # Build Test Program
 test_program: $(TESTSRC_OBJ) $(SRC_OBJ) create_binary_dir
 ifneq ($(PROJECT_TESTSRC_PATH),)
 	@echo LINK $(PROJECT_BIN_PATH)/$(PROJECT_NAME)_test
-	@$(CXX) $(TESTSRC_OBJ) $(SRC_OBJ) $(LIB) -o "$(PROJECT_BIN_PATH)/$(PROJECT_NAME)_test"
+	@$(CXX) $(ARCHFLAGS) $(TESTSRC_OBJ) $(SRC_OBJ) $(LIB) -o "$(PROJECT_BIN_PATH)/$(PROJECT_NAME)_test"
 endif
 
 # Documentation
