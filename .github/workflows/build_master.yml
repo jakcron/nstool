@@ -31,7 +31,7 @@ jobs:
     - name: Clone submodules
       run: git submodule init && git submodule update
     - name: Compile ${{ matrix.prog }}
-      run: make PROJECT_PLATFORM_ARCH=${{ matrix.dist_arch }} deps all
+      run: make PROJECT_PLATFORM_ARCH=${{ matrix.arch }} deps all
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.prog }}-${{ matrix.dist }}
