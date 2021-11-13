@@ -17,7 +17,7 @@ nstool::PfsProcess::PfsProcess() :
 	mFileSystem(),
 	mFsProcess()
 {
-	mFsProcess.setFsFormatName("PartitionFS");
+	mFsProcess.setFsFormatName("PartitionFs");
 }
 
 void nstool::PfsProcess::process()

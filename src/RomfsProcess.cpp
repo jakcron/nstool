@@ -15,7 +15,7 @@ nstool::RomfsProcess::RomfsProcess() :
 	mFileSystem(),
 	mFsProcess()
 {
-	mFsProcess.setFsFormatName("RomFS");
+	mFsProcess.setFsFormatName("RomFs");
 }
 
 void nstool::RomfsProcess::process()

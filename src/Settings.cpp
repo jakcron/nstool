@@ -750,8 +750,8 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("      --kipdir        Extract embedded Initial Programs to directory.\n");
 	fmt::print("\n  ASET (Homebrew Asset Blob)\n");
 	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] [--icon <file> --nacp <file>] <file>\n", BIN_NAME);
-	fmt::print("      --fstree        Print RomFS filesystem tree.\n");
-	fmt::print("      -x, --extract   Extract a file or directory from RomFS to local filesystem.\n");
+	fmt::print("      --fstree        Print RomFs filesystem tree.\n");
+	fmt::print("      -x, --extract   Extract a file or directory from RomFs to local filesystem.\n");
 	fmt::print("      --icon          Extract icon partition to file.\n");
 	fmt::print("      --nacp          Extract NACP partition to file.\n");
 }

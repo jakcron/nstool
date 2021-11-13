@@ -271,7 +271,7 @@ void nstool::GameCardProcess::processRootPfs()
 	FsProcess fs_proc;
 
 	fs_proc.setInputFileSystem(gc_vfs);
-	fs_proc.setFsFormatName("PartitionFS");
+	fs_proc.setFsFormatName("PartitionFs");
 	fs_proc.setFsProperties({
 		fmt::format("Type:      Nested HFS0"),
 		fmt::format("DirNum:    {:d}", gc_vfs_meta.dir_entries.empty() ? 0 : gc_vfs_meta.dir_entries.size() - 1), // -1 to not include root directory

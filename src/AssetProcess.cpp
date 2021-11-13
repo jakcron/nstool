@@ -133,7 +133,7 @@ void nstool::AssetProcess::displayHeader()
 		fmt::print("  NACP:\n");
 		fmt::print("    Offset:       0x{:x}\n", mHdr.getNacpInfo().offset);
 		fmt::print("    Size:         0x{:x}\n", mHdr.getNacpInfo().size);
-		fmt::print("  RomFS:\n");
+		fmt::print("  RomFs:\n");
 		fmt::print("    Offset:       0x{:x}\n", mHdr.getRomfsInfo().offset);
 		fmt::print("    Size:         0x{:x}\n", mHdr.getRomfsInfo().size);
 	}	
