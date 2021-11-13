@@ -8,7 +8,10 @@ If a keyset file is located in ___$HOME/.switch/___ it will be loaded automatica
 # General Keys (prod.keys and dev.keys)
 Some switch files formats feature encryption and or cryptographic signatures. In order to process these file formats, some keys are required. These keys can be supplied via a keyfile: ___prod.keys___ (or ___dev.keys___ for devkit variants).
 
-This keyset file can be provided via the command line (refer to usage for details).
+This keyset file can be provided via the command line, use the `-k` or `--keyset` option:
+```
+nstool -k prod.keys some_file.bin
+```
 
 ## Format
 The following keys are recognised (## represents the key revision, a hexadecimal number between 00 and FF):

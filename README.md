@@ -88,11 +88,22 @@ See the below table for file types that support optional validation:
 | META | AccessControlInfo fields, AccessControlInfoDesc signature | AccessControlInfo fields are validated against the AccessControlInfoDesc. AccessControlInfoDesc signature is verfied with the appropriate user supplied `ACID` public key. |
 | NCA | Header Signature[0], Header Signature[1] | Header Signature[0] is verified with the appropriate user supplied `NCA Header` public key. Header Signature[1] is verified only in Program titles, by retrieving the with public key from the AccessControlInfoDesc stored in the `code` partition. |
 
-* As of Nintendo Switch Firmware 9.0.0, Nintendo retroactively added key generations for some public keys, including `NCA Header` and `ACID` public keys, so the various generations for these public keys will have to be supplied by the user
+* As of Nintendo Switch Firmware 9.0.0, Nintendo retroactively added key generations for some public keys, including `NCA Header` and `ACID` public keys, so the various generations for these public keys will have to be supplied by the user.
 * As of NSTool v1.6.0 the public key(s) for `Root Certificate`, `XCI Header`, `ACID` and `NCA Header` are built-in, and will be used if the user does not supply the public key in a key file.
 
+## DevKit Mode
+Files generated for `Production` use different (for the most part) encryption/signing keys than files generated for `Development`. NSTool will select `Production` encryption/signing keys by default.
+When handling files intended for developer consoles (e.g. systemupdaters, devtools, test builds, etc), you should enable developer mode with the `-d`, `--dev` option:
+```
+nstool -d some_file.bin
+```
+
+## Extract Files
+Some file types have some internal file system that can be displayed or extracted
+
 ## Encrypted Files
-Some Nintendo Switch files are partially or completely encrypted. These require the user to supply the encryption keys to NSTool so that it can process them.
+Some Nintendo Switch files are partially or completely encrypted. These require the user to supply the encryption keys to NSTool so that it can process them. Follow the below advice for what keys are required and how to supply them to NSTool.
+
 ### NX GameCard Image
 The `GameCard ExtendedHeader` is encrypted with one of 8 keys, specified by the `KekIndex` in the `GameCard Header`.
 It isn't required to extract game data, it just contains metadata.
@@ -103,9 +114,7 @@ Only two keys are currently defined:
 | 00          | Production      | Usually selected for prod images. Some dev images use this key index. |
 | 01          | Development     | Usually selected for dev images. This was changed from key index 00 at some point. |
 
-In order to read the XCI Extended Header, the header key(s) must be defined in `prod.keys`/`dev.keys`.
-
-Define these keys in both `prod.keys` and `dev.keys` (Prod and dev share the same keydata).
+In order to read the XCI Extended Header, the header key(s) must be defined in `prod.keys`/`dev.keys` (Prod and dev share the same keydata).
 ```
 xci_header_key_00 = <32 char AES128 key here>
 xci_header_key_01 = <32 char AES128 key here>
@@ -188,13 +197,13 @@ It is also possible to supply the decrypted content key directly with the `--con
 nstool --contentkey <32 char AES128 key-data here> <32 char contentid>.nca
 ```
 
-##### Scene tickets
+##### Scene Tickets
 Please note that "Scene" tickets have been known to have errors. If you have issues using the `--tik` option, try passing the raw encrypted titlekey directly with the `--titlekey` option. The titlekey can be found by reading the ticket with NSTool:
 ```
 nstool <32 char rightsid>.tik
 ```
 
-##### Dealing with ticket errors
+##### Personalised Tickets
 If the ticket is personalised (encrypted with console unique RSA key), NSTool will not support it. You will need to use extract the title key with another tool and pass the encrypted title key directly with the `--titlekey` option.
 
 # External Keys
