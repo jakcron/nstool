@@ -133,8 +133,8 @@ private:
 	bool mVerbose;
 
 	tc::Optional<tc::io::Path> mKeysetPath;
-	tc::Optional<KeyBag::aes128_key_t> mTitleKey;
-	tc::Optional<KeyBag::aes128_key_t> mBodyKey;
+	tc::Optional<KeyBag::aes128_key_t> mNcaEncryptedContentKey;
+	tc::Optional<KeyBag::aes128_key_t> mNcaContentKey;
 	tc::Optional<tc::io::Path> mTikPath;
 	tc::Optional<tc::io::Path> mCertPath;
 

@@ -433,8 +433,8 @@ nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>&
 	mShowLayout(false),
 	mShowKeydata(false),
 	mVerbose(false),
-	mTitleKey(),
-	mBodyKey(),
+	mNcaEncryptedContentKey(),
+	mNcaContentKey(),
 	mTikPath(),
 	mCertPath()
 {
@@ -486,8 +486,8 @@ nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>&
 
 	// generate keybag
 	opt.keybag = KeyBagInitializer(opt.is_dev, mKeysetPath, mTikPath, mCertPath);
-	opt.keybag.fallback_enc_content_key = mTitleKey;
-	opt.keybag.fallback_content_key = mBodyKey;
+	opt.keybag.fallback_enc_content_key = mNcaEncryptedContentKey;
+	opt.keybag.fallback_content_key = mNcaContentKey;
 
 	// dump keys if requires
 	if (mShowKeydata) // but not opt.cli_output_mode.show_keydata, since this that enabled by toggling -v,--verbose, personally I don't think a summary of imported keydata should be included in verbose output.
@@ -549,8 +549,8 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 
 	// get user-provided keydata
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(mKeysetPath, {"-k", "--keyset"})));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamAesKeyOptionHandler>(new SingleParamAesKeyOptionHandler(mTitleKey, {"--titlekey"})));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamAesKeyOptionHandler>(new SingleParamAesKeyOptionHandler(mBodyKey, {"--bodykey"})));
+	opts.registerOptionHandler(std::shared_ptr<SingleParamAesKeyOptionHandler>(new SingleParamAesKeyOptionHandler(mNcaEncryptedContentKey, {"--titlekey"})));
+	opts.registerOptionHandler(std::shared_ptr<SingleParamAesKeyOptionHandler>(new SingleParamAesKeyOptionHandler(mNcaContentKey, {"--contentkey", "--bodykey"})));
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(mTikPath, {"--tik"})));
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(mCertPath, {"--cert"})));
 
@@ -732,8 +732,8 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] [--bodykey <key> --titlekey <key> -tik <tik path>] <.nca file>\n", BIN_NAME);
 	fmt::print("      --fstree        Print filesystem tree.\n");
 	fmt::print("      -x, --extract   Extract a file or directory to local filesystem.\n");
-	fmt::print("      --titlekey      Specify title key extracted from ticket.\n");
-	fmt::print("      --bodykey       Specify body encryption key.\n");
+	fmt::print("      --titlekey      Specify (encrypted) title key extracted from ticket.\n");
+	fmt::print("      --contentkey    Specify content key.\n");
 	fmt::print("      --tik           Specify ticket to source title key.\n");
 	fmt::print("      --cert          Specify certificate chain to verify ticket.\n");
 	fmt::print("      --part0         Extract partition \"0\" to directory. (Alias for \"-x /0 <out path>\")\n");
