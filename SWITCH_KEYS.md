@@ -11,20 +11,20 @@ Some switch files formats feature encryption and or cryptographic signatures. In
 This keyset file can be provided via the command line (refer to usage for details).
 
 ## Format
-The following keys are recognised (## represents a hexadecimal number between 00 and FF):
+The following keys are recognised (## represents the key revision, a hexadecimal number between 00 and FF):
 
 ```
 ; Key Sources
-master_key_##                    : Master key, used to derive other keys. (0x10 bytes)
-aes_kek_generation_source        : Used to derive other aes-keks. (0x10 bytes)
-aes_key_generation_source        : Used to derive other aes-keys. (0x10 bytes)
-package2_key_source              : Used with master_key_## to derive package2_key_##. (0x10 bytes)
-ticket_commonkey_source          : Used with master_key_## to derive ticket_commonkey_##. (0x10 bytes)
-nca_header_kek_source            : Used with master_key_00, aes_kek_generation_source and aes_key_generation_source to generate nca_header_kek.  (0x10 bytes)
-nca_header_key_source            : Used with nca_header_kek to generate nca_header_key.  (0x20 bytes)
-nca_body_keak_application_source : Used with master_key_##, aes_kek_generation_source and aes_key_generation_source to generate nca_body_keak_application_##. (0x10 bytes)
-nca_body_keak_ocean_source       : Used with master_key_##, aes_kek_generation_source and aes_key_generation_source to generate nca_body_keak_ocean_##. (0x10 bytes)
-nca_body_keak_system_source      : Used with master_key_##, aes_kek_generation_source and aes_key_generation_source to generate nca_body_keak_system_##. (0x10 bytes)
+master_key_##                         : Master key, used to derive other keys. (0x10 bytes)
+aes_kek_generation_source             : Used to derive other aes-keks. (0x10 bytes)
+aes_key_generation_source             : Used to derive other aes-keys. (0x10 bytes)
+package2_key_source                   : Used with master_key_## to derive package2_key_##. (0x10 bytes)
+ticket_commonkey_source               : Used with master_key_## to derive ticket_commonkey_##. (0x10 bytes)
+nca_header_kek_source                 : Used with master_key_00, aes_kek_generation_source and aes_key_generation_source to generate nca_header_kek.  (0x10 bytes)
+nca_header_key_source                 : Used with nca_header_kek to generate nca_header_key.  (0x20 bytes)
+nca_key_area_key_application_source   : Used with master_key_##, aes_kek_generation_source and aes_key_generation_source to generate nca_key_area_key_application_##. (0x10 bytes)
+nca_key_area_key_ocean_source         : Used with master_key_##, aes_kek_generation_source and aes_key_generation_source to generate nca_key_area_key_ocean_##. (0x10 bytes)
+nca_key_area_key_system_source        : Used with master_key_##, aes_kek_generation_source and aes_key_generation_source to generate nca_key_area_key_system_##. (0x10 bytes)
 
 ; Package1 keys
 package1_key_##                       : AES128 Key (0x10 bytes)
