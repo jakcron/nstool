@@ -121,7 +121,7 @@ This extracts the contents of `/a/sub/directory/` to `./extract_dir/`. `extract_
 nstool -x /a/sub/directory/ ./extract_dir/ some_file.bin
 ```
 
-3) Extract a specific file to a directory.
+3) Extract a specific file, preserving the original name.
 
 This extracts `/path/to/a/file.bin` to `./extract_dir/file.bin`.
 ```
