@@ -5,8 +5,8 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 * PartitionFs (`PFS0`) (.pfs0)
 * Sha256PartitionFs (`HFS0`) (.hfs0)
 * RomFs (.romfs)
-* Nintendo Submission Package (.nsp)
 * Nintendo Content Archive (.nca)
+* Nintendo Submission Package (.nsp)
 * NX GameCard Image (.xci)
 * Meta (`META`) (.npdm)
 * Nintendo Application Control Property (.nacp)
@@ -17,7 +17,6 @@ General purpose reading/extraction tool for Nintendo Switch file formats.
 * Nintendo Relocatable Object (`NRO0`) (.nro)
 * Initial Program Bundle (`INI1`) (.ini)
 * Initial Program (`KIP1`) (.kip)
-
 
 # Usage
 ## General usage
@@ -99,7 +98,50 @@ nstool -d some_file.bin
 ```
 
 ## Extract Files
-Some file types have some internal file system that can be displayed or extracted
+Some file types have an internal file system. This can be displayed and extracted.
+
+To display the file system tree, use the file tree option `--fstree`:
+```
+nstool --fstree some_file.bin
+```
+
+To extract the file system, use the extract option `-x`, `--extract`. Which has four modes.
+
+1) Extract the entire file system.
+
+This extracts the contents of the entire file system to `./extract_dir/`. `extract_dir` will be created if it doesn't exist.
+```
+nstool -x ./extract_dir/ some_file.bin
+```
+
+2) Extract a sub directory.
+
+This extracts the contents of `/a/sub/directory/` to `./extract_dir/`. `extract_dir` will be created if it doesn't exist.
+```
+nstool -x /a/sub/directory/ ./extract_dir/ some_file.bin
+```
+
+3) Extract a specific file to a directory.
+
+This extracts `/path/to/a/file.bin` to `./extract_dir/file.bin`.
+```
+nstool -x /path/to/a/file.bin ./extract_dir/ some_file.bin
+```
+
+4) Extract a specific file with a custom name.
+
+This extracts `/path/to/a/file.bin` to `./extract_dir/different_name.bin`.
+```
+nstool -x /path/to/a/file.bin ./extract_dir/different_name.bin some_file.bin
+```
+
+### Supported File Types
+* PartitionFs
+* Sha256PartitionFs
+* RomFs (including RomFs embedded in Homebrew NRO)
+* NCA
+* NSP
+* XCI
 
 ## Encrypted Files
 Some Nintendo Switch files are partially or completely encrypted. These require the user to supply the encryption keys to NSTool so that it can process them. 
