@@ -46,7 +46,7 @@ nstool -v some_file.bin
 ```
 
 ## Specify File Type
-NSTool will in most cases correctly identify the file type. However you can override this and manually specify the file type with the `-t` or `--intype` option:
+NSTool will in most cases correctly identify the file type. However you can override this and manually specify the file type with the `-t` or `--type` option:
 ```
 nstool -t cnmt some_file.bin
 ```

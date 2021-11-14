@@ -545,7 +545,7 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(opt.is_dev, {"-d", "--dev"})));
 
 	// process input file type
-	opts.registerOptionHandler(std::shared_ptr<FileTypeOptionHandler>(new FileTypeOptionHandler(infile.filetype, { "-t", "--intype" })));
+	opts.registerOptionHandler(std::shared_ptr<FileTypeOptionHandler>(new FileTypeOptionHandler(infile.filetype, { "-t", "--type" })));
 
 	// get user-provided keydata
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(mKeysetPath, {"-k", "--keyset"})));
