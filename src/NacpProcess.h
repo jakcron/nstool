@@ -1,11 +1,9 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
+#include "types.h"
+
 #include <nn/hac/ApplicationControlProperty.h>
 
-#include "common.h"
+namespace nstool {
 
 class NacpProcess
 {
@@ -14,16 +12,16 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
 	const nn::hac::ApplicationControlProperty& getApplicationControlProperty() const;
 
 private:
-	const std::string kModuleName = "NacpProcess";
+	std::string mModuleName;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
@@ -32,3 +30,5 @@ private:
 	void importNacp();
 	void displayNacp();
 };
+
+}

@@ -1,14 +1,11 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
+#include "types.h"
+#include "RoMetadataProcess.h"
+
 #include <nn/hac/define/meta.h>
 #include <nn/hac/NsoHeader.h>
 
-#include "common.h"
-#include "RoMetadataProcess.h"
+namespace nstool {
 
 class NsoProcess
 {
@@ -17,7 +14,7 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -25,11 +22,11 @@ public:
 	void setListApi(bool listApi);
 	void setListSymbols(bool listSymbols);
 
-	const RoMetadataProcess& getRoMetadataProcess() const;
+	const nstool::RoMetadataProcess& getRoMetadataProcess() const;
 private:
-	const std::string kModuleName = "NsoProcess";
+	std::string mModuleName;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	bool mIs64BitInstruction;
@@ -37,11 +34,15 @@ private:
 	bool mListSymbols;
 
 	nn::hac::NsoHeader mHdr;
-	fnd::Vec<byte_t> mTextBlob, mRoBlob, mDataBlob;
-	RoMetadataProcess mRoMeta;
+	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
+	nstool::RoMetadataProcess mRoMeta;
 
 	void importHeader();
 	void importCodeSegments();
 	void displayNsoHeader();
 	void processRoMeta();
+
+	size_t decompressData(const byte_t* src, size_t src_len, byte_t* dst, size_t dst_capacity);
 };
+
+}

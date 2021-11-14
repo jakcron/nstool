@@ -1,12 +1,9 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
+#include "types.h"
+
 #include <nn/hac/KernelInitialProcessHeader.h>
 
-#include "common.h"
+namespace nstool {
 
 class KipProcess
 {
@@ -15,21 +12,26 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 private:
-	const std::string kModuleName = "KipProcess";
+	std::string mModuleName;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
 	nn::hac::KernelInitialProcessHeader mHdr;
-	fnd::Vec<byte_t> mTextBlob, mRoBlob, mDataBlob;
+	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
 
 	void importHeader();
 	void importCodeSegments();
+	size_t decompressData(const byte_t* src, size_t src_len, byte_t* dst, size_t dst_capacity);
 	void displayHeader();
 	void displayKernelCap(const nn::hac::KernelCapabilityControl& kern);
+
+	std::string formatMappingAsString(const nn::hac::MemoryMappingHandler::sMemoryMapping& map) const;
 };
+
+}

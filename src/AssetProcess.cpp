@@ -1,115 +1,108 @@
-#include <iostream>
-#include <iomanip>
-#include <fnd/SimpleFile.h>
-#include <fnd/OffsetAdjustedIFile.h>
-#include <fnd/Vec.h>
 #include "AssetProcess.h"
 
+#include "util.h"
 
-AssetProcess::AssetProcess() :
+nstool::AssetProcess::AssetProcess() :
+	mModuleName("nstool::AssetProcess"),
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false)
 {
-}
+}    
 
-void AssetProcess::process()
+void nstool::AssetProcess::process()
 {
 	importHeader();
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayHeader();
 	processSections();
-}
+}     
 
-void AssetProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::AssetProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void AssetProcess::setCliOutputMode(CliOutputMode type)
+void nstool::AssetProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void AssetProcess::setVerifyMode(bool verify)
+void nstool::AssetProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void AssetProcess::setListFs(bool list)
-{
-	mRomfs.setListFs(list);
-}
-
-void AssetProcess::setIconExtractPath(const std::string& path)
+void nstool::AssetProcess::setIconExtractPath(const tc::io::Path& path)
 {
 	mIconExtractPath = path;
 }
 
-void AssetProcess::setNacpExtractPath(const std::string& path)
+void nstool::AssetProcess::setNacpExtractPath(const tc::io::Path& path)
 {
 	mNacpExtractPath = path;
 }
 
-void AssetProcess::setRomfsExtractPath(const std::string& path)
+void nstool::AssetProcess::setRomfsShowFsTree(bool show_fs_tree)
 {
-	mRomfs.setExtractPath(path);
+	mRomfs.setShowFsTree(show_fs_tree);
 }
 
-
-void AssetProcess::importHeader()
+void nstool::AssetProcess::setRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
-	fnd::Vec<byte_t> scratch;
+	mRomfs.setExtractJobs(extract_jobs);
+}
 
-	if (*mFile == nullptr)
+void nstool::AssetProcess::importHeader()
+{
+	if (mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(mModuleName, "No file reader set.");
+	}
+	if (mFile->canRead() == false || mFile->canSeek() == false)
+	{
+		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
 	}
 
-	if ((*mFile)->size() < sizeof(nn::hac::sAssetHeader))
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sAssetHeader)))
 	{
-		throw fnd::Exception(kModuleName, "Corrupt ASET: file too small");
+		throw tc::Exception(mModuleName, "Corrupt ASET: file too small");
 	}
 
-	scratch.alloc(sizeof(nn::hac::sAssetHeader));
-	(*mFile)->read(scratch.data(), 0, scratch.size());
+	tc::ByteData scratch = tc::ByteData(sizeof(nn::hac::sAssetHeader));
+	mFile->seek(0, tc::io::SeekOrigin::Begin);
+	mFile->read(scratch.data(), scratch.size());
 
 	mHdr.fromBytes(scratch.data(), scratch.size());
 }
 
-void AssetProcess::processSections()
+void nstool::AssetProcess::processSections()
 {
-	if (mHdr.getIconInfo().size > 0 && mIconExtractPath.isSet)
+	int64_t file_size = mFile->length();
+
+	if (mHdr.getIconInfo().size > 0 && mIconExtractPath.isSet())
 	{
-		if ((mHdr.getIconInfo().size + mHdr.getIconInfo().offset) > (*mFile)->size()) 
-			throw fnd::Exception(kModuleName, "ASET geometry for icon beyond file size");
+		if ((mHdr.getIconInfo().size + mHdr.getIconInfo().offset) > file_size) 
+			throw tc::Exception(mModuleName, "ASET geometry for icon beyond file size");
 
-		fnd::SimpleFile outfile(mIconExtractPath.var, fnd::SimpleFile::Create);
-		fnd::Vec<byte_t> cache;
+		std::string icon_extract_path_str;
+		tc::io::PathUtil::pathToUnixUTF8(mIconExtractPath.get(), icon_extract_path_str);
 
-		cache.alloc(mHdr.getIconInfo().size);
-		(*mFile)->read(cache.data(), mHdr.getIconInfo().offset, cache.size());
-		outfile.write(cache.data(), cache.size());
-		outfile.close();
+		fmt::print("Saving {:s}...", icon_extract_path_str);
+		writeSubStreamToFile(mFile, mHdr.getIconInfo().offset, mHdr.getIconInfo().size, mIconExtractPath.get());
 	}
 
 	if (mHdr.getNacpInfo().size > 0)
 	{
-		if ((mHdr.getNacpInfo().size + mHdr.getNacpInfo().offset) > (*mFile)->size()) 
-			throw fnd::Exception(kModuleName, "ASET geometry for nacp beyond file size");
+		if ((mHdr.getNacpInfo().size + mHdr.getNacpInfo().offset) > file_size) 
+			throw tc::Exception(mModuleName, "ASET geometry for nacp beyond file size");
 
-		if (mNacpExtractPath.isSet)
+		if (mNacpExtractPath.isSet())
 		{
-			fnd::SimpleFile outfile(mNacpExtractPath.var, fnd::SimpleFile::Create);
-			fnd::Vec<byte_t> cache;
-
-			cache.alloc(mHdr.getNacpInfo().size);
-			(*mFile)->read(cache.data(), mHdr.getNacpInfo().offset, cache.size());
-			outfile.write(cache.data(), cache.size());
-			outfile.close();
+			writeSubStreamToFile(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size, mNacpExtractPath.get());
 		}
 		
-		mNacp.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size));
+		mNacp.setInputFile(std::make_shared<tc::io::SubStream>(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size));
 		mNacp.setCliOutputMode(mCliOutputMode);
 		mNacp.setVerifyMode(mVerify);
 
@@ -118,10 +111,10 @@ void AssetProcess::processSections()
 
 	if (mHdr.getRomfsInfo().size > 0)
 	{
-		if ((mHdr.getRomfsInfo().size + mHdr.getRomfsInfo().offset) > (*mFile)->size()) 
-			throw fnd::Exception(kModuleName, "ASET geometry for romfs beyond file size");
+		if ((mHdr.getRomfsInfo().size + mHdr.getRomfsInfo().offset) > file_size) 
+			throw tc::Exception(mModuleName, "ASET geometry for romfs beyond file size");
 
-		mRomfs.setInputFile(new fnd::OffsetAdjustedIFile(mFile, mHdr.getRomfsInfo().offset, mHdr.getRomfsInfo().size));
+		mRomfs.setInputFile(std::make_shared<tc::io::SubStream>(mFile, mHdr.getRomfsInfo().offset, mHdr.getRomfsInfo().size));
 		mRomfs.setCliOutputMode(mCliOutputMode);
 		mRomfs.setVerifyMode(mVerify);
 
@@ -129,20 +122,20 @@ void AssetProcess::processSections()
 	}
 }
 
-void AssetProcess::displayHeader()
+void nstool::AssetProcess::displayHeader()
 {
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	if (mCliOutputMode.show_layout)
 	{
-		std::cout << "[ASET Header]" << std::endl;
-		std::cout << "  Icon:" << std::endl;
-		std::cout << "    Offset:       0x" << std::hex << mHdr.getIconInfo().offset << std::endl;
-		std::cout << "    Size:         0x" << std::hex << mHdr.getIconInfo().size << std::endl;
-		std::cout << "  NACP:" << std::endl;
-		std::cout << "    Offset:       0x" << std::hex << mHdr.getNacpInfo().offset << std::endl;
-		std::cout << "    Size:         0x" << std::hex << mHdr.getNacpInfo().size << std::endl;
-		std::cout << "  RomFS:" << std::endl;
-		std::cout << "    Offset:       0x" << std::hex << mHdr.getRomfsInfo().offset << std::endl;
-		std::cout << "    Size:         0x" << std::hex << mHdr.getRomfsInfo().size << std::endl;
+		fmt::print("[ASET Header]\n");
+		fmt::print("  Icon:\n");
+		fmt::print("    Offset:       0x{:x}\n", mHdr.getIconInfo().offset);
+		fmt::print("    Size:         0x{:x}\n", mHdr.getIconInfo().size);
+		fmt::print("  NACP:\n");
+		fmt::print("    Offset:       0x{:x}\n", mHdr.getNacpInfo().offset);
+		fmt::print("    Size:         0x{:x}\n", mHdr.getNacpInfo().size);
+		fmt::print("  RomFs:\n");
+		fmt::print("    Offset:       0x{:x}\n", mHdr.getRomfsInfo().offset);
+		fmt::print("    Size:         0x{:x}\n", mHdr.getRomfsInfo().size);
 	}	
 }
 		

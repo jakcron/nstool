@@ -1,341 +1,128 @@
-#include <iostream>
-#include <iomanip>
-#include <fnd/SimpleTextOutput.h>
-#include <fnd/SimpleFile.h>
-#include <fnd/io.h>
-#include "CompressedArchiveIFile.h"
 #include "RomfsProcess.h"
+#include "util.h"
 
-RomfsProcess::RomfsProcess() :
+#include <tc/io/VirtualFileSystem.h>
+#include <nn/hac/RomFsMetaGenerator.h>
+
+
+nstool::RomfsProcess::RomfsProcess() :
+	mModuleName("nstool::RomfsProcess"),
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false),
-	mExtractPath(),
-	mExtract(false),
-	mMountName(),
-	mListFs(false),
 	mDirNum(0),
-	mFileNum(0)
+	mFileNum(0),
+	mFileSystem(),
+	mFsProcess()
 {
-	mRootDir.name.clear();
-	mRootDir.dir_list.clear();
-	mRootDir.file_list.clear();
+	mFsProcess.setFsFormatName("RomFs");
 }
 
-void RomfsProcess::process()
+void nstool::RomfsProcess::process()
 {
-	resolveRomfs();	
-
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mFile == nullptr)
 	{
-		displayHeader();
-		if (mListFs || _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
-			displayFs();
+		throw tc::Exception(mModuleName, "No file reader set.");
+	}
+	if (mFile->canRead() == false || mFile->canSeek() == false)
+	{
+		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
 	}
 
-	if (mExtract)
-		extractFs();	
+	tc::ByteData scratch;
+
+	// read base header to determine complete header size
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sRomfsHeader)))
+	{
+		throw tc::Exception(mModuleName, "Corrupt RomFs: File too small");
+	}
+
+	mFile->seek(0, tc::io::SeekOrigin::Begin);
+	mFile->read((byte_t*)&mRomfsHeader, sizeof(mRomfsHeader));
+	if (mRomfsHeader.header_size.unwrap() != sizeof(nn::hac::sRomfsHeader) ||
+	    mRomfsHeader.dir_entry.offset.unwrap() != (mRomfsHeader.dir_hash_bucket.offset.unwrap() + mRomfsHeader.dir_hash_bucket.size.unwrap()) ||
+	    mRomfsHeader.data_offset.unwrap() != align<int64_t>(mRomfsHeader.header_size.unwrap(), nn::hac::romfs::kRomfsHeaderAlign))
+	{
+		throw tc::ArgumentOutOfRangeException(mModuleName, "Corrupt RomFs: RomFsHeader is corrupted.");
+	}
+
+	// get dir entry ptr
+	tc::ByteData dir_entry_table = tc::ByteData(tc::io::IOUtil::castInt64ToSize(mRomfsHeader.dir_entry.size.unwrap()));
+	mFile->seek(mRomfsHeader.dir_entry.offset.unwrap(), tc::io::SeekOrigin::Begin);
+	mFile->read(dir_entry_table.data(), dir_entry_table.size());
+
+	// get file entry ptr
+	tc::ByteData file_entry_table = tc::ByteData(tc::io::IOUtil::castInt64ToSize(mRomfsHeader.file_entry.size.unwrap()));
+	mFile->seek(mRomfsHeader.file_entry.offset.unwrap(), tc::io::SeekOrigin::Begin);
+	mFile->read(file_entry_table.data(), file_entry_table.size());
+	
+	// count dir num
+	mDirNum = 0;
+	for (uint32_t v_addr = 0; size_t(v_addr) < dir_entry_table.size();)
+	{
+		uint32_t total_size = sizeof(nn::hac::sRomfsDirEntry) + align<uint32_t>(((nn::hac::sRomfsDirEntry*)(dir_entry_table.data() + v_addr))->name_size.unwrap(), 4);
+
+		// don't count root directory
+		if (v_addr != 0)
+		{
+			mDirNum += 1;
+		}
+
+		v_addr += total_size;
+	}
+
+	// count file num
+	mFileNum = 0;
+	for (uint32_t v_addr = 0; size_t(v_addr) < file_entry_table.size();)
+	{
+		uint32_t total_size = sizeof(nn::hac::sRomfsFileEntry) + align<uint32_t>(((nn::hac::sRomfsFileEntry*)(file_entry_table.data() + v_addr))->name_size.unwrap(), 4);
+
+		mFileNum += 1;
+
+		v_addr += total_size;
+	}
+
+	// create virtual filesystem
+	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::RomFsMetaGenerator(mFile)));
+	mFsProcess.setInputFileSystem(mFileSystem);
+
+	// set properties for FsProcess
+	mFsProcess.setFsProperties({
+		fmt::format("DirNum:      {:d}", mDirNum), 
+		fmt::format("FileNum:     {:d}", mFileNum)
+	});
+
+	// process filesystem
+	mFsProcess.process();
 }
 
-void RomfsProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::RomfsProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void RomfsProcess::setCliOutputMode(CliOutputMode type)
+void nstool::RomfsProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
+	mFsProcess.setShowFsInfo(mCliOutputMode.show_basic_info);
 }
 
-void RomfsProcess::setVerifyMode(bool verify)
+void nstool::RomfsProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void RomfsProcess::setMountPointName(const std::string& mount_name)
+void nstool::RomfsProcess::setFsRootLabel(const std::string& root_label)
 {
-	mMountName = mount_name;
+	mFsProcess.setFsRootLabel(root_label);
 }
 
-void RomfsProcess::setExtractPath(const std::string& path)
+void nstool::RomfsProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
-	mExtract = true;
-	mExtractPath = path;
+	mFsProcess.setExtractJobs(extract_jobs);
 }
 
-void RomfsProcess::setListFs(bool list_fs)
+void nstool::RomfsProcess::setShowFsTree(bool list_fs)
 {
-	mListFs = list_fs;
-}
-
-const RomfsProcess::sDirectory& RomfsProcess::getRootDir() const
-{
-	return mRootDir;
-}
-
-void RomfsProcess::printTab(size_t tab) const
-{
-	for (size_t i = 0; i < tab; i++)
-	{
-		std::cout << "  ";
-	}
-}
-
-void RomfsProcess::displayFile(const sFile& file, size_t tab) const
-{
-	printTab(tab);
-	std::cout << file.name;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
-	{
-		std::cout << std::hex << " (offset=0x" << file.offset << ", size=0x" << file.size << ")";
-	}
-	std::cout << std::endl;
-}
-
-void RomfsProcess::displayDir(const sDirectory& dir, size_t tab) const
-{
-	if (dir.name.empty() == false)
-	{
-		printTab(tab);
-		std::cout << dir.name << std::endl;
-	}
-
-	for (size_t i = 0; i < dir.dir_list.size(); i++)
-	{
-		displayDir(dir.dir_list[i], tab+1);
-	}
-	for (size_t i = 0; i < dir.file_list.size(); i++)
-	{
-		displayFile(dir.file_list[i], tab+1);
-	}
-}
-
-void RomfsProcess::displayHeader()
-{
-	std::cout << "[RomFS]" << std::endl;
-	std::cout << "  DirNum:     " << std::dec << mDirNum << std::endl;
-	std::cout << "  FileNum:    " << std::dec << mFileNum << std::endl;
-	if (mMountName.empty() == false)
-	{
-		std::cout << "  MountPoint:  " << mMountName;
-		if (mMountName.at(mMountName.length()-1) != '/')
-			std::cout << "/";
-		std::cout << std::endl;
-	}
-}
-
-void RomfsProcess::displayFs()
-{	
-	displayDir(mRootDir, 1);
-}
-
-void RomfsProcess::extractDir(const std::string& path, const sDirectory& dir)
-{
-	std::string dir_path;
-	std::string file_path;
-
-	// make dir path
-	fnd::io::appendToPath(dir_path, path);
-	if (dir.name.empty() == false)
-		fnd::io::appendToPath(dir_path, dir.name);
-
-	// make directory
-	fnd::io::makeDirectory(dir_path);
-
-	// extract files
-	fnd::SimpleFile outFile;
-	for (size_t i = 0; i < dir.file_list.size(); i++)
-	{
-		file_path.clear();
-		fnd::io::appendToPath(file_path, dir_path);
-		fnd::io::appendToPath(file_path, dir.file_list[i].name);
-
-		if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
-			std::cout << "extract=[" << file_path << "]" << std::endl;	
-		
-		outFile.open(file_path, outFile.Create);
-		(*mFile)->seek(dir.file_list[i].offset);
-		for (size_t j = 0; j < ((dir.file_list[i].size / kCacheSize) + ((dir.file_list[i].size % kCacheSize) != 0)); j++)
-		{
-			(*mFile)->read(mCache.data(), _MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
-			outFile.write(mCache.data(), _MIN(dir.file_list[i].size - (kCacheSize * j),kCacheSize));
-		}	
-		outFile.close();
-	}
-
-	for (size_t i = 0; i < dir.dir_list.size(); i++)
-	{
-		extractDir(dir_path, dir.dir_list[i]);
-	}
-}
-
-
-void RomfsProcess::extractFs()
-{
-	// allocate only when extractDir is invoked
-	mCache.alloc(kCacheSize);
-	extractDir(mExtractPath, mRootDir);
-}
-
-bool RomfsProcess::validateHeaderLayout(const nn::hac::sRomfsHeader* hdr) const
-{
-	bool validLayout = true;
-
-	if (hdr->header_size.get() != sizeof(nn::hac::sRomfsHeader))
-	{
-		validLayout = false;
-	}
-
-	uint64_t pos = hdr->sections[0].offset.get();
-	for (size_t i = 0; i < nn::hac::romfs::SECTION_NUM; i++)
-	{
-		if (hdr->sections[i].offset.get() != pos)
-		{
-			validLayout = false;
-		}
-		pos += hdr->sections[i].size.get();
-	}
-
-	return validLayout;
-}
-
-void RomfsProcess::importDirectory(uint32_t dir_offset, sDirectory& dir)
-{
-	nn::hac::sRomfsDirEntry* d_node = get_dir_node(dir_offset);
-
-	/*
-	printf("[DIR-NODE]\n");
-	printf("  parent=%08x\n", d_node->parent.get());
-	printf("  sibling=%08x\n", d_node->sibling.get());
-	printf("  child=%08x\n", d_node->child.get());
-	printf("  file=%08x\n", d_node->file.get());
-	printf("  hash=%08x\n", d_node->hash.get());
-	printf("  name_size=%08x\n", d_node->name_size.get());
-	printf("  name=%s\n", d_node->name);
-	*/
-
-	for (uint32_t file_addr = d_node->file.get(); file_addr != nn::hac::romfs::kInvalidAddr; )
-	{
-		nn::hac::sRomfsFileEntry* f_node = get_file_node(file_addr);
-
-		/*
-		printf("[FILE-NODE]\n");
-		printf("  parent=%08x\n", f_node->parent.get());
-		printf("  sibling=%08x\n", f_node->sibling.get());
-		printf("  offset=%08" PRIx64 "\n", f_node->offset.get());
-		printf("  size=%08" PRIx64 "\n", f_node->size.get());
-		printf("  hash=%08x\n", f_node->hash.get());
-		printf("  name_size=%08x\n", f_node->name_size.get());
-		printf("  name=%s\n", f_node->name);
-		*/
-
-		dir.file_list.addElement({std::string(f_node->name(), f_node->name_size.get()), mHdr.data_offset.get() + f_node->offset.get(), f_node->size.get()});
-
-		file_addr = f_node->sibling.get();
-		mFileNum++;
-	}
-
-	for (uint32_t child_addr = d_node->child.get(); child_addr != nn::hac::romfs::kInvalidAddr; )
-	{
-		nn::hac::sRomfsDirEntry* c_node = get_dir_node(child_addr);
-
-		dir.dir_list.addElement({std::string(c_node->name(), c_node->name_size.get())});
-		importDirectory(child_addr, dir.dir_list.atBack());
-
-		child_addr = c_node->sibling.get();
-		mDirNum++;
-	}
-}
-
-void RomfsProcess::resolveRomfs()
-{
-	if (*mFile == nullptr)
-	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
-	}
-
-	// read header
-	(*mFile)->read((byte_t*)&mHdr, 0, sizeof(nn::hac::sRomfsHeader));
-
-	// logic check on the header layout
-	if (validateHeaderLayout(&mHdr) == false)
-	{
-		throw fnd::Exception(kModuleName, "Invalid ROMFS Header");
-	}
-
-	// check for romfs compression
-	size_t physical_size = (*mFile)->size();
-	size_t logical_size = mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].offset.get() + mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].size.get();
-	
-	// if logical size is greater than the physical size, check for compression meta footer
-	if (logical_size > physical_size)
-	{
-		// initial and final entries
-		nn::hac::sCompressionEntry entry[2];
-
-		// read final compression entry
-		(*mFile)->read((byte_t*)&entry[1], physical_size - sizeof(nn::hac::sCompressionEntry), sizeof(nn::hac::sCompressionEntry));
-		
-		// the final compression entry should be for the (final part, in the case of metadata > 0x10000) romfs footer, for which the logical offset is detailed in the romfs header
-		// the compression is always enabled for non-header compression entries
-		uint64_t romfs_metadata_begin_offset = mHdr.sections[nn::hac::romfs::DIR_HASHMAP_TABLE].offset.get();
-		uint64_t romfs_metadata_end_offset = mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].offset.get() + mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].size.get();
-		
-		if ((entry[1].virtual_offset.get() >= romfs_metadata_begin_offset && entry[1].virtual_offset.get() < romfs_metadata_end_offset) == false || \
-			entry[1].compression_type != (byte_t)nn::hac::compression::CompressionType::Lz4)
-		{
-			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad final compression entry virtual offset/compression type)");
-		}
-		
-		// the first compression entry follows the physical placement of the final data chunk (specified in the final compression entry)
-		size_t first_entry_offset = align(entry[1].physical_offset.get() + entry[1].physical_size.get(), nn::hac::compression::kRomfsBlockAlign);
-
-		// quick check to make sure the offset at least before the last entry offset
-		if (first_entry_offset >= (physical_size - sizeof(nn::hac::sCompressionEntry)))
-		{
-			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad final compression entry physical offset/size)");
-		}
-
-		// read first compression entry
-		(*mFile)->read((byte_t*)&entry[0], first_entry_offset, sizeof(nn::hac::sCompressionEntry));
-
-		// validate first compression entry
-		// this should be the same for all compressed romfs
-		if (entry[0].virtual_offset.get() != 0x0 || \
-			entry[0].physical_offset.get() != 0x0 || \
-			entry[0].physical_size.get() != 0x200 || \
-			entry[0].compression_type != (byte_t)nn::hac::compression::CompressionType::None)
-		{
-			throw fnd::Exception(kModuleName, "RomFs appears corrupted (bad first compression entry)");
-		}
-
-		// wrap mFile in a class to transparantly decompress the image.
-		mFile = new CompressedArchiveIFile(mFile, first_entry_offset);
-	}
-
-	// read directory nodes
-	mDirNodes.alloc(mHdr.sections[nn::hac::romfs::DIR_NODE_TABLE].size.get());
-	(*mFile)->read(mDirNodes.data(), mHdr.sections[nn::hac::romfs::DIR_NODE_TABLE].offset.get(), mDirNodes.size());
-	//printf("[RAW DIR NODES]\n");
-	//fnd::SimpleTextOutput::hxdStyleDump(mDirNodes.data(), mDirNodes.size());
-
-	// read file nodes
-	mFileNodes.alloc(mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].size.get());
-	(*mFile)->read(mFileNodes.data(), mHdr.sections[nn::hac::romfs::FILE_NODE_TABLE].offset.get(), mFileNodes.size());
-	//printf("[RAW FILE NODES]\n");
-	//fnd::SimpleTextOutput::hxdStyleDump(mFileNodes.data(), mFileNodes.size());
-	
-	// A logic check on the root directory node
-	if (	get_dir_node(0)->parent.get() != 0 \
-		|| 	get_dir_node(0)->sibling.get() != nn::hac::romfs::kInvalidAddr \
-		|| 	get_dir_node(0)->hash.get() != nn::hac::romfs::kInvalidAddr \
-		|| 	get_dir_node(0)->name_size.get() != 0)
-	{
-		throw fnd::Exception(kModuleName, "Invalid root directory node");
-	}
-
-	// import directory into internal structure
-	mDirNum = 0;
-	mFileNum = 0;
-	importDirectory(0, mRootDir);
+	mFsProcess.setShowFsTree(list_fs);
 }

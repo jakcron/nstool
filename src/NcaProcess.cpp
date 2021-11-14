@@ -1,36 +1,28 @@
 #include "NcaProcess.h"
-
-#include "PfsProcess.h"
-#include "RomfsProcess.h"
 #include "MetaProcess.h"
+#include "util.h"
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-
-#include <fnd/SimpleTextOutput.h>
-#include <fnd/OffsetAdjustedIFile.h>
-#include <fnd/AesCtrWrappedIFile.h>
-#include <fnd/LayeredIntegrityWrappedIFile.h>
+#include <tc/crypto/detail/BlockUtilImpl.h>
 
 #include <nn/hac/ContentArchiveUtil.h>
 #include <nn/hac/AesKeygen.h>
-#include <nn/hac/HierarchicalSha256Header.h>
-#include <nn/hac/HierarchicalIntegrityHeader.h>
+#include <nn/hac/HierarchicalSha256Stream.h>
+#include <nn/hac/HierarchicalIntegrityStream.h>
+#include <nn/hac/PartitionFsMetaGenerator.h>
+#include <nn/hac/RomFsMetaGenerator.h>
+#include <nn/hac/CombinedFsMetaGenerator.h>
 
-NcaProcess::NcaProcess() :
+nstool::NcaProcess::NcaProcess() :
+	mModuleName("nstool::NcaProcess"),
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false),
-	mListFs(false)
+	mFileSystem(),
+	mFsProcess()
 {
-	for (size_t i = 0; i < nn::hac::nca::kPartitionNum; i++)
-	{
-		mPartitionPath[i].doExtract = false;
-	}
 }
 
-void NcaProcess::process()
+void nstool::NcaProcess::process()
 {
 	// import header
 	importHeader();
@@ -46,188 +38,183 @@ void NcaProcess::process()
 		validateNcaSignatures();
 
 	// display header
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayHeader();
 
 	// process partition
 	processPartitions();
 }
 
-void NcaProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::NcaProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void NcaProcess::setKeyCfg(const KeyConfiguration& keycfg)
+void nstool::NcaProcess::setKeyCfg(const KeyBag& keycfg)
 {
 	mKeyCfg = keycfg;
 }
 
-void NcaProcess::setCliOutputMode(CliOutputMode type)
+void nstool::NcaProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void NcaProcess::setVerifyMode(bool verify)
+void nstool::NcaProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void NcaProcess::setPartition0ExtractPath(const std::string& path)
+void nstool::NcaProcess::setShowFsTree(bool show_fs_tree)
 {
-	mPartitionPath[0].path = path;
-	mPartitionPath[0].doExtract = true;
+	mFsProcess.setShowFsTree(show_fs_tree);
 }
 
-void NcaProcess::setPartition1ExtractPath(const std::string& path)
+void nstool::NcaProcess::setFsRootLabel(const std::string& root_label)
 {
-	mPartitionPath[1].path = path;
-	mPartitionPath[1].doExtract = true;
+	mFsProcess.setFsRootLabel(root_label);
 }
 
-void NcaProcess::setPartition2ExtractPath(const std::string& path)
+void nstool::NcaProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
-	mPartitionPath[2].path = path;
-	mPartitionPath[2].doExtract = true;
+	mFsProcess.setExtractJobs(extract_jobs);
 }
 
-void NcaProcess::setPartition3ExtractPath(const std::string& path)
+const std::shared_ptr<tc::io::IStorage>& nstool::NcaProcess::getFileSystem() const
 {
-	mPartitionPath[3].path = path;
-	mPartitionPath[3].doExtract = true;
+	return mFileSystem;
 }
 
-void NcaProcess::setListFs(bool list_fs)
+void nstool::NcaProcess::importHeader()
 {
-	mListFs = list_fs;
-}
-
-void NcaProcess::importHeader()
-{
-	if (*mFile == nullptr)
+	if (mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(mModuleName, "No file reader set.");
 	}
-	
+	if (mFile->canRead() == false || mFile->canSeek() == false)
+	{
+		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
+	}
+
 	// read header block
-	(*mFile)->read((byte_t*)&mHdrBlock, 0, sizeof(nn::hac::sContentArchiveHeaderBlock));
-	
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sContentArchiveHeaderBlock)))
+	{
+		throw tc::Exception(mModuleName, "Corrupt NCA: File too small.");
+	}
+	mFile->seek(0, tc::io::SeekOrigin::Begin);
+	mFile->read((byte_t*)(&mHdrBlock), sizeof(nn::hac::sContentArchiveHeaderBlock));
+
 	// decrypt header block
-	fnd::aes::sAesXts128Key header_key;
-	mKeyCfg.getContentArchiveHeaderKey(header_key);
-	nn::hac::ContentArchiveUtil::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, header_key);
+	if (mKeyCfg.nca_header_key.isNull())
+	{
+		throw tc::Exception(mModuleName, "Failed to decrypt NCA header. (nca_header_key could not be loaded)");
+	}
+	nn::hac::ContentArchiveUtil::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyCfg.nca_header_key.get());
 
 	// generate header hash
-	fnd::sha::Sha256((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sContentArchiveHeader), mHdrHash.bytes);
+	tc::crypto::GenerateSha256Hash(mHdrHash.data(), (byte_t*)&mHdrBlock.header, sizeof(nn::hac::sContentArchiveHeader));
 
 	// proccess main header
 	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sContentArchiveHeader));
 }
 
-void NcaProcess::generateNcaBodyEncryptionKeys()
+void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 {
 	// create zeros key
-	fnd::aes::sAes128Key zero_aesctr_key;
-	memset(zero_aesctr_key.key, 0, sizeof(zero_aesctr_key));
+	KeyBag::aes128_key_t zero_aesctr_key;
+	memset(zero_aesctr_key.data(), 0, zero_aesctr_key.size());
 	
 	// get key data from header
-	byte_t masterkey_rev = nn::hac::ContentArchiveUtil::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
+	byte_t masterkey_rev = nn::hac::AesKeygen::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
 	byte_t keak_index = mHdr.getKeyAreaEncryptionKeyIndex();
 
 	// process key area
 	sKeys::sKeyAreaKey kak;
-	fnd::aes::sAes128Key key_area_enc_key;
-	const fnd::aes::sAes128Key* key_area = (const fnd::aes::sAes128Key*) mHdr.getKeyArea();
-
-	for (size_t i = 0; i < nn::hac::nca::kKeyAreaKeyNum; i++)
+	for (size_t i = 0; i < mHdr.getKeyArea().size(); i++)
 	{
-		if (key_area[i] != zero_aesctr_key)
+		if (mHdr.getKeyArea()[i] != zero_aesctr_key)
 		{
 			kak.index = (byte_t)i;
-			kak.enc = key_area[i];
+			kak.enc = mHdr.getKeyArea()[i];
+			kak.decrypted = false;
 			// key[0-3]
-			if (i < 4 && mKeyCfg.getNcaKeyAreaEncryptionKey(masterkey_rev, keak_index, key_area_enc_key) == true)
+			if (i < 4 && mKeyCfg.nca_key_area_encryption_key[keak_index].find(masterkey_rev) != mKeyCfg.nca_key_area_encryption_key[keak_index].end())
 			{
 				kak.decrypted = true;
-				nn::hac::AesKeygen::generateKey(kak.dec.key, kak.enc.key, key_area_enc_key.key);
+				nn::hac::AesKeygen::generateKey(kak.dec.data(), kak.enc.data(), mKeyCfg.nca_key_area_encryption_key[keak_index][masterkey_rev].data());
 			}
 			// key[KEY_AESCTR_HW]
-			else if (i == nn::hac::nca::KEY_AESCTR_HW && mKeyCfg.getNcaKeyAreaEncryptionKeyHw(masterkey_rev, keak_index, key_area_enc_key) == true)
+			else if (i == nn::hac::nca::KEY_AESCTR_HW && mKeyCfg.nca_key_area_encryption_key_hw[keak_index].find(masterkey_rev) != mKeyCfg.nca_key_area_encryption_key_hw[keak_index].end())
 			{
 				kak.decrypted = true;
-				nn::hac::AesKeygen::generateKey(kak.dec.key, kak.enc.key, key_area_enc_key.key);
+				nn::hac::AesKeygen::generateKey(kak.dec.data(), kak.enc.data(), mKeyCfg.nca_key_area_encryption_key_hw[keak_index][masterkey_rev].data());
 			}
 			else
 			{
 				kak.decrypted = false;
 			}
-			mContentKey.kak_list.addElement(kak);
+			mContentKey.kak_list.push_back(kak);
 		}
 	}
 
-	// set flag to indicate that the keys are not available
-	mContentKey.aes_ctr.isSet = false;
+	// clear content key
+	mContentKey.aes_ctr = tc::Optional<nn::hac::detail::aes128_key_t>();
 
 	// if this has a rights id, the key needs to be sourced from a ticket
 	if (mHdr.hasRightsId() == true)
 	{
-		fnd::aes::sAes128Key tmp_key;
-		if (mKeyCfg.getNcaExternalContentKey(mHdr.getRightsId(), tmp_key) == true)
+		KeyBag::aes128_key_t tmp_key;
+		if (mKeyCfg.external_content_keys.find(mHdr.getRightsId()) != mKeyCfg.external_content_keys.end())
 		{
-			mContentKey.aes_ctr = tmp_key;
+			mContentKey.aes_ctr = mKeyCfg.external_content_keys[mHdr.getRightsId()];
 		}
-		else if (mKeyCfg.getNcaExternalContentKey(kDummyRightsIdForUserTitleKey, tmp_key) == true)
+		else if (mKeyCfg.fallback_content_key.isSet())
 		{
-			fnd::aes::sAes128Key common_key;
-			if (mKeyCfg.getETicketCommonKey(masterkey_rev, common_key) == true)
+			mContentKey.aes_ctr = mKeyCfg.fallback_content_key.get();
+		}
+		else if (mKeyCfg.fallback_enc_content_key.isSet())
+		{
+			tmp_key = mKeyCfg.fallback_enc_content_key.get();
+			if (mKeyCfg.etik_common_key.find(masterkey_rev) != mKeyCfg.etik_common_key.end())
 			{
-				nn::hac::AesKeygen::generateKey(tmp_key.key, tmp_key.key, common_key.key);
+				nn::hac::AesKeygen::generateKey(tmp_key.data(), tmp_key.data(), mKeyCfg.etik_common_key[masterkey_rev].data());
+				mContentKey.aes_ctr = tmp_key;
 			}
-			mContentKey.aes_ctr = tmp_key;
 		}
 	}
-	// otherwise decrypt key area
+	// otherwise used decrypt key area
 	else
 	{
-		fnd::aes::sAes128Key kak_aes_ctr = zero_aesctr_key;
 		for (size_t i = 0; i < mContentKey.kak_list.size(); i++)
 		{
 			if (mContentKey.kak_list[i].index == nn::hac::nca::KEY_AESCTR && mContentKey.kak_list[i].decrypted)
 			{
-				kak_aes_ctr = mContentKey.kak_list[i].dec;
+				mContentKey.aes_ctr = mContentKey.kak_list[i].dec;
 			}
-		}
-
-		if (kak_aes_ctr != zero_aesctr_key)
-		{
-			mContentKey.aes_ctr = kak_aes_ctr;
 		}
 	}
 
 	// if the keys weren't generated, check if the keys were supplied by the user
-	if (mContentKey.aes_ctr.isSet == false)
+	if (mContentKey.aes_ctr.isNull())
 	{
-		if (mKeyCfg.getNcaExternalContentKey(kDummyRightsIdForUserBodyKey, mContentKey.aes_ctr.var) == true)
-			mContentKey.aes_ctr.isSet = true;
-	}
-	
-	
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
-	{
-		if (mContentKey.aes_ctr.isSet)
+		if (mKeyCfg.fallback_content_key.isSet())
 		{
-			std::cout << "[NCA Content Key]" << std::endl;
-			std::cout << "  AES-CTR Key: " << fnd::SimpleTextOutput::arrayToString(mContentKey.aes_ctr.var.key, sizeof(mContentKey.aes_ctr.var), true, ":") << std::endl;
+			mContentKey.aes_ctr = mKeyCfg.fallback_content_key.get();
 		}
 	}
 	
-	
+	if (mCliOutputMode.show_keydata)
+	{
+		if (mContentKey.aes_ctr.isSet())
+		{
+			fmt::print("[NCA Content Key]\n");
+			fmt::print("  AES-CTR Key: {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mContentKey.aes_ctr.get().data(), mContentKey.aes_ctr.get().size(), true, ""));
+		}
+	}
 }
 
-void NcaProcess::generatePartitionConfiguration()
+void nstool::NcaProcess::generatePartitionConfiguration()
 {
-	std::stringstream error;
-
 	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 	{
 		// get reference to relevant structures
@@ -238,28 +225,22 @@ void NcaProcess::generatePartitionConfiguration()
 		sPartitionInfo& info = mPartitions[partition.header_index];
 
 		// validate header hash
-		fnd::sha::sSha256Hash fs_header_hash;
-		fnd::sha::Sha256((const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(nn::hac::sContentArchiveFsHeader), fs_header_hash.bytes);
-		if (fs_header_hash.compare(partition.fs_header_hash) == false)
+		nn::hac::detail::sha256_hash_t fs_header_hash;
+		tc::crypto::GenerateSha256Hash(fs_header_hash.data(), (const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(nn::hac::sContentArchiveFsHeader));
+		if (fs_header_hash != partition.fs_header_hash)
 		{
-			error.clear();
-			error <<  "NCA FS Header [" << partition.header_index << "] Hash: FAIL \n";
-			throw fnd::Exception(kModuleName, error.str());
+			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Hash: FAIL", partition.header_index));
 		}
-			
 
-		if (fs_header.version.get() != nn::hac::nca::kDefaultFsHeaderVersion)
+		if (fs_header.version.unwrap() != nn::hac::nca::kDefaultFsHeaderVersion)
 		{
-			error.clear();
-			error <<  "NCA FS Header [" << partition.header_index << "] Version(" << fs_header.version.get() << "): UNSUPPORTED";
-			throw fnd::Exception(kModuleName, error.str());
+			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Version({:d}): UNSUPPORTED", partition.header_index, fs_header.version.unwrap()));
 		}
 
 		// setup AES-CTR 
-		nn::hac::ContentArchiveUtil::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.iv);
+		nn::hac::ContentArchiveUtil::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.data());
 
-		// save partition config
-		info.reader = nullptr;
+		// save partition configinfo
 		info.offset = partition.offset;
 		info.size = partition.size;
 		info.format_type = (nn::hac::nca::FormatType)fs_header.format_type;
@@ -267,353 +248,318 @@ void NcaProcess::generatePartitionConfiguration()
 		info.enc_type = (nn::hac::nca::EncryptionType)fs_header.encryption_type;
 		if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
 		{
-			// info.hash_tree_meta.importData(fs_header.hash_info, nn::hac::nca::kHashInfoLen, LayeredIntegrityMetadata::HASH_TYPE_SHA256);
-			nn::hac::HierarchicalSha256Header hdr;
-			fnd::List<fnd::LayeredIntegrityMetadata::sLayer> hash_layers;
-			fnd::LayeredIntegrityMetadata::sLayer data_layer;
-			fnd::List<fnd::sha::sSha256Hash> master_hash_list;
-
-			// import raw data
-			hdr.fromBytes(fs_header.hash_info, nn::hac::nca::kHashInfoLen);
-			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
-			{
-				fnd::LayeredIntegrityMetadata::sLayer layer;
-				layer.offset = hdr.getLayerInfo()[i].offset;
-				layer.size = hdr.getLayerInfo()[i].size;
-				layer.block_size = hdr.getHashBlockSize();
-				if (i + 1 == hdr.getLayerInfo().size())
-				{
-					data_layer = layer;
-				}
-				else
-				{
-					hash_layers.addElement(layer);
-				}
-			}
-			master_hash_list.addElement(hdr.getMasterHash());
-
-			// write data into metadata
-			info.layered_intergrity_metadata.setAlignHashToBlock(false);
-			info.layered_intergrity_metadata.setHashLayerInfo(hash_layers);
-			info.layered_intergrity_metadata.setDataLayerInfo(data_layer);
-			info.layered_intergrity_metadata.setMasterHashList(master_hash_list);
+			info.hierarchicalsha256_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
 		}	
 		else if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
 		{
-			// info.hash_tree_meta.importData(fs_header.hash_info, nn::hac::nca::kHashInfoLen, LayeredIntegrityMetadata::HASH_TYPE_INTEGRITY);
-			nn::hac::HierarchicalIntegrityHeader hdr;
-			fnd::List<fnd::LayeredIntegrityMetadata::sLayer> hash_layers;
-			fnd::LayeredIntegrityMetadata::sLayer data_layer;
-			fnd::List<fnd::sha::sSha256Hash> master_hash_list;
-
-			hdr.fromBytes(fs_header.hash_info, nn::hac::nca::kHashInfoLen);
-			for (size_t i = 0; i < hdr.getLayerInfo().size(); i++)
-			{
-				fnd::LayeredIntegrityMetadata::sLayer layer;
-				layer.offset = hdr.getLayerInfo()[i].offset;
-				layer.size = hdr.getLayerInfo()[i].size;
-				layer.block_size = _BIT(hdr.getLayerInfo()[i].block_size);
-				if (i + 1 == hdr.getLayerInfo().size())
-				{
-					data_layer = layer;
-				}
-				else
-				{
-					hash_layers.addElement(layer);
-				}
-			}
-
-			// write data into metadata
-			info.layered_intergrity_metadata.setAlignHashToBlock(true);
-			info.layered_intergrity_metadata.setHashLayerInfo(hash_layers);
-			info.layered_intergrity_metadata.setDataLayerInfo(data_layer);
-			info.layered_intergrity_metadata.setMasterHashList(hdr.getMasterHashList());
+			info.hierarchicalintegrity_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
 		}
 
 		// create reader
 		try 
 		{
-			// filter out unrecognised format types
-			switch (info.format_type)
+			// handle partition encryption and partition compaction (sparse layer)
+			if (fs_header.sparse_info.generation.unwrap() != 0)
 			{
-				case (nn::hac::nca::FormatType::PartitionFs):
-				case (nn::hac::nca::FormatType::RomFs):
-					break;
-				default:
-					error.clear();
-					error <<  "FormatType(" << nn::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type) << "): UNKNOWN";
-					throw fnd::Exception(kModuleName, error.str());
-			}
-
-			// create reader based on encryption type0
-			if (info.enc_type == nn::hac::nca::EncryptionType::None)
-			{
-				info.reader = new fnd::OffsetAdjustedIFile(mFile, info.offset, info.size);
-			}
-			else if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
-			{
-				if (mContentKey.aes_ctr.isSet == false)
-					throw fnd::Exception(kModuleName, "AES-CTR Key was not determined");
-				info.reader = new fnd::OffsetAdjustedIFile(new fnd::AesCtrWrappedIFile(mFile, mContentKey.aes_ctr.var, info.aes_ctr), info.offset, info.size);
-			}
-			else if (info.enc_type == nn::hac::nca::EncryptionType::AesXts || info.enc_type == nn::hac::nca::EncryptionType::AesCtrEx)
-			{
-				error.clear();
-				error <<  "EncryptionType(" << nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type) << "): UNSUPPORTED";
-				throw fnd::Exception(kModuleName, error.str());
+				throw tc::Exception("SparseStorage: Not currently supported.");
 			}
 			else
 			{
-				error.clear();
-				error <<  "EncryptionType(" << nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type) << "): UNKNOWN";
-				throw fnd::Exception(kModuleName, error.str());
+				// create raw partition
+				info.reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, info.offset, info.size));
+
+				// handle encryption if required reader based on encryption type
+				if (info.enc_type == nn::hac::nca::EncryptionType::None)
+				{
+					// no encryption so do nothing
+					//info.reader = info.reader;
+				}
+				else if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+				{
+					if (mContentKey.aes_ctr.isNull())
+						throw tc::Exception(mModuleName, "AES-CTR Key was not determined");
+
+					// get partition key
+					nn::hac::detail::aes128_key_t partition_key = mContentKey.aes_ctr.get();
+
+					// get partition counter
+					nn::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
+					tc::crypto::detail::incr_counter<16>(partition_ctr.data(), info.offset>>4);
+
+					// create decryption stream
+					info.reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.reader, partition_key, partition_ctr));
+
+				}
+				else if (info.enc_type == nn::hac::nca::EncryptionType::AesXts || info.enc_type == nn::hac::nca::EncryptionType::AesCtrEx)
+				{
+					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+				}
+				else
+				{
+					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+				}
 			}
 
 			// filter out unrecognised hash types, and hash based readers
-			if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256 || info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
-			{	
-				info.reader = new fnd::LayeredIntegrityWrappedIFile(info.reader, info.layered_intergrity_metadata);
-			}
-			else if (info.hash_type != nn::hac::nca::HashType::None)
+			switch (info.hash_type)
 			{
-				error.clear();
-				error <<  "HashType(" << nn::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type) << "): UNKNOWN";
-				throw fnd::Exception(kModuleName, error.str());
+			case (nn::hac::nca::HashType::None):
+				break;
+			case (nn::hac::nca::HashType::HierarchicalSha256):
+				info.reader = std::make_shared<nn::hac::HierarchicalSha256Stream>(nn::hac::HierarchicalSha256Stream(info.reader, info.hierarchicalsha256_hdr));
+				break;
+			case (nn::hac::nca::HashType::HierarchicalIntegrity):
+				info.reader = std::make_shared<nn::hac::HierarchicalIntegrityStream>(nn::hac::HierarchicalIntegrityStream(info.reader, info.hierarchicalintegrity_hdr));
+				break;
+			default:
+				throw tc::Exception(mModuleName, fmt::format("HashType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type)));
+			}
+
+			// filter out unrecognised format types
+			switch (info.format_type)
+			{
+			case (nn::hac::nca::FormatType::PartitionFs):
+				info.fs_meta = nn::hac::PartitionFsMetaGenerator(info.reader);
+				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_meta));
+				break;
+			case (nn::hac::nca::FormatType::RomFs):
+				info.fs_meta = nn::hac::RomFsMetaGenerator(info.reader);
+				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_meta));
+				break;
+			default:
+				throw tc::Exception(mModuleName, fmt::format("FormatType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type)));
 			}
 		}
-		catch (const fnd::Exception& e)
+		catch (const tc::Exception& e)
 		{
 			info.fail_reason = std::string(e.error());
 		}
 	}
 }
 
-void NcaProcess::validateNcaSignatures()
+void nstool::NcaProcess::validateNcaSignatures()
 {
 	// validate signature[0]
-	fnd::rsa::sRsa2048Key sign0_key;
-	mKeyCfg.getContentArchiveHeader0SignKey(sign0_key, mHdr.getSignatureKeyGeneration());
-	if (fnd::rsa::pss::rsaVerify(sign0_key, fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_main) != 0)
+	if (mKeyCfg.nca_header_sign0_key.find(mHdr.getSignatureKeyGeneration()) != mKeyCfg.nca_header_sign0_key.end())
 	{
-		std::cout << "[WARNING] NCA Header Main Signature: FAIL" << std::endl;
+		if (tc::crypto::VerifyRsa2048PssSha256(mHdrBlock.signature_main.data(), mHdrHash.data(), mKeyCfg.nca_header_sign0_key[mHdr.getSignatureKeyGeneration()]) == false)
+		{
+			fmt::print("[WARNING] NCA Header Main Signature: FAIL\n");
+		}
 	}
+	else
+	{
+		fmt::print("[WARNING] NCA Header Main Signature: FAIL (could not load header key)\n");
+	}
+	
 
 	// validate signature[1]
 	if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
 	{
-		if (mPartitions[nn::hac::nca::PARTITION_CODE].format_type == nn::hac::nca::FormatType::PartitionFs)
-		{
-			if (*mPartitions[nn::hac::nca::PARTITION_CODE].reader != nullptr)
+		try {
+			if (mPartitions[nn::hac::nca::PARTITION_CODE].format_type == nn::hac::nca::FormatType::PartitionFs)
 			{
-				PfsProcess exefs;
-				exefs.setInputFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader);
-				exefs.setCliOutputMode(0);
-				exefs.process();
-
-				// open main.npdm
-				if (exefs.getPfsHeader().getFileList().hasElement(kNpdmExefsPath) == true)
+				if (mPartitions[nn::hac::nca::PARTITION_CODE].fs_reader != nullptr)
 				{
-					const nn::hac::PartitionFsHeader::sFile& file = exefs.getPfsHeader().getFileList().getElement(kNpdmExefsPath);
+					std::shared_ptr<tc::io::IStream> npdm_file;
+					try {
+						mPartitions[nn::hac::nca::PARTITION_CODE].fs_reader->openFile(tc::io::Path(kNpdmExefsPath), tc::io::FileMode::Open, tc::io::FileAccess::Read, npdm_file);
+					}
+					catch (tc::io::FileNotFoundException&) {
+						throw tc::Exception(fmt::format("\"{:s}\" not present in ExeFs", kNpdmExefsPath));
+					}
 
 					MetaProcess npdm;
-					npdm.setInputFile(new fnd::OffsetAdjustedIFile(mPartitions[nn::hac::nca::PARTITION_CODE].reader, file.offset, file.size));
+					npdm.setInputFile(npdm_file);
 					npdm.setKeyCfg(mKeyCfg);
 					npdm.setVerifyMode(true);
-					npdm.setCliOutputMode(0);
+					npdm.setCliOutputMode(CliOutputMode(false, false, false, false));
 					npdm.process();
 
-					if (fnd::rsa::pss::rsaVerify(npdm.getMeta().getAccessControlInfoDesc().getContentArchiveHeaderSignature2Key(), fnd::sha::HASH_SHA256, mHdrHash.bytes, mHdrBlock.signature_acid) != 0)
+					if (tc::crypto::VerifyRsa2048PssSha256(mHdrBlock.signature_acid.data(), mHdrHash.data(), npdm.getMeta().getAccessControlInfoDesc().getContentArchiveHeaderSignature2Key()) == false)
 					{
-						std::cout << "[WARNING] NCA Header ACID Signature: FAIL" << std::endl;
+						throw tc::Exception("Bad signature");
 					}
-									
 				}
 				else
 				{
-					std::cout << "[WARNING] NCA Header ACID Signature: FAIL (\"" << kNpdmExefsPath << "\" not present in ExeFs)" << std::endl;
+					throw tc::Exception("ExeFs was not mounted");
 				}
 			}
 			else
 			{
-				std::cout << "[WARNING] NCA Header ACID Signature: FAIL (ExeFs unreadable)" << std::endl;
+				throw tc::Exception("No ExeFs partition");
 			}
 		}
-		else
-		{
-			std::cout << "[WARNING] NCA Header ACID Signature: FAIL (No ExeFs partition)" << std::endl;
+		catch (tc::Exception& e) {
+			fmt::print("[WARNING] NCA Header ACID Signature: FAIL ({:s})\n", e.error());
 		}
 	}
 }
 
-void NcaProcess::displayHeader()
+void nstool::NcaProcess::displayHeader()
 {
-	std::cout << "[NCA Header]" << std::endl;
-	std::cout << "  Format Type:     " << nn::hac::ContentArchiveUtil::getFormatHeaderVersionAsString((nn::hac::nca::HeaderFormatVersion)mHdr.getFormatVersion()) << std::endl;
-	std::cout << "  Dist. Type:      " << nn::hac::ContentArchiveUtil::getDistributionTypeAsString(mHdr.getDistributionType()) << std::endl;
-	std::cout << "  Content Type:    " << nn::hac::ContentArchiveUtil::getContentTypeAsString(mHdr.getContentType()) << std::endl;
-	std::cout << "  Key Generation:  " << std::dec << (uint32_t)mHdr.getKeyGeneration() << std::endl;
-	std::cout << "  Sig. Generation: " << std::dec << (uint32_t)mHdr.getSignatureKeyGeneration() << std::endl;
-	std::cout << "  Kaek Index:      " << nn::hac::ContentArchiveUtil::getKeyAreaEncryptionKeyIndexAsString((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKeyAreaEncryptionKeyIndex()) << " (" << std::dec << (uint32_t)mHdr.getKeyAreaEncryptionKeyIndex() << ")" << std::endl;
-	std::cout << "  Size:            0x" << std::hex << mHdr.getContentSize() << std::endl;
-	std::cout << "  ProgID:          0x" << std::hex << std::setw(16) << std::setfill('0') << mHdr.getProgramId() << std::endl;
-	std::cout << "  Content Index:   " << std::dec << mHdr.getContentIndex() << std::endl;
-	std::cout << "  SdkAddon Ver.:   " << nn::hac::ContentArchiveUtil::getSdkAddonVersionAsString(mHdr.getSdkAddonVersion()) << " (v" << std::dec << mHdr.getSdkAddonVersion() << ")" << std::endl;
+	fmt::print("[NCA Header]\n");
+	fmt::print("  Format Type:     {:s}\n", nn::hac::ContentArchiveUtil::getFormatHeaderVersionAsString((nn::hac::nca::HeaderFormatVersion)mHdr.getFormatVersion()));
+	fmt::print("  Dist. Type:      {:s}\n", nn::hac::ContentArchiveUtil::getDistributionTypeAsString(mHdr.getDistributionType()));
+	fmt::print("  Content Type:    {:s}\n", nn::hac::ContentArchiveUtil::getContentTypeAsString(mHdr.getContentType()));
+	fmt::print("  Key Generation:  {:d}\n", mHdr.getKeyGeneration());
+	fmt::print("  Sig. Generation: {:d}\n", mHdr.getSignatureKeyGeneration());
+	fmt::print("  Kaek Index:      {:s} ({:d})\n", nn::hac::ContentArchiveUtil::getKeyAreaEncryptionKeyIndexAsString((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKeyAreaEncryptionKeyIndex()), mHdr.getKeyAreaEncryptionKeyIndex());
+	fmt::print("  Size:            0x{:x}\n", mHdr.getContentSize());
+	fmt::print("  ProgID:          0x{:016x}\n", mHdr.getProgramId());
+	fmt::print("  Content Index:   {:d}\n", mHdr.getContentIndex());
+	fmt::print("  SdkAddon Ver.:   {:s} (v{:d})\n", nn::hac::ContentArchiveUtil::getSdkAddonVersionAsString(mHdr.getSdkAddonVersion()), mHdr.getSdkAddonVersion());
 	if (mHdr.hasRightsId())
 	{
-		std::cout << "  RightsId:        " << fnd::SimpleTextOutput::arrayToString(mHdr.getRightsId(), nn::hac::nca::kRightsIdLen, true, "") << std::endl;
+		fmt::print("  RightsId:        {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getRightsId().data(), mHdr.getRightsId().size(), true, ""));
 	}
 	
-	if (mContentKey.kak_list.size() > 0 && _HAS_BIT(mCliOutputMode, OUTPUT_KEY_DATA))
+	if (mContentKey.kak_list.size() > 0 && mCliOutputMode.show_keydata)
 	{
-		std::cout << "  Key Area:" << std::endl;
-		std::cout << "    <--------------------------------------------------------------------------------------------------------->" << std::endl;
-		std::cout << "    | IDX | ENCRYPTED KEY                                   | DECRYPTED KEY                                   |" << std::endl;
-		std::cout << "    |-----|-------------------------------------------------|-------------------------------------------------|" << std::endl;
+		fmt::print("  Key Area:\n");
+		fmt::print("    <--------------------------------------------------------------------------------------------------------->\n");
+		fmt::print("    | IDX | ENCRYPTED KEY                                   | DECRYPTED KEY                                   |\n");
+		fmt::print("    |-----|-------------------------------------------------|-------------------------------------------------|\n");
 		for (size_t i = 0; i < mContentKey.kak_list.size(); i++)
 		{
-			std::cout << "    | " << std::dec << std::setw(3) << std::setfill(' ') << (uint32_t)mContentKey.kak_list[i].index << " | ";
-			
-			std::cout << fnd::SimpleTextOutput::arrayToString(mContentKey.kak_list[i].enc.key, 16, true, ":") << " | ";
-			
+			fmt::print("    | {:3d} | {:s} | ", mContentKey.kak_list[i].index, tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].enc.data(), mContentKey.kak_list[i].enc.size(), true, ""));
+						
 			
 			if (mContentKey.kak_list[i].decrypted)
-				std::cout << fnd::SimpleTextOutput::arrayToString(mContentKey.kak_list[i].dec.key, 16, true, ":");
+				fmt::print("{:s}", tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].dec.data(), mContentKey.kak_list[i].dec.size(), true, ""));
 			else
-				std::cout << "<unable to decrypt>             ";
+				fmt::print("<unable to decrypt>                            ");
 			
-			std::cout << " |" << std::endl;
+			fmt::print(" |\n");
 		}
-		std::cout << "    <--------------------------------------------------------------------------------------------------------->" << std::endl;
+		fmt::print("    <--------------------------------------------------------------------------------------------------------->\n");
 	}
 
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	if (mCliOutputMode.show_layout)
 	{
-		std::cout << "  Partitions:" << std::endl;
+		fmt::print("  Partitions:\n");
 		for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 		{
 			uint32_t index = mHdr.getPartitionEntryList()[i].header_index;
 			sPartitionInfo& info = mPartitions[index];
 			if (info.size == 0) continue;
 
-			std::cout << "    " << std::dec << index << ":" << std::endl;
-			std::cout << "      Offset:      0x" << std::hex << (uint64_t)info.offset << std::endl;
-			std::cout << "      Size:        0x" << std::hex << (uint64_t)info.size << std::endl;
-			std::cout << "      Format Type: " << nn::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type) << std::endl;
-			std::cout << "      Hash Type:   " << nn::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type) << std::endl;
-			std::cout << "      Enc. Type:   " << nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type) << std::endl;
+			fmt::print("    {:d}:\n", index);
+			fmt::print("      Offset:      0x{:x}\n", info.offset);
+			fmt::print("      Size:        0x{:x}\n", info.size);
+			fmt::print("      Format Type: {:s}\n", nn::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type));
+			fmt::print("      Hash Type:   {:s}\n", nn::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type));
+			fmt::print("      Enc. Type:   {:s}\n", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type));
 			if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
 			{
-				fnd::aes::sAesIvCtr ctr;
-				fnd::aes::AesIncrementCounter(info.aes_ctr.iv, info.offset>>4, ctr.iv);
-				std::cout << "      AesCtr Counter:" << std::endl;
-				std::cout << "        " << fnd::SimpleTextOutput::arrayToString(ctr.iv, sizeof(fnd::aes::sAesIvCtr), true, ":") << std::endl;
+				nn::hac::detail::aes_iv_t aes_ctr;
+				memcpy(aes_ctr.data(), info.aes_ctr.data(), aes_ctr.size());
+				tc::crypto::detail::incr_counter<16>(aes_ctr.data(), info.offset>>4);
+				fmt::print("      AesCtr Counter:\n");
+				fmt::print("        {:s}\n", tc::cli::FormatUtil::formatBytesAsString(aes_ctr.data(), aes_ctr.size(), true, ""));
 			}
 			if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
 			{
-				fnd::LayeredIntegrityMetadata& hash_hdr = info.layered_intergrity_metadata;
-				std::cout << "      HierarchicalIntegrity Header:" << std::endl;
-				for (size_t j = 0; j < hash_hdr.getHashLayerInfo().size(); j++)
+				auto hash_hdr = info.hierarchicalintegrity_hdr;
+				fmt::print("      HierarchicalIntegrity Header:\n");
+				for (size_t j = 0; j < hash_hdr.getLayerInfo().size(); j++)
 				{
-					std::cout << "        Hash Layer " << std::dec << j << ":" << std::endl;
-					std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[j].offset << std::endl;
-					std::cout << "          Size:            0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[j].size << std::endl;
-					std::cout << "          BlockSize:       0x" << std::hex << (uint32_t)hash_hdr.getHashLayerInfo()[j].block_size << std::endl;
+					if (j+1 == hash_hdr.getLayerInfo().size())
+					{
+						fmt::print("        Data Layer:\n");
+					}
+					else
+					{
+						fmt::print("        Hash Layer {:d}:\n", j);
+					}
+					fmt::print("          Offset:          0x{:x}\n", hash_hdr.getLayerInfo()[j].offset);
+					fmt::print("          Size:            0x{:x}\n", hash_hdr.getLayerInfo()[j].size);
+					fmt::print("          BlockSize:       0x{:x}\n", hash_hdr.getLayerInfo()[j].block_size);
 				}
-
-				std::cout << "        Data Layer:" << std::endl;
-				std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getDataLayer().offset << std::endl;
-				std::cout << "          Size:            0x" << std::hex << (uint64_t)hash_hdr.getDataLayer().size << std::endl;
-				std::cout << "          BlockSize:       0x" << std::hex << (uint32_t)hash_hdr.getDataLayer().block_size << std::endl;
 				for (size_t j = 0; j < hash_hdr.getMasterHashList().size(); j++)
 				{
-					std::cout << "        Master Hash " << std::dec << j << ":" << std::endl;
-					std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[j].bytes, 0x10, true, ":") << std::endl;
-					std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[j].bytes+0x10, 0x10, true, ":") << std::endl;
+					fmt::print("        Master Hash {:d}:\n", j);
+					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data(), 0x10, true, ""));
+					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data()+0x10, 0x10, true, ""));
 				}
 			}
 			else if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
 			{
-				fnd::LayeredIntegrityMetadata& hash_hdr = info.layered_intergrity_metadata;
-				std::cout << "      HierarchicalSha256 Header:" << std::endl;
-				std::cout << "        Master Hash:" << std::endl;
-				std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[0].bytes, 0x10, true, ":") << std::endl;
-				std::cout << "          " << fnd::SimpleTextOutput::arrayToString(hash_hdr.getMasterHashList()[0].bytes+0x10, 0x10, true, ":") << std::endl;
-				std::cout << "        HashBlockSize:     0x" << std::hex << (uint32_t)hash_hdr.getDataLayer().block_size << std::endl;
-				std::cout << "        Hash Layer:" << std::endl;
-				std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[0].offset << std::endl;
-				std::cout << "          Size:            0x" << std::hex << (uint64_t)hash_hdr.getHashLayerInfo()[0].size << std::endl;
-				std::cout << "        Data Layer:" << std::endl;
-				std::cout << "          Offset:          0x" << std::hex << (uint64_t)hash_hdr.getDataLayer().offset << std::endl;
-				std::cout << "          Size:            0x" << std::hex << (uint64_t)hash_hdr.getDataLayer().size << std::endl;
+				auto hash_hdr = info.hierarchicalsha256_hdr;
+				fmt::print("      HierarchicalSha256 Header:\n");
+				fmt::print("        Master Hash:\n");
+				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHash().data(), 0x10, true, ""));
+				fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHash().data()+0x10, 0x10, true, ""));
+				fmt::print("        HashBlockSize:     0x{:x}\n", hash_hdr.getHashBlockSize());
+				for (size_t j = 0; j < hash_hdr.getLayerInfo().size(); j++)
+				{
+					if (j+1 == hash_hdr.getLayerInfo().size())
+					{
+						fmt::print("        Data Layer:\n");
+					}
+					else
+					{
+						fmt::print("        Hash Layer {:d}:\n", j);
+					}
+					fmt::print("          Offset:          0x{:x}\n", hash_hdr.getLayerInfo()[j].offset);
+					fmt::print("          Size:            0x{:x}\n", hash_hdr.getLayerInfo()[j].size);
+				}
 			}
 		}
 	}
 }
 
 
-void NcaProcess::processPartitions()
+void nstool::NcaProcess::processPartitions()
 {
+	std::vector<nn::hac::CombinedFsMetaGenerator::MountPointInfo> mount_points;
+
 	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 	{
 		uint32_t index = mHdr.getPartitionEntryList()[i].header_index;
 		struct sPartitionInfo& partition = mPartitions[index];
 
 		// if the reader is null, skip
-		if (*partition.reader == nullptr)
+		if (partition.fs_reader == nullptr)
 		{
-			std::cout << "[WARNING] NCA Partition " << std::dec << index << " not readable.";
+			fmt::print("[WARNING] NCA Partition {:d} not readable.", index);
 			if (partition.fail_reason.empty() == false)
 			{
-				std::cout << " (" << partition.fail_reason << ")";
+				fmt::print(" ({:s})", partition.fail_reason);
 			}
-			std::cout << std::endl;
+			fmt::print("\n");
 			continue;
 		}
 
-		if (partition.format_type == nn::hac::nca::FormatType::PartitionFs)
+		std::string mount_point_name;
+		/*
+		if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
 		{
-			PfsProcess pfs;
-			pfs.setInputFile(partition.reader);
-			pfs.setCliOutputMode(mCliOutputMode);
-			pfs.setListFs(mListFs);
-			if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
-			{
-				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index));
-			}
-			else
-			{
-				pfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
-			}
-			
-			if (mPartitionPath[index].doExtract)
-				pfs.setExtractPath(mPartitionPath[index].path);
-			pfs.process();
+			mount_point_name = nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index);
 		}
-		else if (partition.format_type == nn::hac::nca::FormatType::RomFs)
+		else
+		*/
 		{
-			RomfsProcess romfs;
-			romfs.setInputFile(partition.reader);
-			romfs.setCliOutputMode(mCliOutputMode);
-			romfs.setListFs(mListFs);
-			if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
-			{
-				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/" + nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index));
-			}
-			else
-			{
-				romfs.setMountPointName(std::string(getContentTypeForMountStr(mHdr.getContentType())) + ":/");
-			}
+			mount_point_name = fmt::format("{:d}", index);
+		}
 
-			if (mPartitionPath[index].doExtract)
-				romfs.setExtractPath(mPartitionPath[index].path);
-			romfs.process();
-		}
+		mount_points.push_back( { mount_point_name, partition.fs_meta } );
 	}
+
+	tc::io::VirtualFileSystem::FileSystemMeta fs_meta = nn::hac::CombinedFsMetaGenerator(mount_points);
+
+	std::shared_ptr<tc::io::IStorage> nca_fs = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(fs_meta));
+
+	mFsProcess.setInputFileSystem(nca_fs);
+	mFsProcess.setFsFormatName("ContentArchive");
+	mFsProcess.setFsRootLabel(getContentTypeForMountStr(mHdr.getContentType()));
+	mFsProcess.process();
 }
 
-const char* NcaProcess::getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const
+std::string nstool::NcaProcess::getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const
 {
-	const char* str = nullptr;
+	std::string str;
 
 	switch (cont_type)
 	{

@@ -1,14 +1,10 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/List.h>
-#include <fnd/SharedPtr.h>
+#include "types.h"
+
 #include <nn/hac/IniHeader.h>
 #include <nn/hac/KernelInitialProcessHeader.h>
 
-#include "common.h"
+namespace nstool {
 
 class IniProcess
 {
@@ -17,25 +13,29 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	void setKipExtractPath(const std::string& path);
+	void setKipExtractPath(const tc::io::Path& path);
 private:
-	const std::string kModuleName = "IniProcess";
-	const std::string kKipExtention = ".kip";
 	const size_t kCacheSize = 0x10000;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::string mModuleName;
+
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	
-	bool mDoExtractKip;
-	std::string mKipExtractPath;
+	tc::Optional<tc::io::Path> mKipExtractPath;
 
 	nn::hac::IniHeader mHdr;
-	fnd::List<fnd::SharedPtr<fnd::IFile>> mKipList;
+	struct InnerKipInfo
+	{
+		nn::hac::KernelInitialProcessHeader hdr;
+		std::shared_ptr<tc::io::IStream> stream;
+	};
+	std::vector<InnerKipInfo> mKipList;
 
 	void importHeader();
 	void importKipList();
@@ -43,5 +43,7 @@ private:
 	void displayKipList();
 	void extractKipList();
 
-	size_t getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const;
+	int64_t getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const;
 };
+
+}

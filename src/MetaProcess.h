@@ -1,12 +1,10 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <nn/hac/Meta.h>
-#include "KeyConfiguration.h"
+#include "types.h"
+#include "KeyBag.h"
 
-#include "common.h"
+#include <nn/hac/Meta.h>
+
+namespace nstool {
 
 class MetaProcess
 {
@@ -15,18 +13,18 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
-	void setKeyCfg(const KeyConfiguration& keycfg);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
+	void setKeyCfg(const KeyBag& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
 	const nn::hac::Meta& getMeta() const;
 
 private:
-	const std::string kModuleName = "MetaProcess";
+	std::string mModuleName;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
-	KeyConfiguration mKeyCfg;
+	std::shared_ptr<tc::io::IStream> mFile;
+	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
@@ -43,4 +41,8 @@ private:
 	void displayFac(const nn::hac::FileSystemAccessControl& fac);
 	void displaySac(const nn::hac::ServiceAccessControl& sac);
 	void displayKernelCap(const nn::hac::KernelCapabilityControl& kern);
+
+	std::string formatMappingAsString(const nn::hac::MemoryMappingHandler::sMemoryMapping& map) const;
 };
+
+}

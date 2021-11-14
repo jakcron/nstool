@@ -1,14 +1,11 @@
-#include <iostream>
-#include <iomanip>
-#include <fnd/SimpleTextOutput.h>
-#include <fnd/OffsetAdjustedIFile.h>
-#include <fnd/Vec.h>
-#include <fnd/lz4.h>
 #include "NsoProcess.h"
 
-NsoProcess::NsoProcess():
+#include <lz4.h>
+
+nstool::NsoProcess::NsoProcess() :
+	mModuleName("nstool::NsoProcess"),
 	mFile(),
-	mCliOutputMode(_BIT(OUTPUT_BASIC)),
+	mCliOutputMode(true, false, false, false),
 	mVerify(false),
 	mIs64BitInstruction(true),
 	mListApi(false),
@@ -16,216 +13,243 @@ NsoProcess::NsoProcess():
 {
 }
 
-void NsoProcess::process()
+void nstool::NsoProcess::process()
 {
 	importHeader();
 	importCodeSegments();
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_BASIC))
+	if (mCliOutputMode.show_basic_info)
 		displayNsoHeader();
 
 	processRoMeta();
 }
 
-void NsoProcess::setInputFile(const fnd::SharedPtr<fnd::IFile>& file)
+void nstool::NsoProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
 }
 
-void NsoProcess::setCliOutputMode(CliOutputMode type)
+void nstool::NsoProcess::setCliOutputMode(CliOutputMode type)
 {
 	mCliOutputMode = type;
 }
 
-void NsoProcess::setVerifyMode(bool verify)
+void nstool::NsoProcess::setVerifyMode(bool verify)
 {
 	mVerify = verify;
 }
 
-void NsoProcess::setIs64BitInstruction(bool flag)
+void nstool::NsoProcess::setIs64BitInstruction(bool flag)
 {
 	mRoMeta.setIs64BitInstruction(flag);
 }
 
-void NsoProcess::setListApi(bool listApi)
+void nstool::NsoProcess::setListApi(bool listApi)
 {
 	mRoMeta.setListApi(listApi);
 }
 
-void NsoProcess::setListSymbols(bool listSymbols)
+void nstool::NsoProcess::setListSymbols(bool listSymbols)
 {
 	mRoMeta.setListSymbols(listSymbols);
 }
 
-const RoMetadataProcess& NsoProcess::getRoMetadataProcess() const
+const nstool::RoMetadataProcess& nstool::NsoProcess::getRoMetadataProcess() const
 {
 	return mRoMeta;
 }
 
-void NsoProcess::importHeader()
+void nstool::NsoProcess::importHeader()
 {
-	fnd::Vec<byte_t> scratch;
-
-	if (*mFile == nullptr)
+	if (mFile == nullptr)
 	{
-		throw fnd::Exception(kModuleName, "No file reader set.");
+		throw tc::Exception(mModuleName, "No file reader set.");
+	}
+	if (mFile->canRead() == false || mFile->canSeek() == false)
+	{
+		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
 	}
 
-	if ((*mFile)->size() < sizeof(nn::hac::sNsoHeader))
+	// check if file_size is smaller than NSO header size
+	size_t file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());
+	if (file_size < sizeof(nn::hac::sNsoHeader))
 	{
-		throw fnd::Exception(kModuleName, "Corrupt NSO: file too small");
+		throw tc::Exception(mModuleName, "Corrupt NSO: file too small.");
 	}
 
-	scratch.alloc(sizeof(nn::hac::sNsoHeader));
-	(*mFile)->read(scratch.data(), 0, scratch.size());
+	// read nso
+	tc::ByteData scratch = tc::ByteData(sizeof(nn::hac::sNsoHeader));
+	mFile->seek(0, tc::io::SeekOrigin::Begin);
+	mFile->read(scratch.data(), scratch.size());
 
+	// parse nso header
 	mHdr.fromBytes(scratch.data(), scratch.size());
 }
 
-void NsoProcess::importCodeSegments()
+void nstool::NsoProcess::importCodeSegments()
 {
-	fnd::Vec<byte_t> scratch;
-	uint32_t decompressed_len;
-	fnd::sha::sSha256Hash calc_hash;
+	tc::ByteData scratch;
+	nn::hac::detail::sha256_hash_t calc_hash;
 
 	// process text segment
 	if (mHdr.getTextSegmentInfo().is_compressed)
 	{
-		scratch.alloc(mHdr.getTextSegmentInfo().file_layout.size);
-		(*mFile)->read(scratch.data(), mHdr.getTextSegmentInfo().file_layout.offset, scratch.size());
-		mTextBlob.alloc(mHdr.getTextSegmentInfo().memory_layout.size);
-		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mTextBlob.data(), (uint32_t)mTextBlob.size(), decompressed_len);
-		if (decompressed_len != mTextBlob.size())
+		// allocate/read compressed text
+		scratch = tc::ByteData(mHdr.getTextSegmentInfo().file_layout.size);
+		mFile->seek(mHdr.getTextSegmentInfo().file_layout.offset, tc::io::SeekOrigin::Begin);
+		mFile->read(scratch.data(), scratch.size());
+
+		// allocate for decompressed text segment
+		mTextBlob = tc::ByteData(mHdr.getTextSegmentInfo().memory_layout.size);
+
+		// decompress text segment
+		if (decompressData(scratch.data(), scratch.size(), mTextBlob.data(), mTextBlob.size()) != mTextBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "NSO text segment failed to decompress");
+			throw tc::Exception(mModuleName, "NSO text segment failed to decompress");
 		}
 	}
 	else
 	{
-		mTextBlob.alloc(mHdr.getTextSegmentInfo().file_layout.size);
-		(*mFile)->read(mTextBlob.data(), mHdr.getTextSegmentInfo().file_layout.offset, mTextBlob.size());
+		// read text segment directly (not compressed)
+		mTextBlob = tc::ByteData(mHdr.getTextSegmentInfo().file_layout.size);
+		mFile->seek(mHdr.getTextSegmentInfo().file_layout.offset, tc::io::SeekOrigin::Begin);
+		mFile->read(mTextBlob.data(), mTextBlob.size());
 	}
 	if (mHdr.getTextSegmentInfo().is_hashed)
 	{
-		fnd::sha::Sha256(mTextBlob.data(), mTextBlob.size(), calc_hash.bytes);
+		tc::crypto::GenerateSha256Hash(calc_hash.data(), mTextBlob.data(), mTextBlob.size());
 		if (calc_hash != mHdr.getTextSegmentInfo().hash)
 		{
-			throw fnd::Exception(kModuleName, "NSO text segment failed SHA256 verification");
+			throw tc::Exception(mModuleName, "NSO text segment failed SHA256 verification");
 		}
 	}
 
 	// process ro segment
 	if (mHdr.getRoSegmentInfo().is_compressed)
 	{
-		scratch.alloc(mHdr.getRoSegmentInfo().file_layout.size);
-		(*mFile)->read(scratch.data(), mHdr.getRoSegmentInfo().file_layout.offset, scratch.size());
-		mRoBlob.alloc(mHdr.getRoSegmentInfo().memory_layout.size);
-		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mRoBlob.data(), (uint32_t)mRoBlob.size(), decompressed_len);
-		if (decompressed_len != mRoBlob.size())
+		// allocate/read compressed ro segment
+		scratch = tc::ByteData(mHdr.getRoSegmentInfo().file_layout.size);
+		mFile->seek(mHdr.getRoSegmentInfo().file_layout.offset, tc::io::SeekOrigin::Begin);
+		mFile->read(scratch.data(), scratch.size());
+
+		// allocate for decompressed ro segment
+		mRoBlob = tc::ByteData(mHdr.getRoSegmentInfo().memory_layout.size);
+
+		// decompress ro segment
+		if (decompressData(scratch.data(), scratch.size(), mRoBlob.data(), mRoBlob.size()) != mRoBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "NSO ro segment failed to decompress");
+			throw tc::Exception(mModuleName, "NSO ro segment failed to decompress");
 		}
 	}
 	else
 	{
-		mRoBlob.alloc(mHdr.getRoSegmentInfo().file_layout.size);
-		(*mFile)->read(mRoBlob.data(), mHdr.getRoSegmentInfo().file_layout.offset, mRoBlob.size());
+		// read ro segment directly (not compressed)
+		mRoBlob = tc::ByteData(mHdr.getRoSegmentInfo().file_layout.size);
+		mFile->seek(mHdr.getRoSegmentInfo().file_layout.offset, tc::io::SeekOrigin::Begin);
+		mFile->read(mRoBlob.data(), mRoBlob.size());
 	}
 	if (mHdr.getRoSegmentInfo().is_hashed)
 	{
-		fnd::sha::Sha256(mRoBlob.data(), mRoBlob.size(), calc_hash.bytes);
+		tc::crypto::GenerateSha256Hash(calc_hash.data(), mRoBlob.data(), mRoBlob.size());
 		if (calc_hash != mHdr.getRoSegmentInfo().hash)
 		{
-			throw fnd::Exception(kModuleName, "NSO ro segment failed SHA256 verification");
+			throw tc::Exception(mModuleName, "NSO ro segment failed SHA256 verification");
 		}
 	}
 
-	// process data segment
+	// process ro segment
 	if (mHdr.getDataSegmentInfo().is_compressed)
 	{
-		scratch.alloc(mHdr.getDataSegmentInfo().file_layout.size);
-		(*mFile)->read(scratch.data(), mHdr.getDataSegmentInfo().file_layout.offset, scratch.size());
-		mDataBlob.alloc(mHdr.getDataSegmentInfo().memory_layout.size);
-		fnd::lz4::decompressData(scratch.data(), (uint32_t)scratch.size(), mDataBlob.data(), (uint32_t)mDataBlob.size(), decompressed_len);
-		if (decompressed_len != mDataBlob.size())
+		// allocate/read compressed ro segment
+		scratch = tc::ByteData(mHdr.getDataSegmentInfo().file_layout.size);
+		mFile->seek(mHdr.getDataSegmentInfo().file_layout.offset, tc::io::SeekOrigin::Begin);
+		mFile->read(scratch.data(), scratch.size());
+
+		// allocate for decompressed ro segment
+		mDataBlob = tc::ByteData(mHdr.getDataSegmentInfo().memory_layout.size);
+
+		// decompress ro segment
+		if (decompressData(scratch.data(), scratch.size(), mDataBlob.data(), mDataBlob.size()) != mDataBlob.size())
 		{
-			throw fnd::Exception(kModuleName, "NSO data segment failed to decompress");
+			throw tc::Exception(mModuleName, "NSO data segment failed to decompress");
 		}
 	}
 	else
 	{
-		mDataBlob.alloc(mHdr.getDataSegmentInfo().file_layout.size);
-		(*mFile)->read(mDataBlob.data(), mHdr.getDataSegmentInfo().file_layout.offset, mDataBlob.size());
+		// read ro segment directly (not compressed)
+		mDataBlob = tc::ByteData(mHdr.getDataSegmentInfo().file_layout.size);
+		mFile->seek(mHdr.getDataSegmentInfo().file_layout.offset, tc::io::SeekOrigin::Begin);
+		mFile->read(mDataBlob.data(), mDataBlob.size());
 	}
 	if (mHdr.getDataSegmentInfo().is_hashed)
 	{
-		fnd::sha::Sha256(mDataBlob.data(), mDataBlob.size(), calc_hash.bytes);
+		tc::crypto::GenerateSha256Hash(calc_hash.data(), mDataBlob.data(), mDataBlob.size());
 		if (calc_hash != mHdr.getDataSegmentInfo().hash)
 		{
-			throw fnd::Exception(kModuleName, "NSO data segment failed SHA256 verification");
+			throw tc::Exception(mModuleName, "NSO data segment failed SHA256 verification");
 		}
 	}
 }
 
-void NsoProcess::displayNsoHeader()
+void nstool::NsoProcess::displayNsoHeader()
 {
-	std::cout << "[NSO Header]" << std::endl;
-	std::cout << "  ModuleId:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getModuleId().data, nn::hac::nso::kModuleIdSize, false, "") << std::endl;
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_LAYOUT))
+	fmt::print("[NSO Header]\n");
+	fmt::print("  ModuleId:           {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getModuleId().data(), mHdr.getModuleId().size(), false, ""));
+	if (mCliOutputMode.show_layout)
 	{
-		std::cout << "  Program Segments:" << std::endl;
-		std::cout << "     .module_name:" << std::endl;
-		std::cout << "      FileOffset:     0x" << std::hex << mHdr.getModuleNameInfo().offset << std::endl;
-		std::cout << "      FileSize:       0x" << std::hex << mHdr.getModuleNameInfo().size << std::endl;
-		std::cout << "    .text:" << std::endl;
-		std::cout << "      FileOffset:     0x" << std::hex << mHdr.getTextSegmentInfo().file_layout.offset << std::endl;
-		std::cout << "      FileSize:       0x" << std::hex << mHdr.getTextSegmentInfo().file_layout.size << (mHdr.getTextSegmentInfo().is_compressed? " (COMPRESSED)" : "") << std::endl;
-		std::cout << "    .ro:" << std::endl;
-		std::cout << "      FileOffset:     0x" << std::hex << mHdr.getRoSegmentInfo().file_layout.offset << std::endl;
-		std::cout << "      FileSize:       0x" << std::hex << mHdr.getRoSegmentInfo().file_layout.size << (mHdr.getRoSegmentInfo().is_compressed? " (COMPRESSED)" : "") << std::endl;
-		std::cout << "    .data:" << std::endl;
-		std::cout << "      FileOffset:     0x" << std::hex << mHdr.getDataSegmentInfo().file_layout.offset << std::endl;
-		std::cout << "      FileSize:       0x" << std::hex << mHdr.getDataSegmentInfo().file_layout.size << (mHdr.getDataSegmentInfo().is_compressed? " (COMPRESSED)" : "") << std::endl;
+		fmt::print("  Program Segments:\n");
+		fmt::print("     .module_name:\n");
+		fmt::print("      FileOffset:     0x{:x}\n", mHdr.getModuleNameInfo().offset);
+		fmt::print("      FileSize:       0x{:x}\n", mHdr.getModuleNameInfo().size);
+		fmt::print("    .text:\n");
+		fmt::print("      FileOffset:     0x{:x}\n", mHdr.getTextSegmentInfo().file_layout.offset);
+		fmt::print("      FileSize:       0x{:x}{:s}\n", mHdr.getTextSegmentInfo().file_layout.size, (mHdr.getTextSegmentInfo().is_compressed? " (COMPRESSED)" : ""));
+		fmt::print("    .ro:\n");
+		fmt::print("      FileOffset:     0x{:x}\n", mHdr.getRoSegmentInfo().file_layout.offset);
+		fmt::print("      FileSize:       0x{:x}{:s}\n", mHdr.getRoSegmentInfo().file_layout.size, (mHdr.getRoSegmentInfo().is_compressed? " (COMPRESSED)" : ""));
+		fmt::print("    .data:\n");
+		fmt::print("      FileOffset:     0x{:x}\n", mHdr.getDataSegmentInfo().file_layout.offset);
+		fmt::print("      FileSize:       0x{:x}{:s}\n", mHdr.getDataSegmentInfo().file_layout.size, (mHdr.getDataSegmentInfo().is_compressed? " (COMPRESSED)" : ""));
 	}
-	std::cout << "  Program Sections:" << std::endl;
-	std::cout << "     .text:" << std::endl;
-	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getTextSegmentInfo().memory_layout.offset << std::endl;
-	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getTextSegmentInfo().memory_layout.size << std::endl;
-	if (mHdr.getTextSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	fmt::print("  Program Sections:\n");
+	fmt::print("     .text:\n");
+	fmt::print("      MemoryOffset:   0x{:x}\n", mHdr.getTextSegmentInfo().memory_layout.offset);
+	fmt::print("      MemorySize:     0x{:x}\n", mHdr.getTextSegmentInfo().memory_layout.size);
+	if (mHdr.getTextSegmentInfo().is_hashed && mCliOutputMode.show_extended_info)
 	{
-		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getTextSegmentInfo().hash.bytes, 32, false, "") << std::endl;
+		fmt::print("      Hash:           {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getTextSegmentInfo().hash.data(), mHdr.getTextSegmentInfo().hash.size(), false, ""));
 	}
-	std::cout << "    .ro:" << std::endl;
-	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getRoSegmentInfo().memory_layout.offset << std::endl;
-	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getRoSegmentInfo().memory_layout.size << std::endl;
-	if (mHdr.getRoSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	fmt::print("    .ro:\n");
+	fmt::print("      MemoryOffset:   0x{:x}\n", mHdr.getRoSegmentInfo().memory_layout.offset);
+	fmt::print("      MemorySize:     0x{:x}\n", mHdr.getRoSegmentInfo().memory_layout.size);
+	if (mHdr.getRoSegmentInfo().is_hashed && mCliOutputMode.show_extended_info)
 	{
-		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getRoSegmentInfo().hash.bytes, 32, false, "") << std::endl;
+		fmt::print("      Hash:           {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getRoSegmentInfo().hash.data(), mHdr.getRoSegmentInfo().hash.size(), false, ""));
 	}
-	if (_HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	if (mCliOutputMode.show_extended_info)
 	{
-		std::cout << "    .api_info:" << std::endl;
-		std::cout << "      MemoryOffset:   0x" << std::hex <<  mHdr.getRoEmbeddedInfo().offset << std::endl;
-		std::cout << "      MemorySize:     0x" << std::hex << mHdr.getRoEmbeddedInfo().size << std::endl;
-		std::cout << "    .dynstr:" << std::endl;
-		std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getRoDynStrInfo().offset << std::endl;
-		std::cout << "      MemorySize:     0x" << std::hex << mHdr.getRoDynStrInfo().size << std::endl;
-		std::cout << "    .dynsym:" << std::endl;
-		std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getRoDynSymInfo().offset << std::endl;
-		std::cout << "      MemorySize:     0x" << std::hex << mHdr.getRoDynSymInfo().size << std::endl;
+		fmt::print("    .api_info:\n");
+		fmt::print("      MemoryOffset:   0x{:x}\n", mHdr.getRoEmbeddedInfo().offset);
+		fmt::print("      MemorySize:     0x{:x}\n", mHdr.getRoEmbeddedInfo().size);
+		fmt::print("    .dynstr:\n");
+		fmt::print("      MemoryOffset:   0x{:x}\n", mHdr.getRoDynStrInfo().offset);
+		fmt::print("      MemorySize:     0x{:x}\n", mHdr.getRoDynStrInfo().size);
+		fmt::print("    .dynsym:\n");
+		fmt::print("      MemoryOffset:   0x{:x}\n", mHdr.getRoDynSymInfo().offset);
+		fmt::print("      MemorySize:     0x{:x}\n", mHdr.getRoDynSymInfo().size);
 	}
 	
-	std::cout << "    .data:" << std::endl;
-	std::cout << "      MemoryOffset:   0x" << std::hex << mHdr.getDataSegmentInfo().memory_layout.offset << std::endl;
-	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getDataSegmentInfo().memory_layout.size << std::endl;
-	if (mHdr.getDataSegmentInfo().is_hashed && _HAS_BIT(mCliOutputMode, OUTPUT_EXTENDED))
+	fmt::print("    .data:\n");
+	fmt::print("      MemoryOffset:   0x{:x}\n", mHdr.getDataSegmentInfo().memory_layout.offset);
+	fmt::print("      MemorySize:     0x{:x}\n", mHdr.getDataSegmentInfo().memory_layout.size);
+	if (mHdr.getDataSegmentInfo().is_hashed && mCliOutputMode.show_extended_info)
 	{
-		std::cout << "      Hash:           " << fnd::SimpleTextOutput::arrayToString(mHdr.getDataSegmentInfo().hash.bytes, 32, false, "") << std::endl;
+		fmt::print("      Hash:           {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getDataSegmentInfo().hash.data(), mHdr.getDataSegmentInfo().hash.size(), false, ""));
 	}
-	std::cout << "    .bss:" << std::endl;
-	std::cout << "      MemorySize:     0x" << std::hex << mHdr.getBssSize() << std::endl;
+	fmt::print("    .bss:\n");
+	fmt::print("      MemorySize:     0x{:x}\n", mHdr.getBssSize());
 }
 
-void NsoProcess::processRoMeta()
+void nstool::NsoProcess::processRoMeta()
 {
 	if (mRoBlob.size())
 	{
@@ -237,4 +261,25 @@ void NsoProcess::processRoMeta()
 		mRoMeta.setCliOutputMode(mCliOutputMode);
 		mRoMeta.process();
 	}
+}
+
+size_t nstool::NsoProcess::decompressData(const byte_t* src, size_t src_len, byte_t* dst, size_t dst_capacity)
+{
+	if (src_len >= LZ4_MAX_INPUT_SIZE)
+	{
+		return 0;
+	}
+
+	int32_t src_len_input = int32_t(src_len);
+	int32_t dst_capcacity_input = (dst_capacity < LZ4_MAX_INPUT_SIZE) ? int32_t(dst_capacity) : LZ4_MAX_INPUT_SIZE;
+
+	int32_t decomp_size = LZ4_decompress_safe((const char*)src, (char*)dst, src_len_input, dst_capcacity_input);
+
+	if (decomp_size < 0)
+	{
+		memset(dst, 0, dst_capacity);
+		return 0;
+	}
+
+	return size_t(decomp_size);
 }

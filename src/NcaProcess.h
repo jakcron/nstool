@@ -1,14 +1,13 @@
 #pragma once
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <fnd/LayeredIntegrityMetadata.h>
+#include "types.h"
+#include "KeyBag.h"
+#include "FsProcess.h"
+
 #include <nn/hac/ContentArchiveHeader.h>
-#include "KeyConfiguration.h"
+#include <nn/hac/HierarchicalIntegrityHeader.h>
+#include <nn/hac/HierarchicalSha256Header.h>
 
-
-#include "common.h"
+namespace nstool {
 
 class NcaProcess
 {
@@ -18,39 +17,36 @@ public:
 	void process();
 
 	// generic
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
-	void setKeyCfg(const KeyConfiguration& keycfg);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
+	void setKeyCfg(const KeyBag& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	// nca specfic
-	void setPartition0ExtractPath(const std::string& path);
-	void setPartition1ExtractPath(const std::string& path);
-	void setPartition2ExtractPath(const std::string& path);
-	void setPartition3ExtractPath(const std::string& path);
-	void setListFs(bool list_fs);
+	// fs specific
+	void setShowFsTree(bool show_fs_tree);
+	void setFsRootLabel(const std::string& root_label);
+	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
+	// post process() get FS out
+	const std::shared_ptr<tc::io::IStorage>& getFileSystem() const;
 private:
-	const std::string kModuleName = "NcaProcess";
-	const std::string kNpdmExefsPath = "main.npdm";
+	const std::string kNpdmExefsPath = "/main.npdm";
+
+	std::string mModuleName;
 
 	// user options
-	fnd::SharedPtr<fnd::IFile> mFile;
-	KeyConfiguration mKeyCfg;
+	std::shared_ptr<tc::io::IStream> mFile;
+	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	struct sExtract
-	{
-		std::string path;
-		bool doExtract;
-	} mPartitionPath[nn::hac::nca::kPartitionNum];
+	// fs processing
+	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	FsProcess mFsProcess;
 
-	bool mListFs;
-
-	// data
+	// nca data
 	nn::hac::sContentArchiveHeaderBlock mHdrBlock;
-	fnd::sha::sSha256Hash mHdrHash;
+	nn::hac::detail::sha256_hash_t mHdrHash;
 	nn::hac::ContentArchiveHeader mHdr;
 
 	// crypto
@@ -60,8 +56,8 @@ private:
 		{
 			byte_t index;
 			bool decrypted;
-			fnd::aes::sAes128Key enc;
-			fnd::aes::sAes128Key dec;
+			KeyBag::aes128_key_t enc;
+			KeyBag::aes128_key_t dec;
 
 			void operator=(const sKeyAreaKey& other)
 			{
@@ -84,25 +80,43 @@ private:
 				return !(*this == other);
 			}
 		};
-		fnd::List<sKeyAreaKey> kak_list;
+		std::vector<sKeyAreaKey> kak_list;
 
-		sOptional<fnd::aes::sAes128Key> aes_ctr;
+		tc::Optional<nn::hac::detail::aes128_key_t> aes_ctr;
 	} mContentKey;
-	
+
+	struct SparseInfo
+	{
+
+	};
+
+	// raw partition data
 	struct sPartitionInfo
 	{
-		fnd::SharedPtr<fnd::IFile> reader;
+		std::shared_ptr<tc::io::IStream> reader;
+		tc::io::VirtualFileSystem::FileSystemMeta fs_meta;
+		std::shared_ptr<tc::io::IStorage> fs_reader;
 		std::string fail_reason;
-		size_t offset;
-		size_t size;
+		int64_t offset;
+		int64_t size;
 
 		// meta data
 		nn::hac::nca::FormatType format_type;
 		nn::hac::nca::HashType hash_type;
 		nn::hac::nca::EncryptionType enc_type;
-		fnd::LayeredIntegrityMetadata layered_intergrity_metadata;
-		fnd::aes::sAesIvCtr aes_ctr;
-	} mPartitions[nn::hac::nca::kPartitionNum];
+
+		// hash meta data
+		nn::hac::HierarchicalIntegrityHeader hierarchicalintegrity_hdr;
+		nn::hac::HierarchicalSha256Header hierarchicalsha256_hdr;
+
+		// crypto metadata
+		nn::hac::detail::aes_iv_t aes_ctr;
+
+		// sparse metadata
+		SparseInfo sparse_info;
+	};
+	
+	std::array<sPartitionInfo, nn::hac::nca::kPartitionNum> mPartitions;
 
 	void importHeader();
 	void generateNcaBodyEncryptionKeys();
@@ -111,5 +125,7 @@ private:
 	void displayHeader();
 	void processPartitions();
 
-	const char* getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const;
+	std::string getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const;
 };
+
+}

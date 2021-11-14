@@ -1,15 +1,11 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <fnd/types.h>
-#include <fnd/IFile.h>
-#include <fnd/SharedPtr.h>
-#include <nn/hac/define/meta.h>
-#include <nn/hac/NroHeader.h>
+#include "types.h"
+#include "RoMetadataProcess.h"
 #include "AssetProcess.h"
 
-#include "common.h"
-#include "RoMetadataProcess.h"
+#include <nn/hac/NroHeader.h>
+
+namespace nstool {
 
 class NroProcess
 {
@@ -18,7 +14,7 @@ public:
 
 	void process();
 
-	void setInputFile(const fnd::SharedPtr<fnd::IFile>& file);
+	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
@@ -27,27 +23,29 @@ public:
 	void setListSymbols(bool listSymbols);
 
 	// for homebrew NROs with Asset blobs appended
-	void setAssetListFs(bool list);
-	void setAssetIconExtractPath(const std::string& path);
-	void setAssetNacpExtractPath(const std::string& path);
-	void setAssetRomfsExtractPath(const std::string& path);
+	void setAssetIconExtractPath(const tc::io::Path& path);
+	void setAssetNacpExtractPath(const tc::io::Path& path);
+	void setAssetRomfsShowFsTree(bool show_fs_tree);
+	void setAssetRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
-	const RoMetadataProcess& getRoMetadataProcess() const;
+	const nstool::RoMetadataProcess& getRoMetadataProcess() const;
 private:
-	const std::string kModuleName = "NroProcess";
+	std::string mModuleName;
 
-	fnd::SharedPtr<fnd::IFile> mFile;
+	std::shared_ptr<tc::io::IStream> mFile;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
 	nn::hac::NroHeader mHdr;
-	fnd::Vec<byte_t> mTextBlob, mRoBlob, mDataBlob;
-	RoMetadataProcess mRoMeta;
+	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
+	nstool::RoMetadataProcess mRoMeta;
 	bool mIsHomebrewNro;
-	AssetProcess mAssetProc;
+	nstool::AssetProcess mAssetProc;
 
 	void importHeader();
 	void importCodeSegments();
 	void displayHeader();
 	void processRoMeta();
 };
+
+}
