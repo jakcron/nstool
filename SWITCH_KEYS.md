@@ -183,6 +183,7 @@ master_key_##           = <32 char AES128 key-data here>
 ticket_commonkey_source = <32 char AES128 key-data here>
 ```
 
+##### Supply the external content key directly to NSTool
 Alternatively you can supply the raw encrypted content key (also called a title key) directly with the `--titlekey` option:
 ```
 nstool --titlekey <32 char AES128 key-data here> <32 char contentid>.nca
