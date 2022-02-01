@@ -243,7 +243,7 @@ void nstool::KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl
 	}
 	if (kern.getMiscParams().isSet())
 	{
-		fmt::print("  ProgramType:        {:s} ({:d})\n", nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()), kern.getMiscParams().getProgramType());
+		fmt::print("  ProgramType:        {:s} ({:d})\n", nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()), (uint32_t)kern.getMiscParams().getProgramType());
 	}
 	if (kern.getKernelVersion().isSet())
 	{

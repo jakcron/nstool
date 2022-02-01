@@ -9,8 +9,6 @@
 #include <tc/io/FileStream.h>
 #include <tc/io/StreamSource.h>
 
-
-
 #include <nn/hac/ContentArchiveUtil.h>
 #include <nn/hac/AesKeygen.h>
 #include <nn/hac/define/gc.h>
@@ -42,6 +40,11 @@ public:
 		throw tc::InvalidOperationException("getOptionStrings() not defined for UnkOptionHandler.");
 	}
 
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		throw tc::InvalidOperationException("getOptionRegexPatterns() not defined for UnkOptionHandler.");
+	}
+
 	void processOption(const std::string& option, const std::vector<std::string>& params)
 	{
 		throw tc::Exception(mModuleLabel, "Unrecognized option: \"" + option + "\"");
@@ -55,12 +58,18 @@ class DeprecatedOptionHandler : public tc::cli::OptionParser::IOptionHandler
 public:
 	DeprecatedOptionHandler(const std::string& warn_message, const std::vector<std::string>& opts) : 
 		mWarnMessage(warn_message),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -70,6 +79,7 @@ public:
 private:
 	std::string mWarnMessage;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class FlagOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -77,12 +87,18 @@ class FlagOptionHandler : public tc::cli::OptionParser::IOptionHandler
 public:
 	FlagOptionHandler(bool& flag, const std::vector<std::string>& opts) : 
 		mFlag(flag),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -97,6 +113,7 @@ public:
 private:
 	bool& mFlag;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class SingleParamStringOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -104,12 +121,18 @@ class SingleParamStringOptionHandler : public tc::cli::OptionParser::IOptionHand
 public:
 	SingleParamStringOptionHandler(tc::Optional<std::string>& param, const std::vector<std::string>& opts) : 
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -124,6 +147,7 @@ public:
 private:
 	tc::Optional<std::string>& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class SingleParamPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -131,12 +155,18 @@ class SingleParamPathOptionHandler : public tc::cli::OptionParser::IOptionHandle
 public:
 	SingleParamPathOptionHandler(tc::Optional<tc::io::Path>& param, const std::vector<std::string>& opts) : 
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -151,6 +181,7 @@ public:
 private:
 	tc::Optional<tc::io::Path>& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class SingleParamSizetOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -158,12 +189,18 @@ class SingleParamSizetOptionHandler : public tc::cli::OptionParser::IOptionHandl
 public:
 	SingleParamSizetOptionHandler(size_t& param, const std::vector<std::string>& opts) : 
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -178,6 +215,7 @@ public:
 private:
 	size_t& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class SingleParamAesKeyOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -185,12 +223,18 @@ class SingleParamAesKeyOptionHandler : public tc::cli::OptionParser::IOptionHand
 public:
 	SingleParamAesKeyOptionHandler(tc::Optional<nstool::KeyBag::aes128_key_t>& param, const std::vector<std::string>& opts) :
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -214,6 +258,7 @@ public:
 private:
 	tc::Optional<nstool::KeyBag::aes128_key_t>& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class FileTypeOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -221,12 +266,18 @@ class FileTypeOptionHandler : public tc::cli::OptionParser::IOptionHandler
 public:
 	FileTypeOptionHandler(nstool::Settings::FileType& param, const std::vector<std::string>& opts) : 
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -310,6 +361,7 @@ public:
 private:
 	nstool::Settings::FileType& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class InstructionTypeOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -317,12 +369,18 @@ class InstructionTypeOptionHandler : public tc::cli::OptionParser::IOptionHandle
 public:
 	InstructionTypeOptionHandler(bool& param, const std::vector<std::string>& opts) :
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -348,14 +406,16 @@ public:
 private:
 	bool& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
-class ExtractDataPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
+class ListArchiveJobPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
 {
 public:
-	ExtractDataPathOptionHandler(std::vector<nstool::ExtractJob>& jobs, const std::vector<std::string>& opts) : 
+	ListArchiveJobPathOptionHandler(std::vector<nstool::ArchiveJob>& jobs, const std::vector<std::string>& opts) : 
 		mJobs(jobs),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
@@ -363,15 +423,60 @@ public:
 		return mOptStrings;
 	}
 
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
+	}
+
+	void processOption(const std::string& option, const std::vector<std::string>& params)
+	{
+		if (params.size() == 0)
+		{
+			mJobs.push_back({nstool::ArchiveJob::JobAction::ListFileTree, tc::io::Path("/"), tc::io::Path(), false});
+		}
+		else if (params.size() == 1)
+		{
+			mJobs.push_back({nstool::ArchiveJob::JobAction::ListFileTree, tc::io::Path(params[0]), tc::io::Path(), false});
+		} 
+		else
+		{
+			throw tc::ArgumentOutOfRangeException(fmt::format("Option \"{:s}\" requires one parameter in the format \"{:s} [<internal path>]\".", option, option));
+		}
+	}
+private:
+	std::vector<nstool::ArchiveJob>& mJobs;
+	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
+};
+
+class ExtractArchiveJobPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
+{
+public:
+	ExtractArchiveJobPathOptionHandler(std::vector<nstool::ArchiveJob>& jobs, const std::vector<std::string>& opts) : 
+		mJobs(jobs),
+		mOptStrings(opts),
+		mOptRegex()
+	{}
+
+	const std::vector<std::string>& getOptionStrings() const
+	{
+		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
+	}
+
 	void processOption(const std::string& option, const std::vector<std::string>& params)
 	{
 		if (params.size() == 1)
 		{
-			mJobs.push_back({tc::io::Path("/"), tc::io::Path(params[0])});
+			mJobs.push_back({nstool::ArchiveJob::JobAction::Extract, tc::io::Path("/"), tc::io::Path(params[0]), false});
 		}
 		else if (params.size() == 2)
 		{
-			mJobs.push_back({tc::io::Path(params[0]), tc::io::Path(params[1])});
+			mJobs.push_back({nstool::ArchiveJob::JobAction::Extract, tc::io::Path(params[0]), tc::io::Path(params[1]), false});
 		} 
 		else
 		{
@@ -379,22 +484,29 @@ public:
 		}
 	}
 private:
-	std::vector<nstool::ExtractJob>& mJobs;
+	std::vector<nstool::ArchiveJob>& mJobs;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
-class CustomExtractDataPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
+class CustomExtractArchiveJobPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
 {
 public:
-	CustomExtractDataPathOptionHandler(std::vector<nstool::ExtractJob>& jobs, const std::vector<std::string>& opts, const tc::io::Path& custom_path) : 
+	CustomExtractArchiveJobPathOptionHandler(std::vector<nstool::ArchiveJob>& jobs, const std::vector<std::string>& opts, const tc::io::Path& custom_path) : 
 		mJobs(jobs),
 		mOptStrings(opts),
+		mOptRegex(),
 		mCustomPath(custom_path)
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -417,13 +529,13 @@ public:
 		{
 			fmt::print("Consider using \"-x {:s} {:s}\" instead.\n", custom_path_str, params[0]);
 		}
-			
 
-		mJobs.push_back({mCustomPath, tc::io::Path(params[0])});
+		mJobs.push_back({nstool::ArchiveJob::JobAction::Extract, mCustomPath, tc::io::Path(params[0]), false});
 	}
 private:
-	std::vector<nstool::ExtractJob>& mJobs;
+	std::vector<nstool::ArchiveJob>& mJobs;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 	tc::io::Path mCustomPath;
 };
 
@@ -536,6 +648,7 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 
 	// register handler for deprecated options DeprecatedOptionHandler
 	// none just yet
+	//opts.registerOptionHandler(std::shared_ptr<DeprecatedOptionHandler>(new DeprecatedOptionHandler("warning message here", {"--dep-option"})));
 
 	// get option flags
 	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(mShowLayout, {"--showlayout"})));
@@ -560,21 +673,21 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 	opts.registerOptionHandler(std::shared_ptr<InstructionTypeOptionHandler>(new InstructionTypeOptionHandler(code.is_64bit_instruction, { "--insttype" })));
 
 	// fs options
-	opts.registerOptionHandler(std::shared_ptr<FlagOptionHandler>(new FlagOptionHandler(fs.show_fs_tree, { "--fstree", "--listfs" })));
-	opts.registerOptionHandler(std::shared_ptr<ExtractDataPathOptionHandler>(new ExtractDataPathOptionHandler(fs.extract_jobs, { "-x", "--extract" })));
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--fsdir" }, tc::io::Path("/"))));
+	opts.registerOptionHandler(std::shared_ptr<ListArchiveJobPathOptionHandler>(new ListArchiveJobPathOptionHandler(fs.archive_jobs, { "--fstree", "--listfs" })));
+	opts.registerOptionHandler(std::shared_ptr<ExtractArchiveJobPathOptionHandler>(new ExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "-x", "--extract" })));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--fsdir" }, tc::io::Path("/"))));
 
 	// xci options
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--update" }, tc::io::Path("/update/"))));
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--normal" }, tc::io::Path("/normal/"))));
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--secure" }, tc::io::Path("/secure/"))));
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--logo" }, tc::io::Path("/logo/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--update" }, tc::io::Path("/update/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--normal" }, tc::io::Path("/normal/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--secure" }, tc::io::Path("/secure/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--logo" }, tc::io::Path("/logo/"))));
 
 	// nca options
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part0" }, tc::io::Path("/0/"))));
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part1" }, tc::io::Path("/1/"))));
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part2" }, tc::io::Path("/2/"))));
-	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part3" }, tc::io::Path("/3/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--part0" }, tc::io::Path("/0/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--part1" }, tc::io::Path("/1/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--part2" }, tc::io::Path("/2/"))));
+	opts.registerOptionHandler(std::shared_ptr<CustomExtractArchiveJobPathOptionHandler>(new CustomExtractArchiveJobPathOptionHandler(fs.archive_jobs, { "--part3" }, tc::io::Path("/3/"))));
 
 	// kip options
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(kip.extract_path, { "--kipdir" })));

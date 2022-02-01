@@ -19,6 +19,7 @@ public:
 	void setVerifyMode(bool verify);
 
 	// fs specific
+	void setArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs);
 	void setFsRootLabel(const std::string& root_label);
 	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 	void setShowFsTree(bool show_fs_tree);

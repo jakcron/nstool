@@ -90,6 +90,11 @@ void nstool::PfsProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
+void nstool::PfsProcess::setArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs)
+{
+	mFsProcess.setArchiveJobs(jobs);
+}
+
 void nstool::PfsProcess::setShowFsTree(bool show_fs_tree)
 {
 	mFsProcess.setShowFsTree(show_fs_tree);

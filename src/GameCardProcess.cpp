@@ -16,10 +16,12 @@ nstool::GameCardProcess::GameCardProcess() :
 	mFile(),
 	mCliOutputMode(true, false, false, false),
 	mVerify(false),
-	mListFs(false),
+	mIsTrueSdkXci(false),
+	mIsSdkXciEncrypted(false),
+	mGcHeaderOffset(0),
 	mProccessExtendedHeader(false),
-	mRootPfs(),
-	mExtractJobs()
+	mFileSystem(),
+	mFsProcess()
 {
 }
 
@@ -59,14 +61,19 @@ void nstool::GameCardProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-void nstool::GameCardProcess::setExtractJobs(const std::vector<nstool::ExtractJob> extract_jobs)
+void nstool::GameCardProcess::setArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs)
 {
-	mExtractJobs = extract_jobs;
+	mFsProcess.setArchiveJobs(jobs);
 }
 
 void nstool::GameCardProcess::setShowFsTree(bool show_fs_tree)
 {
-	mListFs = show_fs_tree;
+	mFsProcess.setShowFsTree(show_fs_tree);
+}
+
+void nstool::GameCardProcess::setExtractJobs(const std::vector<nstool::ExtractJob> extract_jobs)
+{
+	mFsProcess.setExtractJobs(extract_jobs);
 }
 
 void nstool::GameCardProcess::importHeader()
@@ -266,21 +273,16 @@ void nstool::GameCardProcess::processRootPfs()
 	std::shared_ptr<tc::io::IStream> gc_fs_raw = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, mHdr.getPartitionFsAddress(), nn::hac::GameCardUtil::blockToAddr(mHdr.getValidDataEndPage()+1) - mHdr.getPartitionFsAddress()));
 
 	auto gc_vfs_meta = nn::hac::GameCardFsMetaGenerator(gc_fs_raw, mHdr.getPartitionFsSize(), mVerify ? nn::hac::GameCardFsMetaGenerator::ValidationMode_Warn : nn::hac::GameCardFsMetaGenerator::ValidationMode_None);
-	std::shared_ptr<tc::io::IStorage> gc_vfs = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(gc_vfs_meta) );
+	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(gc_vfs_meta) );
 
-	FsProcess fs_proc;
-
-	fs_proc.setInputFileSystem(gc_vfs);
-	fs_proc.setFsFormatName("PartitionFs");
-	fs_proc.setFsProperties({
+	mFsProcess.setInputFileSystem(mFileSystem);
+	mFsProcess.setFsFormatName("PartitionFs");
+	mFsProcess.setFsProperties({
 		fmt::format("Type:      Nested HFS0"),
 		fmt::format("DirNum:    {:d}", gc_vfs_meta.dir_entries.empty() ? 0 : gc_vfs_meta.dir_entries.size() - 1), // -1 to not include root directory
 		fmt::format("FileNum:   {:d}", gc_vfs_meta.file_entries.size())
 	});
-	fs_proc.setShowFsInfo(mCliOutputMode.show_basic_info);
-	fs_proc.setShowFsTree(mListFs);
-	fs_proc.setFsRootLabel(kXciMountPointName);
-	fs_proc.setExtractJobs(mExtractJobs);
-
-	fs_proc.process();
+	mFsProcess.setShowFsInfo(mCliOutputMode.show_basic_info);
+	mFsProcess.setFsRootLabel(kXciMountPointName);
+	mFsProcess.process();
 }

@@ -64,6 +64,11 @@ void nstool::NroProcess::setAssetNacpExtractPath(const tc::io::Path& path)
 	mAssetProc.setNacpExtractPath(path);
 }
 
+void nstool::NroProcess::setAssetRomfsArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs)
+{
+	mAssetProc.setRomfsArchiveJobs(jobs);
+}
+
 void nstool::NroProcess::setAssetRomfsShowFsTree(bool show_fs_tree)
 {
 	mAssetProc.setRomfsShowFsTree(show_fs_tree);

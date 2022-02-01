@@ -56,27 +56,14 @@ struct Settings
 	// Generic FS options
 	struct FsOptions 
 	{
+		// legacy
 		bool show_fs_tree;
 		std::vector<ExtractJob> extract_jobs;
+
+		// new
+		std::vector<ArchiveJob> archive_jobs;
 	} fs;
 
-	// XCI options
-	struct XciOptions
-	{
-		tc::Optional<tc::io::Path> update_extract_path;
-		tc::Optional<tc::io::Path> logo_extract_path;
-		tc::Optional<tc::io::Path> normal_extract_path;
-		tc::Optional<tc::io::Path> secure_extract_path;
-	} xci;
-
-	// NCA options
-	struct NcaOptions
-	{
-		tc::Optional<tc::io::Path> part0_extract_path;
-		tc::Optional<tc::io::Path> part1_extract_path;
-		tc::Optional<tc::io::Path> part2_extract_path;
-		tc::Optional<tc::io::Path> part3_extract_path;
-	} nca;
 
 	// KIP options
 	struct KipOptions
@@ -107,6 +94,7 @@ struct Settings
 
 		fs.show_fs_tree = false;
 		fs.extract_jobs = std::vector<ExtractJob>();
+		fs.archive_jobs = std::vector<ArchiveJob>();
 
 		kip.extract_path = tc::Optional<tc::io::Path>();
 

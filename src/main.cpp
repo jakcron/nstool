@@ -37,6 +37,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
 
+			obj.setArchiveJobs(set.fs.archive_jobs);
+
 			obj.setShowFsTree(set.fs.show_fs_tree);
 			obj.setExtractJobs(set.fs.extract_jobs);
 		
@@ -50,6 +52,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
+
+			obj.setArchiveJobs(set.fs.archive_jobs);
 
 			obj.setShowFsTree(set.fs.show_fs_tree);
 			obj.setExtractJobs(set.fs.extract_jobs);
@@ -65,6 +69,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
 
+			obj.setArchiveJobs(set.fs.archive_jobs);
+
 			obj.setShowFsTree(set.fs.show_fs_tree);
 			obj.setExtractJobs(set.fs.extract_jobs);
 
@@ -78,6 +84,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			obj.setKeyCfg(set.opt.keybag);
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
+
+			obj.setArchiveJobs(set.fs.archive_jobs);
 
 			obj.setShowFsTree(set.fs.show_fs_tree);
 			obj.setExtractJobs(set.fs.extract_jobs);
@@ -135,6 +143,8 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 				obj.setAssetIconExtractPath(set.aset.icon_extract_path.get());
 			if (set.aset.nacp_extract_path.isSet())
 				obj.setAssetNacpExtractPath(set.aset.nacp_extract_path.get());
+
+			obj.setAssetRomfsArchiveJobs(set.fs.archive_jobs);
 
 			obj.setAssetRomfsShowFsTree(set.fs.show_fs_tree);
 			obj.setAssetRomfsExtractJobs(set.fs.extract_jobs);

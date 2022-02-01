@@ -21,6 +21,7 @@ public:
 	void setShowFsTree(bool show_fs_tree);
 	void setFsRootLabel(const std::string& root_label);
 	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
+	void setArchiveJobs(const std::vector<nstool::ArchiveJob>& archive_jobs);
 private:
 	std::string mModuleLabel;
 
@@ -37,10 +38,15 @@ private:
 
 	// extract jobs
 	std::vector<nstool::ExtractJob> mExtractJobs;
+	std::vector<nstool::ArchiveJob> mArchiveJobs;
 
 	// cache for file extract
 	tc::ByteData mDataCache;
 	
+	void processArchiveJobs();
+
+	bool qualifyArchivePath(const tc::io::Path& path, tc::io::Path& qualified_path, bool& is_dir, bool& is_file);
+
 	void printFs();
 	void extractFs();
 

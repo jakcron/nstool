@@ -14,6 +14,7 @@ nstool::FsProcess::FsProcess() :
 	mShowFsTree(false),
 	mFsRootLabel(),
 	mExtractJobs(),
+	mArchiveJobs(),
 	mDataCache(0x10000)
 {
 
@@ -25,6 +26,8 @@ void nstool::FsProcess::process()
 	{
 		throw tc::InvalidOperationException(mModuleLabel, "No input filesystem");
 	}
+
+	processArchiveJobs();
 
 	if (mShowFsInfo)
 	{
@@ -79,6 +82,115 @@ void nstool::FsProcess::setFsRootLabel(const std::string& root_label)
 void nstool::FsProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
 	mExtractJobs = extract_jobs;
+}
+
+void nstool::FsProcess::setArchiveJobs(const std::vector<nstool::ArchiveJob>& archive_jobs)
+{
+	mArchiveJobs = archive_jobs;
+}
+
+void nstool::FsProcess::processArchiveJobs()
+{
+	for (auto itr = mArchiveJobs.begin(); itr != mArchiveJobs.end(); itr++)
+	{
+		/*
+		std::string archive_path_str, extract_base_path_str;
+		tc::io::PathUtil::pathToUnixUTF8(itr->archive_path, archive_path_str);
+		tc::io::PathUtil::pathToUnixUTF8(itr->extract_base_path, extract_base_path_str);
+		*/
+
+		// Qualify Archive Path
+		tc::io::Path qualified_archive_path;
+		bool is_dir = false, is_file = false;
+		if (!qualifyArchivePath(itr->archive_path, qualified_archive_path, is_dir, is_file))
+		{
+			std::string archive_path_str;
+			tc::io::PathUtil::pathToUnixUTF8(itr->archive_path, archive_path_str);
+			fmt::print("Path \"{}\" did not exist for this archive.\n", archive_path_str);
+			
+			continue;
+		}
+
+		// print
+		{
+			std::string qualified_archive_path_str;
+			tc::io::PathUtil::pathToUnixUTF8(qualified_archive_path, qualified_archive_path_str);
+			fmt::print("Path \"{}\" was valid, is_dir={}, is_file={}.\n", qualified_archive_path_str, is_dir, is_file);
+		}
+		
+
+		if (itr->job_action == ArchiveJob::JobAction::DoNothing)
+		{
+			fmt::print("DoNothing\n");
+			continue;
+		}
+		else if (itr->job_action == ArchiveJob::JobAction::ListFileTree)
+		{
+			fmt::print("ListFileTree\n");
+
+
+		}
+		else if (itr->job_action == ArchiveJob::JobAction::Extract)
+		{
+			fmt::print("Extract\n");
+		}
+		else
+		{
+			fmt::print("Unsupported ArchiveJob::JobAction\n");
+		}
+
+	}
+}
+
+bool nstool::FsProcess::qualifyArchivePath(const tc::io::Path& path, tc::io::Path& qualified_path, bool& is_dir, bool& is_file)
+{
+	// test if the path is for a directory
+	try {
+		tc::io::sDirectoryListing dir_listing;
+
+		// getDirectoryListing will throw if this is not a directory
+		mInputFs->getDirectoryListing(path, dir_listing);
+
+		// set state and return
+		qualified_path = dir_listing.abs_path;
+		is_dir = true;
+		is_file = false;
+		return true;
+	} catch (tc::io::DirectoryNotFoundException&) {
+		// acceptable exception, just means directory didn't exist
+	}
+
+	// test if the path is for a file
+	try {
+		// opening the file will throw if the file doesn't exist
+		std::shared_ptr<tc::io::IStream> file_stream;
+		mInputFs->openFile(path, tc::io::FileMode::Open, tc::io::FileAccess::Read, file_stream);
+
+		// breakup the path into the parent directory path and file name
+		tc::io::Path parent_dir_path = path;
+		parent_dir_path.pop_back(); // remove the last element, which should be the file name (which should exist because opening the file worked)
+
+		std::string file_name = path.back();
+
+		// get the qualified file path
+		tc::io::sDirectoryListing dir_listing;
+
+		// getDirectoryListing will throw if this is not a directory
+		mInputFs->getDirectoryListing(parent_dir_path, dir_listing);
+
+		// set state
+		qualified_path = dir_listing.abs_path + file_name;
+		is_dir = false;
+		is_file = true;
+		return true;
+	} catch (tc::io::FileNotFoundException&) {
+		// acceptable exception, just means file didn't exist
+	}
+
+	qualified_path = tc::io::Path();
+	is_dir = false;
+	is_file = false;
+	return false;
 }
 
 void nstool::FsProcess::printFs()

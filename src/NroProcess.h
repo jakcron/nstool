@@ -25,6 +25,7 @@ public:
 	// for homebrew NROs with Asset blobs appended
 	void setAssetIconExtractPath(const tc::io::Path& path);
 	void setAssetNacpExtractPath(const tc::io::Path& path);
+	void setAssetRomfsArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs);
 	void setAssetRomfsShowFsTree(bool show_fs_tree);
 	void setAssetRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 

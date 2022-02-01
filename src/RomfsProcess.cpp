@@ -112,6 +112,11 @@ void nstool::RomfsProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
+void nstool::RomfsProcess::setArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs)
+{
+	mFsProcess.setArchiveJobs(jobs);
+}
+
 void nstool::RomfsProcess::setFsRootLabel(const std::string& root_label)
 {
 	mFsProcess.setFsRootLabel(root_label);

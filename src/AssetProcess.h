@@ -21,6 +21,7 @@ public:
 	void setIconExtractPath(const tc::io::Path& path);
 	void setNacpExtractPath(const tc::io::Path& path);
 	
+	void setRomfsArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs);
 	void setRomfsShowFsTree(bool show_fs_tree);
 	void setRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 private:

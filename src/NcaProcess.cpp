@@ -69,6 +69,11 @@ void nstool::NcaProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
+void nstool::NcaProcess::setArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs)
+{
+	mFsProcess.setArchiveJobs(jobs);
+}
+
 void nstool::NcaProcess::setShowFsTree(bool show_fs_tree)
 {
 	mFsProcess.setShowFsTree(show_fs_tree);

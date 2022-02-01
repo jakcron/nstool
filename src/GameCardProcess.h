@@ -21,6 +21,7 @@ public:
 	void setVerifyMode(bool verify);
 
 	// fs specific
+	void setArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs);
 	void setShowFsTree(bool show_fs_tree);
 	void setExtractJobs(const std::vector<nstool::ExtractJob> extract_jobs);
 private:
@@ -32,7 +33,6 @@ private:
 	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
-	bool mListFs;
 	
 	bool mIsTrueSdkXci;
 	bool mIsSdkXciEncrypted;
@@ -42,8 +42,9 @@ private:
 	nn::hac::detail::sha256_hash_t mHdrHash;
 	nn::hac::GameCardHeader mHdr;
 	
-	PfsProcess mRootPfs;
-	std::vector<nstool::ExtractJob> mExtractJobs;
+	// fs processing
+	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	FsProcess mFsProcess;
 
 	void importHeader();
 	void displayHeader();

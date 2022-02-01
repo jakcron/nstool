@@ -48,6 +48,11 @@ void nstool::AssetProcess::setRomfsShowFsTree(bool show_fs_tree)
 	mRomfs.setShowFsTree(show_fs_tree);
 }
 
+void nstool::AssetProcess::setRomfsArchiveJobs(const std::vector<nstool::ArchiveJob>& jobs)
+{
+	mRomfs.setArchiveJobs(jobs);
+}
+
 void nstool::AssetProcess::setRomfsExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs)
 {
 	mRomfs.setExtractJobs(extract_jobs);

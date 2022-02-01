@@ -169,7 +169,7 @@ void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& 
 		if (rightFound == false)
 		{
 
-			fmt::print("[WARNING] ACI/FAC SaveDataOwnerId: FAIL (0x{:016x} ({:d}) not permitted)\n", aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].id, aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].access_type);
+			fmt::print("[WARNING] ACI/FAC SaveDataOwnerId: FAIL (0x{:016x} ({:d}) not permitted)\n", aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].id, (uint32_t)aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].access_type);
 		}
 	}
 
@@ -268,7 +268,7 @@ void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& 
 	// check misc params
 	if (aci.getKernelCapabilities().getMiscParams().getProgramType() != acid.getKernelCapabilities().getMiscParams().getProgramType())
 	{
-		fmt::print("[WARNING] ACI/KC ProgramType: FAIL ({:d} not permitted)\n", aci.getKernelCapabilities().getMiscParams().getProgramType());
+		fmt::print("[WARNING] ACI/KC ProgramType: FAIL ({:d} not permitted)\n", (uint32_t)aci.getKernelCapabilities().getMiscParams().getProgramType());
 	}
 	// check kernel version
 	uint32_t aciKernelVersion = (uint32_t)aci.getKernelCapabilities().getKernelVersion().getVerMajor() << 16 |  (uint32_t)aci.getKernelCapabilities().getKernelVersion().getVerMinor();
@@ -328,7 +328,7 @@ void nstool::MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc
 	fmt::print("  Flags:           \n");
 	fmt::print("    Production:            {}\n", acid.getProductionFlag());
 	fmt::print("    Unqualified Approval:  {}\n", acid.getUnqualifiedApprovalFlag());
-	fmt::print("    Memory Region:         {:s} ({:d})\n", nn::hac::AccessControlInfoUtil::getMemoryRegionAsString(acid.getMemoryRegion()), acid.getMemoryRegion());
+	fmt::print("    Memory Region:         {:s} ({:d})\n", nn::hac::AccessControlInfoUtil::getMemoryRegionAsString(acid.getMemoryRegion()), (uint32_t)acid.getMemoryRegion());
 	fmt::print("  ProgramID Restriction\n");
 	fmt::print("    Min:           0x{:016x}\n", acid.getProgramIdRestrict().min);
 	fmt::print("    Max:           0x{:016x}\n", acid.getProgramIdRestrict().max);
@@ -347,7 +347,7 @@ void nstool::MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac
 			std::string flag_string = nn::hac::FileSystemAccessUtil::getFsAccessFlagAsString(nn::hac::fac::FsAccessFlag(*itr));
 			if (mCliOutputMode.show_extended_info)
 			{
-				fs_access_str_list.push_back(fmt::format("{:s} (bit {:d})", flag_string, *itr));
+				fs_access_str_list.push_back(fmt::format("{:s} (bit {:d})", flag_string, (uint32_t)*itr));
 			}
 			else
 			{
@@ -445,7 +445,7 @@ void nstool::MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityContro
 	}
 	if (kern.getMiscParams().isSet())
 	{
-		fmt::print("  ProgramType:        {:s} ({:d})\n", nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()), kern.getMiscParams().getProgramType());
+		fmt::print("  ProgramType:        {:s} ({:d})\n", nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()), (uint32_t)kern.getMiscParams().getProgramType());
 	}
 	if (kern.getKernelVersion().isSet())
 	{
