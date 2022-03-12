@@ -1176,8 +1176,8 @@ bool nstool::SettingsInitializer::determineValidEsTikFromSample(const tc::ByteDa
 
 	const nn::es::sTicketBody_v2* body = (const nn::es::sTicketBody_v2*)(sample.data() + sign.getBytes().size());
 
-	if ((body->issuer.str().substr(0, 5) == "Root-"
-		&& body->issuer.str().substr(16, 2) == "XS") == false)
+	if ((body->issuer.decode().substr(0, 5) == "Root-"
+		&& body->issuer.decode().substr(16, 2) == "XS") == false)
 		return false;
 
 	return true;

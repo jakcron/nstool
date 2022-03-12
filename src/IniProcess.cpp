@@ -121,7 +121,7 @@ void nstool::IniProcess::extractKipList()
 	tc::ByteData cache = tc::ByteData(kCacheSize);
 
 	// make extract dir
-	tc::io::LocalStorage local_fs;
+	tc::io::LocalFileSystem local_fs;
 	local_fs.createDirectory(mKipExtractPath.get());
 	
 	// out path for extracted KIP

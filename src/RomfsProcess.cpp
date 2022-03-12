@@ -2,7 +2,7 @@
 #include "util.h"
 
 #include <tc/io/VirtualFileSystem.h>
-#include <nn/hac/RomFsMetaGenerator.h>
+#include <nn/hac/RomFsSnapshotGenerator.h>
 
 
 nstool::RomfsProcess::RomfsProcess() :
@@ -83,7 +83,7 @@ void nstool::RomfsProcess::process()
 	}
 
 	// create virtual filesystem
-	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::RomFsMetaGenerator(mFile)));
+	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::RomFsSnapshotGenerator(mFile)));
 	mFsProcess.setInputFileSystem(mFileSystem);
 
 	// set properties for FsProcess

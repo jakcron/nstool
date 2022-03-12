@@ -29,7 +29,7 @@ public:
 	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
 	// post process() get FS out
-	const std::shared_ptr<tc::io::IStorage>& getFileSystem() const;
+	const std::shared_ptr<tc::io::IFileSystem>& getFileSystem() const;
 private:
 	const std::string kNpdmExefsPath = "/main.npdm";
 
@@ -42,7 +42,7 @@ private:
 	bool mVerify;
 
 	// fs processing
-	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
 	FsProcess mFsProcess;
 
 	// nca data
@@ -95,8 +95,8 @@ private:
 	struct sPartitionInfo
 	{
 		std::shared_ptr<tc::io::IStream> reader;
-		tc::io::VirtualFileSystem::FileSystemMeta fs_meta;
-		std::shared_ptr<tc::io::IStorage> fs_reader;
+		tc::io::VirtualFileSystem::FileSystemSnapshot fs_snapshot;
+		std::shared_ptr<tc::io::IFileSystem> fs_reader;
 		std::string fail_reason;
 		int64_t offset;
 		int64_t size;

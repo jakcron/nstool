@@ -2,10 +2,10 @@
 #include "util.h"
 
 #include <nn/hac/PartitionFsUtil.h>
-#include <tc/io/LocalStorage.h>
+#include <tc/io/LocalFileSystem.h>
 
 #include <tc/io/VirtualFileSystem.h>
-#include <nn/hac/PartitionFsMetaGenerator.h>
+#include <nn/hac/PartitionFsSnapshotGenerator.h>
 
 
 nstool::PfsProcess::PfsProcess() :
@@ -62,7 +62,7 @@ void nstool::PfsProcess::process()
 	mPfs.fromBytes(scratch.data(), scratch.size());
 
 	// create virtual filesystem
-	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::PartitionFsMetaGenerator(mFile, mVerify ? nn::hac::PartitionFsMetaGenerator::ValidationMode_Warn : nn::hac::PartitionFsMetaGenerator::ValidationMode_None)));
+	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::PartitionFsSnapshotGenerator(mFile, mVerify ? nn::hac::PartitionFsSnapshotGenerator::ValidationMode_Warn : nn::hac::PartitionFsSnapshotGenerator::ValidationMode_None)));
 	mFsProcess.setInputFileSystem(mFileSystem);
 
 	// set properties for FsProcess
@@ -115,7 +115,7 @@ const nn::hac::PartitionFsHeader& nstool::PfsProcess::getPfsHeader() const
 	return mPfs;
 }
 
-const std::shared_ptr<tc::io::IStorage>& nstool::PfsProcess::getFileSystem() const
+const std::shared_ptr<tc::io::IFileSystem>& nstool::PfsProcess::getFileSystem() const
 {
 	return mFileSystem;
 }

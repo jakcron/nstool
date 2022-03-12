@@ -36,7 +36,7 @@ private:
 	size_t mDirNum;
 	size_t mFileNum;
 
-	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
 	FsProcess mFsProcess;
 };
 

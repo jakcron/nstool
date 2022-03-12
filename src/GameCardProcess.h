@@ -43,7 +43,7 @@ private:
 	nn::hac::GameCardHeader mHdr;
 	
 	// fs processing
-	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
 	FsProcess mFsProcess;
 
 	void importHeader();

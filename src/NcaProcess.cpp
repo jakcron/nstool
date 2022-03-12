@@ -8,9 +8,9 @@
 #include <nn/hac/AesKeygen.h>
 #include <nn/hac/HierarchicalSha256Stream.h>
 #include <nn/hac/HierarchicalIntegrityStream.h>
-#include <nn/hac/PartitionFsMetaGenerator.h>
-#include <nn/hac/RomFsMetaGenerator.h>
-#include <nn/hac/CombinedFsMetaGenerator.h>
+#include <nn/hac/PartitionFsSnapshotGenerator.h>
+#include <nn/hac/RomFsSnapshotGenerator.h>
+#include <nn/hac/CombinedFsSnapshotGenerator.h>
 
 #include <nn/hac/BucketTree.h>
 #include <nn/hac/define/indirectstorage.h>
@@ -89,7 +89,7 @@ void nstool::NcaProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& e
 	mFsProcess.setExtractJobs(extract_jobs);
 }
 
-const std::shared_ptr<tc::io::IStorage>& nstool::NcaProcess::getFileSystem() const
+const std::shared_ptr<tc::io::IFileSystem>& nstool::NcaProcess::getFileSystem() const
 {
 	return mFileSystem;
 }
@@ -270,6 +270,8 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			// handle partition encryption and partition compaction (sparse layer)
 			if (fs_header.sparse_info.generation.unwrap() != 0)
 			{
+				fmt::print("Sparsy\n");
+#if 0
 				if (fs_header.sparse_info.bucket.header.st_magic.unwrap() != nn::hac::bktr::kBktrStructMagic)
 				{
 					throw tc::Exception(mModuleName, fmt::format("SparseInfo BucketTree header had invalid magic ID."));
@@ -454,6 +456,7 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 					// create logical partition
 					//info.reader = std::make_shared<nn::hac::SparseStorageStream>(nn::hac::SparseStorageStream(data_stream, info.size, bucket_tree));
 				}
+#endif
 			}
 			else
 			{
@@ -511,12 +514,12 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			switch (info.format_type)
 			{
 			case (nn::hac::nca::FormatType::PartitionFs):
-				info.fs_meta = nn::hac::PartitionFsMetaGenerator(info.reader);
-				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_meta));
+				info.fs_snapshot = nn::hac::PartitionFsSnapshotGenerator(info.reader);
+				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_snapshot));
 				break;
 			case (nn::hac::nca::FormatType::RomFs):
-				info.fs_meta = nn::hac::RomFsMetaGenerator(info.reader);
-				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_meta));
+				info.fs_snapshot = nn::hac::RomFsSnapshotGenerator(info.reader);
+				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_snapshot));
 				break;
 			default:
 				throw tc::Exception(mModuleName, fmt::format("FormatType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type)));
@@ -705,7 +708,7 @@ void nstool::NcaProcess::displayHeader()
 
 void nstool::NcaProcess::processPartitions()
 {
-	std::vector<nn::hac::CombinedFsMetaGenerator::MountPointInfo> mount_points;
+	std::vector<nn::hac::CombinedFsSnapshotGenerator::MountPointInfo> mount_points;
 
 	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 	{
@@ -736,12 +739,12 @@ void nstool::NcaProcess::processPartitions()
 			mount_point_name = fmt::format("{:d}", index);
 		}
 
-		mount_points.push_back( { mount_point_name, partition.fs_meta } );
+		mount_points.push_back( { mount_point_name, partition.fs_snapshot } );
 	}
 
-	tc::io::VirtualFileSystem::FileSystemMeta fs_meta = nn::hac::CombinedFsMetaGenerator(mount_points);
+	tc::io::VirtualFileSystem::FileSystemSnapshot fs_snapshot = nn::hac::CombinedFsSnapshotGenerator(mount_points);
 
-	std::shared_ptr<tc::io::IStorage> nca_fs = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(fs_meta));
+	std::shared_ptr<tc::io::IFileSystem> nca_fs = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(fs_snapshot));
 
 	mFsProcess.setInputFileSystem(nca_fs);
 	mFsProcess.setFsFormatName("ContentArchive");

@@ -49,7 +49,7 @@ void nstool::FsProcess::process()
 	}
 }
 
-void nstool::FsProcess::setInputFileSystem(const std::shared_ptr<tc::io::IStorage>& input_fs)
+void nstool::FsProcess::setInputFileSystem(const std::shared_ptr<tc::io::IFileSystem>& input_fs)
 {
 	mInputFs = input_fs;
 }
@@ -227,7 +227,7 @@ void nstool::FsProcess::extractFs()
 			//fmt::print("Valid File Path: \"{:s}\"\n", path_str);
 
 			// the output path for this file will depend on the user specified extract path
-			std::shared_ptr<tc::io::IStorage> local_fs = std::make_shared<tc::io::LocalStorage>(tc::io::LocalStorage());
+			std::shared_ptr<tc::io::IFileSystem> local_fs = std::make_shared<tc::io::LocalFileSystem>(tc::io::LocalFileSystem());
 
 			// case: the extract_path is a valid path to an existing directory
 			// behaviour: extract the file, preserving the original filename, to the specified directory
@@ -317,7 +317,7 @@ void nstool::FsProcess::extractFs()
 
 void nstool::FsProcess::visitDir(const tc::io::Path& v_path, const tc::io::Path& l_path, bool extract_fs, bool print_fs)
 {
-	tc::io::LocalStorage local_fs;
+	tc::io::LocalFileSystem local_fs;
 
 	// get listing for directory
 	tc::io::sDirectoryListing info;

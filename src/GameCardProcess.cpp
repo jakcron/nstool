@@ -7,7 +7,7 @@
 #include <nn/hac/ContentMetaUtil.h>
 #include <nn/hac/ContentArchiveUtil.h>
 
-#include <nn/hac/GameCardFsMetaGenerator.h>
+#include <nn/hac/GameCardFsSnapshotGenerator.h>
 #include "FsProcess.h"
 
 
@@ -272,15 +272,15 @@ void nstool::GameCardProcess::processRootPfs()
 
 	std::shared_ptr<tc::io::IStream> gc_fs_raw = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, mHdr.getPartitionFsAddress(), nn::hac::GameCardUtil::blockToAddr(mHdr.getValidDataEndPage()+1) - mHdr.getPartitionFsAddress()));
 
-	auto gc_vfs_meta = nn::hac::GameCardFsMetaGenerator(gc_fs_raw, mHdr.getPartitionFsSize(), mVerify ? nn::hac::GameCardFsMetaGenerator::ValidationMode_Warn : nn::hac::GameCardFsMetaGenerator::ValidationMode_None);
-	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(gc_vfs_meta) );
+	auto gc_vfs_snapshot = nn::hac::GameCardFsSnapshotGenerator(gc_fs_raw, mHdr.getPartitionFsSize(), mVerify ? nn::hac::GameCardFsSnapshotGenerator::ValidationMode_Warn : nn::hac::GameCardFsSnapshotGenerator::ValidationMode_None);
+	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(gc_vfs_snapshot) );
 
 	mFsProcess.setInputFileSystem(mFileSystem);
 	mFsProcess.setFsFormatName("PartitionFs");
 	mFsProcess.setFsProperties({
 		fmt::format("Type:      Nested HFS0"),
-		fmt::format("DirNum:    {:d}", gc_vfs_meta.dir_entries.empty() ? 0 : gc_vfs_meta.dir_entries.size() - 1), // -1 to not include root directory
-		fmt::format("FileNum:   {:d}", gc_vfs_meta.file_entries.size())
+		fmt::format("DirNum:    {:d}", gc_vfs_snapshot.dir_entries.empty() ? 0 : gc_vfs_snapshot.dir_entries.size() - 1), // -1 to not include root directory
+		fmt::format("FileNum:   {:d}", gc_vfs_snapshot.file_entries.size())
 	});
 	mFsProcess.setShowFsInfo(mCliOutputMode.show_basic_info);
 	mFsProcess.setFsRootLabel(kXciMountPointName);

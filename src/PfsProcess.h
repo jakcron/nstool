@@ -26,7 +26,7 @@ public:
 
 	// post process() get PFS/FS out
 	const nn::hac::PartitionFsHeader& getPfsHeader() const;
-	const std::shared_ptr<tc::io::IStorage>& getFileSystem() const;
+	const std::shared_ptr<tc::io::IFileSystem>& getFileSystem() const;
 
 private:
 	static const size_t kCacheSize = 0x10000;
@@ -39,7 +39,7 @@ private:
 
 	nn::hac::PartitionFsHeader mPfs;
 
-	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
 	FsProcess mFsProcess;
 	
 	size_t determineHeaderSize(const nn::hac::sPfsHeader* hdr);
