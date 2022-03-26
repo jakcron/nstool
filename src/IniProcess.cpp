@@ -126,18 +126,14 @@ void nstool::IniProcess::extractKipList()
 	
 	// out path for extracted KIP
 	tc::io::Path out_path;
-	std::string out_path_str;
-
 	// extract KIPs
 	for (auto itr = mKipList.begin(); itr != mKipList.end(); itr++)
 	{
 		out_path = mKipExtractPath.get();
 		out_path += fmt::format("{:s}.kip", itr->hdr.getName());
 
-		tc::io::PathUtil::pathToUnixUTF8(out_path, out_path_str);
-
 		if (mCliOutputMode.show_basic_info)
-			fmt::print("Saving {:s}...\n", out_path_str);
+			fmt::print("Saving {:s}...\n", out_path.to_string());
 
 		writeStreamToFile(itr->stream, out_path, cache);
 	}
