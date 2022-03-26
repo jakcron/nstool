@@ -90,10 +90,7 @@ void nstool::AssetProcess::processSections()
 		if ((mHdr.getIconInfo().size + mHdr.getIconInfo().offset) > file_size) 
 			throw tc::Exception(mModuleName, "ASET geometry for icon beyond file size");
 
-		std::string icon_extract_path_str;
-		tc::io::PathUtil::pathToUnixUTF8(mIconExtractPath.get(), icon_extract_path_str);
-
-		fmt::print("Saving {:s}...", icon_extract_path_str);
+		fmt::print("Saving {:s}...", mIconExtractPath.get().to_string());
 		writeSubStreamToFile(mFile, mHdr.getIconInfo().offset, mHdr.getIconInfo().size, mIconExtractPath.get());
 	}
 
@@ -104,6 +101,7 @@ void nstool::AssetProcess::processSections()
 
 		if (mNacpExtractPath.isSet())
 		{
+			fmt::print("Saving {:s}...", mNacpExtractPath.get().to_string());
 			writeSubStreamToFile(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size, mNacpExtractPath.get());
 		}
 		
