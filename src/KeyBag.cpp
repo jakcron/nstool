@@ -452,17 +452,13 @@ void nstool::KeyBagInitializer::importTitleKeyFile(const tc::io::Path& keyfile_p
 
 void nstool::KeyBagInitializer::importCertificateChain(const tc::io::Path& cert_path)
 {
-	// save file path string for error messages
-	std::string cert_path_str;
-	tc::io::PathUtil::pathToUnixUTF8(cert_path, cert_path_str);
-
 	// open cert file
 	std::shared_ptr<tc::io::FileStream> certfile_stream;
 	try {
 		certfile_stream = std::make_shared<tc::io::FileStream>(tc::io::FileStream(cert_path, tc::io::FileMode::Open, tc::io::FileAccess::Read));
 	}
 	catch (tc::io::FileNotFoundException& e) {
-		fmt::print("[WARNING] Failed to open certificate file \"{:s}\" ({:s}).\n", cert_path_str, e.error());
+		fmt::print("[WARNING] Failed to open certificate file \"{:s}\" ({:s}).\n", cert_path.to_string(), e.error());
 		return;
 	}
 	
@@ -470,7 +466,7 @@ void nstool::KeyBagInitializer::importCertificateChain(const tc::io::Path& cert_
 	size_t cert_raw_size = tc::io::IOUtil::castInt64ToSize(certfile_stream->length());
 	if (cert_raw_size > 0x10000)
 	{
-		fmt::print("[WARNING] Certificate file \"{:s}\" was too large.\n", cert_path_str);
+		fmt::print("[WARNING] Certificate file \"{:s}\" was too large.\n", cert_path.to_string());
 		return;
 	}
 
@@ -504,24 +500,20 @@ void nstool::KeyBagInitializer::importCertificateChain(const tc::io::Path& cert_
 		}
 	}
 	catch (tc::Exception& e) {
-		fmt::print("[WARNING] Certificate file \"{:s}\" is corrupted ({:s}).\n", cert_path_str, e.error());
+		fmt::print("[WARNING] Certificate file \"{:s}\" is corrupted ({:s}).\n", cert_path.to_string(), e.error());
 		return;
 	}
 }
 
 void nstool::KeyBagInitializer::importTicket(const tc::io::Path& tik_path)
 {
-	// save file path string for error messages
-	std::string tik_path_str;
-	tc::io::PathUtil::pathToUnixUTF8(tik_path, tik_path_str);
-
-	// open cert file
+	// open tik file
 	std::shared_ptr<tc::io::FileStream> tik_stream;
 	try {
 		tik_stream = std::make_shared<tc::io::FileStream>(tc::io::FileStream(tik_path, tc::io::FileMode::Open, tc::io::FileAccess::Read));
 	}
 	catch (tc::io::FileNotFoundException& e) {
-		fmt::print("[WARNING] Failed to open ticket \"{:s}\" ({:s}).\n", tik_path_str, e.error());
+		fmt::print("[WARNING] Failed to open ticket \"{:s}\" ({:s}).\n", tik_path.to_string(), e.error());
 		return;
 	}
 
@@ -529,11 +521,11 @@ void nstool::KeyBagInitializer::importTicket(const tc::io::Path& tik_path)
 	size_t tik_raw_size = tc::io::IOUtil::castInt64ToSize(tik_stream->length());
 	if (tik_raw_size > 0x10000)
 	{
-		fmt::print("[WARNING] Ticket \"{:s}\" was too large.\n", tik_path_str);
+		fmt::print("[WARNING] Ticket \"{:s}\" was too large.\n", tik_path.to_string());
 		return;
 	}
 
-	// import cert data
+	// import tik data
 	tc::ByteData tik_raw = tc::ByteData(tik_raw_size);
 	tik_stream->seek(0, tc::io::SeekOrigin::Begin);
 	tik_stream->read(tik_raw.data(), tik_raw.size());
@@ -594,7 +586,7 @@ void nstool::KeyBagInitializer::importTicket(const tc::io::Path& tik_path)
 		
 	}
 	catch (tc::Exception& e) {
-		fmt::print("[WARNING] Ticket \"{:s}\" is corrupted ({:s}).\n", tik_path_str, e.error());
+		fmt::print("[WARNING] Ticket \"{:s}\" is corrupted ({:s}).\n", tik_path.to_string(), e.error());
 		return;
 	}
 }
