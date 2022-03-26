@@ -516,9 +516,6 @@ public:
 			throw tc::ArgumentOutOfRangeException(fmt::format("Option \"{:s}\" requires a parameter.", option));
 		}
 
-		std::string custom_path_str;
-		tc::io::PathUtil::pathToUnixUTF8(mCustomPath, custom_path_str);
-
 		fmt::print("[WARNING] \"{:s} {:s}\" is deprecated. ", option, params[0]);
 		// if custom path is root path, use the shortened version of -x
 		if (mCustomPath == tc::io::Path("/"))
@@ -527,7 +524,7 @@ public:
 		}
 		else
 		{
-			fmt::print("Consider using \"-x {:s} {:s}\" instead.\n", custom_path_str, params[0]);
+			fmt::print("Consider using \"-x {:s} {:s}\" instead.\n", mCustomPath.to_string(), params[0]);
 		}
 
 		mJobs.push_back({nstool::ArchiveJob::JobAction::Extract, mCustomPath, tc::io::Path(params[0]), false});
@@ -703,9 +700,7 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 
 void nstool::SettingsInitializer::determine_filetype()
 {
-	//std::string infile_path_str;
-	//tc::io::PathUtil::pathToUnixUTF8(infile.path.get(), infile_path_str);
-	//fmt::print("infile path = \"{}\"\n", infile_path_str);
+	//fmt::print("infile path = \"{}\"\n", infile.path.get().to_string());
 	
 	auto file = tc::io::StreamSource(std::make_shared<tc::io::FileStream>(tc::io::FileStream(infile.path.get(), tc::io::FileMode::Open, tc::io::FileAccess::Read)));
 
