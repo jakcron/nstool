@@ -2,7 +2,7 @@
 #include "MetaProcess.h"
 #include "util.h"
 
-#include <tc/crypto/detail/BlockUtilImpl.h>
+#include <tc/io/StreamUtil.h>
 
 #include <nn/hac/ContentArchiveUtil.h>
 #include <nn/hac/AesKeygen.h>
@@ -15,6 +15,62 @@
 #include <nn/hac/BucketTree.h>
 #include <nn/hac/define/indirectstorage.h>
 #include <nn/hac/SparseStorageStream.h>
+
+namespace nstool { namespace utils {
+
+	class ZerosStream : public tc::io::IStream
+	{
+	public:
+		ZerosStream() : mPosition(0) {}
+		
+		bool canRead() const { return true; }
+		bool canWrite() const { return false; }
+		bool canSeek() const { return true; }
+
+		int64_t length() { return std::numeric_limits<int64_t>::max(); }
+		int64_t position() { return mPosition; }
+
+		size_t read(byte_t* ptr, size_t count);
+		size_t write(const byte_t* ptr, size_t count);
+		int64_t seek(int64_t offset, tc::io::SeekOrigin origin);
+		void setLength(int64_t length) { return; }
+		void flush() { return; }
+		void dispose() { return; }
+	private:
+		int64_t mPosition;
+	};
+	size_t ZerosStream::read(byte_t* ptr, size_t count)
+	{
+		// track read_count
+		size_t data_read_count = 0;
+
+		// get predicted read count
+		data_read_count = tc::io::IOUtil::getReadableCount(this->length(), this->position(), count);
+		
+		// if count is 0 just return
+		if (data_read_count == 0) return data_read_count;
+
+		// read zeros
+		memset(ptr, 0x00, data_read_count);
+
+		// update stream positiion
+		this->seek(data_read_count, tc::io::SeekOrigin::Current);
+
+		// return data read count
+		return data_read_count;
+	}
+
+	size_t ZerosStream::write(const byte_t* ptr, size_t count)
+	{
+		throw tc::NotImplementedException("ZerosStream::write()", "write is not supported for ZerosStream");
+	}
+
+	int64_t ZerosStream::seek(int64_t offset, tc::io::SeekOrigin origin)
+	{
+		mPosition = tc::io::StreamUtil::getSeekResult(offset, origin, this->position(), this->length());
+		return mPosition;
+	}
+}}
 
 nstool::NcaProcess::NcaProcess() :
 	mModuleName("nstool::NcaProcess"),
@@ -255,6 +311,8 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 		info.format_type = (nn::hac::nca::FormatType)fs_header.format_type;
 		info.hash_type = (nn::hac::nca::HashType)fs_header.hash_type;
 		info.enc_type = (nn::hac::nca::EncryptionType)fs_header.encryption_type;
+		info.metadata_hash_type = (nn::hac::nca::MetaDataHashType)fs_header.meta_data_hash_type;
+		
 		if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
 		{
 			info.hierarchicalsha256_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
@@ -270,8 +328,6 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			// handle partition encryption and partition compaction (sparse layer)
 			if (fs_header.sparse_info.generation.unwrap() != 0)
 			{
-				fmt::print("Sparsy\n");
-#if 0
 				if (fs_header.sparse_info.bucket.header.st_magic.unwrap() != nn::hac::bktr::kBktrStructMagic)
 				{
 					throw tc::Exception(mModuleName, fmt::format("SparseInfo BucketTree header had invalid magic ID."));
@@ -283,7 +339,7 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 
 				if (fs_header.sparse_info.bucket.header.entry_count.unwrap() == 0)
 				{
-					throw tc::Exception(mModuleName, fmt::format("SparseInfo BucketTree had no entries ¯\\_(ツ)_/¯."));	
+					throw tc::Exception(mModuleName, fmt::format("CompactedStream is not present in file."));	
 				}
 				else
 				{
@@ -305,158 +361,178 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 					*/
 
 					std::shared_ptr<tc::io::IStream> data_stream = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, phys_base_offset + data_stream_offset, data_stream_size));
+					std::shared_ptr<tc::io::IStream> zeros_stream = std::make_shared<utils::ZerosStream>(utils::ZerosStream());
 					std::shared_ptr<tc::io::IStream> bktr_stream = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, phys_base_offset + bktr_stream_offset, bktr_stream_size));
-
 					
-					// add decryption layer for bktr_stream if required
-					if (info.enc_type == nn::hac::nca::EncryptionType::None)
-					{
-						// no encryption so do nothing
-						//bktr_stream = bktr_stream;
-					}
-					else if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+					// determine encryption cfg
+					nn::hac::detail::aes128_key_t partition_key;
+					nn::hac::detail::aes_iv_t data_region_ctr;
+					if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
 					{
 						if (mContentKey.aes_ctr.isNull())
 							throw tc::Exception(mModuleName, "AES-CTR Key was not determined");
 
 						// get partition key
-						nn::hac::detail::aes128_key_t partition_key = mContentKey.aes_ctr.get();
-
+						partition_key = mContentKey.aes_ctr.get();
+					}
+					else if (info.enc_type == nn::hac::nca::EncryptionType::AesXts || info.enc_type == nn::hac::nca::EncryptionType::AesCtrEx)
+					{
+						throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+					}
+					else if (info.enc_type != nn::hac::nca::EncryptionType::None)
+					{
+						throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+					}
+					
+					// decrypt bucket tree if required
+					if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+					{
 						// get partition counter
 						nn::hac::detail::aes_iv_t bktr_stream_ctr;
 						nn::hac::ContentArchiveUtil::getNcaPartitionAesCtr(uint32_t(fs_header.sparse_info.generation.unwrap()) << 16, fs_header.secure_value.unwrap(), bktr_stream_ctr.data());
-						tc::crypto::detail::incr_counter<16>(bktr_stream_ctr.data(), (phys_base_offset + bktr_stream_offset)>>4);
+						tc::crypto::IncrementCounterAes128Ctr(bktr_stream_ctr.data(), (phys_base_offset + bktr_stream_offset)>>4);
 
 						// create decryption stream
 						bktr_stream = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(bktr_stream, partition_key, bktr_stream_ctr));
+					}
 
-					}
-					else if (info.enc_type == nn::hac::nca::EncryptionType::AesXts || info.enc_type == nn::hac::nca::EncryptionType::AesCtrEx)
-					{
-						throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
-					}
-					else
-					{
-						throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
-					}
-					
+					// process bucket tree
 					nn::hac::BucketTree bucket_tree;
-
 					bucket_tree.parse(bktr_stream, nn::hac::indirectstorage::kNodeSize, sizeof(nn::hac::sIndirectStorageEntry), fs_header.sparse_info.bucket.header.entry_count.unwrap());
 				
-					// add decryption layer for data_stream if required
-					if (info.enc_type == nn::hac::nca::EncryptionType::None)
-					{
-						// no encryption so do nothing
-						//bktr_stream = bktr_stream;
-					}
-					else if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
-					{
-						if (mContentKey.aes_ctr.isNull())
-							throw tc::Exception(mModuleName, "AES-CTR Key was not determined");
+					// construct un-sparsified stream
+					std::vector<std::shared_ptr<tc::io::IStream>> unsparse_stream_list;
+					enum FindState {
+						FindState_Nothing,
+						FindState_Data,
+						FindState_Zeros
+					};
+					enum StorageIndex {
+						StorageIndex_Data = 0,
+						StorageIndex_Zeros = 1,
+					};
+					FindState find_state = FindState_Nothing;
+					int64_t region_phys_offset = 0;
+					int64_t region_phys_size = 0;
+					int64_t region_virt_offset = 0;
 
-						// get partition key
-						nn::hac::detail::aes128_key_t partition_key = mContentKey.aes_ctr.get();
 
-						// create encryption region info
-						std::vector<tc::crypto::Aes128CtrEncryptedStream::KeyConfig> aesctr_config;
-						bool found_data_region = false;
-						int64_t data_region_phys_offset = 0;
-						int64_t data_region_phys_size = 0;
-						int64_t data_region_virt_offset = 0;
-						nn::hac::detail::aes_iv_t data_region_ctr;
-						for (auto itr = bucket_tree.begin(); itr != bucket_tree.end(); itr++)
+					for (auto itr = bucket_tree.begin(); itr != bucket_tree.end(); itr++)
+					{
+						nn::hac::sIndirectStorageEntry* entry = (nn::hac::sIndirectStorageEntry*)itr->data();
+						
+						// check this entry is valid
+						if (entry->storage_index.unwrap() > 1 || entry->virt_offset.unwrap() >= info.size)
 						{
-							nn::hac::sIndirectStorageEntry* entry = (nn::hac::sIndirectStorageEntry*)itr->data();
-							
-							// check this entry is valid
-							if (entry->storage_index.unwrap() > 1 || entry->virt_offset.unwrap() >= info.size)
-							{
-								throw tc::Exception("BucketTree IndirectStorageEntry data was invalid.");
-							}
-
-							/*
-							fmt::print("IndirectStorageEntry\n");
-							fmt::print(" virt_offset =   0x{:016x}\n", entry->virt_offset.unwrap());
-							fmt::print(" phys_offset =   0x{:016x}\n", entry->phys_offset.unwrap());
-							fmt::print(" storage_index = 0x{:s}\n", entry->storage_index.unwrap() == 0 ? "DataStorage" : "ZeroStorage");
-							*/
-							
-							if (found_data_region == false)
-							{
-								// found begin of data region
-								if (entry->storage_index.unwrap() == 0)
-								{
-									found_data_region = true;
-									data_region_phys_offset = entry->phys_offset.unwrap();
-									data_region_virt_offset = entry->virt_offset.unwrap();
-									data_region_ctr = info.aes_ctr;
-									tc::crypto::detail::incr_counter<16>(data_region_ctr.data(), (phys_base_offset + data_region_virt_offset)>>4);
-								}
-								// found zeros region skip
-								else if (entry->storage_index.unwrap() == 1)
-								{
-									continue;
-								}
-							}
-							else
-							{
-								// data region followed by another data region (shouldn't happen)
-								if (entry->storage_index.unwrap() == 0)
-								{
-									throw tc::Exception("SparseStorage: A DataRegion was followed by a second DataRegion.");
-								}
-								// data region followed by zeros region
-								else if (entry->storage_index.unwrap() == 1)
-								{
-									data_region_phys_size = entry->virt_offset.unwrap() - data_region_virt_offset;
-									aesctr_config.push_back( {partition_key, data_region_ctr, data_region_phys_offset, data_region_phys_offset+data_region_phys_size} );
-									found_data_region = false;
-								}
-							}
-							
+							throw tc::Exception("BucketTree IndirectStorageEntry data was invalid.");
 						}
-						if (found_data_region == true)
+
+						
+						if (entry->virt_offset.unwrap() && entry->storage_index.unwrap() == StorageIndex_Zeros)
 						{
-							data_region_phys_size = info.size - data_region_virt_offset;
-							aesctr_config.push_back( {partition_key, data_region_ctr, data_region_phys_offset, data_region_phys_offset+data_region_phys_size} );
-							found_data_region = false;
+							throw tc::Exception("CompactedStream is incomplete.");
 						}
 
 						/*
-						for (auto itr = aesctr_config.begin(); itr != aesctr_config.end(); itr++)
-						{
-							fmt::print("AesCtr Config:\n");
-							fmt::print("  key =           {}\n", tc::cli::FormatUtil::formatBytesAsString(itr->key.data(), itr->key.size(), true, ":"));
-							fmt::print("  counter =       {}\n", tc::cli::FormatUtil::formatBytesAsString(itr->counter.data(), itr->counter.size(), true, ":"));
-							fmt::print("  begin_offset =  0x{:016x}\n", itr->begin_offset);
-							fmt::print("  end_offset =    0x{:016x}\n", itr->end_offset);
-						}
+						fmt::print("IndirectStorageEntry\n");
+						fmt::print(" virt_offset =   0x{:016x}\n", entry->virt_offset.unwrap());
+						fmt::print(" phys_offset =   0x{:016x}\n", entry->phys_offset.unwrap());
+						fmt::print(" storage_index = {:s}\n", entry->storage_index.unwrap() == StorageIndex_Data ? "DataStorage" : "ZeroStorage");
 						*/
-
-						if (aesctr_config.back().end_offset != data_stream_size)
+						
+						// process find state if ready...
+						if (find_state == FindState_Data)
 						{
-							throw tc::Exception("SparseStorage: Failed to create decryptable stream for raw data partition.");
+							// data region followed by another data region (shouldn't happen)
+							if (entry->storage_index.unwrap() == StorageIndex_Data)
+							{
+								throw tc::Exception("SparseStorage: A DataRegion was followed by a second DataRegion.");
+							}
+							// data region followed by zeros region
+							else if (entry->storage_index.unwrap() == StorageIndex_Zeros)
+							{
+								region_phys_size = entry->virt_offset.unwrap() - region_virt_offset;
+								if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+								{
+									//fmt::print("Add (enc) data slice virt_offset=0x{:x}, phys_offset=0x{:x}, size=0x{:x}\n", region_virt_offset, region_phys_offset, region_phys_size);
+									unsparse_stream_list.push_back(std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(std::make_shared<tc::io::SubStream>(tc::io::SubStream(data_stream, region_phys_offset, region_phys_size)), partition_key, data_region_ctr)));
+								}
+								else
+								{
+									//fmt::print("Add (pln) data slice virt_offset=0x{:x}, phys_offset=0x{:x}, size=0x{:x}\n", region_virt_offset, region_phys_offset, region_phys_size);
+									unsparse_stream_list.push_back(std::make_shared<tc::io::SubStream>(tc::io::SubStream(data_stream, region_phys_offset, region_phys_size)));
+								}								
+								
+								// reset find state
+								find_state = FindState_Nothing;
+							}
+						}
+						else if (find_state == FindState_Zeros)
+						{
+							// zeros region followed by another zeros region (shouldn't happen)
+							if (entry->storage_index.unwrap() == StorageIndex_Zeros)
+							{
+								throw tc::Exception("SparseStorage: A ZerosRegion was followed by a second ZerosRegion.");
+							}
+							// zeros region followed by data region
+							else if (entry->storage_index.unwrap() == StorageIndex_Data)
+							{
+								region_phys_size = entry->virt_offset.unwrap() - region_virt_offset;
+
+								//fmt::print("Add zeros slice virt_offset=0x{:x}, phys_offset=0x{:x}, size=0x{:x}\n", region_virt_offset, region_phys_offset, region_phys_size);
+								unsparse_stream_list.push_back(std::make_shared<tc::io::SubStream>(tc::io::SubStream(zeros_stream, region_phys_offset, region_phys_size)));
+
+								// reset find state
+								find_state = FindState_Nothing;
+							}
 						}
 
-						// create decryptable stream
-						data_stream = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(data_stream, aesctr_config));
-					}
-					else if (info.enc_type == nn::hac::nca::EncryptionType::AesXts || info.enc_type == nn::hac::nca::EncryptionType::AesCtrEx)
-					{
-						throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
-					}
-					else
-					{
-						throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+						// populate find state if empty
+						if (find_state == FindState_Nothing)
+						{
+							// found begin of data region
+							find_state = entry->storage_index.unwrap() == StorageIndex_Data? FindState_Data : FindState_Zeros;
+							region_phys_offset = entry->phys_offset.unwrap();
+							region_virt_offset = entry->virt_offset.unwrap();
+							if (find_state == FindState_Data && info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+							{
+								data_region_ctr = info.aes_ctr;
+								tc::crypto::IncrementCounterAes128Ctr(data_region_ctr.data(), (phys_base_offset + region_virt_offset)>>4);
+							}
+						}
+						
 					}
 
-					writeStreamToFile(data_stream, tc::io::Path("test_data_stream.bin"));
-					
+					// follow up on trailing data/zeros state
+					if (find_state == FindState_Data)
+					{
+						region_phys_size = info.size - region_virt_offset;
+						if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+						{
+							//fmt::print("Add (enc) data slice virt_offset=0x{:x}, phys_offset=0x{:x}, size=0x{:x}\n", region_virt_offset, region_phys_offset, region_phys_size);
+							unsparse_stream_list.push_back(std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(std::make_shared<tc::io::SubStream>(tc::io::SubStream(data_stream, region_phys_offset, region_phys_size)), partition_key, data_region_ctr)));
+						}
+						else
+						{
+							//fmt::print("Add (pln) data slice virt_offset=0x{:x}, phys_offset=0x{:x}, size=0x{:x}\n", region_virt_offset, region_phys_offset, region_phys_size);
+							unsparse_stream_list.push_back(std::make_shared<tc::io::SubStream>(tc::io::SubStream(data_stream, region_phys_offset, region_phys_size)));
+						}
+						find_state = FindState_Nothing;
+					}
+					else if (find_state == FindState_Zeros)
+					{
+						region_phys_size = info.size - region_virt_offset;
+
+						//fmt::print("Add zeros slice virt_offset=0x{:x}, phys_offset=0x{:x}, size=0x{:x}\n", region_virt_offset, region_phys_offset, region_phys_size);
+						unsparse_stream_list.push_back(std::make_shared<tc::io::SubStream>(tc::io::SubStream(zeros_stream, region_phys_offset, region_phys_size)));		
+								
+						find_state = FindState_Nothing;
+					}
+
+				
 					// create logical partition
-					//info.reader = std::make_shared<nn::hac::SparseStorageStream>(nn::hac::SparseStorageStream(data_stream, info.size, bucket_tree));
+					info.reader = std::make_shared<tc::io::ConcatenatedStream>(tc::io::ConcatenatedStream(unsparse_stream_list));
 				}
-#endif
 			}
 			else
 			{
@@ -479,7 +555,7 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 
 					// get partition counter
 					nn::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
-					tc::crypto::detail::incr_counter<16>(partition_ctr.data(), info.offset>>4);
+					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset>>4);
 
 					// create decryption stream
 					info.reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.reader, partition_key, partition_ctr));
@@ -650,7 +726,7 @@ void nstool::NcaProcess::displayHeader()
 			{
 				nn::hac::detail::aes_iv_t aes_ctr;
 				memcpy(aes_ctr.data(), info.aes_ctr.data(), aes_ctr.size());
-				tc::crypto::detail::incr_counter<16>(aes_ctr.data(), info.offset>>4);
+				tc::crypto::IncrementCounterAes128Ctr(aes_ctr.data(), info.offset>>4);
 				fmt::print("      AesCtr Counter:\n");
 				fmt::print("        {:s}\n", tc::cli::FormatUtil::formatBytesAsString(aes_ctr.data(), aes_ctr.size(), true, ""));
 			}

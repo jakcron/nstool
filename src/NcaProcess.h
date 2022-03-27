@@ -105,6 +105,7 @@ private:
 		nn::hac::nca::FormatType format_type;
 		nn::hac::nca::HashType hash_type;
 		nn::hac::nca::EncryptionType enc_type;
+		nn::hac::nca::MetaDataHashType metadata_hash_type;
 
 		// hash meta data
 		nn::hac::HierarchicalIntegrityHeader hierarchicalintegrity_hdr;
@@ -116,7 +117,7 @@ private:
 		// sparse metadata
 		SparseInfo sparse_info;
 	};
-	
+
 	std::array<sPartitionInfo, nn::hac::nca::kPartitionNum> mPartitions;
 
 	void importHeader();
