@@ -3,5 +3,5 @@
 #define BIN_NAME	"nstool"
 #define VER_MAJOR	1
 #define VER_MINOR	6
-#define VER_PATCH   2
+#define VER_PATCH   3
 #define AUTHORS		"jakcron"

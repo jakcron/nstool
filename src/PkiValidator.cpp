@@ -39,7 +39,6 @@ void nstool::PkiValidator::addCertificates(const std::vector<nn::pki::SignedData
 void nstool::PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
 {
 	std::string cert_ident;
-	nn::pki::sign::SignatureAlgo cert_sign_algo;
 	nn::pki::sign::HashAlgo cert_hash_algo;
 	tc::ByteData cert_hash;
 
@@ -52,7 +51,6 @@ void nstool::PkiValidator::addCertificate(const nn::pki::SignedData<nn::pki::Cer
 			throw tc::Exception(mModuleName, "Certificate already exists");
 		}
 
-		cert_sign_algo = nn::pki::sign::getSignatureAlgo(cert.getSignature().getSignType());
 		cert_hash_algo = nn::pki::sign::getHashAlgo(cert.getSignature().getSignType());
 
 		// get cert hash
