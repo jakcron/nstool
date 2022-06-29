@@ -3,7 +3,7 @@
 #include "RoMetadataProcess.h"
 #include "AssetProcess.h"
 
-#include <nn/hac/NroHeader.h>
+#include <pietendo/hac/NroHeader.h>
 
 namespace nstool {
 
@@ -36,7 +36,7 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nn::hac::NroHeader mHdr;
+	pie::hac::NroHeader mHdr;
 	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
 	nstool::RoMetadataProcess mRoMeta;
 	bool mIsHomebrewNro;

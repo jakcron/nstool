@@ -2,7 +2,7 @@
 #include "types.h"
 #include "KeyBag.h"
 
-#include <nn/hac/Meta.h>
+#include <pietendo/hac/Meta.h>
 
 namespace nstool {
 
@@ -18,7 +18,7 @@ public:
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
 
-	const nn::hac::Meta& getMeta() const;
+	const pie::hac::Meta& getMeta() const;
 
 private:
 	std::string mModuleName;
@@ -28,21 +28,21 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nn::hac::Meta mMeta;
+	pie::hac::Meta mMeta;
 
 	void importMeta();
 
-	void validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid, byte_t key_generation);
-	void validateAciFromAcid(const nn::hac::AccessControlInfo& aci, const nn::hac::AccessControlInfoDesc& acid);
+	void validateAcidSignature(const pie::hac::AccessControlInfoDesc& acid, byte_t key_generation);
+	void validateAciFromAcid(const pie::hac::AccessControlInfo& aci, const pie::hac::AccessControlInfoDesc& acid);
 
-	void displayMetaHeader(const nn::hac::Meta& hdr);
-	void displayAciHdr(const nn::hac::AccessControlInfo& aci);
-	void displayAciDescHdr(const nn::hac::AccessControlInfoDesc& aci);
-	void displayFac(const nn::hac::FileSystemAccessControl& fac);
-	void displaySac(const nn::hac::ServiceAccessControl& sac);
-	void displayKernelCap(const nn::hac::KernelCapabilityControl& kern);
+	void displayMetaHeader(const pie::hac::Meta& hdr);
+	void displayAciHdr(const pie::hac::AccessControlInfo& aci);
+	void displayAciDescHdr(const pie::hac::AccessControlInfoDesc& aci);
+	void displayFac(const pie::hac::FileSystemAccessControl& fac);
+	void displaySac(const pie::hac::ServiceAccessControl& sac);
+	void displayKernelCap(const pie::hac::KernelCapabilityControl& kern);
 
-	std::string formatMappingAsString(const nn::hac::MemoryMappingHandler::sMemoryMapping& map) const;
+	std::string formatMappingAsString(const pie::hac::MemoryMappingHandler::sMemoryMapping& map) const;
 };
 
 }

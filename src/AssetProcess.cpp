@@ -64,12 +64,12 @@ void nstool::AssetProcess::importHeader()
 		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
 	}
 
-	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sAssetHeader)))
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(pie::hac::sAssetHeader)))
 	{
 		throw tc::Exception(mModuleName, "Corrupt ASET: file too small");
 	}
 
-	tc::ByteData scratch = tc::ByteData(sizeof(nn::hac::sAssetHeader));
+	tc::ByteData scratch = tc::ByteData(sizeof(pie::hac::sAssetHeader));
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read(scratch.data(), scratch.size());
 
@@ -85,10 +85,7 @@ void nstool::AssetProcess::processSections()
 		if ((mHdr.getIconInfo().size + mHdr.getIconInfo().offset) > file_size) 
 			throw tc::Exception(mModuleName, "ASET geometry for icon beyond file size");
 
-		std::string icon_extract_path_str;
-		tc::io::PathUtil::pathToUnixUTF8(mIconExtractPath.get(), icon_extract_path_str);
-
-		fmt::print("Saving {:s}...", icon_extract_path_str);
+		fmt::print("Saving {:s}...", mIconExtractPath.get().to_string());
 		writeSubStreamToFile(mFile, mHdr.getIconInfo().offset, mHdr.getIconInfo().size, mIconExtractPath.get());
 	}
 
@@ -99,6 +96,7 @@ void nstool::AssetProcess::processSections()
 
 		if (mNacpExtractPath.isSet())
 		{
+			fmt::print("Saving {:s}...", mNacpExtractPath.get().to_string());
 			writeSubStreamToFile(mFile, mHdr.getNacpInfo().offset, mHdr.getNacpInfo().size, mNacpExtractPath.get());
 		}
 		

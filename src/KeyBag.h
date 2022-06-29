@@ -5,22 +5,22 @@
 #include <map>
 #include <tc/Optional.h>
 #include <tc/io.h>
-#include <nn/pki/SignUtils.h>
-#include <nn/hac/define/types.h>
-#include <nn/hac/define/nca.h>
+#include <pietendo/hac/es/SignUtils.h>
+#include <pietendo/hac/define/types.h>
+#include <pietendo/hac/define/nca.h>
 
 namespace nstool {
 
 struct KeyBag
 {
-	using aes128_key_t = nn::hac::detail::aes128_key_t;
-	using aes128_xtskey_t = nn::hac::detail::aes128_xtskey_t;
+	using aes128_key_t = pie::hac::detail::aes128_key_t;
+	using aes128_xtskey_t = pie::hac::detail::aes128_xtskey_t;
 	using rsa_key_t = tc::crypto::RsaKey;
 	//using ecc_key_t = tc::crypto::EccKey;
-	using rights_id_t = nn::hac::detail::rights_id_t;
+	using rights_id_t = pie::hac::detail::rights_id_t;
 	using key_generation_t = byte_t;
 	using broadon_issuer_t = std::string;
-	static const size_t kNcaKeakNum = nn::hac::nca::kKeyAreaEncryptionKeyNum;
+	static const size_t kNcaKeakNum = pie::hac::nca::kKeyAreaEncryptionKeyNum;
 
 
 	// acid
@@ -60,7 +60,7 @@ struct KeyBag
 	{
 		tc::ByteData certificate;
 
-		nn::pki::sign::SignatureAlgo key_type;
+		pie::hac::es::sign::SignatureAlgo key_type;
 		rsa_key_t rsa_key;
 		// ecc_key_t ecc_key;
 	};

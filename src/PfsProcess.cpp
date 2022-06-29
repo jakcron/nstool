@@ -1,11 +1,11 @@
 #include "PfsProcess.h"
 #include "util.h"
 
-#include <nn/hac/PartitionFsUtil.h>
-#include <tc/io/LocalStorage.h>
+#include <pietendo/hac/PartitionFsUtil.h>
+#include <tc/io/LocalFileSystem.h>
 
 #include <tc/io/VirtualFileSystem.h>
-#include <nn/hac/PartitionFsMetaGenerator.h>
+#include <pietendo/hac/PartitionFsSnapshotGenerator.h>
 
 
 nstool::PfsProcess::PfsProcess() :
@@ -34,21 +34,21 @@ void nstool::PfsProcess::process()
 	tc::ByteData scratch;
 
 	// read base header to determine complete header size
-	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sPfsHeader)))
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(pie::hac::sPfsHeader)))
 	{
 		throw tc::Exception(mModuleName, "Corrupt PartitionFs: File too small");
 	}
 
-	scratch = tc::ByteData(sizeof(nn::hac::sPfsHeader));
+	scratch = tc::ByteData(sizeof(pie::hac::sPfsHeader));
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read(scratch.data(), scratch.size());
-	if (validateHeaderMagic(((nn::hac::sPfsHeader*)scratch.data())) == false)
+	if (validateHeaderMagic(((pie::hac::sPfsHeader*)scratch.data())) == false)
 	{
 		throw tc::Exception(mModuleName, "Corrupt PartitionFs: Header had incorrect struct magic.");
 	}
 
 	// read complete size header
-	size_t pfsHeaderSize = determineHeaderSize(((nn::hac::sPfsHeader*)scratch.data()));
+	size_t pfsHeaderSize = determineHeaderSize(((pie::hac::sPfsHeader*)scratch.data()));
 	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(pfsHeaderSize))
 	{
 		throw tc::Exception(mModuleName, "Corrupt PartitionFs: File too small");
@@ -62,12 +62,12 @@ void nstool::PfsProcess::process()
 	mPfs.fromBytes(scratch.data(), scratch.size());
 
 	// create virtual filesystem
-	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::PartitionFsMetaGenerator(mFile, mVerify ? nn::hac::PartitionFsMetaGenerator::ValidationMode_Warn : nn::hac::PartitionFsMetaGenerator::ValidationMode_None)));
+	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(pie::hac::PartitionFsSnapshotGenerator(mFile, mVerify ? pie::hac::PartitionFsSnapshotGenerator::ValidationMode_Warn : pie::hac::PartitionFsSnapshotGenerator::ValidationMode_None)));
 	mFsProcess.setInputFileSystem(mFileSystem);
 
 	// set properties for FsProcess
 	mFsProcess.setFsProperties({
-		fmt::format("Type:        {:s}", nn::hac::PartitionFsUtil::getFsTypeAsString(mPfs.getFsType())), 
+		fmt::format("Type:        {:s}", pie::hac::PartitionFsUtil::getFsTypeAsString(mPfs.getFsType())), 
 		fmt::format("FileNum:     {:d}", mPfs.getFileList().size())
 	});
 	
@@ -105,28 +105,28 @@ void nstool::PfsProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& e
 	mFsProcess.setExtractJobs(extract_jobs);
 }
 
-const nn::hac::PartitionFsHeader& nstool::PfsProcess::getPfsHeader() const
+const pie::hac::PartitionFsHeader& nstool::PfsProcess::getPfsHeader() const
 {
 	return mPfs;
 }
 
-const std::shared_ptr<tc::io::IStorage>& nstool::PfsProcess::getFileSystem() const
+const std::shared_ptr<tc::io::IFileSystem>& nstool::PfsProcess::getFileSystem() const
 {
 	return mFileSystem;
 }
 
-size_t nstool::PfsProcess::determineHeaderSize(const nn::hac::sPfsHeader* hdr)
+size_t nstool::PfsProcess::determineHeaderSize(const pie::hac::sPfsHeader* hdr)
 {
 	size_t fileEntrySize = 0;
-	if (hdr->st_magic.unwrap() == nn::hac::pfs::kPfsStructMagic)
-		fileEntrySize = sizeof(nn::hac::sPfsFile);
+	if (hdr->st_magic.unwrap() == pie::hac::pfs::kPfsStructMagic)
+		fileEntrySize = sizeof(pie::hac::sPfsFile);
 	else
-		fileEntrySize = sizeof(nn::hac::sHashedPfsFile);
+		fileEntrySize = sizeof(pie::hac::sHashedPfsFile);
 
-	return sizeof(nn::hac::sPfsHeader) + hdr->file_num.unwrap() * fileEntrySize + hdr->name_table_size.unwrap();
+	return sizeof(pie::hac::sPfsHeader) + hdr->file_num.unwrap() * fileEntrySize + hdr->name_table_size.unwrap();
 }
 
-bool nstool::PfsProcess::validateHeaderMagic(const nn::hac::sPfsHeader* hdr)
+bool nstool::PfsProcess::validateHeaderMagic(const pie::hac::sPfsHeader* hdr)
 {
-	return hdr->st_magic.unwrap() == nn::hac::pfs::kPfsStructMagic || hdr->st_magic.unwrap() == nn::hac::pfs::kHashedPfsStructMagic;
+	return hdr->st_magic.unwrap() == pie::hac::pfs::kPfsStructMagic || hdr->st_magic.unwrap() == pie::hac::pfs::kHashedPfsStructMagic;
 }

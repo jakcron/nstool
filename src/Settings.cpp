@@ -11,25 +11,24 @@
 
 
 
-#include <nn/hac/ContentArchiveUtil.h>
-#include <nn/hac/AesKeygen.h>
-#include <nn/hac/define/gc.h>
-#include <nn/hac/define/pfs.h>
-#include <nn/hac/define/nca.h>
-#include <nn/hac/define/meta.h>
-#include <nn/hac/define/romfs.h>
-#include <nn/hac/define/cnmt.h>
-#include <nn/hac/define/nacp.h>
-#include <nn/hac/define/nso.h>
-#include <nn/hac/define/nro.h>
-#include <nn/hac/define/ini.h>
-#include <nn/hac/define/kip.h>
-#include <nn/hac/define/aset.h>
-#include <nn/pki/SignedData.h>
-#include <nn/pki/CertificateBody.h>
-#include <nn/pki/SignUtils.h>
-#include <nn/es/TicketBody_V2.h>
-
+#include <pietendo/hac/ContentArchiveUtil.h>
+#include <pietendo/hac/AesKeygen.h>
+#include <pietendo/hac/define/gc.h>
+#include <pietendo/hac/define/pfs.h>
+#include <pietendo/hac/define/nca.h>
+#include <pietendo/hac/define/meta.h>
+#include <pietendo/hac/define/romfs.h>
+#include <pietendo/hac/define/cnmt.h>
+#include <pietendo/hac/define/nacp.h>
+#include <pietendo/hac/define/nso.h>
+#include <pietendo/hac/define/nro.h>
+#include <pietendo/hac/define/ini.h>
+#include <pietendo/hac/define/kip.h>
+#include <pietendo/hac/define/aset.h>
+#include <pietendo/hac/es/SignedData.h>
+#include <pietendo/hac/es/CertificateBody.h>
+#include <pietendo/hac/es/SignUtils.h>
+#include <pietendo/hac/es/TicketBody_V2.h>
 
 class UnkOptionHandler : public tc::cli::OptionParser::IOptionHandler
 {
@@ -40,6 +39,11 @@ public:
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		throw tc::InvalidOperationException("getOptionStrings() not defined for UnkOptionHandler.");
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		throw tc::InvalidOperationException("getOptionRegexPatterns() not defined for UnkOptionHandler.");
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -55,12 +59,18 @@ class DeprecatedOptionHandler : public tc::cli::OptionParser::IOptionHandler
 public:
 	DeprecatedOptionHandler(const std::string& warn_message, const std::vector<std::string>& opts) : 
 		mWarnMessage(warn_message),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -70,6 +80,7 @@ public:
 private:
 	std::string mWarnMessage;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class FlagOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -77,12 +88,18 @@ class FlagOptionHandler : public tc::cli::OptionParser::IOptionHandler
 public:
 	FlagOptionHandler(bool& flag, const std::vector<std::string>& opts) : 
 		mFlag(flag),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -97,6 +114,7 @@ public:
 private:
 	bool& mFlag;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class SingleParamStringOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -104,12 +122,18 @@ class SingleParamStringOptionHandler : public tc::cli::OptionParser::IOptionHand
 public:
 	SingleParamStringOptionHandler(tc::Optional<std::string>& param, const std::vector<std::string>& opts) : 
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -124,6 +148,7 @@ public:
 private:
 	tc::Optional<std::string>& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class SingleParamPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -131,12 +156,18 @@ class SingleParamPathOptionHandler : public tc::cli::OptionParser::IOptionHandle
 public:
 	SingleParamPathOptionHandler(tc::Optional<tc::io::Path>& param, const std::vector<std::string>& opts) : 
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -151,6 +182,7 @@ public:
 private:
 	tc::Optional<tc::io::Path>& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class SingleParamSizetOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -158,12 +190,18 @@ class SingleParamSizetOptionHandler : public tc::cli::OptionParser::IOptionHandl
 public:
 	SingleParamSizetOptionHandler(size_t& param, const std::vector<std::string>& opts) : 
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -178,6 +216,7 @@ public:
 private:
 	size_t& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class SingleParamAesKeyOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -185,12 +224,18 @@ class SingleParamAesKeyOptionHandler : public tc::cli::OptionParser::IOptionHand
 public:
 	SingleParamAesKeyOptionHandler(tc::Optional<nstool::KeyBag::aes128_key_t>& param, const std::vector<std::string>& opts) :
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -214,6 +259,7 @@ public:
 private:
 	tc::Optional<nstool::KeyBag::aes128_key_t>& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class FileTypeOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -221,12 +267,18 @@ class FileTypeOptionHandler : public tc::cli::OptionParser::IOptionHandler
 public:
 	FileTypeOptionHandler(nstool::Settings::FileType& param, const std::vector<std::string>& opts) : 
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -310,6 +362,7 @@ public:
 private:
 	nstool::Settings::FileType& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class InstructionTypeOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -317,12 +370,18 @@ class InstructionTypeOptionHandler : public tc::cli::OptionParser::IOptionHandle
 public:
 	InstructionTypeOptionHandler(bool& param, const std::vector<std::string>& opts) :
 		mParam(param),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -348,6 +407,7 @@ public:
 private:
 	bool& mParam;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class ExtractDataPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -355,12 +415,18 @@ class ExtractDataPathOptionHandler : public tc::cli::OptionParser::IOptionHandle
 public:
 	ExtractDataPathOptionHandler(std::vector<nstool::ExtractJob>& jobs, const std::vector<std::string>& opts) : 
 		mJobs(jobs),
-		mOptStrings(opts)
+		mOptStrings(opts),
+		mOptRegex()
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -381,6 +447,7 @@ public:
 private:
 	std::vector<nstool::ExtractJob>& mJobs;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 };
 
 class CustomExtractDataPathOptionHandler : public tc::cli::OptionParser::IOptionHandler
@@ -389,12 +456,18 @@ public:
 	CustomExtractDataPathOptionHandler(std::vector<nstool::ExtractJob>& jobs, const std::vector<std::string>& opts, const tc::io::Path& custom_path) : 
 		mJobs(jobs),
 		mOptStrings(opts),
+		mOptRegex(),
 		mCustomPath(custom_path)
 	{}
 
 	const std::vector<std::string>& getOptionStrings() const
 	{
 		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
 	}
 
 	void processOption(const std::string& option, const std::vector<std::string>& params)
@@ -404,9 +477,6 @@ public:
 			throw tc::ArgumentOutOfRangeException(fmt::format("Option \"{:s}\" requires a parameter.", option));
 		}
 
-		std::string custom_path_str;
-		tc::io::PathUtil::pathToUnixUTF8(mCustomPath, custom_path_str);
-
 		fmt::print("[WARNING] \"{:s} {:s}\" is deprecated. ", option, params[0]);
 		// if custom path is root path, use the shortened version of -x
 		if (mCustomPath == tc::io::Path("/"))
@@ -415,7 +485,7 @@ public:
 		}
 		else
 		{
-			fmt::print("Consider using \"-x {:s} {:s}\" instead.\n", custom_path_str, params[0]);
+			fmt::print("Consider using \"-x {:s} {:s}\" instead.\n", mCustomPath.to_string(), params[0]);
 		}
 			
 
@@ -424,6 +494,7 @@ public:
 private:
 	std::vector<nstool::ExtractJob>& mJobs;
 	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
 	tc::io::Path mCustomPath;
 };
 
@@ -590,9 +661,7 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 
 void nstool::SettingsInitializer::determine_filetype()
 {
-	//std::string infile_path_str;
-	//tc::io::PathUtil::pathToUnixUTF8(infile.path.get(), infile_path_str);
-	//fmt::print("infile path = \"{}\"\n", infile_path_str);
+	//fmt::print("infile path = \"{}\"\n", infile.path.get().to_string());
 	
 	auto file = tc::io::StreamSource(std::make_shared<tc::io::FileStream>(tc::io::FileStream(infile.path.get(), tc::io::FileMode::Open, tc::io::FileAccess::Read)));
 
@@ -604,69 +673,69 @@ void nstool::SettingsInitializer::determine_filetype()
 	// do easy tests
 
 	// detect "scene" XCI
-	if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sGcHeader_Rsa2048Signed))
-	 && _TYPE_PTR(nn::hac::sGcHeader_Rsa2048Signed)->header.st_magic.unwrap() == nn::hac::gc::kGcHeaderStructMagic)
+	if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sGcHeader_Rsa2048Signed))
+	 && _TYPE_PTR(pie::hac::sGcHeader_Rsa2048Signed)->header.st_magic.unwrap() == pie::hac::gc::kGcHeaderStructMagic)
 	{
 		infile.filetype = FILE_TYPE_GAMECARD;
 	}
 	// detect "SDK" XCI
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sSdkGcHeader))
-		&& _TYPE_PTR(nn::hac::sSdkGcHeader)->signed_header.header.st_magic.unwrap() == nn::hac::gc::kGcHeaderStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sSdkGcHeader))
+		&& _TYPE_PTR(pie::hac::sSdkGcHeader)->signed_header.header.st_magic.unwrap() == pie::hac::gc::kGcHeaderStructMagic)
 	{
 		infile.filetype = FILE_TYPE_GAMECARD;
 	}
 	// detect PFS0
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sPfsHeader))
-	      && _TYPE_PTR(nn::hac::sPfsHeader)->st_magic.unwrap() == nn::hac::pfs::kPfsStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sPfsHeader))
+	      && _TYPE_PTR(pie::hac::sPfsHeader)->st_magic.unwrap() == pie::hac::pfs::kPfsStructMagic)
 	{
 		infile.filetype = FILE_TYPE_PARTITIONFS;
 	}
 	// detect HFS0
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sPfsHeader))
-		&& _TYPE_PTR(nn::hac::sPfsHeader)->st_magic.unwrap() == nn::hac::pfs::kHashedPfsStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sPfsHeader))
+		&& _TYPE_PTR(pie::hac::sPfsHeader)->st_magic.unwrap() == pie::hac::pfs::kHashedPfsStructMagic)
 	{
 		infile.filetype = FILE_TYPE_PARTITIONFS;
 	}
 	// detect ROMFS
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sRomfsHeader))
-		&& _TYPE_PTR(nn::hac::sRomfsHeader)->header_size.unwrap() == sizeof(nn::hac::sRomfsHeader)
-		&& _TYPE_PTR(nn::hac::sRomfsHeader)->dir_entry.offset.unwrap() == (_TYPE_PTR(nn::hac::sRomfsHeader)->dir_hash_bucket.offset.unwrap() + _TYPE_PTR(nn::hac::sRomfsHeader)->dir_hash_bucket.size.unwrap()))
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sRomfsHeader))
+		&& _TYPE_PTR(pie::hac::sRomfsHeader)->header_size.unwrap() == sizeof(pie::hac::sRomfsHeader)
+		&& _TYPE_PTR(pie::hac::sRomfsHeader)->dir_entry.offset.unwrap() == (_TYPE_PTR(pie::hac::sRomfsHeader)->dir_hash_bucket.offset.unwrap() + _TYPE_PTR(pie::hac::sRomfsHeader)->dir_hash_bucket.size.unwrap()))
 	{
 		infile.filetype = FILE_TYPE_ROMFS;
 	}
 	// detect NPDM
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sMetaHeader))
-		&& _TYPE_PTR(nn::hac::sMetaHeader)->st_magic.unwrap() == nn::hac::meta::kMetaStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sMetaHeader))
+		&& _TYPE_PTR(pie::hac::sMetaHeader)->st_magic.unwrap() == pie::hac::meta::kMetaStructMagic)
 	{
 		infile.filetype = FILE_TYPE_META;
 	}
 	// detect NSO
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sNsoHeader))
-		&& _TYPE_PTR(nn::hac::sNsoHeader)->st_magic.unwrap() == nn::hac::nso::kNsoStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sNsoHeader))
+		&& _TYPE_PTR(pie::hac::sNsoHeader)->st_magic.unwrap() == pie::hac::nso::kNsoStructMagic)
 	{
 		infile.filetype = FILE_TYPE_NSO;
 	}
 	// detect NRO
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sNroHeader))
-		&& _TYPE_PTR(nn::hac::sNroHeader)->st_magic.unwrap() == nn::hac::nro::kNroStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sNroHeader))
+		&& _TYPE_PTR(pie::hac::sNroHeader)->st_magic.unwrap() == pie::hac::nro::kNroStructMagic)
 	{
 		infile.filetype = FILE_TYPE_NRO;
 	}
 	// detect INI
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sIniHeader))
-		&& _TYPE_PTR(nn::hac::sIniHeader)->st_magic.unwrap() == nn::hac::ini::kIniStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sIniHeader))
+		&& _TYPE_PTR(pie::hac::sIniHeader)->st_magic.unwrap() == pie::hac::ini::kIniStructMagic)
 	{
 		infile.filetype = FILE_TYPE_INI;
 	}
 	// detect KIP
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sKipHeader))
-		&& _TYPE_PTR(nn::hac::sKipHeader)->st_magic.unwrap() == nn::hac::kip::kKipStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sKipHeader))
+		&& _TYPE_PTR(pie::hac::sKipHeader)->st_magic.unwrap() == pie::hac::kip::kKipStructMagic)
 	{
 		infile.filetype = FILE_TYPE_KIP;
 	}
 	// detect HB ASET
-	else if (_ASSERT_FILE_SIZE(sizeof(nn::hac::sAssetHeader))
-		&& _TYPE_PTR(nn::hac::sAssetHeader)->st_magic.unwrap() == nn::hac::aset::kAssetStructMagic)
+	else if (_ASSERT_FILE_SIZE(sizeof(pie::hac::sAssetHeader))
+		&& _TYPE_PTR(pie::hac::sAssetHeader)->st_magic.unwrap() == pie::hac::aset::kAssetStructMagic)
 	{
 		infile.filetype = FILE_TYPE_KIP;
 	}
@@ -836,24 +905,24 @@ void nstool::SettingsInitializer::dump_keys() const
 		fmt::print("    {:s}:\n", itr->first);
 		fmt::print("      SignType: ");
 		switch(itr->second.key_type) {
-			case nn::pki::sign::SIGN_ALGO_RSA2048:
+			case pie::hac::es::sign::SIGN_ALGO_RSA2048:
 				fmt::print("RSA-2048\n");
 				break;
-			case nn::pki::sign::SIGN_ALGO_RSA4096:
+			case pie::hac::es::sign::SIGN_ALGO_RSA4096:
 				fmt::print("RSA-4096\n");
 				break;
-			case nn::pki::sign::SIGN_ALGO_ECDSA240:
+			case pie::hac::es::sign::SIGN_ALGO_ECDSA240:
 				fmt::print("ECDSA-240\n");
 				break;
 			default:
 				fmt::print("Unknown\n");
 		}
 		switch(itr->second.key_type) {
-			case nn::pki::sign::SIGN_ALGO_RSA2048:
-			case nn::pki::sign::SIGN_ALGO_RSA4096:
+			case pie::hac::es::sign::SIGN_ALGO_RSA2048:
+			case pie::hac::es::sign::SIGN_ALGO_RSA4096:
 				dump_rsa_key(itr->second.rsa_key, "RsaKey", 6, opt.cli_output_mode.show_extended_info);
 				break;
-			case nn::pki::sign::SIGN_ALGO_ECDSA240:
+			case pie::hac::es::sign::SIGN_ALGO_ECDSA240:
 			default:
 				break;
 		}
@@ -900,7 +969,7 @@ void nstool::SettingsInitializer::dump_rsa_key(const KeyBag::rsa_key_t& key, con
 
 bool nstool::SettingsInitializer::determineValidNcaFromSample(const tc::ByteData& sample) const
 {
-	if (sample.size() < nn::hac::nca::kHeaderSize)
+	if (sample.size() < pie::hac::nca::kHeaderSize)
 	{
 		return false;
 	}
@@ -911,26 +980,26 @@ bool nstool::SettingsInitializer::determineValidNcaFromSample(const tc::ByteData
 		return false;
 	}
 
-	nn::hac::detail::aes128_xtskey_t key = opt.keybag.nca_header_key.get();
+	pie::hac::detail::aes128_xtskey_t key = opt.keybag.nca_header_key.get();
 
 	//fmt::print("NCA header key: {} {}\n", tc::cli::FormatUtil::formatBytesAsString(opt.keybag.nca_header_key.get()[0].data(), opt.keybag.nca_header_key.get()[0].size(), true, ""), tc::cli::FormatUtil::formatBytesAsString(opt.keybag.nca_header_key.get()[1].data(), opt.keybag.nca_header_key.get()[1].size(), true, ""));
 
 	// init aes-xts
 	tc::crypto::Aes128XtsEncryptor enc;
-	enc.initialize(key[0].data(), key[0].size(), key[1].data(), key[1].size(), nn::hac::nca::kSectorSize, false);
+	enc.initialize(key[0].data(), key[0].size(), key[1].data(), key[1].size(), pie::hac::nca::kSectorSize, false);
 
 	// decrypt main header
-	byte_t raw_hdr[nn::hac::nca::kSectorSize];
-	enc.decrypt(raw_hdr, sample.data() + nn::hac::ContentArchiveUtil::sectorToOffset(1), nn::hac::nca::kSectorSize, 1);
-	nn::hac::sContentArchiveHeader* hdr = (nn::hac::sContentArchiveHeader*)(raw_hdr);
+	byte_t raw_hdr[pie::hac::nca::kSectorSize];
+	enc.decrypt(raw_hdr, sample.data() + pie::hac::ContentArchiveUtil::sectorToOffset(1), pie::hac::nca::kSectorSize, 1);
+	pie::hac::sContentArchiveHeader* hdr = (pie::hac::sContentArchiveHeader*)(raw_hdr);
 
 	/*
 	fmt::print("NCA Header Raw:\n");
-	fmt::print("{:s}\n", tc::cli::FormatUtil::formatBytesAsHxdHexString(sample.data() + nn::hac::ContentArchiveUtil::sectorToOffset(1), nn::hac::nca::kSectorSize));
-	fmt::print("{:s}\n", tc::cli::FormatUtil::formatBytesAsHxdHexString(raw_hdr, nn::hac::nca::kSectorSize));
+	fmt::print("{:s}\n", tc::cli::FormatUtil::formatBytesAsHxdHexString(sample.data() + pie::hac::ContentArchiveUtil::sectorToOffset(1), pie::hac::nca::kSectorSize));
+	fmt::print("{:s}\n", tc::cli::FormatUtil::formatBytesAsHxdHexString(raw_hdr, pie::hac::nca::kSectorSize));
 	*/
 
-	if (hdr->st_magic.unwrap() != nn::hac::nca::kNca2StructMagic && hdr->st_magic.unwrap() != nn::hac::nca::kNca3StructMagic)
+	if (hdr->st_magic.unwrap() != pie::hac::nca::kNca2StructMagic && hdr->st_magic.unwrap() != pie::hac::nca::kNca3StructMagic)
 	{
 		return false;
 	}
@@ -940,12 +1009,12 @@ bool nstool::SettingsInitializer::determineValidNcaFromSample(const tc::ByteData
 
 bool nstool::SettingsInitializer::determineValidCnmtFromSample(const tc::ByteData& sample) const
 {
-	if (sample.size() < sizeof(nn::hac::sContentMetaHeader))
+	if (sample.size() < sizeof(pie::hac::sContentMetaHeader))
 		return false;
 
-	const nn::hac::sContentMetaHeader* data = (const nn::hac::sContentMetaHeader*)sample.data();
+	const pie::hac::sContentMetaHeader* data = (const pie::hac::sContentMetaHeader*)sample.data();
 
-	size_t minimum_size = sizeof(nn::hac::sContentMetaHeader) + data->exhdr_size.unwrap() + data->content_count.unwrap() * sizeof(nn::hac::sContentInfo) + data->content_meta_count.unwrap() * sizeof(nn::hac::sContentMetaInfo) + nn::hac::cnmt::kDigestLen;
+	size_t minimum_size = sizeof(pie::hac::sContentMetaHeader) + data->exhdr_size.unwrap() + data->content_count.unwrap() * sizeof(pie::hac::sContentInfo) + data->content_meta_count.unwrap() * sizeof(pie::hac::sContentMetaInfo) + pie::hac::cnmt::kDigestLen;
 
 	if (sample.size() < minimum_size)
 		return false;
@@ -953,37 +1022,37 @@ bool nstool::SettingsInitializer::determineValidCnmtFromSample(const tc::ByteDat
 	// include exthdr/data check if applicable
 	if (data->exhdr_size.unwrap() > 0)
 	{
-		if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Application)
+		if (data->type == (byte_t)pie::hac::cnmt::ContentMetaType_Application)
 		{
-			const nn::hac::sApplicationMetaExtendedHeader* meta = (const nn::hac::sApplicationMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			const pie::hac::sApplicationMetaExtendedHeader* meta = (const pie::hac::sApplicationMetaExtendedHeader*)(sample.data() + sizeof(pie::hac::sContentMetaHeader));
 			if ((meta->patch_id.unwrap() & data->id.unwrap()) != data->id.unwrap())
 				return false;
 		}
-		else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Patch)
+		else if (data->type == (byte_t)pie::hac::cnmt::ContentMetaType_Patch)
 		{
-			const nn::hac::sPatchMetaExtendedHeader* meta = (const nn::hac::sPatchMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			const pie::hac::sPatchMetaExtendedHeader* meta = (const pie::hac::sPatchMetaExtendedHeader*)(sample.data() + sizeof(pie::hac::sContentMetaHeader));
 			if ((meta->application_id.unwrap() & data->id.unwrap()) != meta->application_id.unwrap())
 				return false;
 
 			minimum_size += meta->extended_data_size.unwrap();
 		}
-		else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::AddOnContent)
+		else if (data->type == (byte_t)pie::hac::cnmt::ContentMetaType_AddOnContent)
 		{
-			const nn::hac::sAddOnContentMetaExtendedHeader* meta = (const nn::hac::sAddOnContentMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			const pie::hac::sAddOnContentMetaExtendedHeader* meta = (const pie::hac::sAddOnContentMetaExtendedHeader*)(sample.data() + sizeof(pie::hac::sContentMetaHeader));
 			if ((meta->application_id.unwrap() & data->id.unwrap()) != meta->application_id.unwrap())
 				return false;
 		}
-		else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::Delta)
+		else if (data->type == (byte_t)pie::hac::cnmt::ContentMetaType_Delta)
 		{
-			const nn::hac::sDeltaMetaExtendedHeader* meta = (const nn::hac::sDeltaMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			const pie::hac::sDeltaMetaExtendedHeader* meta = (const pie::hac::sDeltaMetaExtendedHeader*)(sample.data() + sizeof(pie::hac::sContentMetaHeader));
 			if ((meta->application_id.unwrap() & data->id.unwrap()) != meta->application_id.unwrap())
 				return false;
 
 			minimum_size += meta->extended_data_size.unwrap();
 		}
-		else if (data->type == (byte_t)nn::hac::cnmt::ContentMetaType::SystemUpdate)
+		else if (data->type == (byte_t)pie::hac::cnmt::ContentMetaType_SystemUpdate)
 		{
-			const nn::hac::sSystemUpdateMetaExtendedHeader* meta = (const nn::hac::sSystemUpdateMetaExtendedHeader*)(sample.data() + sizeof(nn::hac::sContentMetaHeader));
+			const pie::hac::sSystemUpdateMetaExtendedHeader* meta = (const pie::hac::sSystemUpdateMetaExtendedHeader*)(sample.data() + sizeof(pie::hac::sContentMetaHeader));
 
 			minimum_size += meta->extended_data_size.unwrap();
 		}
@@ -997,12 +1066,12 @@ bool nstool::SettingsInitializer::determineValidCnmtFromSample(const tc::ByteDat
 
 bool nstool::SettingsInitializer::determineValidNacpFromSample(const tc::ByteData& sample) const
 {
-	if (sample.size() != sizeof(nn::hac::sApplicationControlProperty))
+	if (sample.size() != sizeof(pie::hac::sApplicationControlProperty))
 		return false;
 
-	const nn::hac::sApplicationControlProperty* data = (const nn::hac::sApplicationControlProperty*)sample.data();
+	const pie::hac::sApplicationControlProperty* data = (const pie::hac::sApplicationControlProperty*)sample.data();
 
-	if (data->logo_type > (byte_t)nn::hac::nacp::LogoType::Nintendo)
+	if (data->logo_type > (byte_t)pie::hac::nacp::LogoType_Nintendo)
 		return false;
 
 	if (data->display_version[0] == 0)
@@ -1022,7 +1091,7 @@ bool nstool::SettingsInitializer::determineValidNacpFromSample(const tc::ByteDat
 
 bool nstool::SettingsInitializer::determineValidEsCertFromSample(const tc::ByteData& sample) const
 {
-	nn::pki::SignatureBlock sign;
+	pie::hac::es::SignatureBlock sign;
 
 	try
 	{
@@ -1036,7 +1105,7 @@ bool nstool::SettingsInitializer::determineValidEsCertFromSample(const tc::ByteD
 	if (sign.isLittleEndian() == true)
 		return false;
 
-	if (sign.getSignType() != nn::pki::sign::SIGN_ID_RSA4096_SHA256 && sign.getSignType() != nn::pki::sign::SIGN_ID_RSA2048_SHA256 && sign.getSignType() != nn::pki::sign::SIGN_ID_ECDSA240_SHA256)
+	if (sign.getSignType() != pie::hac::es::sign::SIGN_ID_RSA4096_SHA256 && sign.getSignType() != pie::hac::es::sign::SIGN_ID_RSA2048_SHA256 && sign.getSignType() != pie::hac::es::sign::SIGN_ID_ECDSA240_SHA256)
 		return false;
 
 	return true;
@@ -1044,7 +1113,7 @@ bool nstool::SettingsInitializer::determineValidEsCertFromSample(const tc::ByteD
 
 bool nstool::SettingsInitializer::determineValidEsTikFromSample(const tc::ByteData& sample) const
 {
-	nn::pki::SignatureBlock sign;
+	pie::hac::es::SignatureBlock sign;
 
 	try
 	{
@@ -1058,13 +1127,13 @@ bool nstool::SettingsInitializer::determineValidEsTikFromSample(const tc::ByteDa
 	if (sign.isLittleEndian() == false)
 		return false;
 
-	if (sign.getSignType() != nn::pki::sign::SIGN_ID_RSA2048_SHA256)
+	if (sign.getSignType() != pie::hac::es::sign::SIGN_ID_RSA2048_SHA256)
 		return false;
 
-	const nn::es::sTicketBody_v2* body = (const nn::es::sTicketBody_v2*)(sample.data() + sign.getBytes().size());
+	const pie::hac::es::sTicketBody_v2* body = (const pie::hac::es::sTicketBody_v2*)(sample.data() + sign.getBytes().size());
 
-	if ((body->issuer.str().substr(0, 5) == "Root-"
-		&& body->issuer.str().substr(16, 2) == "XS") == false)
+	if ((body->issuer.decode().substr(0, 5) == "Root-"
+		&& body->issuer.decode().substr(16, 2) == "XS") == false)
 		return false;
 
 	return true;

@@ -71,13 +71,13 @@ void nstool::NsoProcess::importHeader()
 
 	// check if file_size is smaller than NSO header size
 	size_t file_size = tc::io::IOUtil::castInt64ToSize(mFile->length());
-	if (file_size < sizeof(nn::hac::sNsoHeader))
+	if (file_size < sizeof(pie::hac::sNsoHeader))
 	{
 		throw tc::Exception(mModuleName, "Corrupt NSO: file too small.");
 	}
 
 	// read nso
-	tc::ByteData scratch = tc::ByteData(sizeof(nn::hac::sNsoHeader));
+	tc::ByteData scratch = tc::ByteData(sizeof(pie::hac::sNsoHeader));
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read(scratch.data(), scratch.size());
 
@@ -88,7 +88,7 @@ void nstool::NsoProcess::importHeader()
 void nstool::NsoProcess::importCodeSegments()
 {
 	tc::ByteData scratch;
-	nn::hac::detail::sha256_hash_t calc_hash;
+	pie::hac::detail::sha256_hash_t calc_hash;
 
 	// process text segment
 	if (mHdr.getTextSegmentInfo().is_compressed)

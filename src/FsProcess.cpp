@@ -46,7 +46,7 @@ void nstool::FsProcess::process()
 	}
 }
 
-void nstool::FsProcess::setInputFileSystem(const std::shared_ptr<tc::io::IStorage>& input_fs)
+void nstool::FsProcess::setInputFileSystem(const std::shared_ptr<tc::io::IFileSystem>& input_fs)
 {
 	mInputFs = input_fs;
 }
@@ -93,15 +93,12 @@ void nstool::FsProcess::extractFs()
 
 	for (auto itr = mExtractJobs.begin(); itr != mExtractJobs.end(); itr++)
 	{
-		std::string path_str;
-		tc::io::PathUtil::pathToUnixUTF8(itr->virtual_path, path_str);
-
 		// check if root path (legacy case)
 		if (itr->virtual_path == tc::io::Path("/"))
 		{
 			visitDir(tc::io::Path("/"), itr->extract_path, true, false);
 
-			//fmt::print("Root Dir Virtual Path: \"{:s}\"\n", path_str);
+			//fmt::print("Root Dir Virtual Path: \"{:s}\"\n", itr->virtual_path.to_string());
 
 			// root directory extract successful, continue to next job
 			continue;
@@ -112,10 +109,10 @@ void nstool::FsProcess::extractFs()
 			std::shared_ptr<tc::io::IStream> file_stream;
 			mInputFs->openFile(itr->virtual_path, tc::io::FileMode::Open, tc::io::FileAccess::Read, file_stream);
 
-			//fmt::print("Valid File Path: \"{:s}\"\n", path_str);
+			//fmt::print("Valid File Path: \"{:s}\"\n", itr->virtual_path.to_string());
 
 			// the output path for this file will depend on the user specified extract path
-			std::shared_ptr<tc::io::IStorage> local_fs = std::make_shared<tc::io::LocalStorage>(tc::io::LocalStorage());
+			std::shared_ptr<tc::io::IFileSystem> local_fs = std::make_shared<tc::io::LocalFileSystem>(tc::io::LocalFileSystem());
 
 			// case: the extract_path is a valid path to an existing directory
 			// behaviour: extract the file, preserving the original filename, to the specified directory
@@ -127,10 +124,7 @@ void nstool::FsProcess::extractFs()
 
 				tc::io::Path file_extract_path = itr->extract_path + itr->virtual_path.back();
 
-				std::string file_extract_path_str;
-				tc::io::PathUtil::pathToUnixUTF8(file_extract_path, file_extract_path_str);
-
-				fmt::print("Saving {:s}...\n", file_extract_path_str);
+				fmt::print("Saving {:s}...\n", file_extract_path.to_string());
 
 				writeStreamToFile(file_stream, itr->extract_path + itr->virtual_path.back(), mDataCache);
 
@@ -145,24 +139,18 @@ void nstool::FsProcess::extractFs()
 			// method: since this checks n-1 elements, it implies a path with more than one element, so that must be accounted for, as relative paths are valid and single element paths aren't always root
 
 			try {
-				std::string test_path_str;
-
 				// get path to parent directory
 				tc::io::Path parent_dir_path = itr->extract_path;
 
 				// replace final path element with the current directory alias 
 				parent_dir_path.pop_back(); // remove filename
 				parent_dir_path.push_back("."); // replace with the current dir name alias
-				tc::io::PathUtil::pathToUnixUTF8(parent_dir_path, test_path_str);
 
 				// test parent directory exists
 				tc::io::sDirectoryListing dir_listing;
 				local_fs->getDirectoryListing(parent_dir_path, dir_listing);
 
-				std::string file_extract_path_str;
-				tc::io::PathUtil::pathToUnixUTF8(itr->extract_path, file_extract_path_str);
-
-				fmt::print("Saving {:s} as {:s}...\n", path_str, file_extract_path_str);
+				fmt::print("Saving {:s} as {:s}...\n", itr->virtual_path.to_string(), itr->extract_path.to_string());
 
 				writeStreamToFile(file_stream, itr->extract_path, mDataCache);
 
@@ -173,9 +161,7 @@ void nstool::FsProcess::extractFs()
 
 
 			// extract path could not be determined, inform the user and skip this job
-			std::string literal_extract_path_str;
-			tc::io::PathUtil::pathToUnixUTF8(itr->extract_path, literal_extract_path_str);
-			fmt::print("[WARNING] Extract path was invalid, and was skipped: {:s}\n", literal_extract_path_str);
+			fmt::print("[WARNING] Extract path was invalid, and was skipped: {:s}\n", itr->extract_path.to_string());
 			continue;
 		} catch (tc::io::FileNotFoundException&) {
 			// acceptable exception, just means file didn't exist
@@ -186,10 +172,9 @@ void nstool::FsProcess::extractFs()
 			tc::io::sDirectoryListing dir_listing;
 			mInputFs->getDirectoryListing(itr->virtual_path, dir_listing);
 
-
 			visitDir(itr->virtual_path, itr->extract_path, true, false);
 
-			//fmt::print("Valid Directory Path: \"{:s}\"\n", path_str);
+			//fmt::print("Valid Directory Path: \"{:s}\"\n", itr->virtual_path.to_string());
 
 			// directory extract successful, continue to next job
 			continue;
@@ -198,14 +183,14 @@ void nstool::FsProcess::extractFs()
 			// acceptable exception, just means directory didn't exist
 		}
 
-		fmt::print("[WARNING] Failed to extract virtual path: \"{:s}\"\n", path_str);
+		fmt::print("[WARNING] Failed to extract virtual path: \"{:s}\"\n", itr->virtual_path.to_string());
 	}
 	
 }
 
 void nstool::FsProcess::visitDir(const tc::io::Path& v_path, const tc::io::Path& l_path, bool extract_fs, bool print_fs)
 {
-	tc::io::LocalStorage local_fs;
+	tc::io::LocalFileSystem local_fs;
 
 	// get listing for directory
 	tc::io::sDirectoryListing info;
@@ -227,7 +212,6 @@ void nstool::FsProcess::visitDir(const tc::io::Path& v_path, const tc::io::Path&
 	// iterate thru child files
 	size_t cache_read_len;
 	tc::io::Path out_path;
-	std::string out_path_str;
 	std::shared_ptr<tc::io::IStream> in_stream;
 	std::shared_ptr<tc::io::IStream> out_stream;
 	for (auto itr = info.file_list.begin(); itr != info.file_list.end(); itr++)
@@ -242,9 +226,8 @@ void nstool::FsProcess::visitDir(const tc::io::Path& v_path, const tc::io::Path&
 		{
 			// build out path
 			out_path = l_path + *itr;
-			tc::io::PathUtil::pathToUnixUTF8(out_path, out_path_str);
 
-			fmt::print("Saving {:s}...\n", out_path_str);
+			fmt::print("Saving {:s}...\n", out_path.to_string());
 
 			// begin export
 			mInputFs->openFile(v_path + *itr, tc::io::FileMode::Open, tc::io::FileAccess::Read, in_stream);

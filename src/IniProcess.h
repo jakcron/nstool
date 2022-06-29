@@ -1,8 +1,8 @@
 #pragma once
 #include "types.h"
 
-#include <nn/hac/IniHeader.h>
-#include <nn/hac/KernelInitialProcessHeader.h>
+#include <pietendo/hac/IniHeader.h>
+#include <pietendo/hac/KernelInitialProcessHeader.h>
 
 namespace nstool {
 
@@ -29,10 +29,10 @@ private:
 	
 	tc::Optional<tc::io::Path> mKipExtractPath;
 
-	nn::hac::IniHeader mHdr;
+	pie::hac::IniHeader mHdr;
 	struct InnerKipInfo
 	{
-		nn::hac::KernelInitialProcessHeader hdr;
+		pie::hac::KernelInitialProcessHeader hdr;
 		std::shared_ptr<tc::io::IStream> stream;
 	};
 	std::vector<InnerKipInfo> mKipList;
@@ -43,7 +43,7 @@ private:
 	void displayKipList();
 	void extractKipList();
 
-	int64_t getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const;
+	int64_t getKipSizeFromHeader(const pie::hac::KernelInitialProcessHeader& hdr) const;
 };
 
 }

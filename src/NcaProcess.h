@@ -3,9 +3,9 @@
 #include "KeyBag.h"
 #include "FsProcess.h"
 
-#include <nn/hac/ContentArchiveHeader.h>
-#include <nn/hac/HierarchicalIntegrityHeader.h>
-#include <nn/hac/HierarchicalSha256Header.h>
+#include <pietendo/hac/ContentArchiveHeader.h>
+#include <pietendo/hac/HierarchicalIntegrityHeader.h>
+#include <pietendo/hac/HierarchicalSha256Header.h>
 
 namespace nstool {
 
@@ -28,7 +28,7 @@ public:
 	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
 	// post process() get FS out
-	const std::shared_ptr<tc::io::IStorage>& getFileSystem() const;
+	const std::shared_ptr<tc::io::IFileSystem>& getFileSystem() const;
 private:
 	const std::string kNpdmExefsPath = "/main.npdm";
 
@@ -41,13 +41,13 @@ private:
 	bool mVerify;
 
 	// fs processing
-	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
 	FsProcess mFsProcess;
 
 	// nca data
-	nn::hac::sContentArchiveHeaderBlock mHdrBlock;
-	nn::hac::detail::sha256_hash_t mHdrHash;
-	nn::hac::ContentArchiveHeader mHdr;
+	pie::hac::sContentArchiveHeaderBlock mHdrBlock;
+	pie::hac::detail::sha256_hash_t mHdrHash;
+	pie::hac::ContentArchiveHeader mHdr;
 
 	// crypto
 	struct sKeys
@@ -82,7 +82,7 @@ private:
 		};
 		std::vector<sKeyAreaKey> kak_list;
 
-		tc::Optional<nn::hac::detail::aes128_key_t> aes_ctr;
+		tc::Optional<pie::hac::detail::aes128_key_t> aes_ctr;
 	} mContentKey;
 
 	struct SparseInfo
@@ -94,29 +94,30 @@ private:
 	struct sPartitionInfo
 	{
 		std::shared_ptr<tc::io::IStream> reader;
-		tc::io::VirtualFileSystem::FileSystemMeta fs_meta;
-		std::shared_ptr<tc::io::IStorage> fs_reader;
+		tc::io::VirtualFileSystem::FileSystemSnapshot fs_snapshot;
+		std::shared_ptr<tc::io::IFileSystem> fs_reader;
 		std::string fail_reason;
 		int64_t offset;
 		int64_t size;
 
 		// meta data
-		nn::hac::nca::FormatType format_type;
-		nn::hac::nca::HashType hash_type;
-		nn::hac::nca::EncryptionType enc_type;
+		pie::hac::nca::FormatType format_type;
+		pie::hac::nca::HashType hash_type;
+		pie::hac::nca::EncryptionType enc_type;
+		pie::hac::nca::MetaDataHashType metadata_hash_type;
 
 		// hash meta data
-		nn::hac::HierarchicalIntegrityHeader hierarchicalintegrity_hdr;
-		nn::hac::HierarchicalSha256Header hierarchicalsha256_hdr;
+		pie::hac::HierarchicalIntegrityHeader hierarchicalintegrity_hdr;
+		pie::hac::HierarchicalSha256Header hierarchicalsha256_hdr;
 
 		// crypto metadata
-		nn::hac::detail::aes_iv_t aes_ctr;
+		pie::hac::detail::aes_iv_t aes_ctr;
 
 		// sparse metadata
 		SparseInfo sparse_info;
 	};
 	
-	std::array<sPartitionInfo, nn::hac::nca::kPartitionNum> mPartitions;
+	std::array<sPartitionInfo, pie::hac::nca::kPartitionNum> mPartitions;
 
 	void importHeader();
 	void generateNcaBodyEncryptionKeys();
@@ -125,7 +126,7 @@ private:
 	void displayHeader();
 	void processPartitions();
 
-	std::string getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const;
+	std::string getContentTypeForMountStr(pie::hac::nca::ContentType cont_type) const;
 };
 
 }

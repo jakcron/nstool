@@ -2,7 +2,7 @@
 #include "types.h"
 #include "FsProcess.h"
 
-#include <nn/hac/define/romfs.h>
+#include <pietendo/hac/define/romfs.h>
 
 namespace nstool {
 
@@ -31,11 +31,11 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nn::hac::sRomfsHeader mRomfsHeader;
+	pie::hac::sRomfsHeader mRomfsHeader;
 	size_t mDirNum;
 	size_t mFileNum;
 
-	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
 	FsProcess mFsProcess;
 };
 

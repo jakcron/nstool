@@ -1,7 +1,7 @@
 #pragma once
 #include "types.h"
 
-#include <nn/hac/KernelInitialProcessHeader.h>
+#include <pietendo/hac/KernelInitialProcessHeader.h>
 
 namespace nstool {
 
@@ -22,16 +22,16 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nn::hac::KernelInitialProcessHeader mHdr;
+	pie::hac::KernelInitialProcessHeader mHdr;
 	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
 
 	void importHeader();
 	void importCodeSegments();
 	size_t decompressData(const byte_t* src, size_t src_len, byte_t* dst, size_t dst_capacity);
 	void displayHeader();
-	void displayKernelCap(const nn::hac::KernelCapabilityControl& kern);
+	void displayKernelCap(const pie::hac::KernelCapabilityControl& kern);
 
-	std::string formatMappingAsString(const nn::hac::MemoryMappingHandler::sMemoryMapping& map) const;
+	std::string formatMappingAsString(const pie::hac::MemoryMappingHandler::sMemoryMapping& map) const;
 };
 
 }

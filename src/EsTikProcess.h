@@ -2,9 +2,9 @@
 #include "types.h"
 #include "KeyBag.h"
 
-#include <nn/pki/SignedData.h>
-#include <nn/pki/CertificateBody.h>
-#include <nn/es/TicketBody_V2.h>
+#include <pietendo/hac/es/SignedData.h>
+#include <pietendo/hac/es/CertificateBody.h>
+#include <pietendo/hac/es/TicketBody_V2.h>
 
 namespace nstool {
 
@@ -17,7 +17,7 @@ public:
 
 	void setInputFile(const std::shared_ptr<tc::io::IStream>& file);
 	void setKeyCfg(const KeyBag& keycfg);
-	void setCertificateChain(const std::vector<nn::pki::SignedData<nn::pki::CertificateBody>>& certs);
+	void setCertificateChain(const std::vector<pie::hac::es::SignedData<pie::hac::es::CertificateBody>>& certs);
 	void setCliOutputMode(CliOutputMode mode);
 	void setVerifyMode(bool verify);
 private:
@@ -28,9 +28,9 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 	
-	std::vector<nn::pki::SignedData<nn::pki::CertificateBody>> mCerts;
+	std::vector<pie::hac::es::SignedData<pie::hac::es::CertificateBody>> mCerts;
 
-	nn::pki::SignedData<nn::es::TicketBody_V2> mTik;
+	pie::hac::es::SignedData<pie::hac::es::TicketBody_V2> mTik;
 
 	void importTicket();
 	void verifyTicket();

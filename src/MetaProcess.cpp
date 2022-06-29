@@ -1,9 +1,9 @@
 #include "MetaProcess.h"
 
-#include <nn/hac/AccessControlInfoUtil.h>
-#include <nn/hac/FileSystemAccessUtil.h>
-#include <nn/hac/KernelCapabilityUtil.h>
-#include <nn/hac/MetaUtil.h>
+#include <pietendo/hac/AccessControlInfoUtil.h>
+#include <pietendo/hac/FileSystemAccessUtil.h>
+#include <pietendo/hac/KernelCapabilityUtil.h>
+#include <pietendo/hac/MetaUtil.h>
 
 nstool::MetaProcess::MetaProcess() :
 	mModuleName("nstool::MetaProcess"),
@@ -65,7 +65,7 @@ void nstool::MetaProcess::setVerifyMode(bool verify)
 	mVerify = verify;
 }
 
-const nn::hac::Meta& nstool::MetaProcess::getMeta() const
+const pie::hac::Meta& nstool::MetaProcess::getMeta() const
 {
 	return mMeta;
 }
@@ -96,7 +96,7 @@ void nstool::MetaProcess::importMeta()
 	mMeta.fromBytes(scratch.data(), scratch.size());
 }
 
-void nstool::MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfoDesc& acid, byte_t key_generation)
+void nstool::MetaProcess::validateAcidSignature(const pie::hac::AccessControlInfoDesc& acid, byte_t key_generation)
 {
 	try {
 		if (mKeyCfg.acid_sign_key.find(key_generation) == mKeyCfg.acid_sign_key.end())
@@ -112,7 +112,7 @@ void nstool::MetaProcess::validateAcidSignature(const nn::hac::AccessControlInfo
 	
 }
 
-void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& aci, const nn::hac::AccessControlInfoDesc& acid)
+void nstool::MetaProcess::validateAciFromAcid(const pie::hac::AccessControlInfo& aci, const pie::hac::AccessControlInfoDesc& acid)
 {
 	// check Program ID
 	if (acid.getProgramIdRestrict().min > 0 && aci.getProgramId() < acid.getProgramIdRestrict().min)
@@ -137,7 +137,7 @@ void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& 
 
 		if (rightFound == false)
 		{
-			fmt::print("[WARNING] ACI/FAC FsaRights: FAIL ({:s} not permitted)\n", nn::hac::FileSystemAccessUtil::getFsAccessFlagAsString(fs_access[i]));
+			fmt::print("[WARNING] ACI/FAC FsaRights: FAIL ({:s} not permitted)\n", pie::hac::FileSystemAccessUtil::getFsAccessFlagAsString(fs_access[i]));
 		}
 	}
 
@@ -169,7 +169,7 @@ void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& 
 		if (rightFound == false)
 		{
 
-			fmt::print("[WARNING] ACI/FAC SaveDataOwnerId: FAIL (0x{:016x} ({:d}) not permitted)\n", aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].id, aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].access_type);
+			fmt::print("[WARNING] ACI/FAC SaveDataOwnerId: FAIL (0x{:016x} ({:d}) not permitted)\n", aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].id, (uint32_t)aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].access_type);
 		}
 	}
 
@@ -214,7 +214,7 @@ void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& 
 	{
 		if (syscall_ids.test(i) && desc_syscall_ids.test(i) == false)
 		{
-			fmt::print("[WARNING] ACI/KC SystemCallList: FAIL ({:s} not permitted)\n", nn::hac::KernelCapabilityUtil::getSystemCallIdAsString(nn::hac::kc::SystemCallId(i)));
+			fmt::print("[WARNING] ACI/KC SystemCallList: FAIL ({:s} not permitted)\n", pie::hac::KernelCapabilityUtil::getSystemCallIdAsString(pie::hac::kc::SystemCallId(i)));
 		}
 	}
 	// check memory maps
@@ -268,7 +268,7 @@ void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& 
 	// check misc params
 	if (aci.getKernelCapabilities().getMiscParams().getProgramType() != acid.getKernelCapabilities().getMiscParams().getProgramType())
 	{
-		fmt::print("[WARNING] ACI/KC ProgramType: FAIL ({:d} not permitted)\n", aci.getKernelCapabilities().getMiscParams().getProgramType());
+		fmt::print("[WARNING] ACI/KC ProgramType: FAIL ({:d} not permitted)\n", (uint32_t)aci.getKernelCapabilities().getMiscParams().getProgramType());
 	}
 	// check kernel version
 	uint32_t aciKernelVersion = (uint32_t)aci.getKernelCapabilities().getKernelVersion().getVerMajor() << 16 |  (uint32_t)aci.getKernelCapabilities().getKernelVersion().getVerMinor();
@@ -289,18 +289,18 @@ void nstool::MetaProcess::validateAciFromAcid(const nn::hac::AccessControlInfo& 
 	{
 		if (misc_flags.test(i) && desc_misc_flags.test(i) == false)
 		{
-			fmt::print("[WARNING] ACI/KC MiscFlag: FAIL ({:s} not permitted)\n", nn::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(nn::hac::kc::MiscFlagsBit(i)));
+			fmt::print("[WARNING] ACI/KC MiscFlag: FAIL ({:s} not permitted)\n", pie::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(pie::hac::kc::MiscFlagsBit(i)));
 		}		
 	}
 }
 
-void nstool::MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
+void nstool::MetaProcess::displayMetaHeader(const pie::hac::Meta& hdr)
 {
 	fmt::print("[Meta Header]\n");
 	fmt::print("  ACID KeyGeneration: {:d}\n", hdr.getAccessControlInfoDescKeyGeneration());
 	fmt::print("  Flags:\n");
 	fmt::print("    Is64BitInstruction:       {}\n", hdr.getIs64BitInstructionFlag());
-	fmt::print("    ProcessAddressSpace:      {:s}\n", nn::hac::MetaUtil::getProcessAddressSpaceAsString(hdr.getProcessAddressSpace()));
+	fmt::print("    ProcessAddressSpace:      {:s}\n", pie::hac::MetaUtil::getProcessAddressSpaceAsString(hdr.getProcessAddressSpace()));
 	fmt::print("    OptimizeMemoryAllocation: {}\n", hdr.getOptimizeMemoryAllocationFlag());
 	fmt::print("  SystemResourceSize: 0x{:x}\n", hdr.getSystemResourceSize());
 	fmt::print("  Main Thread Params:\n");
@@ -316,25 +316,25 @@ void nstool::MetaProcess::displayMetaHeader(const nn::hac::Meta& hdr)
 	}
 }
 
-void nstool::MetaProcess::displayAciHdr(const nn::hac::AccessControlInfo& aci)
+void nstool::MetaProcess::displayAciHdr(const pie::hac::AccessControlInfo& aci)
 {
 	fmt::print("[Access Control Info]\n");
 	fmt::print("  ProgramID:       0x{:016x}\n", aci.getProgramId());
 }
 
-void nstool::MetaProcess::displayAciDescHdr(const nn::hac::AccessControlInfoDesc& acid)
+void nstool::MetaProcess::displayAciDescHdr(const pie::hac::AccessControlInfoDesc& acid)
 {
 	fmt::print("[Access Control Info Desc]\n");
 	fmt::print("  Flags:           \n");
 	fmt::print("    Production:            {}\n", acid.getProductionFlag());
 	fmt::print("    Unqualified Approval:  {}\n", acid.getUnqualifiedApprovalFlag());
-	fmt::print("    Memory Region:         {:s} ({:d})\n", nn::hac::AccessControlInfoUtil::getMemoryRegionAsString(acid.getMemoryRegion()), acid.getMemoryRegion());
+	fmt::print("    Memory Region:         {:s} ({:d})\n", pie::hac::AccessControlInfoUtil::getMemoryRegionAsString(acid.getMemoryRegion()), (uint32_t)acid.getMemoryRegion());
 	fmt::print("  ProgramID Restriction\n");
 	fmt::print("    Min:           0x{:016x}\n", acid.getProgramIdRestrict().min);
 	fmt::print("    Max:           0x{:016x}\n", acid.getProgramIdRestrict().max);
 }
 
-void nstool::MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac)
+void nstool::MetaProcess::displayFac(const pie::hac::FileSystemAccessControl& fac)
 {
 	fmt::print("[FS Access Control]\n");
 	fmt::print("  Format Version:  {:d}\n", fac.getFormatVersion());
@@ -344,10 +344,10 @@ void nstool::MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac
 		std::vector<std::string> fs_access_str_list;
 		for (auto itr = fac.getFsAccess().begin(); itr != fac.getFsAccess().end(); itr++)
 		{
-			std::string flag_string = nn::hac::FileSystemAccessUtil::getFsAccessFlagAsString(nn::hac::fac::FsAccessFlag(*itr));
+			std::string flag_string = pie::hac::FileSystemAccessUtil::getFsAccessFlagAsString(pie::hac::fac::FsAccessFlag(*itr));
 			if (mCliOutputMode.show_extended_info)
 			{
-				fs_access_str_list.push_back(fmt::format("{:s} (bit {:d})", flag_string, *itr));
+				fs_access_str_list.push_back(fmt::format("{:s} (bit {:d})", flag_string, (uint32_t)*itr));
 			}
 			else
 			{
@@ -374,12 +374,12 @@ void nstool::MetaProcess::displayFac(const nn::hac::FileSystemAccessControl& fac
 		fmt::print("  Save Data Owner IDs:\n");
 		for (size_t i = 0; i < fac.getSaveDataOwnerIdList().size(); i++)
 		{
-			fmt::print("    0x{:016x} ({:s})\n", fac.getSaveDataOwnerIdList()[i].id, nn::hac::FileSystemAccessUtil::getSaveDataOwnerAccessModeAsString(fac.getSaveDataOwnerIdList()[i].access_type));
+			fmt::print("    0x{:016x} ({:s})\n", fac.getSaveDataOwnerIdList()[i].id, pie::hac::FileSystemAccessUtil::getSaveDataOwnerAccessModeAsString(fac.getSaveDataOwnerIdList()[i].access_type));
 		}
 	}
 }
 
-void nstool::MetaProcess::displaySac(const nn::hac::ServiceAccessControl& sac)
+void nstool::MetaProcess::displaySac(const pie::hac::ServiceAccessControl& sac)
 {
 	fmt::print("[Service Access Control]\n");
 	fmt::print("  Service List:\n");
@@ -391,12 +391,12 @@ void nstool::MetaProcess::displaySac(const nn::hac::ServiceAccessControl& sac)
 	fmt::print("{:s}", tc::cli::FormatUtil::formatListWithLineLimit(service_name_list, 60, 4));
 }
 
-void nstool::MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
+void nstool::MetaProcess::displayKernelCap(const pie::hac::KernelCapabilityControl& kern)
 {
 	fmt::print("[Kernel Capabilities]\n");
 	if (kern.getThreadInfo().isSet())
 	{
-		nn::hac::ThreadInfoHandler threadInfo = kern.getThreadInfo();
+		pie::hac::ThreadInfoHandler threadInfo = kern.getThreadInfo();
 		fmt::print("  Thread Priority:\n");
 		fmt::print("    Min:     {:d}\n", threadInfo.getMinPriority());
 		fmt::print("    Max:     {:d}\n", threadInfo.getMaxPriority());
@@ -413,7 +413,7 @@ void nstool::MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityContro
 		for (size_t syscall_id = 0; syscall_id < syscall_ids.size(); syscall_id++)
 		{
 			if (syscall_ids.test(syscall_id))
-				syscall_names.push_back(nn::hac::KernelCapabilityUtil::getSystemCallIdAsString(nn::hac::kc::SystemCallId(syscall_id)));
+				syscall_names.push_back(pie::hac::KernelCapabilityUtil::getSystemCallIdAsString(pie::hac::kc::SystemCallId(syscall_id)));
 		}
 		fmt::print("{:s}", tc::cli::FormatUtil::formatListWithLineLimit(syscall_names, 60, 4));
 	}
@@ -445,7 +445,7 @@ void nstool::MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityContro
 	}
 	if (kern.getMiscParams().isSet())
 	{
-		fmt::print("  ProgramType:        {:s} ({:d})\n", nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()), kern.getMiscParams().getProgramType());
+		fmt::print("  ProgramType:        {:s} ({:d})\n", pie::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()), (uint32_t)kern.getMiscParams().getProgramType());
 	}
 	if (kern.getKernelVersion().isSet())
 	{
@@ -463,13 +463,13 @@ void nstool::MetaProcess::displayKernelCap(const nn::hac::KernelCapabilityContro
 		for (size_t misc_flags_bit = 0; misc_flags_bit < misc_flags.size(); misc_flags_bit++)
 		{
 			if (misc_flags.test(misc_flags_bit))
-				misc_flags_names.push_back(nn::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(nn::hac::kc::MiscFlagsBit(misc_flags_bit)));
+				misc_flags_names.push_back(pie::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(pie::hac::kc::MiscFlagsBit(misc_flags_bit)));
 		}
 		fmt::print("{:s}", tc::cli::FormatUtil::formatListWithLineLimit(misc_flags_names, 60, 4));
 	}
 }
 
-std::string nstool::MetaProcess::formatMappingAsString(const nn::hac::MemoryMappingHandler::sMemoryMapping& map) const
+std::string nstool::MetaProcess::formatMappingAsString(const pie::hac::MemoryMappingHandler::sMemoryMapping& map) const
 {
-	return fmt::format("0x{:016x} - 0x{:016x} (perm={:s}) (type={:s})", ((uint64_t)map.addr << 12), (((uint64_t)(map.addr + map.size) << 12) - 1), nn::hac::KernelCapabilityUtil::getMemoryPermissionAsString(map.perm), nn::hac::KernelCapabilityUtil::getMappingTypeAsString(map.type));
+	return fmt::format("0x{:016x} - 0x{:016x} (perm={:s}) (type={:s})", ((uint64_t)map.addr << 12), (((uint64_t)(map.addr + map.size) << 12) - 1), pie::hac::KernelCapabilityUtil::getMemoryPermissionAsString(map.perm), pie::hac::KernelCapabilityUtil::getMappingTypeAsString(map.type));
 }

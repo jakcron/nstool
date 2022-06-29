@@ -1,6 +1,6 @@
 #include "KipProcess.h"
 
-#include <nn/hac/KernelCapabilityUtil.h>
+#include <pietendo/hac/KernelCapabilityUtil.h>
 
 #include <tc/NotImplementedException.h>
 
@@ -50,13 +50,13 @@ void nstool::KipProcess::importHeader()
 	}
 
 	// check if file_size is smaller than KIP header size
-	if (tc::io::IOUtil::castInt64ToSize(mFile->length()) < sizeof(nn::hac::sKipHeader))
+	if (tc::io::IOUtil::castInt64ToSize(mFile->length()) < sizeof(pie::hac::sKipHeader))
 	{
 		throw tc::Exception(mModuleName, "Corrupt KIP: file too small.");
 	}
 
 	// read kip
-	tc::ByteData scratch = tc::ByteData(sizeof(nn::hac::sKipHeader));
+	tc::ByteData scratch = tc::ByteData(sizeof(pie::hac::sKipHeader));
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read(scratch.data(), scratch.size());
 
@@ -189,12 +189,12 @@ void nstool::KipProcess::displayHeader()
 
 }
 
-void nstool::KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl& kern)
+void nstool::KipProcess::displayKernelCap(const pie::hac::KernelCapabilityControl& kern)
 {
 	fmt::print("[Kernel Capabilities]\n");
 	if (kern.getThreadInfo().isSet())
 	{
-		nn::hac::ThreadInfoHandler threadInfo = kern.getThreadInfo();
+		pie::hac::ThreadInfoHandler threadInfo = kern.getThreadInfo();
 		fmt::print("  Thread Priority:\n");
 		fmt::print("    Min:     {:d}\n", threadInfo.getMinPriority());
 		fmt::print("    Max:     {:d}\n", threadInfo.getMaxPriority());
@@ -211,7 +211,7 @@ void nstool::KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl
 		for (size_t syscall_id = 0; syscall_id < syscall_ids.size(); syscall_id++)
 		{
 			if (syscall_ids.test(syscall_id))
-				syscall_names.push_back(nn::hac::KernelCapabilityUtil::getSystemCallIdAsString(nn::hac::kc::SystemCallId(syscall_id)));
+				syscall_names.push_back(pie::hac::KernelCapabilityUtil::getSystemCallIdAsString(pie::hac::kc::SystemCallId(syscall_id)));
 		}
 		fmt::print("{:s}", tc::cli::FormatUtil::formatListWithLineLimit(syscall_names, 60, 4));
 	}
@@ -243,7 +243,7 @@ void nstool::KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl
 	}
 	if (kern.getMiscParams().isSet())
 	{
-		fmt::print("  ProgramType:        {:s} ({:d})\n", nn::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()), kern.getMiscParams().getProgramType());
+		fmt::print("  ProgramType:        {:s} ({:d})\n", pie::hac::KernelCapabilityUtil::getProgramTypeAsString(kern.getMiscParams().getProgramType()), (uint32_t)kern.getMiscParams().getProgramType());
 	}
 	if (kern.getKernelVersion().isSet())
 	{
@@ -261,13 +261,13 @@ void nstool::KipProcess::displayKernelCap(const nn::hac::KernelCapabilityControl
 		for (size_t misc_flags_bit = 0; misc_flags_bit < misc_flags.size(); misc_flags_bit++)
 		{
 			if (misc_flags.test(misc_flags_bit))
-				misc_flags_names.push_back(nn::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(nn::hac::kc::MiscFlagsBit(misc_flags_bit)));
+				misc_flags_names.push_back(pie::hac::KernelCapabilityUtil::getMiscFlagsBitAsString(pie::hac::kc::MiscFlagsBit(misc_flags_bit)));
 		}
 		fmt::print("{:s}", tc::cli::FormatUtil::formatListWithLineLimit(misc_flags_names, 60, 4));
 	}
 }
 
-std::string nstool::KipProcess::formatMappingAsString(const nn::hac::MemoryMappingHandler::sMemoryMapping& map) const
+std::string nstool::KipProcess::formatMappingAsString(const pie::hac::MemoryMappingHandler::sMemoryMapping& map) const
 {
-	return fmt::format("0x{:016x} - 0x{:016x} (perm={:s}) (type={:s})", ((uint64_t)map.addr << 12), (((uint64_t)(map.addr + map.size) << 12) - 1), nn::hac::KernelCapabilityUtil::getMemoryPermissionAsString(map.perm), nn::hac::KernelCapabilityUtil::getMappingTypeAsString(map.type));
+	return fmt::format("0x{:016x} - 0x{:016x} (perm={:s}) (type={:s})", ((uint64_t)map.addr << 12), (((uint64_t)(map.addr + map.size) << 12) - 1), pie::hac::KernelCapabilityUtil::getMemoryPermissionAsString(map.perm), pie::hac::KernelCapabilityUtil::getMappingTypeAsString(map.type));
 }
