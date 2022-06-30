@@ -9,8 +9,6 @@
 #include <tc/io/FileStream.h>
 #include <tc/io/StreamSource.h>
 
-
-
 #include <pietendo/hac/ContentArchiveUtil.h>
 #include <pietendo/hac/AesKeygen.h>
 #include <pietendo/hac/define/gc.h>
