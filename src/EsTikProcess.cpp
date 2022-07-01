@@ -1,7 +1,7 @@
 #include "EsTikProcess.h"
 #include "PkiValidator.h"
 
-#include <nn/pki/SignUtils.h>
+#include <pietendo/hac/es/SignUtils.h>
 
 nstool::EsTikProcess::EsTikProcess() :
 	mModuleName("nstool::EsTikProcess"),
@@ -32,7 +32,7 @@ void nstool::EsTikProcess::setKeyCfg(const KeyBag& keycfg)
 	mKeyCfg = keycfg;
 }
 
-void nstool::EsTikProcess::setCertificateChain(const std::vector<nn::pki::SignedData<nn::pki::CertificateBody>>& certs)
+void nstool::EsTikProcess::setCertificateChain(const std::vector<pie::hac::es::SignedData<pie::hac::es::CertificateBody>>& certs)
 {
 	mCerts = certs;
 }
@@ -78,13 +78,13 @@ void nstool::EsTikProcess::verifyTicket()
 	PkiValidator pki_validator;
 	tc::ByteData tik_hash;
 
-	switch (nn::pki::sign::getHashAlgo(mTik.getSignature().getSignType()))
+	switch (pie::hac::es::sign::getHashAlgo(mTik.getSignature().getSignType()))
 	{
-	case (nn::pki::sign::HASH_ALGO_SHA1):
+	case (pie::hac::es::sign::HASH_ALGO_SHA1):
 		tik_hash = tc::ByteData(tc::crypto::Sha1Generator::kHashSize);
 		tc::crypto::GenerateSha1Hash(tik_hash.data(), mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size());
 		break;
-	case (nn::pki::sign::HASH_ALGO_SHA256):
+	case (pie::hac::es::sign::HASH_ALGO_SHA256):
 		tik_hash = tc::ByteData(tc::crypto::Sha256Generator::kHashSize);
 		tc::crypto::GenerateSha256Hash(tik_hash.data(), mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size());
 		break;
@@ -104,7 +104,7 @@ void nstool::EsTikProcess::verifyTicket()
 
 void nstool::EsTikProcess::displayTicket()
 {
-	const nn::es::TicketBody_V2& body = mTik.getBody();	
+	const pie::hac::es::TicketBody_V2& body = mTik.getBody();	
 
 	fmt::print("[ES Ticket]\n");
 	fmt::print("  SignType:         {:s}", getSignTypeStr(mTik.getSignature().getSignType()));
@@ -116,12 +116,12 @@ void nstool::EsTikProcess::displayTicket()
 	fmt::print("  Title Key:\n");
 	fmt::print("    EncMode:        {:s}\n", getTitleKeyPersonalisationStr(body.getTitleKeyEncType()));
 	fmt::print("    KeyGeneration:  {:d}\n", (uint32_t)body.getCommonKeyId());
-	if (body.getTitleKeyEncType() == nn::es::ticket::RSA2048)
+	if (body.getTitleKeyEncType() == pie::hac::es::ticket::RSA2048)
 	{
 		fmt::print("    Data:\n");
 		fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(body.getEncTitleKey(), 0x100, true, "", 0x10, 6, false));
 	}
-	else if (body.getTitleKeyEncType() == nn::es::ticket::AES128_CBC)
+	else if (body.getTitleKeyEncType() == pie::hac::es::ticket::AES128_CBC)
 	{
 		fmt::print("    Data:\n");
 		fmt::print("      {:s}\n", tc::cli::FormatUtil::formatBytesAsString(body.getEncTitleKey(), 0x10, true, ""));
@@ -134,7 +134,7 @@ void nstool::EsTikProcess::displayTicket()
 	fmt::print("  License Type:     {:s}\n", getLicenseTypeStr(body.getLicenseType())); 
 	if (body.getPropertyFlags().size() > 0 || mCliOutputMode.show_extended_info)
 	{
-		nn::es::sTicketBody_v2* raw_body = (nn::es::sTicketBody_v2*)body.getBytes().data();
+		pie::hac::es::sTicketBody_v2* raw_body = (pie::hac::es::sTicketBody_v2*)body.getBytes().data();
 		fmt::print("  PropertyMask:     0x{:04x}\n", ((tc::bn::le16<uint16_t>*)&raw_body->property_mask)->unwrap());
 		for (size_t i = 0; i < body.getPropertyFlags().size(); i++)
 		{
@@ -167,22 +167,22 @@ std::string nstool::EsTikProcess::getSignTypeStr(uint32_t type) const
 	std::string str;
 	switch(type)
 	{
-	case (nn::pki::sign::SIGN_ID_RSA4096_SHA1):
+	case (pie::hac::es::sign::SIGN_ID_RSA4096_SHA1):
 		str = "RSA4096-SHA1";
 		break;
-	case (nn::pki::sign::SIGN_ID_RSA2048_SHA1):
+	case (pie::hac::es::sign::SIGN_ID_RSA2048_SHA1):
 		str = "RSA2048-SHA1";
 		break;
-	case (nn::pki::sign::SIGN_ID_ECDSA240_SHA1):
+	case (pie::hac::es::sign::SIGN_ID_ECDSA240_SHA1):
 		str = "ECDSA240-SHA1";
 		break;
-	case (nn::pki::sign::SIGN_ID_RSA4096_SHA256):
+	case (pie::hac::es::sign::SIGN_ID_RSA4096_SHA256):
 		str = "RSA4096-SHA256";
 		break;
-	case (nn::pki::sign::SIGN_ID_RSA2048_SHA256):
+	case (pie::hac::es::sign::SIGN_ID_RSA2048_SHA256):
 		str = "RSA2048-SHA256";
 		break;
-	case (nn::pki::sign::SIGN_ID_ECDSA240_SHA256):
+	case (pie::hac::es::sign::SIGN_ID_ECDSA240_SHA256):
 		str = "ECDSA240-SHA256";
 		break;
 	default:
@@ -197,10 +197,10 @@ std::string nstool::EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) con
 	std::string str;
 	switch(flag)
 	{
-	case (nn::es::ticket::AES128_CBC):
+	case (pie::hac::es::ticket::AES128_CBC):
 		str = "Generic (AESCBC)";
 		break;
-	case (nn::es::ticket::RSA2048):
+	case (pie::hac::es::ticket::RSA2048):
 		str = "Personalised (RSA2048)";
 		break;
 	default:
@@ -215,22 +215,22 @@ std::string nstool::EsTikProcess::getLicenseTypeStr(byte_t flag) const
 	std::string str;
 	switch(flag)
 	{
-	case (nn::es::ticket::LICENSE_PERMANENT):
+	case (pie::hac::es::ticket::LICENSE_PERMANENT):
 		str = "Permanent";
 		break;
-	case (nn::es::ticket::LICENSE_DEMO):
+	case (pie::hac::es::ticket::LICENSE_DEMO):
 		str = "Demo";
 		break;
-	case (nn::es::ticket::LICENSE_TRIAL):
+	case (pie::hac::es::ticket::LICENSE_TRIAL):
 		str = "Trial";
 		break;
-	case (nn::es::ticket::LICENSE_RENTAL):
+	case (pie::hac::es::ticket::LICENSE_RENTAL):
 		str = "Rental";
 		break;
-	case (nn::es::ticket::LICENSE_SUBSCRIPTION):
+	case (pie::hac::es::ticket::LICENSE_SUBSCRIPTION):
 		str = "Subscription";
 		break;
-	case (nn::es::ticket::LICENSE_SERVICE):
+	case (pie::hac::es::ticket::LICENSE_SERVICE):
 		str = "Service";
 		break;
 	default:
@@ -245,22 +245,22 @@ std::string nstool::EsTikProcess::getPropertyFlagStr(byte_t flag) const
 	std::string str;
 	switch(flag)
 	{
-	case (nn::es::ticket::FLAG_PRE_INSTALL):
+	case (pie::hac::es::ticket::FLAG_PRE_INSTALL):
 		str = "PreInstall";
 		break;
-	case (nn::es::ticket::FLAG_SHARED_TITLE):
+	case (pie::hac::es::ticket::FLAG_SHARED_TITLE):
 		str = "SharedTitle";
 		break;
-	case (nn::es::ticket::FLAG_ALLOW_ALL_CONTENT):
+	case (pie::hac::es::ticket::FLAG_ALLOW_ALL_CONTENT):
 		str = "AllContent";
 		break;
-	case (nn::es::ticket::FLAG_DEVICE_LINK_INDEPENDENT):
+	case (pie::hac::es::ticket::FLAG_DEVICE_LINK_INDEPENDENT):
 		str = "DeviceLinkIndependent";
 		break;
-	case (nn::es::ticket::FLAG_VOLATILE):
+	case (pie::hac::es::ticket::FLAG_VOLATILE):
 		str = "Volatile";
 		break;
-	case (nn::es::ticket::FLAG_ELICENSE_REQUIRED):
+	case (pie::hac::es::ticket::FLAG_ELICENSE_REQUIRED):
 		str = "ELicenseRequired";
 		break;
 	default:

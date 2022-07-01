@@ -1,7 +1,5 @@
 #include "NroProcess.h"
 
-#include <nn/hac/define/nro-hb.h>
-
 nstool::NroProcess::NroProcess() :
 	mModuleName("nstool::NroProcess"),
 	mFile(),
@@ -91,13 +89,13 @@ void nstool::NroProcess::importHeader()
 	}
 
 	// check if file_size is smaller than NRO header size
-	if (tc::io::IOUtil::castInt64ToSize(mFile->length()) < sizeof(nn::hac::sNroHeader))
+	if (tc::io::IOUtil::castInt64ToSize(mFile->length()) < sizeof(pie::hac::sNroHeader))
 	{
 		throw tc::Exception(mModuleName, "Corrupt NRO: file too small.");
 	}
 
 	// read nro
-	tc::ByteData scratch = tc::ByteData(sizeof(nn::hac::sNroHeader));
+	tc::ByteData scratch = tc::ByteData(sizeof(pie::hac::sNroHeader));
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read(scratch.data(), scratch.size());
 
@@ -105,10 +103,10 @@ void nstool::NroProcess::importHeader()
 	mHdr.fromBytes(scratch.data(), scratch.size());
 
 	// setup homebrew extension
-	nn::hac::sNroHeader* raw_hdr = (nn::hac::sNroHeader*)scratch.data();
+	pie::hac::sNroHeader* raw_hdr = (pie::hac::sNroHeader*)scratch.data();
 
 	int64_t file_size = mFile->length();
-	if (((tc::bn::le64<uint64_t>*)raw_hdr->reserved_0.data())->unwrap() == nn::hac::nro::kNroHomebrewStructMagic && file_size > int64_t(mHdr.getNroSize()))
+	if (((tc::bn::le64<uint64_t>*)raw_hdr->reserved_0.data())->unwrap() == pie::hac::nro::kNroHomebrewStructMagic && file_size > int64_t(mHdr.getNroSize()))
 	{
 		mIsHomebrewNro = true;
 		mAssetProc.setInputFile(std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, int64_t(mHdr.getNroSize()), file_size - int64_t(mHdr.getNroSize()))));

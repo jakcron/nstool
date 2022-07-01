@@ -2,8 +2,8 @@
 #include "types.h"
 #include "KeyBag.h"
 
-#include <nn/pki/SignedData.h>
-#include <nn/pki/CertificateBody.h>
+#include <pietendo/hac/es/SignedData.h>
+#include <pietendo/hac/es/CertificateBody.h>
 
 namespace nstool {
 
@@ -27,16 +27,16 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	std::vector<nn::pki::SignedData<nn::pki::CertificateBody>> mCert;
+	std::vector<pie::hac::es::SignedData<pie::hac::es::CertificateBody>> mCert;
 
 	void importCerts();
 	void validateCerts();
 	void displayCerts();
-	void displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert);
+	void displayCert(const pie::hac::es::SignedData<pie::hac::es::CertificateBody>& cert);
 
-	std::string getSignTypeStr(nn::pki::sign::SignatureId type) const;
+	std::string getSignTypeStr(pie::hac::es::sign::SignatureId type) const;
 	std::string getEndiannessStr(bool isLittleEndian) const;
-	std::string getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const;
+	std::string getPublicKeyTypeStr(pie::hac::es::cert::PublicKeyType type) const;
 };
 
 }

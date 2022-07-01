@@ -31,8 +31,8 @@ PROJECT_SONAME = $(PROJECT_NAME).so.$(PROJECT_SO_VER_MAJOR)
 PROJECT_SO_FILENAME = $(PROJECT_SONAME).$(PROJECT_SO_VER_MINOR).$(PROJECT_SO_VER_PATCH)
 
 # Project Dependencies
-PROJECT_DEPEND = nintendo-hac-hb nintendo-hac nintendo-es nintendo-pki toolchain fmt lz4 mbedtls
-PROJECT_DEPEND_LOCAL_DIR = libnintendo-hac-hb libnintendo-hac libnintendo-es libnintendo-pki libtoolchain libfmt liblz4 libmbedtls
+PROJECT_DEPEND = pietendo toolchain fmt lz4 mbedtls
+PROJECT_DEPEND_LOCAL_DIR = libpietendo libtoolchain libfmt liblz4 libmbedtls
 
 # Generate compiler flags for including project include path
 ifneq ($(PROJECT_INCLUDE_PATH),)

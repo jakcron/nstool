@@ -3,7 +3,7 @@
 #include "NacpProcess.h"
 #include "RomfsProcess.h"
 
-#include <nn/hac/AssetHeader.h>
+#include <pietendo/hac/AssetHeader.h>
 
 namespace nstool {
 
@@ -33,7 +33,7 @@ private:
 	tc::Optional<tc::io::Path> mIconExtractPath;
 	tc::Optional<tc::io::Path> mNacpExtractPath;
 
-	nn::hac::AssetHeader mHdr;
+	pie::hac::AssetHeader mHdr;
 	NacpProcess mNacp;
 	RomfsProcess mRomfs;
 

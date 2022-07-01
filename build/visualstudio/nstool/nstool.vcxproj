@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libpietendo\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -86,7 +86,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libpietendo\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -98,7 +98,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libpietendo\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -114,7 +114,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\libfnd\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libnintendo-es\include;$(SolutionDir)..\..\deps\libnintendo-pki\include;$(SolutionDir)..\..\deps\libnintendo-hac\include;$(SolutionDir)..\..\deps\libnintendo-hac-hb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\include;$(SolutionDir)..\..\deps\liblz4\include;$(SolutionDir)..\..\deps\libtoolchain\include;$(SolutionDir)..\..\deps\libfmt\include;$(SolutionDir)..\..\deps\libpietendo\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -129,23 +129,14 @@
     <ProjectReference Include="$(SolutionDir)..\..\deps\liblz4\build\visualstudio\liblz4\liblz4.vcxproj">
       <Project>{e741aded-7900-4e07-8db0-d008c336c3fb}</Project>
     </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)..\..\deps\libnintendo-es\build\visualstudio\libnintendo-es\libnintendo-es.vcxproj">
-      <Project>{8616d6c9-c8de-4c3f-afc2-625636664c2b}</Project>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)..\..\deps\libnintendo-hac-hb\build\visualstudio\libnintendo-hac-hb\libnintendo-hac-hb.vcxproj">
-      <Project>{24d001b4-d439-4967-9371-dc3e0523eb19}</Project>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)..\..\deps\libnintendo-hac\build\visualstudio\libnintendo-hac\libnintendo-hac.vcxproj">
-      <Project>{8885c125-83fb-4f73-a93a-c712b1434d54}</Project>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)..\..\deps\libnintendo-pki\build\visualstudio\libnintendo-pki\libnintendo-pki.vcxproj">
-      <Project>{0bef63a0-2801-4563-ab65-1e2fd881c3af}</Project>
-    </ProjectReference>
     <ProjectReference Include="$(SolutionDir)..\..\deps\libmbedtls\build\visualstudio\libmbedtls\libmbedtls.vcxproj">
       <Project>{7a7c66f3-2b5b-4e23-85d8-2a74fedad92c}</Project>
     </ProjectReference>
     <ProjectReference Include="$(SolutionDir)..\..\deps\libtoolchain\build\visualstudio\libtoolchain\libtoolchain.vcxproj">
       <Project>{e194e4b8-1482-40a2-901b-75d4387822e9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)..\..\deps\libpietendo\build\visualstudio\libpietendo\libpietendo.vcxproj">
+      <Project>{5addd009-9d25-40be-b2a6-2f3ab4dcbbd2}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

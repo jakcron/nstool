@@ -3,7 +3,7 @@
 #include "SdkApiString.h"
 #include "ElfSymbolParser.h"
 
-#include <nn/hac/define/meta.h>
+#include <pietendo/hac/define/meta.h>
 
 namespace nstool {
 

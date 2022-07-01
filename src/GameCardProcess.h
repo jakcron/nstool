@@ -3,7 +3,7 @@
 #include "KeyBag.h"
 #include "PfsProcess.h"
 
-#include <nn/hac/GameCardHeader.h>
+#include <pietendo/hac/GameCardHeader.h>
 
 namespace nstool {
 
@@ -32,18 +32,18 @@ private:
 	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
-	bool mListFs;
 	
 	bool mIsTrueSdkXci;
 	bool mIsSdkXciEncrypted;
 	size_t mGcHeaderOffset;
 	bool mProccessExtendedHeader;
-	nn::hac::detail::rsa2048_signature_t mHdrSignature;
-	nn::hac::detail::sha256_hash_t mHdrHash;
-	nn::hac::GameCardHeader mHdr;
+	pie::hac::detail::rsa2048_signature_t mHdrSignature;
+	pie::hac::detail::sha256_hash_t mHdrHash;
+	pie::hac::GameCardHeader mHdr;
 	
-	PfsProcess mRootPfs;
-	std::vector<nstool::ExtractJob> mExtractJobs;
+	// fs processing
+	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
+	FsProcess mFsProcess;
 
 	void importHeader();
 	void displayHeader();

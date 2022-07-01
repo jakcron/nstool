@@ -2,7 +2,7 @@
 #include "PkiValidator.h"
 #include "util.h"
 
-#include <nn/pki/SignUtils.h>
+#include <pietendo/hac/es/SignUtils.h>
 
 nstool::EsCertProcess::EsCertProcess() :
 	mModuleName("nstool::EsCertProcess"),
@@ -66,7 +66,7 @@ void nstool::EsCertProcess::importCerts()
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read(scratch.data(), scratch.size());
 
-	nn::pki::SignedData<nn::pki::CertificateBody> cert;
+	pie::hac::es::SignedData<pie::hac::es::CertificateBody> cert;
 	for (size_t f_pos = 0; f_pos < scratch.size(); f_pos += cert.getBytes().size())
 	{
 		cert.fromBytes(scratch.data() + f_pos, scratch.size() - f_pos);
@@ -98,7 +98,7 @@ void nstool::EsCertProcess::displayCerts()
 	}
 }
 
-void nstool::EsCertProcess::displayCert(const nn::pki::SignedData<nn::pki::CertificateBody>& cert)
+void nstool::EsCertProcess::displayCert(const pie::hac::es::SignedData<pie::hac::es::CertificateBody>& cert)
 {
 	fmt::print("[ES Certificate]\n");
 
@@ -115,7 +115,7 @@ void nstool::EsCertProcess::displayCert(const nn::pki::SignedData<nn::pki::Certi
 	fmt::print("\n");
 	fmt::print("  CertID:        0x{:x}\n", cert.getBody().getCertId());
 	
-	if (cert.getBody().getPublicKeyType() == nn::pki::cert::RSA4096)
+	if (cert.getBody().getPublicKeyType() == pie::hac::es::cert::RSA4096)
 	{
 		fmt::print("  PublicKey:\n");
 		if (mCliOutputMode.show_extended_info)
@@ -133,7 +133,7 @@ void nstool::EsCertProcess::displayCert(const nn::pki::SignedData<nn::pki::Certi
 			fmt::print("      {:s}\n", getTruncatedBytesString(cert.getBody().getRsa4096PublicKey().e.data(), cert.getBody().getRsa4096PublicKey().e.size()));
 		}
 	}
-	else if (cert.getBody().getPublicKeyType() == nn::pki::cert::RSA2048)
+	else if (cert.getBody().getPublicKeyType() == pie::hac::es::cert::RSA2048)
 	{
 		fmt::print("  PublicKey:\n");
 		if (mCliOutputMode.show_extended_info)
@@ -151,7 +151,7 @@ void nstool::EsCertProcess::displayCert(const nn::pki::SignedData<nn::pki::Certi
 			fmt::print("      {:s}\n", getTruncatedBytesString(cert.getBody().getRsa2048PublicKey().e.data(), cert.getBody().getRsa2048PublicKey().e.size()));
 		}
 	}
-	else if (cert.getBody().getPublicKeyType() == nn::pki::cert::ECDSA240)
+	else if (cert.getBody().getPublicKeyType() == pie::hac::es::cert::ECDSA240)
 	{
 		fmt::print("  PublicKey:\n");
 		if (mCliOutputMode.show_extended_info)
@@ -171,27 +171,27 @@ void nstool::EsCertProcess::displayCert(const nn::pki::SignedData<nn::pki::Certi
 	}
 }
 
-std::string nstool::EsCertProcess::getSignTypeStr(nn::pki::sign::SignatureId type) const
+std::string nstool::EsCertProcess::getSignTypeStr(pie::hac::es::sign::SignatureId type) const
 {
 	std::string str;
 	switch (type)
 	{
-	case (nn::pki::sign::SIGN_ID_RSA4096_SHA1):
+	case (pie::hac::es::sign::SIGN_ID_RSA4096_SHA1):
 		str = "RSA4096-SHA1";
 		break;
-	case (nn::pki::sign::SIGN_ID_RSA2048_SHA1):
+	case (pie::hac::es::sign::SIGN_ID_RSA2048_SHA1):
 		str = "RSA2048-SHA1";
 		break;
-	case (nn::pki::sign::SIGN_ID_ECDSA240_SHA1):
+	case (pie::hac::es::sign::SIGN_ID_ECDSA240_SHA1):
 		str = "ECDSA240-SHA1";
 		break;
-	case (nn::pki::sign::SIGN_ID_RSA4096_SHA256):
+	case (pie::hac::es::sign::SIGN_ID_RSA4096_SHA256):
 		str = "RSA4096-SHA256";
 		break;
-	case (nn::pki::sign::SIGN_ID_RSA2048_SHA256):
+	case (pie::hac::es::sign::SIGN_ID_RSA2048_SHA256):
 		str = "RSA2048-SHA256";
 		break;
-	case (nn::pki::sign::SIGN_ID_ECDSA240_SHA256):
+	case (pie::hac::es::sign::SIGN_ID_ECDSA240_SHA256):
 		str = "ECDSA240-SHA256";
 		break;
 	default:
@@ -206,18 +206,18 @@ std::string nstool::EsCertProcess::getEndiannessStr(bool isLittleEndian) const
 	return isLittleEndian ? "LittleEndian" : "BigEndian";
 }
 
-std::string nstool::EsCertProcess::getPublicKeyTypeStr(nn::pki::cert::PublicKeyType type) const
+std::string nstool::EsCertProcess::getPublicKeyTypeStr(pie::hac::es::cert::PublicKeyType type) const
 {
 	std::string str;
 	switch (type)
 	{
-	case (nn::pki::cert::RSA4096):
+	case (pie::hac::es::cert::RSA4096):
 		str = "RSA4096";
 		break;
-	case (nn::pki::cert::RSA2048):
+	case (pie::hac::es::cert::RSA2048):
 		str = "RSA2048";
 		break;
-	case (nn::pki::cert::ECDSA240):
+	case (pie::hac::es::cert::ECDSA240):
 		str = "ECDSA240";
 		break;
 	default:

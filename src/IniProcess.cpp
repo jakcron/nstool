@@ -59,13 +59,13 @@ void nstool::IniProcess::importHeader()
 	}
 
 	// check if file_size is smaller than INI header size
-	if (tc::io::IOUtil::castInt64ToSize(mFile->length()) < sizeof(nn::hac::sIniHeader))
+	if (tc::io::IOUtil::castInt64ToSize(mFile->length()) < sizeof(pie::hac::sIniHeader))
 	{
 		throw tc::Exception(mModuleName, "Corrupt INI: file too small.");
 	}
 
 	// read ini
-	tc::ByteData scratch = tc::ByteData(sizeof(nn::hac::sIniHeader));
+	tc::ByteData scratch = tc::ByteData(sizeof(pie::hac::sIniHeader));
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read(scratch.data(), scratch.size());
 
@@ -76,12 +76,12 @@ void nstool::IniProcess::importHeader()
 void nstool::IniProcess::importKipList()
 {
 	// kip pos info
-	int64_t kip_pos = tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sIniHeader));
+	int64_t kip_pos = tc::io::IOUtil::castSizeToInt64(sizeof(pie::hac::sIniHeader));
 	int64_t kip_size = 0;
 
 	// tmp data to determine size
-	nn::hac::sKipHeader hdr_raw;
-	nn::hac::KernelInitialProcessHeader hdr;
+	pie::hac::sKipHeader hdr_raw;
+	pie::hac::KernelInitialProcessHeader hdr;
 
 	for (size_t i = 0; i < mHdr.getKipNum(); i++)
 	{
@@ -121,12 +121,11 @@ void nstool::IniProcess::extractKipList()
 	tc::ByteData cache = tc::ByteData(kCacheSize);
 
 	// make extract dir
-	tc::io::LocalStorage local_fs;
+	tc::io::LocalFileSystem local_fs;
 	local_fs.createDirectory(mKipExtractPath.get());
 	
 	// out path for extracted KIP
 	tc::io::Path out_path;
-	std::string out_path_str;
 
 	// extract KIPs
 	for (auto itr = mKipList.begin(); itr != mKipList.end(); itr++)
@@ -134,17 +133,15 @@ void nstool::IniProcess::extractKipList()
 		out_path = mKipExtractPath.get();
 		out_path += fmt::format("{:s}.kip", itr->hdr.getName());
 
-		tc::io::PathUtil::pathToUnixUTF8(out_path, out_path_str);
-
 		if (mCliOutputMode.show_basic_info)
-			fmt::print("Saving {:s}...\n", out_path_str);
+			fmt::print("Saving {:s}...\n", out_path.to_string());
 
 		writeStreamToFile(itr->stream, out_path, cache);
 	}
 }
 
-int64_t nstool::IniProcess::getKipSizeFromHeader(const nn::hac::KernelInitialProcessHeader& hdr) const
+int64_t nstool::IniProcess::getKipSizeFromHeader(const pie::hac::KernelInitialProcessHeader& hdr) const
 {	
 	// the order of elements in a KIP are sequential, there are no file offsets
-	return int64_t(sizeof(nn::hac::sKipHeader)) + int64_t(hdr.getTextSegmentInfo().file_layout.size + hdr.getRoSegmentInfo().file_layout.size + hdr.getDataSegmentInfo().file_layout.size);
+	return int64_t(sizeof(pie::hac::sKipHeader)) + int64_t(hdr.getTextSegmentInfo().file_layout.size + hdr.getRoSegmentInfo().file_layout.size + hdr.getDataSegmentInfo().file_layout.size);
 }

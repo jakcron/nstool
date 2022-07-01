@@ -2,7 +2,7 @@
 #include "util.h"
 
 #include <tc/io/VirtualFileSystem.h>
-#include <nn/hac/RomFsMetaGenerator.h>
+#include <pietendo/hac/RomFsSnapshotGenerator.h>
 
 
 nstool::RomfsProcess::RomfsProcess() :
@@ -32,16 +32,16 @@ void nstool::RomfsProcess::process()
 	tc::ByteData scratch;
 
 	// read base header to determine complete header size
-	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sRomfsHeader)))
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(pie::hac::sRomfsHeader)))
 	{
 		throw tc::Exception(mModuleName, "Corrupt RomFs: File too small");
 	}
 
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
 	mFile->read((byte_t*)&mRomfsHeader, sizeof(mRomfsHeader));
-	if (mRomfsHeader.header_size.unwrap() != sizeof(nn::hac::sRomfsHeader) ||
+	if (mRomfsHeader.header_size.unwrap() != sizeof(pie::hac::sRomfsHeader) ||
 	    mRomfsHeader.dir_entry.offset.unwrap() != (mRomfsHeader.dir_hash_bucket.offset.unwrap() + mRomfsHeader.dir_hash_bucket.size.unwrap()) ||
-	    mRomfsHeader.data_offset.unwrap() != align<int64_t>(mRomfsHeader.header_size.unwrap(), nn::hac::romfs::kRomfsHeaderAlign))
+	    mRomfsHeader.data_offset.unwrap() != align<int64_t>(mRomfsHeader.header_size.unwrap(), pie::hac::romfs::kRomfsHeaderAlign))
 	{
 		throw tc::ArgumentOutOfRangeException(mModuleName, "Corrupt RomFs: RomFsHeader is corrupted.");
 	}
@@ -60,7 +60,7 @@ void nstool::RomfsProcess::process()
 	mDirNum = 0;
 	for (uint32_t v_addr = 0; size_t(v_addr) < dir_entry_table.size();)
 	{
-		uint32_t total_size = sizeof(nn::hac::sRomfsDirEntry) + align<uint32_t>(((nn::hac::sRomfsDirEntry*)(dir_entry_table.data() + v_addr))->name_size.unwrap(), 4);
+		uint32_t total_size = sizeof(pie::hac::sRomfsDirEntry) + align<uint32_t>(((pie::hac::sRomfsDirEntry*)(dir_entry_table.data() + v_addr))->name_size.unwrap(), 4);
 
 		// don't count root directory
 		if (v_addr != 0)
@@ -75,7 +75,7 @@ void nstool::RomfsProcess::process()
 	mFileNum = 0;
 	for (uint32_t v_addr = 0; size_t(v_addr) < file_entry_table.size();)
 	{
-		uint32_t total_size = sizeof(nn::hac::sRomfsFileEntry) + align<uint32_t>(((nn::hac::sRomfsFileEntry*)(file_entry_table.data() + v_addr))->name_size.unwrap(), 4);
+		uint32_t total_size = sizeof(pie::hac::sRomfsFileEntry) + align<uint32_t>(((pie::hac::sRomfsFileEntry*)(file_entry_table.data() + v_addr))->name_size.unwrap(), 4);
 
 		mFileNum += 1;
 
@@ -83,7 +83,7 @@ void nstool::RomfsProcess::process()
 	}
 
 	// create virtual filesystem
-	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(nn::hac::RomFsMetaGenerator(mFile)));
+	mFileSystem = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(pie::hac::RomFsSnapshotGenerator(mFile)));
 	mFsProcess.setInputFileSystem(mFileSystem);
 
 	// set properties for FsProcess

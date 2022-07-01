@@ -2,7 +2,7 @@
 #include "types.h"
 #include "FsProcess.h"
 
-#include <nn/hac/PartitionFsHeader.h>
+#include <pietendo/hac/PartitionFsHeader.h>
 
 namespace nstool {
 
@@ -24,8 +24,8 @@ public:
 	void setExtractJobs(const std::vector<nstool::ExtractJob>& extract_jobs);
 
 	// post process() get PFS/FS out
-	const nn::hac::PartitionFsHeader& getPfsHeader() const;
-	const std::shared_ptr<tc::io::IStorage>& getFileSystem() const;
+	const pie::hac::PartitionFsHeader& getPfsHeader() const;
+	const std::shared_ptr<tc::io::IFileSystem>& getFileSystem() const;
 
 private:
 	static const size_t kCacheSize = 0x10000;
@@ -36,13 +36,13 @@ private:
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
 
-	nn::hac::PartitionFsHeader mPfs;
+	pie::hac::PartitionFsHeader mPfs;
 
-	std::shared_ptr<tc::io::IStorage> mFileSystem;
+	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
 	FsProcess mFsProcess;
 	
-	size_t determineHeaderSize(const nn::hac::sPfsHeader* hdr);
-	bool validateHeaderMagic(const nn::hac::sPfsHeader* hdr);
+	size_t determineHeaderSize(const pie::hac::sPfsHeader* hdr);
+	bool validateHeaderMagic(const pie::hac::sPfsHeader* hdr);
 };
 
 }

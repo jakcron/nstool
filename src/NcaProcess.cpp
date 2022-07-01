@@ -2,15 +2,13 @@
 #include "MetaProcess.h"
 #include "util.h"
 
-#include <tc/crypto/detail/BlockUtilImpl.h>
-
-#include <nn/hac/ContentArchiveUtil.h>
-#include <nn/hac/AesKeygen.h>
-#include <nn/hac/HierarchicalSha256Stream.h>
-#include <nn/hac/HierarchicalIntegrityStream.h>
-#include <nn/hac/PartitionFsMetaGenerator.h>
-#include <nn/hac/RomFsMetaGenerator.h>
-#include <nn/hac/CombinedFsMetaGenerator.h>
+#include <pietendo/hac/ContentArchiveUtil.h>
+#include <pietendo/hac/AesKeygen.h>
+#include <pietendo/hac/HierarchicalSha256Stream.h>
+#include <pietendo/hac/HierarchicalIntegrityStream.h>
+#include <pietendo/hac/PartitionFsSnapshotGenerator.h>
+#include <pietendo/hac/RomFsSnapshotGenerator.h>
+#include <pietendo/hac/CombinedFsSnapshotGenerator.h>
 
 nstool::NcaProcess::NcaProcess() :
 	mModuleName("nstool::NcaProcess"),
@@ -80,7 +78,7 @@ void nstool::NcaProcess::setExtractJobs(const std::vector<nstool::ExtractJob>& e
 	mFsProcess.setExtractJobs(extract_jobs);
 }
 
-const std::shared_ptr<tc::io::IStorage>& nstool::NcaProcess::getFileSystem() const
+const std::shared_ptr<tc::io::IFileSystem>& nstool::NcaProcess::getFileSystem() const
 {
 	return mFileSystem;
 }
@@ -97,25 +95,25 @@ void nstool::NcaProcess::importHeader()
 	}
 
 	// read header block
-	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(nn::hac::sContentArchiveHeaderBlock)))
+	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(pie::hac::sContentArchiveHeaderBlock)))
 	{
 		throw tc::Exception(mModuleName, "Corrupt NCA: File too small.");
 	}
 	mFile->seek(0, tc::io::SeekOrigin::Begin);
-	mFile->read((byte_t*)(&mHdrBlock), sizeof(nn::hac::sContentArchiveHeaderBlock));
+	mFile->read((byte_t*)(&mHdrBlock), sizeof(pie::hac::sContentArchiveHeaderBlock));
 
 	// decrypt header block
 	if (mKeyCfg.nca_header_key.isNull())
 	{
 		throw tc::Exception(mModuleName, "Failed to decrypt NCA header. (nca_header_key could not be loaded)");
 	}
-	nn::hac::ContentArchiveUtil::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyCfg.nca_header_key.get());
+	pie::hac::ContentArchiveUtil::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyCfg.nca_header_key.get());
 
 	// generate header hash
-	tc::crypto::GenerateSha256Hash(mHdrHash.data(), (byte_t*)&mHdrBlock.header, sizeof(nn::hac::sContentArchiveHeader));
+	tc::crypto::GenerateSha256Hash(mHdrHash.data(), (byte_t*)&mHdrBlock.header, sizeof(pie::hac::sContentArchiveHeader));
 
 	// proccess main header
-	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(nn::hac::sContentArchiveHeader));
+	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(pie::hac::sContentArchiveHeader));
 }
 
 void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
@@ -125,7 +123,7 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 	memset(zero_aesctr_key.data(), 0, zero_aesctr_key.size());
 	
 	// get key data from header
-	byte_t masterkey_rev = nn::hac::AesKeygen::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
+	byte_t masterkey_rev = pie::hac::AesKeygen::getMasterKeyRevisionFromKeyGeneration(mHdr.getKeyGeneration());
 	byte_t keak_index = mHdr.getKeyAreaEncryptionKeyIndex();
 
 	// process key area
@@ -141,13 +139,13 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 			if (i < 4 && mKeyCfg.nca_key_area_encryption_key[keak_index].find(masterkey_rev) != mKeyCfg.nca_key_area_encryption_key[keak_index].end())
 			{
 				kak.decrypted = true;
-				nn::hac::AesKeygen::generateKey(kak.dec.data(), kak.enc.data(), mKeyCfg.nca_key_area_encryption_key[keak_index][masterkey_rev].data());
+				pie::hac::AesKeygen::generateKey(kak.dec.data(), kak.enc.data(), mKeyCfg.nca_key_area_encryption_key[keak_index][masterkey_rev].data());
 			}
-			// key[KEY_AESCTR_HW]
-			else if (i == nn::hac::nca::KEY_AESCTR_HW && mKeyCfg.nca_key_area_encryption_key_hw[keak_index].find(masterkey_rev) != mKeyCfg.nca_key_area_encryption_key_hw[keak_index].end())
+			// key[KeyBankIndex_AesCtrHw]
+			else if (i == pie::hac::nca::KeyBankIndex_AesCtrHw && mKeyCfg.nca_key_area_encryption_key_hw[keak_index].find(masterkey_rev) != mKeyCfg.nca_key_area_encryption_key_hw[keak_index].end())
 			{
 				kak.decrypted = true;
-				nn::hac::AesKeygen::generateKey(kak.dec.data(), kak.enc.data(), mKeyCfg.nca_key_area_encryption_key_hw[keak_index][masterkey_rev].data());
+				pie::hac::AesKeygen::generateKey(kak.dec.data(), kak.enc.data(), mKeyCfg.nca_key_area_encryption_key_hw[keak_index][masterkey_rev].data());
 			}
 			else
 			{
@@ -158,7 +156,7 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 	}
 
 	// clear content key
-	mContentKey.aes_ctr = tc::Optional<nn::hac::detail::aes128_key_t>();
+	mContentKey.aes_ctr = tc::Optional<pie::hac::detail::aes128_key_t>();
 
 	// if this has a rights id, the key needs to be sourced from a ticket
 	if (mHdr.hasRightsId() == true)
@@ -177,7 +175,7 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 			tmp_key = mKeyCfg.fallback_enc_content_key.get();
 			if (mKeyCfg.etik_common_key.find(masterkey_rev) != mKeyCfg.etik_common_key.end())
 			{
-				nn::hac::AesKeygen::generateKey(tmp_key.data(), tmp_key.data(), mKeyCfg.etik_common_key[masterkey_rev].data());
+				pie::hac::AesKeygen::generateKey(tmp_key.data(), tmp_key.data(), mKeyCfg.etik_common_key[masterkey_rev].data());
 				mContentKey.aes_ctr = tmp_key;
 			}
 		}
@@ -187,7 +185,7 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 	{
 		for (size_t i = 0; i < mContentKey.kak_list.size(); i++)
 		{
-			if (mContentKey.kak_list[i].index == nn::hac::nca::KEY_AESCTR && mContentKey.kak_list[i].decrypted)
+			if (mContentKey.kak_list[i].index == pie::hac::nca::KeyBankIndex_AesCtr && mContentKey.kak_list[i].decrypted)
 			{
 				mContentKey.aes_ctr = mContentKey.kak_list[i].dec;
 			}
@@ -218,39 +216,41 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 	{
 		// get reference to relevant structures
-		const nn::hac::ContentArchiveHeader::sPartitionEntry& partition = mHdr.getPartitionEntryList()[i];
-		nn::hac::sContentArchiveFsHeader& fs_header = mHdrBlock.fs_header[partition.header_index];
+		const pie::hac::ContentArchiveHeader::sPartitionEntry& partition = mHdr.getPartitionEntryList()[i];
+		pie::hac::sContentArchiveFsHeader& fs_header = mHdrBlock.fs_header[partition.header_index];
 
 		// output structure
 		sPartitionInfo& info = mPartitions[partition.header_index];
 
 		// validate header hash
-		nn::hac::detail::sha256_hash_t fs_header_hash;
-		tc::crypto::GenerateSha256Hash(fs_header_hash.data(), (const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(nn::hac::sContentArchiveFsHeader));
+		pie::hac::detail::sha256_hash_t fs_header_hash;
+		tc::crypto::GenerateSha256Hash(fs_header_hash.data(), (const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(pie::hac::sContentArchiveFsHeader));
 		if (fs_header_hash != partition.fs_header_hash)
 		{
 			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Hash: FAIL", partition.header_index));
 		}
 
-		if (fs_header.version.unwrap() != nn::hac::nca::kDefaultFsHeaderVersion)
+		if (fs_header.version.unwrap() != pie::hac::nca::kDefaultFsHeaderVersion)
 		{
 			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Version({:d}): UNSUPPORTED", partition.header_index, fs_header.version.unwrap()));
 		}
 
 		// setup AES-CTR 
-		nn::hac::ContentArchiveUtil::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.data());
+		pie::hac::ContentArchiveUtil::getNcaPartitionAesCtr(&fs_header, info.aes_ctr.data());
 
 		// save partition configinfo
 		info.offset = partition.offset;
 		info.size = partition.size;
-		info.format_type = (nn::hac::nca::FormatType)fs_header.format_type;
-		info.hash_type = (nn::hac::nca::HashType)fs_header.hash_type;
-		info.enc_type = (nn::hac::nca::EncryptionType)fs_header.encryption_type;
-		if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
+		info.format_type = (pie::hac::nca::FormatType)fs_header.format_type;
+		info.hash_type = (pie::hac::nca::HashType)fs_header.hash_type;
+		info.enc_type = (pie::hac::nca::EncryptionType)fs_header.encryption_type;
+		info.metadata_hash_type = (pie::hac::nca::MetaDataHashType)fs_header.meta_data_hash_type;
+
+		if (info.hash_type == pie::hac::nca::HashType_HierarchicalSha256)
 		{
 			info.hierarchicalsha256_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
 		}	
-		else if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
+		else if (info.hash_type == pie::hac::nca::HashType_HierarchicalIntegrity)
 		{
 			info.hierarchicalintegrity_hdr.fromBytes(fs_header.hash_info.data(), fs_header.hash_info.size());
 		}
@@ -269,65 +269,65 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 				info.reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, info.offset, info.size));
 
 				// handle encryption if required reader based on encryption type
-				if (info.enc_type == nn::hac::nca::EncryptionType::None)
+				if (info.enc_type == pie::hac::nca::EncryptionType_None)
 				{
 					// no encryption so do nothing
 					//info.reader = info.reader;
 				}
-				else if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+				else if (info.enc_type == pie::hac::nca::EncryptionType_AesCtr)
 				{
 					if (mContentKey.aes_ctr.isNull())
 						throw tc::Exception(mModuleName, "AES-CTR Key was not determined");
 
 					// get partition key
-					nn::hac::detail::aes128_key_t partition_key = mContentKey.aes_ctr.get();
+					pie::hac::detail::aes128_key_t partition_key = mContentKey.aes_ctr.get();
 
 					// get partition counter
-					nn::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
-					tc::crypto::detail::incr_counter<16>(partition_ctr.data(), info.offset>>4);
+					pie::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
+					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset>>4);
 
 					// create decryption stream
 					info.reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.reader, partition_key, partition_ctr));
 
 				}
-				else if (info.enc_type == nn::hac::nca::EncryptionType::AesXts || info.enc_type == nn::hac::nca::EncryptionType::AesCtrEx)
+				else if (info.enc_type == pie::hac::nca::EncryptionType_AesXts || info.enc_type == pie::hac::nca::EncryptionType_AesCtrEx)
 				{
-					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", pie::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
 				}
 				else
 				{
-					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
+					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNKNOWN", pie::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
 				}
 			}
 
 			// filter out unrecognised hash types, and hash based readers
 			switch (info.hash_type)
 			{
-			case (nn::hac::nca::HashType::None):
+			case (pie::hac::nca::HashType_None):
 				break;
-			case (nn::hac::nca::HashType::HierarchicalSha256):
-				info.reader = std::make_shared<nn::hac::HierarchicalSha256Stream>(nn::hac::HierarchicalSha256Stream(info.reader, info.hierarchicalsha256_hdr));
+			case (pie::hac::nca::HashType_HierarchicalSha256):
+				info.reader = std::make_shared<pie::hac::HierarchicalSha256Stream>(pie::hac::HierarchicalSha256Stream(info.reader, info.hierarchicalsha256_hdr));
 				break;
-			case (nn::hac::nca::HashType::HierarchicalIntegrity):
-				info.reader = std::make_shared<nn::hac::HierarchicalIntegrityStream>(nn::hac::HierarchicalIntegrityStream(info.reader, info.hierarchicalintegrity_hdr));
+			case (pie::hac::nca::HashType_HierarchicalIntegrity):
+				info.reader = std::make_shared<pie::hac::HierarchicalIntegrityStream>(pie::hac::HierarchicalIntegrityStream(info.reader, info.hierarchicalintegrity_hdr));
 				break;
 			default:
-				throw tc::Exception(mModuleName, fmt::format("HashType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type)));
+				throw tc::Exception(mModuleName, fmt::format("HashType({:s}): UNKNOWN", pie::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type)));
 			}
 
 			// filter out unrecognised format types
 			switch (info.format_type)
 			{
-			case (nn::hac::nca::FormatType::PartitionFs):
-				info.fs_meta = nn::hac::PartitionFsMetaGenerator(info.reader);
-				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_meta));
+			case (pie::hac::nca::FormatType_PartitionFs):
+				info.fs_snapshot = pie::hac::PartitionFsSnapshotGenerator(info.reader);
+				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_snapshot));
 				break;
-			case (nn::hac::nca::FormatType::RomFs):
-				info.fs_meta = nn::hac::RomFsMetaGenerator(info.reader);
-				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_meta));
+			case (pie::hac::nca::FormatType_RomFs):
+				info.fs_snapshot = pie::hac::RomFsSnapshotGenerator(info.reader);
+				info.fs_reader = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(info.fs_snapshot));
 				break;
 			default:
-				throw tc::Exception(mModuleName, fmt::format("FormatType({:s}): UNKNOWN", nn::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type)));
+				throw tc::Exception(mModuleName, fmt::format("FormatType({:s}): UNKNOWN", pie::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type)));
 			}
 		}
 		catch (const tc::Exception& e)
@@ -354,16 +354,16 @@ void nstool::NcaProcess::validateNcaSignatures()
 	
 
 	// validate signature[1]
-	if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
+	if (mHdr.getContentType() == pie::hac::nca::ContentType_Program)
 	{
 		try {
-			if (mPartitions[nn::hac::nca::PARTITION_CODE].format_type == nn::hac::nca::FormatType::PartitionFs)
+			if (mPartitions[pie::hac::nca::ProgramContentPartitionIndex_Code].format_type == pie::hac::nca::FormatType_PartitionFs)
 			{
-				if (mPartitions[nn::hac::nca::PARTITION_CODE].fs_reader != nullptr)
+				if (mPartitions[pie::hac::nca::ProgramContentPartitionIndex_Code].fs_reader != nullptr)
 				{
 					std::shared_ptr<tc::io::IStream> npdm_file;
 					try {
-						mPartitions[nn::hac::nca::PARTITION_CODE].fs_reader->openFile(tc::io::Path(kNpdmExefsPath), tc::io::FileMode::Open, tc::io::FileAccess::Read, npdm_file);
+						mPartitions[pie::hac::nca::ProgramContentPartitionIndex_Code].fs_reader->openFile(tc::io::Path(kNpdmExefsPath), tc::io::FileMode::Open, tc::io::FileAccess::Read, npdm_file);
 					}
 					catch (tc::io::FileNotFoundException&) {
 						throw tc::Exception(fmt::format("\"{:s}\" not present in ExeFs", kNpdmExefsPath));
@@ -400,16 +400,16 @@ void nstool::NcaProcess::validateNcaSignatures()
 void nstool::NcaProcess::displayHeader()
 {
 	fmt::print("[NCA Header]\n");
-	fmt::print("  Format Type:     {:s}\n", nn::hac::ContentArchiveUtil::getFormatHeaderVersionAsString((nn::hac::nca::HeaderFormatVersion)mHdr.getFormatVersion()));
-	fmt::print("  Dist. Type:      {:s}\n", nn::hac::ContentArchiveUtil::getDistributionTypeAsString(mHdr.getDistributionType()));
-	fmt::print("  Content Type:    {:s}\n", nn::hac::ContentArchiveUtil::getContentTypeAsString(mHdr.getContentType()));
+	fmt::print("  Format Type:     {:s}\n", pie::hac::ContentArchiveUtil::getFormatHeaderVersionAsString((pie::hac::nca::HeaderFormatVersion)mHdr.getFormatVersion()));
+	fmt::print("  Dist. Type:      {:s}\n", pie::hac::ContentArchiveUtil::getDistributionTypeAsString(mHdr.getDistributionType()));
+	fmt::print("  Content Type:    {:s}\n", pie::hac::ContentArchiveUtil::getContentTypeAsString(mHdr.getContentType()));
 	fmt::print("  Key Generation:  {:d}\n", mHdr.getKeyGeneration());
 	fmt::print("  Sig. Generation: {:d}\n", mHdr.getSignatureKeyGeneration());
-	fmt::print("  Kaek Index:      {:s} ({:d})\n", nn::hac::ContentArchiveUtil::getKeyAreaEncryptionKeyIndexAsString((nn::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKeyAreaEncryptionKeyIndex()), mHdr.getKeyAreaEncryptionKeyIndex());
+	fmt::print("  Kaek Index:      {:s} ({:d})\n", pie::hac::ContentArchiveUtil::getKeyAreaEncryptionKeyIndexAsString((pie::hac::nca::KeyAreaEncryptionKeyIndex)mHdr.getKeyAreaEncryptionKeyIndex()), mHdr.getKeyAreaEncryptionKeyIndex());
 	fmt::print("  Size:            0x{:x}\n", mHdr.getContentSize());
 	fmt::print("  ProgID:          0x{:016x}\n", mHdr.getProgramId());
 	fmt::print("  Content Index:   {:d}\n", mHdr.getContentIndex());
-	fmt::print("  SdkAddon Ver.:   {:s} (v{:d})\n", nn::hac::ContentArchiveUtil::getSdkAddonVersionAsString(mHdr.getSdkAddonVersion()), mHdr.getSdkAddonVersion());
+	fmt::print("  SdkAddon Ver.:   {:s} (v{:d})\n", pie::hac::ContentArchiveUtil::getSdkAddonVersionAsString(mHdr.getSdkAddonVersion()), mHdr.getSdkAddonVersion());
 	if (mHdr.hasRightsId())
 	{
 		fmt::print("  RightsId:        {:s}\n", tc::cli::FormatUtil::formatBytesAsString(mHdr.getRightsId().data(), mHdr.getRightsId().size(), true, ""));
@@ -448,18 +448,18 @@ void nstool::NcaProcess::displayHeader()
 			fmt::print("    {:d}:\n", index);
 			fmt::print("      Offset:      0x{:x}\n", info.offset);
 			fmt::print("      Size:        0x{:x}\n", info.size);
-			fmt::print("      Format Type: {:s}\n", nn::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type));
-			fmt::print("      Hash Type:   {:s}\n", nn::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type));
-			fmt::print("      Enc. Type:   {:s}\n", nn::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type));
-			if (info.enc_type == nn::hac::nca::EncryptionType::AesCtr)
+			fmt::print("      Format Type: {:s}\n", pie::hac::ContentArchiveUtil::getFormatTypeAsString(info.format_type));
+			fmt::print("      Hash Type:   {:s}\n", pie::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type));
+			fmt::print("      Enc. Type:   {:s}\n", pie::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type));
+			if (info.enc_type == pie::hac::nca::EncryptionType_AesCtr)
 			{
-				nn::hac::detail::aes_iv_t aes_ctr;
+				pie::hac::detail::aes_iv_t aes_ctr;
 				memcpy(aes_ctr.data(), info.aes_ctr.data(), aes_ctr.size());
-				tc::crypto::detail::incr_counter<16>(aes_ctr.data(), info.offset>>4);
+				tc::crypto::IncrementCounterAes128Ctr(aes_ctr.data(), info.offset>>4);
 				fmt::print("      AesCtr Counter:\n");
 				fmt::print("        {:s}\n", tc::cli::FormatUtil::formatBytesAsString(aes_ctr.data(), aes_ctr.size(), true, ""));
 			}
-			if (info.hash_type == nn::hac::nca::HashType::HierarchicalIntegrity)
+			if (info.hash_type == pie::hac::nca::HashType_HierarchicalIntegrity)
 			{
 				auto hash_hdr = info.hierarchicalintegrity_hdr;
 				fmt::print("      HierarchicalIntegrity Header:\n");
@@ -484,7 +484,7 @@ void nstool::NcaProcess::displayHeader()
 					fmt::print("          {:s}\n", tc::cli::FormatUtil::formatBytesAsString(hash_hdr.getMasterHashList()[j].data()+0x10, 0x10, true, ""));
 				}
 			}
-			else if (info.hash_type == nn::hac::nca::HashType::HierarchicalSha256)
+			else if (info.hash_type == pie::hac::nca::HashType_HierarchicalSha256)
 			{
 				auto hash_hdr = info.hierarchicalsha256_hdr;
 				fmt::print("      HierarchicalSha256 Header:\n");
@@ -513,7 +513,7 @@ void nstool::NcaProcess::displayHeader()
 
 void nstool::NcaProcess::processPartitions()
 {
-	std::vector<nn::hac::CombinedFsMetaGenerator::MountPointInfo> mount_points;
+	std::vector<pie::hac::CombinedFsSnapshotGenerator::MountPointInfo> mount_points;
 
 	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
 	{
@@ -534,9 +534,9 @@ void nstool::NcaProcess::processPartitions()
 
 		std::string mount_point_name;
 		/*
-		if (mHdr.getContentType() == nn::hac::nca::ContentType::Program)
+		if (mHdr.getContentType() == pie::hac::nca::ContentType_Program)
 		{
-			mount_point_name = nn::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((nn::hac::nca::ProgramContentPartitionIndex)index);
+			mount_point_name = pie::hac::ContentArchiveUtil::getProgramContentParititionIndexAsString((pie::hac::nca::ProgramContentPartitionIndex)index);
 		}
 		else
 		*/
@@ -544,12 +544,12 @@ void nstool::NcaProcess::processPartitions()
 			mount_point_name = fmt::format("{:d}", index);
 		}
 
-		mount_points.push_back( { mount_point_name, partition.fs_meta } );
+		mount_points.push_back( { mount_point_name, partition.fs_snapshot } );
 	}
 
-	tc::io::VirtualFileSystem::FileSystemMeta fs_meta = nn::hac::CombinedFsMetaGenerator(mount_points);
+	tc::io::VirtualFileSystem::FileSystemSnapshot fs_snapshot = pie::hac::CombinedFsSnapshotGenerator(mount_points);
 
-	std::shared_ptr<tc::io::IStorage> nca_fs = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(fs_meta));
+	std::shared_ptr<tc::io::IFileSystem> nca_fs = std::make_shared<tc::io::VirtualFileSystem>(tc::io::VirtualFileSystem(fs_snapshot));
 
 	mFsProcess.setInputFileSystem(nca_fs);
 	mFsProcess.setFsFormatName("ContentArchive");
@@ -557,28 +557,28 @@ void nstool::NcaProcess::processPartitions()
 	mFsProcess.process();
 }
 
-std::string nstool::NcaProcess::getContentTypeForMountStr(nn::hac::nca::ContentType cont_type) const
+std::string nstool::NcaProcess::getContentTypeForMountStr(pie::hac::nca::ContentType cont_type) const
 {
 	std::string str;
 
 	switch (cont_type)
 	{
-		case (nn::hac::nca::ContentType::Program):
+		case (pie::hac::nca::ContentType_Program):
 			str = "program";
 			break;
-		case (nn::hac::nca::ContentType::Meta):
+		case (pie::hac::nca::ContentType_Meta):
 			str = "meta";
 			break;
-		case (nn::hac::nca::ContentType::Control):
+		case (pie::hac::nca::ContentType_Control):
 			str = "control";
 			break;
-		case (nn::hac::nca::ContentType::Manual):
+		case (pie::hac::nca::ContentType_Manual):
 			str = "manual";
 			break;
-		case (nn::hac::nca::ContentType::Data):
+		case (pie::hac::nca::ContentType_Data):
 			str = "data";
 			break;
-		case (nn::hac::nca::ContentType::PublicData):
+		case (pie::hac::nca::ContentType_PublicData):
 			str = "publicdata";
 			break;
 		default:

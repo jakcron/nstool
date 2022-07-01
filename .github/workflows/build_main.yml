@@ -1,10 +1,10 @@
-name: Compile Master Branch
+name: Compile Main Branch
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   release:
     types: [ created ]
 

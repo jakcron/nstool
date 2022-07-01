@@ -14,7 +14,7 @@ public:
 
 	void process();
 
-	void setInputFileSystem(const std::shared_ptr<tc::io::IStorage>& input_fs);
+	void setInputFileSystem(const std::shared_ptr<tc::io::IFileSystem>& input_fs);
 	void setFsFormatName(const std::string& fs_format_name);
 	void setFsProperties(const std::vector<std::string>& properties);
 	void setShowFsInfo(bool show_fs_info);
@@ -24,7 +24,7 @@ public:
 private:
 	std::string mModuleLabel;
 
-	std::shared_ptr<tc::io::IStorage> mInputFs;
+	std::shared_ptr<tc::io::IFileSystem> mInputFs;
 
 	// fs info
 	tc::Optional<std::string> mFsFormatName;

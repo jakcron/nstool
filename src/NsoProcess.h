@@ -2,8 +2,8 @@
 #include "types.h"
 #include "RoMetadataProcess.h"
 
-#include <nn/hac/define/meta.h>
-#include <nn/hac/NsoHeader.h>
+#include <pietendo/hac/define/meta.h>
+#include <pietendo/hac/NsoHeader.h>
 
 namespace nstool {
 
@@ -33,7 +33,7 @@ private:
 	bool mListApi;
 	bool mListSymbols;
 
-	nn::hac::NsoHeader mHdr;
+	pie::hac::NsoHeader mHdr;
 	tc::ByteData mTextBlob, mRoBlob, mDataBlob;
 	nstool::RoMetadataProcess mRoMeta;
 
