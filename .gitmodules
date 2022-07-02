@@ -12,4 +12,4 @@
 	url = https://github.com/jakcron/liblz4.git
 [submodule "deps/libpietendo"]
 	path = deps/libpietendo
-	url = https://github.com/jakcron/libpietendo
+	url = https://github.com/jakcron/libpietendo.git
