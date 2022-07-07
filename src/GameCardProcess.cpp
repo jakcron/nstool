@@ -120,7 +120,7 @@ void nstool::GameCardProcess::importHeader()
 	memcpy(mHdrSignature.data(), hdr_ptr->signature.data(), mHdrSignature.size());
 	
 	// decrypt extended header
-	byte_t xci_header_key_index = hdr_ptr->header.key_flag & 7;
+	byte_t xci_header_key_index = hdr_ptr->header.key_flag & 0xf;
 	if (mKeyCfg.xci_header_key.find(xci_header_key_index) != mKeyCfg.xci_header_key.end())
 	{
 		pie::hac::GameCardUtil::decryptXciHeader(&hdr_ptr->header, mKeyCfg.xci_header_key[xci_header_key_index].data());
