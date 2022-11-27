@@ -20,6 +20,7 @@ nstool::RomfsProcess::RomfsProcess() :
 
 void nstool::RomfsProcess::process()
 {
+	// state checks
 	if (mFile == nullptr)
 	{
 		throw tc::Exception(mModuleName, "No file reader set.");
@@ -28,8 +29,6 @@ void nstool::RomfsProcess::process()
 	{
 		throw tc::NotSupportedException(mModuleName, "Input stream requires read/seek permissions.");
 	}
-
-	tc::ByteData scratch;
 
 	// read base header to determine complete header size
 	if (mFile->length() < tc::io::IOUtil::castSizeToInt64(sizeof(pie::hac::sRomfsHeader)))
@@ -46,16 +45,42 @@ void nstool::RomfsProcess::process()
 		throw tc::ArgumentOutOfRangeException(mModuleName, "Corrupt RomFs: RomFsHeader is corrupted.");
 	}
 
+	/*
+	fmt::print("RomFsHeader:\n");
+	fmt::print(" > header_size = 0x{:04x}\n", mRomfsHeader.header_size.unwrap());
+	fmt::print(" > dir_hash_bucket\n");
+	fmt::print("   > offset =    0x{:04x}\n", mRomfsHeader.dir_hash_bucket.offset.unwrap());
+	fmt::print("   > size =      0x{:04x}\n", mRomfsHeader.dir_hash_bucket.size.unwrap());
+	fmt::print(" > dir_entry\n");
+	fmt::print("   > offset =    0x{:04x}\n", mRomfsHeader.dir_entry.offset.unwrap());
+	fmt::print("   > size =      0x{:04x}\n", mRomfsHeader.dir_entry.size.unwrap());
+	fmt::print(" > file_hash_bucket\n");
+	fmt::print("   > offset =    0x{:04x}\n", mRomfsHeader.file_hash_bucket.offset.unwrap())
+	fmt::print("   > size =      0x{:04x}\n", mRomfsHeader.file_hash_bucket.size.unwrap());
+	fmt::print(" > file_entry\n");
+	fmt::print("   > offset =    0x{:04x}\n", mRomfsHeader.file_entry.offset.unwrap());
+	fmt::print("   > size =      0x{:04x}\n", mRomfsHeader.file_entry.size.unwrap());
+	fmt::print(" > data_offset = 0x{:04x}\n", mRomfsHeader.data_offset.unwrap());
+	*/
+
 	// get dir entry ptr
-	tc::ByteData dir_entry_table = tc::ByteData(tc::io::IOUtil::castInt64ToSize(mRomfsHeader.dir_entry.size.unwrap()));
-	mFile->seek(mRomfsHeader.dir_entry.offset.unwrap(), tc::io::SeekOrigin::Begin);
-	mFile->read(dir_entry_table.data(), dir_entry_table.size());
+	tc::ByteData dir_entry_table = tc::ByteData();
+	if (mRomfsHeader.dir_entry.size.unwrap() > 0)
+	{
+		dir_entry_table = tc::ByteData(tc::io::IOUtil::castInt64ToSize(mRomfsHeader.dir_entry.size.unwrap()));
+		mFile->seek(mRomfsHeader.dir_entry.offset.unwrap(), tc::io::SeekOrigin::Begin);
+		mFile->read(dir_entry_table.data(), dir_entry_table.size());
+	}
 
 	// get file entry ptr
-	tc::ByteData file_entry_table = tc::ByteData(tc::io::IOUtil::castInt64ToSize(mRomfsHeader.file_entry.size.unwrap()));
-	mFile->seek(mRomfsHeader.file_entry.offset.unwrap(), tc::io::SeekOrigin::Begin);
-	mFile->read(file_entry_table.data(), file_entry_table.size());
-	
+	tc::ByteData file_entry_table = tc::ByteData();
+	if (mRomfsHeader.file_entry.size.unwrap() > 0)
+	{
+		file_entry_table = tc::ByteData(tc::io::IOUtil::castInt64ToSize(mRomfsHeader.file_entry.size.unwrap()));
+		mFile->seek(mRomfsHeader.file_entry.offset.unwrap(), tc::io::SeekOrigin::Begin);
+		mFile->read(file_entry_table.data(), file_entry_table.size());
+	}
+
 	// count dir num
 	mDirNum = 0;
 	for (uint32_t v_addr = 0; size_t(v_addr) < dir_entry_table.size();)
