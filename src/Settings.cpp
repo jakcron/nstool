@@ -645,6 +645,8 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part2" }, tc::io::Path("/2/"))));
 	opts.registerOptionHandler(std::shared_ptr<CustomExtractDataPathOptionHandler>(new CustomExtractDataPathOptionHandler(fs.extract_jobs, { "--part3" }, tc::io::Path("/3/"))));
 
+	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(nca.base_nca_path, { "--basenca" })));
+
 	// kip options
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(kip.extract_path, { "--kipdir" })));
 	
@@ -796,7 +798,7 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("      --normal        Extract \"normal\" partition to directory. (Alias for \"-x /normal <out path>\")\n");
 	fmt::print("      --secure        Extract \"secure\" partition to directory. (Alias for \"-x /secure <out path>\")\n");
 	fmt::print("\n  NCA (Nintendo Content Archive)\n");
-	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] [--bodykey <key> --titlekey <key> -tik <tik path>] <.nca file>\n", BIN_NAME);
+	fmt::print("    {:s} [--fstree] [-x [<virtual path>] <out path>] [--bodykey <key> --titlekey <key> -tik <tik path> --basenca <.nca file>] <.nca file>\n", BIN_NAME);
 	fmt::print("      --fstree        Print filesystem tree.\n");
 	fmt::print("      -x, --extract   Extract a file or directory to local filesystem.\n");
 	fmt::print("      --titlekey      Specify (encrypted) title key extracted from ticket.\n");
@@ -807,6 +809,7 @@ void nstool::SettingsInitializer::usage_text() const
 	fmt::print("      --part1         Extract partition \"1\" to directory. (Alias for \"-x /1 <out path>\")\n");
 	fmt::print("      --part2         Extract partition \"2\" to directory. (Alias for \"-x /2 <out path>\")\n");
 	fmt::print("      --part3         Extract partition \"3\" to directory. (Alias for \"-x /3 <out path>\")\n");
+	fmt::print("      --basenca       Specify base NCA file for update NCA files.\n");
 	fmt::print("\n  NSO (Nintendo Shared Object), NRO (Nintendo Relocatable Object)\n");
 	fmt::print("    {:s} [--listapi --listsym] [--insttype <inst. type>] <file>\n", BIN_NAME);
 	fmt::print("      --listapi       Print SDK API List.\n");
