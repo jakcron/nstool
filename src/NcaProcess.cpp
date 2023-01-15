@@ -6,6 +6,7 @@
 #include <pietendo/hac/AesKeygen.h>
 #include <pietendo/hac/HierarchicalSha256Stream.h>
 #include <pietendo/hac/HierarchicalIntegrityStream.h>
+#include <pietendo/hac/BKTREncryptedStream.h>
 #include <pietendo/hac/PartitionFsSnapshotGenerator.h>
 #include <pietendo/hac/RomFsSnapshotGenerator.h>
 #include <pietendo/hac/CombinedFsSnapshotGenerator.h>
@@ -46,6 +47,11 @@ void nstool::NcaProcess::process()
 void nstool::NcaProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
+}
+
+void nstool::NcaProcess::setBaseNCAPath(const tc::Optional<tc::io::Path>& baseNCA)
+{
+	baseNcaPath = baseNCA;
 }
 
 void nstool::NcaProcess::setKeyCfg(const KeyBag& keycfg)
@@ -211,6 +217,26 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 	}
 }
 
+nstool::NcaProcess nstool::NcaProcess::readBaseNCA() {
+	if (baseNcaPath.isNull()) {
+		throw tc::Exception(mModuleName, "Base NCA not supplied. Necessary for update NCA.");
+	}
+	std::shared_ptr<tc::io::IStream> base_stream = std::make_shared<tc::io::FileStream>(tc::io::FileStream(baseNcaPath.get(), tc::io::FileMode::Open, tc::io::FileAccess::Read));
+
+	NcaProcess obj;
+	nstool::CliOutputMode cliOutput;
+	cliOutput.show_basic_info = false;
+	cliOutput.show_extended_info = false;
+	cliOutput.show_keydata = false;
+	cliOutput.show_layout = false;
+	obj.setCliOutputMode(cliOutput);
+	obj.setVerifyMode(true);
+	obj.setKeyCfg(mKeyCfg);
+	obj.setInputFile(base_stream);
+	obj.process();
+	return obj;
+}
+
 void nstool::NcaProcess::generatePartitionConfiguration()
 {
 	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
@@ -266,13 +292,13 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			else
 			{
 				// create raw partition
-				info.reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, info.offset, info.size));
+				info.raw_reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, info.offset, info.size));
 
 				// handle encryption if required reader based on encryption type
 				if (info.enc_type == pie::hac::nca::EncryptionType_None)
 				{
 					// no encryption so do nothing
-					//info.reader = info.reader;
+					info.decrypt_reader = info.raw_reader;
 				}
 				else if (info.enc_type == pie::hac::nca::EncryptionType_AesCtr)
 				{
@@ -287,10 +313,40 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset>>4);
 
 					// create decryption stream
-					info.reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.reader, partition_key, partition_ctr));
+					info.decrypt_reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.raw_reader, partition_key, partition_ctr));
 
 				}
-				else if (info.enc_type == pie::hac::nca::EncryptionType_AesXts || info.enc_type == pie::hac::nca::EncryptionType_AesCtrEx)
+				else if (info.enc_type == pie::hac::nca::EncryptionType_AesCtrEx)
+				{
+					if (mContentKey.aes_ctr.isNull())
+						throw tc::Exception(mModuleName, "AES-CTR Key was not determined");
+
+					// get partition key
+					pie::hac::detail::aes128_key_t partition_key = mContentKey.aes_ctr.get();
+
+					// get partition counter
+					pie::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
+					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset >> 4);
+
+					NcaProcess nca_base = readBaseNCA();
+					if (nca_base.mHdr.getProgramId() != mHdr.getProgramId()) {
+						throw tc::Exception(mModuleName, "Invalid base nca. ProgramID diferent.");
+					}
+					std::shared_ptr<tc::io::IStream> base_reader;
+					for (auto& partition_base : nca_base.mPartitions) {
+						if (partition_base.format_type == pie::hac::nca::FormatType::FormatType_RomFs && partition_base.raw_reader != nullptr)
+						{
+							base_reader = partition_base.decrypt_reader;
+						}
+					}
+					if (base_reader == nullptr) {
+						throw tc::Exception(mModuleName, "Cannot determine RomFs from base nca.");
+					}
+
+					// create decryption stream
+					info.decrypt_reader = std::make_shared<pie::hac::BKTREncryptedStream>(pie::hac::BKTREncryptedStream(info.raw_reader, partition_key, partition_ctr, fs_header.patch_info, base_reader));
+				}
+				else if (info.enc_type == pie::hac::nca::EncryptionType_AesXts)
 				{
 					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", pie::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
 				}
@@ -306,10 +362,10 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			case (pie::hac::nca::HashType_None):
 				break;
 			case (pie::hac::nca::HashType_HierarchicalSha256):
-				info.reader = std::make_shared<pie::hac::HierarchicalSha256Stream>(pie::hac::HierarchicalSha256Stream(info.reader, info.hierarchicalsha256_hdr));
+				info.reader = std::make_shared<pie::hac::HierarchicalSha256Stream>(pie::hac::HierarchicalSha256Stream(info.decrypt_reader, info.hierarchicalsha256_hdr));
 				break;
 			case (pie::hac::nca::HashType_HierarchicalIntegrity):
-				info.reader = std::make_shared<pie::hac::HierarchicalIntegrityStream>(pie::hac::HierarchicalIntegrityStream(info.reader, info.hierarchicalintegrity_hdr));
+				info.reader = std::make_shared<pie::hac::HierarchicalIntegrityStream>(pie::hac::HierarchicalIntegrityStream(info.decrypt_reader, info.hierarchicalintegrity_hdr));
 				break;
 			default:
 				throw tc::Exception(mModuleName, fmt::format("HashType({:s}): UNKNOWN", pie::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type)));

@@ -75,6 +75,7 @@ int umain(const std::vector<std::string>& args, const std::vector<std::string>& 
 			nstool::NcaProcess obj;
 
 			obj.setInputFile(infile_stream);
+			obj.setBaseNCAPath(set.nca.base_nca_path);
 			obj.setKeyCfg(set.opt.keybag);
 			obj.setCliOutputMode(set.opt.cli_output_mode);
 			obj.setVerifyMode(set.opt.verify);
