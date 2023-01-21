@@ -372,6 +372,8 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			switch (info.hash_type)
 			{
 			case (pie::hac::nca::HashType_None):
+				// no hash layer, do nothing
+				info.reader = info.decrypt_reader;
 				break;
 			case (pie::hac::nca::HashType_HierarchicalSha256):
 				info.reader = std::make_shared<pie::hac::HierarchicalSha256Stream>(pie::hac::HierarchicalSha256Stream(info.decrypt_reader, info.hierarchicalsha256_hdr));
