@@ -143,6 +143,16 @@ nstool -x /path/to/a/file.bin ./extract_dir/different_name.bin some_file.bin
 * NSP
 * XCI
 
+## NCA Patches
+Nintendo distributes game patches/updates in the style of a diff to keep file sizes down. This means extracting game patches requires the base version of the game to be able to process patch data. Typically this is only done for the Program NCA.
+
+If `basegame_v0.nca` is the base Program NCA, and `gamepatch_v13219.nca` is the patch Program NCA, simply specify the base NCA using the base NCA option `--basenca` when processing the patch NCA.
+
+```
+nstool --basenca ./basegame_v0.nca -x ./patchdata gamepatch_v13219.nca
+```
+In the above example the patch NCA is being extracted to `./patchdata`
+
 ## Encrypted Files
 Some Nintendo Switch files are partially or completely encrypted. These require the user to supply the encryption keys to NSTool so that it can process them. 
 
