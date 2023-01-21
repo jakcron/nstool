@@ -1,6 +1,6 @@
 # C++/C Recursive Project Makefile 
 # (c) Jack
-# Version 6 (20211110)
+# Version 8 (20220420)
 
 # Project Name
 PROJECT_NAME = nstool
@@ -22,13 +22,6 @@ ifeq ($(ROOT_PROJECT_NAME),)
 	export ROOT_PROJECT_PATH = $(PROJECT_PATH)
 	export ROOT_PROJECT_DEPENDENCY_PATH = $(ROOT_PROJECT_PATH)/deps
 endif
-
-# Shared Library Definitions
-PROJECT_SO_VER_MAJOR = 0
-PROJECT_SO_VER_MINOR = 1
-PROJECT_SO_VER_PATCH = 0
-PROJECT_SONAME = $(PROJECT_NAME).so.$(PROJECT_SO_VER_MAJOR)
-PROJECT_SO_FILENAME = $(PROJECT_SONAME).$(PROJECT_SO_VER_MINOR).$(PROJECT_SO_VER_PATCH)
 
 # Project Dependencies
 PROJECT_DEPEND = pietendo toolchain fmt lz4 mbedtls
@@ -82,6 +75,7 @@ ifeq ($(PROJECT_PLATFORM), WIN32)
 	# Windows Flags/Libs
 	CC = x86_64-w64-mingw32-gcc
 	CXX = x86_64-w64-mingw32-g++
+	DEFINEFLAGS =
 	WARNFLAGS = -Wall -Wno-unused-value -Wno-unused-but-set-variable
 	ARCHFLAGS =
 	INC +=
@@ -91,6 +85,7 @@ else ifeq ($(PROJECT_PLATFORM), GNU)
 	# GNU/Linux Flags/Libs
 	#CC = 
 	#CXX =
+	DEFINEFLAGS =
 	WARNFLAGS = -Wall -Wno-unused-value -Wno-unused-but-set-variable
 	ARCHFLAGS =
 	INC +=
@@ -100,27 +95,27 @@ else ifeq ($(PROJECT_PLATFORM), MACOS)
 	# MacOS Flags/Libs
 	#CC = 
 	#CXX =
+	DEFINEFLAGS =
 	WARNFLAGS = -Wall -Wno-unused-value -Wno-unused-private-field
 	ARCHFLAGS = -arch $(PROJECT_PLATFORM_ARCH)
 	INC +=
 	LIB +=
-	ARFLAGS = rc	
+	ARFLAGS = rc
 endif
 
 # Compiler Flags
-CXXFLAGS = -std=c++11 $(INC) $(WARNFLAGS) $(ARCHFLAGS) -fPIC
-CFLAGS = -std=c11 $(INC) $(WARNFLAGS) $(ARCHFLAGS) -fPIC
+CXXFLAGS = -std=c++11 $(INC) $(DEFINEFLAGS) $(WARNFLAGS) $(ARCHFLAGS) -fPIC
+CFLAGS = -std=c11 $(INC) $(DEFINEFLAGS) $(WARNFLAGS) $(ARCHFLAGS) -fPIC
 
 # Object Files
 SRC_OBJ = $(foreach dir,$(PROJECT_SRC_SUBDIRS),$(subst .cpp,.o,$(wildcard $(dir)/*.cpp))) $(foreach dir,$(PROJECT_SRC_SUBDIRS),$(subst .cc,.o,$(wildcard $(dir)/*.cc))) $(foreach dir,$(PROJECT_SRC_SUBDIRS),$(subst .c,.o,$(wildcard $(dir)/*.c)))
 TESTSRC_OBJ = $(foreach dir,$(PROJECT_TESTSRC_SUBDIRS),$(subst .cpp,.o,$(wildcard $(dir)/*.cpp))) $(foreach dir,$(PROJECT_TESTSRC_SUBDIRS),$(subst .cc,.o,$(wildcard $(dir)/*.cc))) $(foreach dir,$(PROJECT_TESTSRC_SUBDIRS),$(subst .c,.o,$(wildcard $(dir)/*.c)))
 
 # all is the default, user should specify what the default should do
-#	- 'static_lib' for building static library
-#	- 'shared_lib' for building shared library
-#	- 'program' for building the program
+#	- 'static_lib' for building source as a static library
+#	- 'program' for building source as executable program
 #	- 'test_program' for building the test program
-# These can typically be used together however *_lib and program should not be used together
+# test_program can be used with program or static_lib, but program and static_lib cannot be used together
 all: program
 	
 clean: clean_object_files remove_binary_dir
@@ -157,10 +152,6 @@ clean_object_files:
 static_lib: $(SRC_OBJ) create_binary_dir
 	@echo LINK $(PROJECT_BIN_PATH)/$(PROJECT_NAME).a
 	@ar $(ARFLAGS) "$(PROJECT_BIN_PATH)/$(PROJECT_NAME).a" $(SRC_OBJ)
-
-shared_lib: $(SRC_OBJ) create_binary_dir
-	@echo LINK $(PROJECT_BIN_PATH)/$(PROJECT_SO_FILENAME)
-	@gcc -shared -Wl,-soname,$(PROJECT_SONAME) -o "$(PROJECT_BIN_PATH)/$(PROJECT_SO_FILENAME)" $(SRC_OBJ)
 
 # Build Program
 program: $(SRC_OBJ) create_binary_dir
