@@ -333,6 +333,9 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 					pie::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
 					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset >> 4);
 
+					// TODO see if AesCtrEx encryption can just be for creating the transparent decryption, with IndirectStorage IStream construction being done after decryption but before hash layer processing
+					// this might be relevant when processing compressed or sparse storage
+
 					NcaProcess nca_base = readBaseNCA();
 					if (nca_base.mHdr.getProgramId() != mHdr.getProgramId())
 					{
