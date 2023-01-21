@@ -49,9 +49,9 @@ void nstool::NcaProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& fi
 	mFile = file;
 }
 
-void nstool::NcaProcess::setBaseNCAPath(const tc::Optional<tc::io::Path>& baseNCA)
+void nstool::NcaProcess::setBaseNcaPath(const tc::Optional<tc::io::Path>& nca_path)
 {
-	baseNcaPath = baseNCA;
+	mBaseNcaPath = nca_path;
 }
 
 void nstool::NcaProcess::setKeyCfg(const KeyBag& keycfg)
@@ -217,12 +217,16 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 	}
 }
 
-nstool::NcaProcess nstool::NcaProcess::readBaseNCA() {
-	if (baseNcaPath.isNull()) {
+nstool::NcaProcess nstool::NcaProcess::readBaseNCA()
+{
+	// open base nca stream
+	if (mBaseNcaPath.isNull())
+	{
 		throw tc::Exception(mModuleName, "Base NCA not supplied. Necessary for update NCA.");
 	}
-	std::shared_ptr<tc::io::IStream> base_stream = std::make_shared<tc::io::FileStream>(tc::io::FileStream(baseNcaPath.get(), tc::io::FileMode::Open, tc::io::FileAccess::Read));
+	std::shared_ptr<tc::io::IStream> base_stream = std::make_shared<tc::io::FileStream>(tc::io::FileStream(mBaseNcaPath.get(), tc::io::FileMode::Open, tc::io::FileAccess::Read));
 
+	// process base nca with output suppressed
 	NcaProcess obj;
 	nstool::CliOutputMode cliOutput;
 	cliOutput.show_basic_info = false;
@@ -234,6 +238,8 @@ nstool::NcaProcess nstool::NcaProcess::readBaseNCA() {
 	obj.setKeyCfg(mKeyCfg);
 	obj.setInputFile(base_stream);
 	obj.process();
+
+	// return processed base nca
 	return obj;
 }
 
@@ -310,11 +316,10 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 
 					// get partition counter
 					pie::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
-					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset>>4);
+					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset >> 4);
 
 					// create decryption stream
 					info.decrypt_reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.raw_reader, partition_key, partition_ctr));
-
 				}
 				else if (info.enc_type == pie::hac::nca::EncryptionType_AesCtrEx)
 				{
@@ -329,17 +334,21 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset >> 4);
 
 					NcaProcess nca_base = readBaseNCA();
-					if (nca_base.mHdr.getProgramId() != mHdr.getProgramId()) {
+					if (nca_base.mHdr.getProgramId() != mHdr.getProgramId())
+					{
 						throw tc::Exception(mModuleName, "Invalid base nca. ProgramID diferent.");
 					}
+
 					std::shared_ptr<tc::io::IStream> base_reader;
-					for (auto& partition_base : nca_base.mPartitions) {
+					for (auto& partition_base : nca_base.mPartitions)
+					{
 						if (partition_base.format_type == pie::hac::nca::FormatType::FormatType_RomFs && partition_base.raw_reader != nullptr)
 						{
 							base_reader = partition_base.decrypt_reader;
 						}
 					}
-					if (base_reader == nullptr) {
+					if (base_reader == nullptr)
+					{
 						throw tc::Exception(mModuleName, "Cannot determine RomFs from base nca.");
 					}
 

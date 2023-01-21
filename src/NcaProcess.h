@@ -21,7 +21,7 @@ public:
 	void setKeyCfg(const KeyBag& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
-	void setBaseNCAPath(const tc::Optional<tc::io::Path>& keycfg);
+	void setBaseNcaPath(const tc::Optional<tc::io::Path>& nca_path);
 
 
 	// fs specific
@@ -41,7 +41,7 @@ private:
 	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
-	tc::Optional<tc::io::Path> baseNcaPath;
+	tc::Optional<tc::io::Path> mBaseNcaPath;
 
 	// fs processing
 	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
