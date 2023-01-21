@@ -96,9 +96,9 @@ private:
 	// raw partition data
 	struct sPartitionInfo
 	{
-		std::shared_ptr<tc::io::IStream> raw_reader;
-		std::shared_ptr<tc::io::IStream> decrypt_reader;
-		std::shared_ptr<tc::io::IStream> reader;
+		std::shared_ptr<tc::io::IStream> raw_reader; // raw unprocessed partition stream
+		std::shared_ptr<tc::io::IStream> decrypt_reader; // partition stream with transparent decryption
+		std::shared_ptr<tc::io::IStream> reader; // partition stream with transparent decryption & hash layer processing
 		tc::io::VirtualFileSystem::FileSystemSnapshot fs_snapshot;
 		std::shared_ptr<tc::io::IFileSystem> fs_reader;
 		std::string fail_reason;
