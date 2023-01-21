@@ -104,14 +104,14 @@ void nstool::EsCertProcess::displayCert(const pie::hac::es::SignedData<pie::hac:
 
 	fmt::print("  SignType       {:s}", getSignTypeStr(cert.getSignature().getSignType()));
 	if (mCliOutputMode.show_extended_info)
-		fmt::print(" (0x{:x}) ({:s})", cert.getSignature().getSignType(), getEndiannessStr(cert.getSignature().isLittleEndian()));
+		fmt::print(" (0x{:x}) ({:s})", (uint32_t)cert.getSignature().getSignType(), getEndiannessStr(cert.getSignature().isLittleEndian()));
 	fmt::print("\n");
 
 	fmt::print("  Issuer:        {:s}\n", cert.getBody().getIssuer());
 	fmt::print("  Subject:       {:s}\n", cert.getBody().getSubject());
 	fmt::print("  PublicKeyType: {:s}", getPublicKeyTypeStr(cert.getBody().getPublicKeyType()));
 	if (mCliOutputMode.show_extended_info)
-		fmt::print(" ({:d})", cert.getBody().getPublicKeyType());
+		fmt::print(" ({:d})", (uint32_t)cert.getBody().getPublicKeyType());
 	fmt::print("\n");
 	fmt::print("  CertID:        0x{:x}\n", cert.getBody().getCertId());
 	

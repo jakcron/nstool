@@ -6,6 +6,7 @@
 #include <pietendo/hac/AesKeygen.h>
 #include <pietendo/hac/HierarchicalSha256Stream.h>
 #include <pietendo/hac/HierarchicalIntegrityStream.h>
+#include <pietendo/hac/BKTREncryptedStream.h>
 #include <pietendo/hac/PartitionFsSnapshotGenerator.h>
 #include <pietendo/hac/RomFsSnapshotGenerator.h>
 #include <pietendo/hac/CombinedFsSnapshotGenerator.h>
@@ -46,6 +47,11 @@ void nstool::NcaProcess::process()
 void nstool::NcaProcess::setInputFile(const std::shared_ptr<tc::io::IStream>& file)
 {
 	mFile = file;
+}
+
+void nstool::NcaProcess::setBaseNcaPath(const tc::Optional<tc::io::Path>& nca_path)
+{
+	mBaseNcaPath = nca_path;
 }
 
 void nstool::NcaProcess::setKeyCfg(const KeyBag& keycfg)
@@ -110,7 +116,7 @@ void nstool::NcaProcess::importHeader()
 	pie::hac::ContentArchiveUtil::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyCfg.nca_header_key.get());
 
 	// generate header hash
-	tc::crypto::GenerateSha256Hash(mHdrHash.data(), (byte_t*)&mHdrBlock.header, sizeof(pie::hac::sContentArchiveHeader));
+	tc::crypto::GenerateSha2256Hash(mHdrHash.data(), (byte_t*)&mHdrBlock.header, sizeof(pie::hac::sContentArchiveHeader));
 
 	// proccess main header
 	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(pie::hac::sContentArchiveHeader));
@@ -211,6 +217,32 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 	}
 }
 
+nstool::NcaProcess nstool::NcaProcess::readBaseNCA()
+{
+	// open base nca stream
+	if (mBaseNcaPath.isNull())
+	{
+		throw tc::Exception(mModuleName, "Base NCA not supplied. Necessary for update NCA.");
+	}
+	std::shared_ptr<tc::io::IStream> base_stream = std::make_shared<tc::io::FileStream>(tc::io::FileStream(mBaseNcaPath.get(), tc::io::FileMode::Open, tc::io::FileAccess::Read));
+
+	// process base nca with output suppressed
+	NcaProcess obj;
+	nstool::CliOutputMode cliOutput;
+	cliOutput.show_basic_info = false;
+	cliOutput.show_extended_info = false;
+	cliOutput.show_keydata = false;
+	cliOutput.show_layout = false;
+	obj.setCliOutputMode(cliOutput);
+	obj.setVerifyMode(true);
+	obj.setKeyCfg(mKeyCfg);
+	obj.setInputFile(base_stream);
+	obj.process();
+
+	// return processed base nca
+	return obj;
+}
+
 void nstool::NcaProcess::generatePartitionConfiguration()
 {
 	for (size_t i = 0; i < mHdr.getPartitionEntryList().size(); i++)
@@ -224,7 +256,7 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 
 		// validate header hash
 		pie::hac::detail::sha256_hash_t fs_header_hash;
-		tc::crypto::GenerateSha256Hash(fs_header_hash.data(), (const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(pie::hac::sContentArchiveFsHeader));
+		tc::crypto::GenerateSha2256Hash(fs_header_hash.data(), (const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(pie::hac::sContentArchiveFsHeader));
 		if (fs_header_hash != partition.fs_header_hash)
 		{
 			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Hash: FAIL", partition.header_index));
@@ -266,13 +298,13 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			else
 			{
 				// create raw partition
-				info.reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, info.offset, info.size));
+				info.raw_reader = std::make_shared<tc::io::SubStream>(tc::io::SubStream(mFile, info.offset, info.size));
 
 				// handle encryption if required reader based on encryption type
 				if (info.enc_type == pie::hac::nca::EncryptionType_None)
 				{
 					// no encryption so do nothing
-					//info.reader = info.reader;
+					info.decrypt_reader = info.raw_reader;
 				}
 				else if (info.enc_type == pie::hac::nca::EncryptionType_AesCtr)
 				{
@@ -284,13 +316,49 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 
 					// get partition counter
 					pie::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
-					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset>>4);
+					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset >> 4);
 
 					// create decryption stream
-					info.reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.reader, partition_key, partition_ctr));
-
+					info.decrypt_reader = std::make_shared<tc::crypto::Aes128CtrEncryptedStream>(tc::crypto::Aes128CtrEncryptedStream(info.raw_reader, partition_key, partition_ctr));
 				}
-				else if (info.enc_type == pie::hac::nca::EncryptionType_AesXts || info.enc_type == pie::hac::nca::EncryptionType_AesCtrEx)
+				else if (info.enc_type == pie::hac::nca::EncryptionType_AesCtrEx)
+				{
+					if (mContentKey.aes_ctr.isNull())
+						throw tc::Exception(mModuleName, "AES-CTR Key was not determined");
+
+					// get partition key
+					pie::hac::detail::aes128_key_t partition_key = mContentKey.aes_ctr.get();
+
+					// get partition counter
+					pie::hac::detail::aes_iv_t partition_ctr = info.aes_ctr;
+					tc::crypto::IncrementCounterAes128Ctr(partition_ctr.data(), info.offset >> 4);
+
+					// TODO see if AesCtrEx encryption can just be for creating the transparent decryption, with IndirectStorage IStream construction being done after decryption but before hash layer processing
+					// this might be relevant when processing compressed or sparse storage
+
+					NcaProcess nca_base = readBaseNCA();
+					if (nca_base.mHdr.getProgramId() != mHdr.getProgramId())
+					{
+						throw tc::Exception(mModuleName, "Invalid base nca. ProgramID diferent.");
+					}
+
+					std::shared_ptr<tc::io::IStream> base_reader;
+					for (auto& partition_base : nca_base.mPartitions)
+					{
+						if (partition_base.format_type == pie::hac::nca::FormatType::FormatType_RomFs && partition_base.raw_reader != nullptr)
+						{
+							base_reader = partition_base.decrypt_reader;
+						}
+					}
+					if (base_reader == nullptr)
+					{
+						throw tc::Exception(mModuleName, "Cannot determine RomFs from base nca.");
+					}
+
+					// create decryption stream
+					info.decrypt_reader = std::make_shared<pie::hac::BKTREncryptedStream>(pie::hac::BKTREncryptedStream(info.raw_reader, partition_key, partition_ctr, fs_header.patch_info, base_reader));
+				}
+				else if (info.enc_type == pie::hac::nca::EncryptionType_AesXts)
 				{
 					throw tc::Exception(mModuleName, fmt::format("EncryptionType({:s}): UNSUPPORTED", pie::hac::ContentArchiveUtil::getEncryptionTypeAsString(info.enc_type)));
 				}
@@ -304,12 +372,14 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 			switch (info.hash_type)
 			{
 			case (pie::hac::nca::HashType_None):
+				// no hash layer, do nothing
+				info.reader = info.decrypt_reader;
 				break;
 			case (pie::hac::nca::HashType_HierarchicalSha256):
-				info.reader = std::make_shared<pie::hac::HierarchicalSha256Stream>(pie::hac::HierarchicalSha256Stream(info.reader, info.hierarchicalsha256_hdr));
+				info.reader = std::make_shared<pie::hac::HierarchicalSha256Stream>(pie::hac::HierarchicalSha256Stream(info.decrypt_reader, info.hierarchicalsha256_hdr));
 				break;
 			case (pie::hac::nca::HashType_HierarchicalIntegrity):
-				info.reader = std::make_shared<pie::hac::HierarchicalIntegrityStream>(pie::hac::HierarchicalIntegrityStream(info.reader, info.hierarchicalintegrity_hdr));
+				info.reader = std::make_shared<pie::hac::HierarchicalIntegrityStream>(pie::hac::HierarchicalIntegrityStream(info.decrypt_reader, info.hierarchicalintegrity_hdr));
 				break;
 			default:
 				throw tc::Exception(mModuleName, fmt::format("HashType({:s}): UNKNOWN", pie::hac::ContentArchiveUtil::getHashTypeAsString(info.hash_type)));
@@ -342,7 +412,7 @@ void nstool::NcaProcess::validateNcaSignatures()
 	// validate signature[0]
 	if (mKeyCfg.nca_header_sign0_key.find(mHdr.getSignatureKeyGeneration()) != mKeyCfg.nca_header_sign0_key.end())
 	{
-		if (tc::crypto::VerifyRsa2048PssSha256(mHdrBlock.signature_main.data(), mHdrHash.data(), mKeyCfg.nca_header_sign0_key[mHdr.getSignatureKeyGeneration()]) == false)
+		if (tc::crypto::VerifyRsa2048PssSha2256(mHdrBlock.signature_main.data(), mHdrHash.data(), mKeyCfg.nca_header_sign0_key[mHdr.getSignatureKeyGeneration()]) == false)
 		{
 			fmt::print("[WARNING] NCA Header Main Signature: FAIL\n");
 		}
@@ -376,7 +446,7 @@ void nstool::NcaProcess::validateNcaSignatures()
 					npdm.setCliOutputMode(CliOutputMode(false, false, false, false));
 					npdm.process();
 
-					if (tc::crypto::VerifyRsa2048PssSha256(mHdrBlock.signature_acid.data(), mHdrHash.data(), npdm.getMeta().getAccessControlInfoDesc().getContentArchiveHeaderSignature2Key()) == false)
+					if (tc::crypto::VerifyRsa2048PssSha2256(mHdrBlock.signature_acid.data(), mHdrHash.data(), npdm.getMeta().getAccessControlInfoDesc().getContentArchiveHeaderSignature2Key()) == false)
 					{
 						throw tc::Exception("Bad signature");
 					}

@@ -76,6 +76,7 @@ struct Settings
 		tc::Optional<tc::io::Path> part1_extract_path;
 		tc::Optional<tc::io::Path> part2_extract_path;
 		tc::Optional<tc::io::Path> part3_extract_path;
+		tc::Optional<tc::io::Path> base_nca_path;
 	} nca;
 
 	// KIP options
@@ -109,6 +110,8 @@ struct Settings
 		fs.extract_jobs = std::vector<ExtractJob>();
 
 		kip.extract_path = tc::Optional<tc::io::Path>();
+
+		nca.base_nca_path = tc::Optional<tc::io::Path>();
 
 		aset.icon_extract_path = tc::Optional<tc::io::Path>();
 		aset.nacp_extract_path = tc::Optional<tc::io::Path>();

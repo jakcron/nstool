@@ -85,8 +85,8 @@ void nstool::EsTikProcess::verifyTicket()
 		tc::crypto::GenerateSha1Hash(tik_hash.data(), mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size());
 		break;
 	case (pie::hac::es::sign::HASH_ALGO_SHA256):
-		tik_hash = tc::ByteData(tc::crypto::Sha256Generator::kHashSize);
-		tc::crypto::GenerateSha256Hash(tik_hash.data(), mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size());
+		tik_hash = tc::ByteData(tc::crypto::Sha2256Generator::kHashSize);
+		tc::crypto::GenerateSha2256Hash(tik_hash.data(), mTik.getBody().getBytes().data(), mTik.getBody().getBytes().size());
 		break;
 	}
 
@@ -109,7 +109,7 @@ void nstool::EsTikProcess::displayTicket()
 	fmt::print("[ES Ticket]\n");
 	fmt::print("  SignType:         {:s}", getSignTypeStr(mTik.getSignature().getSignType()));
 	if (mCliOutputMode.show_extended_info)
-		fmt::print(" (0x{:x})", mTik.getSignature().getSignType());
+		fmt::print(" (0x{:x})", (uint32_t)mTik.getSignature().getSignType());
 	fmt::print("\n");
 
 	fmt::print("  Issuer:           {:s}\n", body.getIssuer());

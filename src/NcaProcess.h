@@ -21,6 +21,8 @@ public:
 	void setKeyCfg(const KeyBag& keycfg);
 	void setCliOutputMode(CliOutputMode type);
 	void setVerifyMode(bool verify);
+	void setBaseNcaPath(const tc::Optional<tc::io::Path>& nca_path);
+
 
 	// fs specific
 	void setShowFsTree(bool show_fs_tree);
@@ -39,6 +41,7 @@ private:
 	KeyBag mKeyCfg;
 	CliOutputMode mCliOutputMode;
 	bool mVerify;
+	tc::Optional<tc::io::Path> mBaseNcaPath;
 
 	// fs processing
 	std::shared_ptr<tc::io::IFileSystem> mFileSystem;
@@ -93,7 +96,9 @@ private:
 	// raw partition data
 	struct sPartitionInfo
 	{
-		std::shared_ptr<tc::io::IStream> reader;
+		std::shared_ptr<tc::io::IStream> raw_reader; // raw unprocessed partition stream
+		std::shared_ptr<tc::io::IStream> decrypt_reader; // partition stream with transparent decryption
+		std::shared_ptr<tc::io::IStream> reader; // partition stream with transparent decryption & hash layer processing
 		tc::io::VirtualFileSystem::FileSystemSnapshot fs_snapshot;
 		std::shared_ptr<tc::io::IFileSystem> fs_reader;
 		std::string fail_reason;
@@ -125,6 +130,8 @@ private:
 	void validateNcaSignatures();
 	void displayHeader();
 	void processPartitions();
+
+	NcaProcess readBaseNCA();
 
 	std::string getContentTypeForMountStr(pie::hac::nca::ContentType cont_type) const;
 };

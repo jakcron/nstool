@@ -62,8 +62,8 @@ void nstool::PkiValidator::addCertificate(const pie::hac::es::SignedData<pie::ha
 			tc::crypto::GenerateSha1Hash(cert_hash.data(), cert.getBody().getBytes().data(), cert.getBody().getBytes().size());
 			break;
 		case (pie::hac::es::sign::HASH_ALGO_SHA256):
-			cert_hash = tc::ByteData(tc::crypto::Sha256Generator::kHashSize);
-			tc::crypto::GenerateSha256Hash(cert_hash.data(), cert.getBody().getBytes().data(), cert.getBody().getBytes().size());
+			cert_hash = tc::ByteData(tc::crypto::Sha2256Generator::kHashSize);
+			tc::crypto::GenerateSha2256Hash(cert_hash.data(), cert.getBody().getBytes().data(), cert.getBody().getBytes().size());
 			break;
 		default:
 			throw tc::Exception(mModuleName, "Unrecognised hash type");
@@ -154,10 +154,10 @@ void nstool::PkiValidator::validateSignature(const std::string& issuer, pie::hac
 			sig_valid = false;
 			break;
 		case (pie::hac::es::sign::SIGN_ID_RSA4096_SHA256):
-			sig_valid = tc::crypto::VerifyRsa4096Pkcs1Sha256(signature.data(), hash.data(), rsa_key);
+			sig_valid = tc::crypto::VerifyRsa4096Pkcs1Sha2256(signature.data(), hash.data(), rsa_key);
 			break;
 		case (pie::hac::es::sign::SIGN_ID_RSA2048_SHA256):
-			sig_valid = tc::crypto::VerifyRsa2048Pkcs1Sha256(signature.data(), hash.data(), rsa_key);
+			sig_valid = tc::crypto::VerifyRsa2048Pkcs1Sha2256(signature.data(), hash.data(), rsa_key);
 			break;
 		case (pie::hac::es::sign::SIGN_ID_ECDSA240_SHA256):
 			sig_valid = false;
