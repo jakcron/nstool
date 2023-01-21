@@ -116,7 +116,7 @@ void nstool::NsoProcess::importCodeSegments()
 	}
 	if (mHdr.getTextSegmentInfo().is_hashed)
 	{
-		tc::crypto::GenerateSha256Hash(calc_hash.data(), mTextBlob.data(), mTextBlob.size());
+		tc::crypto::GenerateSha2256Hash(calc_hash.data(), mTextBlob.data(), mTextBlob.size());
 		if (calc_hash != mHdr.getTextSegmentInfo().hash)
 		{
 			throw tc::Exception(mModuleName, "NSO text segment failed SHA256 verification");
@@ -149,7 +149,7 @@ void nstool::NsoProcess::importCodeSegments()
 	}
 	if (mHdr.getRoSegmentInfo().is_hashed)
 	{
-		tc::crypto::GenerateSha256Hash(calc_hash.data(), mRoBlob.data(), mRoBlob.size());
+		tc::crypto::GenerateSha2256Hash(calc_hash.data(), mRoBlob.data(), mRoBlob.size());
 		if (calc_hash != mHdr.getRoSegmentInfo().hash)
 		{
 			throw tc::Exception(mModuleName, "NSO ro segment failed SHA256 verification");
@@ -182,7 +182,7 @@ void nstool::NsoProcess::importCodeSegments()
 	}
 	if (mHdr.getDataSegmentInfo().is_hashed)
 	{
-		tc::crypto::GenerateSha256Hash(calc_hash.data(), mDataBlob.data(), mDataBlob.size());
+		tc::crypto::GenerateSha2256Hash(calc_hash.data(), mDataBlob.data(), mDataBlob.size());
 		if (calc_hash != mHdr.getDataSegmentInfo().hash)
 		{
 			throw tc::Exception(mModuleName, "NSO data segment failed SHA256 verification");

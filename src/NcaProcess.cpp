@@ -116,7 +116,7 @@ void nstool::NcaProcess::importHeader()
 	pie::hac::ContentArchiveUtil::decryptContentArchiveHeader((byte_t*)&mHdrBlock, (byte_t*)&mHdrBlock, mKeyCfg.nca_header_key.get());
 
 	// generate header hash
-	tc::crypto::GenerateSha256Hash(mHdrHash.data(), (byte_t*)&mHdrBlock.header, sizeof(pie::hac::sContentArchiveHeader));
+	tc::crypto::GenerateSha2256Hash(mHdrHash.data(), (byte_t*)&mHdrBlock.header, sizeof(pie::hac::sContentArchiveHeader));
 
 	// proccess main header
 	mHdr.fromBytes((byte_t*)&mHdrBlock.header, sizeof(pie::hac::sContentArchiveHeader));
@@ -256,7 +256,7 @@ void nstool::NcaProcess::generatePartitionConfiguration()
 
 		// validate header hash
 		pie::hac::detail::sha256_hash_t fs_header_hash;
-		tc::crypto::GenerateSha256Hash(fs_header_hash.data(), (const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(pie::hac::sContentArchiveFsHeader));
+		tc::crypto::GenerateSha2256Hash(fs_header_hash.data(), (const byte_t*)&mHdrBlock.fs_header[partition.header_index], sizeof(pie::hac::sContentArchiveFsHeader));
 		if (fs_header_hash != partition.fs_header_hash)
 		{
 			throw tc::Exception(mModuleName, fmt::format("NCA FS Header [{:d}] Hash: FAIL", partition.header_index));
@@ -412,7 +412,7 @@ void nstool::NcaProcess::validateNcaSignatures()
 	// validate signature[0]
 	if (mKeyCfg.nca_header_sign0_key.find(mHdr.getSignatureKeyGeneration()) != mKeyCfg.nca_header_sign0_key.end())
 	{
-		if (tc::crypto::VerifyRsa2048PssSha256(mHdrBlock.signature_main.data(), mHdrHash.data(), mKeyCfg.nca_header_sign0_key[mHdr.getSignatureKeyGeneration()]) == false)
+		if (tc::crypto::VerifyRsa2048PssSha2256(mHdrBlock.signature_main.data(), mHdrHash.data(), mKeyCfg.nca_header_sign0_key[mHdr.getSignatureKeyGeneration()]) == false)
 		{
 			fmt::print("[WARNING] NCA Header Main Signature: FAIL\n");
 		}
@@ -446,7 +446,7 @@ void nstool::NcaProcess::validateNcaSignatures()
 					npdm.setCliOutputMode(CliOutputMode(false, false, false, false));
 					npdm.process();
 
-					if (tc::crypto::VerifyRsa2048PssSha256(mHdrBlock.signature_acid.data(), mHdrHash.data(), npdm.getMeta().getAccessControlInfoDesc().getContentArchiveHeaderSignature2Key()) == false)
+					if (tc::crypto::VerifyRsa2048PssSha2256(mHdrBlock.signature_acid.data(), mHdrHash.data(), npdm.getMeta().getAccessControlInfoDesc().getContentArchiveHeaderSignature2Key()) == false)
 					{
 						throw tc::Exception("Bad signature");
 					}

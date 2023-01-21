@@ -114,7 +114,7 @@ void nstool::GameCardProcess::importHeader()
 	pie::hac::sGcHeader_Rsa2048Signed* hdr_ptr = (pie::hac::sGcHeader_Rsa2048Signed*)(scratch.data() + mGcHeaderOffset);
 
 	// generate hash of raw header
-	tc::crypto::GenerateSha256Hash(mHdrHash.data(), (byte_t*)&hdr_ptr->header, sizeof(pie::hac::sGcHeader));
+	tc::crypto::GenerateSha2256Hash(mHdrHash.data(), (byte_t*)&hdr_ptr->header, sizeof(pie::hac::sGcHeader));
 	
 	// save the signature
 	memcpy(mHdrSignature.data(), hdr_ptr->signature.data(), mHdrSignature.size());
@@ -225,7 +225,7 @@ bool nstool::GameCardProcess::validateRegionOfFile(int64_t offset, int64_t len, 
 	mFile->read(scratch.data(), scratch.size());
 
 	// update hash
-	tc::crypto::Sha256Generator sha256_gen;
+	tc::crypto::Sha2256Generator sha256_gen;
 	sha256_gen.initialize();
 	sha256_gen.update(scratch.data(), scratch.size());
 	if (use_salt)
@@ -247,7 +247,7 @@ void nstool::GameCardProcess::validateXciSignature()
 {
 	if (mKeyCfg.xci_header_sign_key.isSet())
 	{
-		if (tc::crypto::VerifyRsa2048Pkcs1Sha256(mHdrSignature.data(), mHdrHash.data(), mKeyCfg.xci_header_sign_key.get()) == false)
+		if (tc::crypto::VerifyRsa2048Pkcs1Sha2256(mHdrSignature.data(), mHdrHash.data(), mKeyCfg.xci_header_sign_key.get()) == false)
 		{
 			fmt::print("[WARNING] GameCard Header Signature: FAIL\n");
 		}
