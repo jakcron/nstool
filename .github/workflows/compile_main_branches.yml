@@ -1,10 +1,10 @@
-name: Compile Main Branch
+name: Compile Main Branches
 
 on:
   push:
-    branches: [ main ]
+    branches: [ development-tip, stable ]
   pull_request:
-    branches: [ main ]
+    branches: [ development-tip, stable ]
   release:
     types: [ created ]
 
