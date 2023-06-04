@@ -107,6 +107,8 @@ void nstool::FsProcess::extractFs()
 		// otherwise determine if this is a file or subdirectory
 		try {
 			std::shared_ptr<tc::io::IStream> file_stream;
+
+			// this will throw tc::io::FileNotFoundException if the virtual path doesn't point to a file
 			mInputFs->openFile(itr->virtual_path, tc::io::FileMode::Open, tc::io::FileAccess::Read, file_stream);
 
 			//fmt::print("Valid File Path: \"{:s}\"\n", itr->virtual_path.to_string());
@@ -131,6 +133,8 @@ void nstool::FsProcess::extractFs()
 				continue;
 
 			} catch (tc::io::DirectoryNotFoundException&) {
+				// acceptable exception, just means directory didn't exist
+			} catch (tc::UnauthorisedAccessException&) {
 				// acceptable exception, just means directory didn't exist
 			}
 
@@ -157,6 +161,8 @@ void nstool::FsProcess::extractFs()
 				continue;
 			} catch (tc::io::DirectoryNotFoundException&) {
 				// acceptable exception, just means the parent directory didn't exist
+			} catch (tc::UnauthorisedAccessException&) {
+				// acceptable exception, just means directory didn't exist
 			}
 
 
