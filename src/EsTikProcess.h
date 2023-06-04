@@ -32,7 +32,12 @@ private:
 
 	pie::hac::es::SignedData<pie::hac::es::TicketBody_V2> mTik;
 
+	tc::Optional<tc::ByteData> mRawTitleKey;
+	tc::Optional<tc::ByteData> mDepersonalisedTitleKey;
+	tc::Optional<tc::ByteData> mDecryptedTitleKey;
+
 	void importTicket();
+	void decryptTitleKey();
 	void verifyTicket();
 	void displayTicket();
 	std::string getSignTypeStr(uint32_t type) const;

@@ -117,6 +117,25 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 		} \
 	} \
 	}
+
+#define _SAVE_ETIK_DEVICE_RSAKEY(key_name, dst) \
+	{ \
+	std::string key,val; \
+	tc::ByteData dec_val; \
+	sTicketDevicePersonalisationRsaKeypair* device_keypair = nullptr; \
+	key = (key_name); \
+	val = keyfile_dict[key]; \
+	if (val.empty() == false) { \
+		dec_val = tc::cli::FormatUtil::hexStringToBytes(val); \
+		if (dec_val.size() == sizeof(sTicketDevicePersonalisationRsaKeypair)) { \
+			device_keypair = (sTicketDevicePersonalisationRsaKeypair*)dec_val.data(); \
+			(dst) = tc::crypto::RsaPrivateKey(device_keypair->modulus.data(), device_keypair->modulus.size(), device_keypair->private_exponent.data(), device_keypair->private_exponent.size()); \
+		} \
+		else {\
+			fmt::print("[WARNING] Key: \"{:s}\" has incorrect length (was: {:d}, expected {:d})\n", key, val.size(), (sizeof(sTicketDevicePersonalisationRsaKeypair))*2); \
+		} \
+	} \
+	}
 	
 	// keynames
 	enum NameVariantIndex
@@ -139,6 +158,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 	std::vector<std::string> kNrrCertBase = { "nrr_certificate" };
 	std::vector<std::string> kPkiRootBase = { "pki_root" };
 	std::vector<std::string> kTicketCommonKeyBase = { "ticket_commonkey", "titlekek" };
+	std::vector<std::string> kTicketDeviceKeyBase = { "ticket_devicekey", "eticket_rsa" };
 	std::vector<std::string> kNcaKeyAreaEncKeyBase = { "nca_key_area_key", "key_area_key", "nca_body_keak" };
 	std::vector<std::string> kNcaKeyAreaEncKeyHwBase = { "nca_key_area_key_hw", "key_area_hw_key" };
 	std::vector<std::string> kKekGenBase = { "aes_kek_generation" };
@@ -147,10 +167,12 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 	// misc str
 	const std::string kKeyStr = "key";
 	const std::string kKekStr = "kek";
+	const std::string kKeKekStr = "kekek";
 	const std::string kSourceStr = "source";
 	const std::string kSignKey = "sign_key";
 	const std::string kModulusStr = "modulus";
 	const std::string kPrivateStr = "private";
+	const std::string kKeypairStr = "keypair";
 	std::vector<std::string> kNcaKeyAreaKeyIndexStr = { "application", "ocean", "system" };
 
 	static const size_t kKeyGenerationNum = 0x100;
@@ -259,6 +281,13 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 				//fmt::print("{:s}_{:02x}\n", kTicketCommonKeyBase[name_idx], keygen_rev);
 				_SAVE_AES128KEY(fmt::format("{:s}_{:02x}", kTicketCommonKeyBase[name_idx], keygen_rev), etik_common_key[(byte_t)keygen_rev]);
 			}
+		}
+
+		// ticket device key
+		if (name_idx < kTicketDeviceKeyBase.size())
+		{
+			//fmt::print("{:s}_{:s}\n", kTicketDeviceKeyBase[name_idx], kKeypairStr);
+			_SAVE_ETIK_DEVICE_RSAKEY(fmt::format("{:s}_{:s}", kTicketDeviceKeyBase[name_idx], kKeypairStr), etik_device_key);
 		}
 
 		/* NCA keys */

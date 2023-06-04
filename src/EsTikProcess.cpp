@@ -14,6 +14,7 @@ nstool::EsTikProcess::EsTikProcess() :
 void nstool::EsTikProcess::process()
 {
 	importTicket();
+	decryptTitleKey();
 
 	if (mVerify)
 		verifyTicket();
@@ -102,9 +103,66 @@ void nstool::EsTikProcess::verifyTicket()
 	}
 }
 
+void nstool::EsTikProcess::decryptTitleKey()
+{
+	const pie::hac::es::TicketBody_V2& body = mTik.getBody();
+
+	tc::ByteData raw_title_key = tc::ByteData(body.getEncTitleKey(), 0x100);
+	tc::ByteData depersonalised_key = tc::ByteData(0x10);
+	tc::ByteData decrypted_key = tc::ByteData(0x10);
+
+	try
+	{
+		// check if enc type is supported
+		if (body.getTitleKeyEncType() != pie::hac::es::ticket::RSA2048 && body.getTitleKeyEncType() != pie::hac::es::ticket::AES128_CBC)
+		{
+			throw tc::Exception(fmt::format("Unsupported TitleKeyEncType: {:d}", (byte_t)body.getTitleKeyEncType()));
+		}
+
+		// strip personalised enc layer
+		if (body.getTitleKeyEncType() == pie::hac::es::ticket::RSA2048)
+		{
+			if (mKeyCfg.etik_device_key.isSet())
+			{
+				tc::crypto::RsaKey console_eticket_rsa_key = mKeyCfg.etik_device_key.get();
+				size_t dec_data_len = 0x10;	
+				bool depersonalise_successful = false;
+				
+				depersonalise_successful = tc::crypto::DecryptRsa2048OaepSha2256(depersonalised_key.data(), dec_data_len, depersonalised_key.size(), raw_title_key.data(), console_eticket_rsa_key, nullptr, 0, false);
+
+				if (depersonalise_successful != true)
+				{
+					throw tc::Exception("Decrypting personalisation layer failed, check ticket device RSA key is correct");
+				}
+			}
+			else
+			{
+				throw tc::Exception("Decrypting personalisation layer failed, no ticket device RSA key was provided");
+			}
+		}
+
+		// strip common enc layer
+		// TODO
+
+
+		// set class key state variables
+		// TODO
+		/*
+		tc::Optional<tc::ByteData> mRawTitleKey;
+		tc::Optional<tc::ByteData> mDepersonalisedTitleKey;
+		tc::Optional<tc::ByteData> mDecryptedTitleKey;
+		*/
+	} catch (tc::Exception& e)
+	{
+		fmt::print("[WARNING] Ticket title key could not be decrypted ({:s})\n", e.error());
+	}
+
+	
+}
+
 void nstool::EsTikProcess::displayTicket()
 {
-	const pie::hac::es::TicketBody_V2& body = mTik.getBody();	
+	const pie::hac::es::TicketBody_V2& body = mTik.getBody();
 
 	fmt::print("[ES Ticket]\n");
 	fmt::print("  SignType:         {:s}", getSignTypeStr(mTik.getSignature().getSignType()));
@@ -116,10 +174,36 @@ void nstool::EsTikProcess::displayTicket()
 	fmt::print("  Title Key:\n");
 	fmt::print("    EncMode:        {:s}\n", getTitleKeyPersonalisationStr(body.getTitleKeyEncType()));
 	fmt::print("    KeyGeneration:  {:d}\n", (uint32_t)body.getCommonKeyId());
+
+	// TODO refer to these variables for showing titlekey in it's various states of encryption
+	/*
+	tc::Optional<tc::ByteData> mRawTitleKey;
+	tc::Optional<tc::ByteData> mDepersonalisedTitleKey;
+	tc::Optional<tc::ByteData> mDecryptedTitleKey;
+	*/
 	if (body.getTitleKeyEncType() == pie::hac::es::ticket::RSA2048)
 	{
 		fmt::print("    Data:\n");
 		fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(body.getEncTitleKey(), 0x100, true, "", 0x10, 6, false));
+
+		// DEBUG ONLY - REMOVE LATER
+		if (mKeyCfg.etik_device_key.isSet())
+		{
+			tc::crypto::RsaKey console_eticket_rsa_key = mKeyCfg.etik_device_key.get();
+
+			tc::ByteData enc_data = tc::ByteData(body.getEncTitleKey(), 0x100);
+			size_t dec_data_len = 0x100;
+			tc::ByteData dec_data = tc::ByteData(dec_data_len);
+						
+			tc::crypto::DecryptRsa2048OaepSha2256(dec_data.data(), dec_data_len, dec_data.size(), enc_data.data(), console_eticket_rsa_key, nullptr, 0, false);
+
+			fmt::print("    De-Personalised TitleKey:\n");
+			fmt::print("      Len: 0x{:x}\n", dec_data_len);
+			fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(dec_data.data(), dec_data_len, true, "", 0x10, 6, false));
+
+			
+		}
+		// DEBUG ONLY - REMOVE LATER
 	}
 	else if (body.getTitleKeyEncType() == pie::hac::es::ticket::AES128_CBC)
 	{
@@ -153,6 +237,9 @@ void nstool::EsTikProcess::displayTicket()
 	if (body.getDeviceId() != 0 || mCliOutputMode.show_extended_info)
 		fmt::print("  DeviceId:         0x{:016x}\n", body.getDeviceId());
 	
+	if (body.getAccountId() != 0 || mCliOutputMode.show_extended_info)
+		fmt::print("  AccountId:        0x{:08x}\n", body.getAccountId());
+
 	fmt::print("  RightsId:         \n");
 	fmt::print("    {:s}\n", tc::cli::FormatUtil::formatBytesAsString(body.getRightsId(), 16, true, ""));
 
@@ -198,10 +285,10 @@ std::string nstool::EsTikProcess::getTitleKeyPersonalisationStr(byte_t flag) con
 	switch(flag)
 	{
 	case (pie::hac::es::ticket::AES128_CBC):
-		str = "Generic (AESCBC)";
+		str = "Generic";
 		break;
 	case (pie::hac::es::ticket::RSA2048):
-		str = "Personalised (RSA2048)";
+		str = "Personalised";
 		break;
 	default:
 		str = fmt::format("Unknown ({:d})", flag);

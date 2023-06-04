@@ -53,6 +53,8 @@ struct KeyBag
 
 	// ticket
 	std::map<key_generation_t, aes128_key_t> etik_common_key;
+	tc::Optional<rsa_key_t> etik_device_key;
+
 
 	// BroadOn signer profiles (for es cert and es tik)
 	// BroadOn Keys
@@ -80,6 +82,17 @@ private:
 	void importTicket(const tc::io::Path& tik_path);
 
 	void importKnownKeys(bool isDev);
+
+#pragma pack(push,1)
+	struct sTicketDevicePersonalisationRsaKeypair
+	{
+		std::array<byte_t, 0x100> private_exponent;
+		std::array<byte_t, 0x100> modulus;
+		std::array<byte_t, 0x004> public_exponent;
+		tc::bn::pad<0xC>          reserved;
+	};
+#pragma pack(pop)
+
 };
 
 }
