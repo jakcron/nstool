@@ -32,7 +32,6 @@ private:
 
 	pie::hac::es::SignedData<pie::hac::es::TicketBody_V2> mTik;
 
-	tc::Optional<tc::ByteData> mRawTitleKey;
 	tc::Optional<tc::ByteData> mDepersonalisedTitleKey;
 	tc::Optional<tc::ByteData> mDecryptedTitleKey;
 

@@ -2,6 +2,8 @@
 #include "PkiValidator.h"
 
 #include <pietendo/hac/es/SignUtils.h>
+#include <pietendo/hac/AesKeygen.h>
+
 
 nstool::EsTikProcess::EsTikProcess() :
 	mModuleName("nstool::EsTikProcess"),
@@ -111,6 +113,7 @@ void nstool::EsTikProcess::decryptTitleKey()
 	tc::ByteData depersonalised_key = tc::ByteData(0x10);
 	tc::ByteData decrypted_key = tc::ByteData(0x10);
 
+	// try to decrypt the title key
 	try
 	{
 		// check if enc type is supported
@@ -119,8 +122,27 @@ void nstool::EsTikProcess::decryptTitleKey()
 			throw tc::Exception(fmt::format("Unsupported TitleKeyEncType: {:d}", (byte_t)body.getTitleKeyEncType()));
 		}
 
+		bool hasPersonalisedEnc = body.getTitleKeyEncType() == pie::hac::es::ticket::RSA2048;
+		bool hasCommonEnc = body.getTitleKeyEncType() == pie::hac::es::ticket::RSA2048 || body.getTitleKeyEncType() == pie::hac::es::ticket::AES128_CBC;
+
+		switch (body.getTitleKeyEncType())
+		{
+			case (pie::hac::es::ticket::AES128_CBC):
+				hasPersonalisedEnc = false;
+				hasCommonEnc = true;
+				break;
+			case (pie::hac::es::ticket::RSA2048):
+				hasPersonalisedEnc = true;
+				hasCommonEnc = true;
+				break;
+			default:
+				throw tc::Exception(fmt::format("Unsupported TitleKeyEncType 0x{:x}", (uint32_t)body.getTitleKeyEncType()));
+		}
+
+		
+
 		// strip personalised enc layer
-		if (body.getTitleKeyEncType() == pie::hac::es::ticket::RSA2048)
+		if (hasPersonalisedEnc)
 		{
 			if (mKeyCfg.etik_device_key.isSet())
 			{
@@ -142,22 +164,51 @@ void nstool::EsTikProcess::decryptTitleKey()
 		}
 
 		// strip common enc layer
-		// TODO
+		if (hasCommonEnc)
+		{
+			// determine key to decrypt title key
+			byte_t common_key_id = mTik.getBody().getCommonKeyId();
 
+			// work around for bad scene tickets where they don't set the commonkey id field (detect scene ticket with ffff.... signature)
+			if (common_key_id == 0 && *((uint64_t*)mTik.getSignature().getSignature().data()) == (uint64_t)0xffffffffffffffff)
+			{
+				const byte_t* rights_id = mTik.getBody().getRightsId();
+				static const size_t kRightsIdSize = pie::hac::es::ticket::kRightsIdSize;
 
-		// set class key state variables
-		// TODO
-		/*
-		tc::Optional<tc::ByteData> mRawTitleKey;
-		tc::Optional<tc::ByteData> mDepersonalisedTitleKey;
-		tc::Optional<tc::ByteData> mDecryptedTitleKey;
-		*/
+				fmt::print("[WARNING] Ticket \"{:s}\" is fake-signed, and title key decryption may fail if ticket was incorrectly generated.\n", tc::cli::FormatUtil::formatBytesAsString(rights_id, kRightsIdSize, true, ""));
+				// the keygeneration was included in the rights_id from keygeneration 0x03 and onwards, so in those cases we can copy from there
+				if (rights_id[15] >= 0x03)
+					common_key_id = rights_id[15];
+			}
+
+			// convert key_generation to mkey_revision
+			byte_t common_key_index = pie::hac::AesKeygen::getMasterKeyRevisionFromKeyGeneration(common_key_id);
+
+			try 
+			{
+				if (mKeyCfg.etik_common_key.find(common_key_index) != mKeyCfg.etik_common_key.end())
+				{
+					// decrypt title key (this will throw an exception is something unexpected happens)
+					tc::crypto::DecryptAes128Ecb(decrypted_key.data(), depersonalised_key.data(), sizeof(decrypted_key), mKeyCfg.etik_common_key[common_key_index].data(),  mKeyCfg.etik_common_key[common_key_index].size());					
+				}
+				else
+				{
+					throw tc::Exception(fmt::format("ticket_commonkey was not provided for master_key revision 0x{%02x}.\n", common_key_index));
+				}
+			} catch (const tc::Exception& e)
+			{
+				throw tc::Exception(fmt::format("Decrypting common layer failed, %s.\n", e.error()));
+			}
+		}
+
+		// set class decrypted title key variables 
+		mDepersonalisedTitleKey = tc::ByteData(depersonalised_key);
+		mDecryptedTitleKey = tc::ByteData(decrypted_key);
+
 	} catch (tc::Exception& e)
 	{
 		fmt::print("[WARNING] Ticket title key could not be decrypted ({:s})\n", e.error());
 	}
-
-	
 }
 
 void nstool::EsTikProcess::displayTicket()
@@ -175,40 +226,25 @@ void nstool::EsTikProcess::displayTicket()
 	fmt::print("    EncMode:        {:s}\n", getTitleKeyPersonalisationStr(body.getTitleKeyEncType()));
 	fmt::print("    KeyGeneration:  {:d}\n", (uint32_t)body.getCommonKeyId());
 
-	// TODO refer to these variables for showing titlekey in it's various states of encryption
-	/*
-	tc::Optional<tc::ByteData> mRawTitleKey;
-	tc::Optional<tc::ByteData> mDepersonalisedTitleKey;
-	tc::Optional<tc::ByteData> mDecryptedTitleKey;
-	*/
+	// Format/present the titlekey
+	std::string depersonalised_title_key_str = mDepersonalisedTitleKey.isNull() ? "<failed to depersonalise>" : tc::cli::FormatUtil::formatBytesAsString(mDepersonalisedTitleKey.get().data(), mDepersonalisedTitleKey.get().size(), true, "");
+	std::string decrypted_title_key_str = mDecryptedTitleKey.isNull() ? "<failed to decrypt>" : tc::cli::FormatUtil::formatBytesAsString(mDecryptedTitleKey.get().data(), mDecryptedTitleKey.get().size(), true, "");
+
 	if (body.getTitleKeyEncType() == pie::hac::es::ticket::RSA2048)
 	{
 		fmt::print("    Data:\n");
 		fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(body.getEncTitleKey(), 0x100, true, "", 0x10, 6, false));
-
-		// DEBUG ONLY - REMOVE LATER
-		if (mKeyCfg.etik_device_key.isSet())
-		{
-			tc::crypto::RsaKey console_eticket_rsa_key = mKeyCfg.etik_device_key.get();
-
-			tc::ByteData enc_data = tc::ByteData(body.getEncTitleKey(), 0x100);
-			size_t dec_data_len = 0x100;
-			tc::ByteData dec_data = tc::ByteData(dec_data_len);
-						
-			tc::crypto::DecryptRsa2048OaepSha2256(dec_data.data(), dec_data_len, dec_data.size(), enc_data.data(), console_eticket_rsa_key, nullptr, 0, false);
-
-			fmt::print("    De-Personalised TitleKey:\n");
-			fmt::print("      Len: 0x{:x}\n", dec_data_len);
-			fmt::print("      {:s}", tc::cli::FormatUtil::formatBytesAsStringWithLineLimit(dec_data.data(), dec_data_len, true, "", 0x10, 6, false));
-
-			
-		}
-		// DEBUG ONLY - REMOVE LATER
+		fmt::print("    Title Key Depersonalised (device encryption):\n");
+		fmt::print("      {:s}\n", depersonalised_title_key_str);
+		fmt::print("    Title Key Decrypted (common encryption):\n");
+		fmt::print("      {:s}\n", decrypted_title_key_str);
 	}
 	else if (body.getTitleKeyEncType() == pie::hac::es::ticket::AES128_CBC)
 	{
 		fmt::print("    Data:\n");
 		fmt::print("      {:s}\n", tc::cli::FormatUtil::formatBytesAsString(body.getEncTitleKey(), 0x10, true, ""));
+		fmt::print("    Title Key Decrypted (common encryption):\n");
+		fmt::print("      {:s}\n", decrypted_title_key_str);
 	}
 	else
 	{
