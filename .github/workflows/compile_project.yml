@@ -20,12 +20,15 @@ jobs:
          - dist: ubuntu_x86_64
            os: ubuntu-latest
            arch: x86_64
+           bin_ext: 
          - dist: macos_x86_64
            os: macos-latest
            arch: x86_64
+           bin_ext: 
          - dist: macos_arm64
            os: macos-latest
            arch: arm64
+           bin_ext: 
     steps:
     - uses: actions/checkout@v4
     - name: Clone submodules
@@ -35,7 +38,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.prog }}-${{ matrix.dist }}
-        path: ./bin/${{ matrix.prog }}
+        path: ./bin/${{ matrix.prog }}${{ matrix.bin_ext }}
   build_visualstudio:
     name: Compile ${{ matrix.prog }} for ${{ matrix.dist }}
     runs-on: ${{ matrix.os }}
@@ -49,11 +52,13 @@ jobs:
            platform: x64
            configuration: Release
            build_path: x64\Release
+           bin_ext: .exe
          - dist: win_x86
            os: windows-latest
            platform: x86
            configuration: Release
            build_path: Release
+           bin_ext: .exe
     steps:
     - uses: actions/checkout@v4
     - name: Add msbuild to PATH
@@ -65,5 +70,4 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.prog }}-${{ matrix.dist }}
-        path: .\build\visualstudio\${{ matrix.build_path }}\${{ matrix.prog }}.exe
-
+        path: .\build\visualstudio\${{ matrix.build_path }}\${{ matrix.prog }}${{ matrix.bin_ext }}
