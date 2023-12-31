@@ -1,6 +1,6 @@
 # C++/C Recursive Project Makefile 
 # (c) Jack
-# Version 8 (20220420)
+# Version 9 (20231231)
 
 # Project Name
 PROJECT_NAME = nstool
@@ -80,7 +80,7 @@ ifeq ($(PROJECT_PLATFORM), WIN32)
 	ARCHFLAGS =
 	INC +=
 	LIB += -static
-	ARFLAGS = cr -o
+	ARFLAGS = cr
 else ifeq ($(PROJECT_PLATFORM), GNU)
 	# GNU/Linux Flags/Libs
 	#CC = 
@@ -90,7 +90,7 @@ else ifeq ($(PROJECT_PLATFORM), GNU)
 	ARCHFLAGS =
 	INC +=
 	LIB +=
-	ARFLAGS = cr -o
+	ARFLAGS = cr
 else ifeq ($(PROJECT_PLATFORM), MACOS)
 	# MacOS Flags/Libs
 	#CC = 
