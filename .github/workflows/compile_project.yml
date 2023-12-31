@@ -1,4 +1,4 @@
-name: Compile Main Branches
+name: Compile Project (Push/PR/Release)
 
 on:
   push:
