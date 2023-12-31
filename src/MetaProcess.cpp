@@ -157,6 +157,9 @@ void nstool::MetaProcess::validateAciFromAcid(const pie::hac::AccessControlInfo&
 		}
 	}
 
+	// See https://github.com/jakcron/nstool/issues/92
+	// Nintendo doesn't populate SaveDataOwnerIdList in ACID, so this field cannot be verified
+#if 0
 	for (size_t i = 0; i < aci.getFileSystemAccessControl().getSaveDataOwnerIdList().size(); i++)
 	{
 		bool rightFound = false;
@@ -172,6 +175,7 @@ void nstool::MetaProcess::validateAciFromAcid(const pie::hac::AccessControlInfo&
 			fmt::print("[WARNING] ACI/FAC SaveDataOwnerId: FAIL (0x{:016x} ({:d}) not permitted)\n", aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].id, (uint32_t)aci.getFileSystemAccessControl().getSaveDataOwnerIdList()[i].access_type);
 		}
 	}
+#endif
 
 	// check SAC
 	for (size_t i = 0; i < aci.getServiceAccessControl().getServiceList().size(); i++)
