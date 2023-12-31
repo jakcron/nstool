@@ -488,22 +488,18 @@ void nstool::NcaProcess::displayHeader()
 	if (mContentKey.kak_list.size() > 0 && mCliOutputMode.show_keydata)
 	{
 		fmt::print("  Key Area:\n");
-		fmt::print("    <--------------------------------------------------------------------------------------------------------->\n");
-		fmt::print("    | IDX | ENCRYPTED KEY                                   | DECRYPTED KEY                                   |\n");
-		fmt::print("    |-----|-------------------------------------------------|-------------------------------------------------|\n");
+		fmt::print("    <--------------------------------------------------------------------------->\n");
+		fmt::print("    | IDX | ENCRYPTED KEY                    | DECRYPTED KEY                    |\n");
+		fmt::print("    |-----|----------------------------------|----------------------------------|\n");
 		for (size_t i = 0; i < mContentKey.kak_list.size(); i++)
 		{
-			fmt::print("    | {:3d} | {:s} | ", mContentKey.kak_list[i].index, tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].enc.data(), mContentKey.kak_list[i].enc.size(), true, ""));
-						
+			std::string enc_key = tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].enc.data(), mContentKey.kak_list[i].enc.size(), true, "");
+			std::string dec_key = mContentKey.kak_list[i].decrypted ? tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].dec.data(), mContentKey.kak_list[i].dec.size(), true, "") : "<unable to decrypt>";
 			
-			if (mContentKey.kak_list[i].decrypted)
-				fmt::print("{:s}", tc::cli::FormatUtil::formatBytesAsString(mContentKey.kak_list[i].dec.data(), mContentKey.kak_list[i].dec.size(), true, ""));
-			else
-				fmt::print("<unable to decrypt>                            ");
-			
-			fmt::print(" |\n");
+			fmt::print("    | {:3d} | {:32s} | {:32s} |\n", mContentKey.kak_list[i].index, enc_key, dec_key);
+		
 		}
-		fmt::print("    <--------------------------------------------------------------------------------------------------------->\n");
+		fmt::print("    <--------------------------------------------------------------------------->\n");
 	}
 
 	if (mCliOutputMode.show_layout)
