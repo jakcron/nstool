@@ -39,6 +39,7 @@ struct KeyBag
 
 	// external content keys (nca<->ticket)
 	std::map<rights_id_t, aes128_key_t> external_content_keys;
+	std::map<rights_id_t, aes128_key_t> external_enc_content_keys; // encrypted content key list to be used when external_content_keys does not have the required content key (usually taken raw from ticket)
 	tc::Optional<aes128_key_t> fallback_enc_content_key; // encrypted content key to be used when external_content_keys does not have the required content key (usually taken raw from ticket)
 	tc::Optional<aes128_key_t> fallback_content_key; // content key to be used when external_content_keys does not have the required content key (usually already decrypted from ticket)
 
@@ -70,7 +71,7 @@ struct KeyBag
 class KeyBagInitializer : public KeyBag
 {
 public:
-	KeyBagInitializer(bool isDev, const tc::Optional<tc::io::Path>& keyfile_path, const tc::Optional<tc::io::Path>& tik_path, const tc::Optional<tc::io::Path>& cert_path);
+	KeyBagInitializer(bool isDev, const tc::Optional<tc::io::Path>& keyfile_path, const tc::Optional<tc::io::Path>& titlekeyfile_path, const std::vector<tc::io::Path>& tik_path_list, const tc::Optional<tc::io::Path>& cert_path);
 private:
 	KeyBagInitializer();
 

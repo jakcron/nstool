@@ -12,19 +12,24 @@
 #include <pietendo/hac/es/CertificateBody.h>
 #include <pietendo/hac/es/TicketBody_V2.h>
 
-nstool::KeyBagInitializer::KeyBagInitializer(bool isDev, const tc::Optional<tc::io::Path>& keyfile_path, const tc::Optional<tc::io::Path>& tik_path, const tc::Optional<tc::io::Path>& cert_path)
+nstool::KeyBagInitializer::KeyBagInitializer(bool isDev, const tc::Optional<tc::io::Path>& keyfile_path, const tc::Optional<tc::io::Path>& titlekeyfile_path, const std::vector<tc::io::Path>& tik_path_list, const tc::Optional<tc::io::Path>& cert_path)
 {
 	if (keyfile_path.isSet())
 	{
 		importBaseKeyFile(keyfile_path.get(), isDev);
 	}
+	if (titlekeyfile_path.isSet())
+	{
+		importTitleKeyFile(titlekeyfile_path.get());
+	}
 	if (cert_path.isSet())
 	{
 		importCertificateChain(cert_path.get());
 	}
-	if (tik_path.isSet())
+	if (!tik_path_list.empty())
 	{
-		importTicket(tik_path.get());
+		for (auto itr = tik_path_list.begin(); itr != tik_path_list.end(); itr++)
+			importTicket(*itr);
 	}
 
 	// this will populate known keys if they aren't supplied by the user provided keyfiles.
@@ -447,7 +452,39 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 
 void nstool::KeyBagInitializer::importTitleKeyFile(const tc::io::Path& keyfile_path)
 {
+	std::shared_ptr<tc::io::FileStream> keyfile_stream = std::make_shared<tc::io::FileStream>(tc::io::FileStream(keyfile_path, tc::io::FileMode::Open, tc::io::FileAccess::Read));
 
+	// import keyfile into a dictionary
+	std::map<std::string, std::string> keyfile_dict;
+	processResFile(keyfile_stream, keyfile_dict);
+
+	// process title keys
+	tc::ByteData tmp;
+	KeyBag::rights_id_t rights_id_tmp;
+	KeyBag::aes128_key_t title_key_tmp;
+	for (auto itr = keyfile_dict.begin(); itr != keyfile_dict.end(); itr++)
+	{
+		//fmt::print("RightsID[{:s}] = TitleKey[{:s}]\n", itr->first, itr->second);
+
+		// parse the rights id
+		tmp = tc::cli::FormatUtil::hexStringToBytes(itr->first);
+		if (tmp.size() != rights_id_tmp.size())
+		{
+			throw tc::ArgumentException("nstool::KeyBagInitializer", "RightsID: \"" + itr->first + "\" has incorrect length");
+		}
+		memcpy(rights_id_tmp.data(), tmp.data(), rights_id_tmp.size());
+
+		// parse the title key
+		tmp = tc::cli::FormatUtil::hexStringToBytes(itr->second);
+		if (tmp.size() != title_key_tmp.size())
+		{
+			throw tc::ArgumentException("nstool::KeyBagInitializer", "TitleKey for \""+ itr->first + "\": \"" + itr->second + "\" has incorrect length");
+		}
+		memcpy(title_key_tmp.data(), tmp.data(), title_key_tmp.size());
+
+		// save to encrypted key dict
+		external_enc_content_keys[rights_id_tmp] = title_key_tmp;
+	}
 }
 
 void nstool::KeyBagInitializer::importCertificateChain(const tc::io::Path& cert_path)
@@ -551,10 +588,7 @@ void nstool::KeyBagInitializer::importTicket(const tc::io::Path& tik_path)
 		memcpy(enc_title_key.data(), tik.getBody().getEncTitleKey(), enc_title_key.size());
 
 		// save the encrypted title key as the fallback enc content key incase the ticket was malformed and workarounds to decrypt it in isolation fail
-		if (fallback_enc_content_key.isNull())
-		{
-			fallback_enc_content_key = enc_title_key;
-		}
+		external_enc_content_keys[rights_id] = enc_title_key;
 
 		// determine key to decrypt title key
 		byte_t common_key_index = tik.getBody().getCommonKeyId();
@@ -581,7 +615,7 @@ void nstool::KeyBagInitializer::importTicket(const tc::io::Path& tik_path)
 		aes128_key_t dec_title_key;
 		tc::crypto::DecryptAes128Ecb(dec_title_key.data(), enc_title_key.data(), sizeof(aes128_key_t), etik_common_key[common_key_index].data(), sizeof(aes128_key_t));
 
-		// add to key dict
+		// add to decrypted key dict
 		external_content_keys[rights_id] = dec_title_key;
 		
 	}

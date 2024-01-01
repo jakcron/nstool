@@ -136,10 +136,14 @@ private:
 	bool mVerbose;
 
 	tc::Optional<tc::io::Path> mKeysetPath;
+	tc::Optional<tc::io::Path> mTitleKeysetPath;
 	tc::Optional<KeyBag::aes128_key_t> mNcaEncryptedContentKey;
 	tc::Optional<KeyBag::aes128_key_t> mNcaContentKey;
-	tc::Optional<tc::io::Path> mTikPath;
+	std::vector<tc::io::Path> mTikPathList;
+	//tc::Optional<tc::io::Path> mTikPath;
 	tc::Optional<tc::io::Path> mCertPath;
+
+	void loadKeyFile(tc::Optional<tc::io::Path>& keyfile_path, const std::string& keyfile_name, const std::string& cli_hint);
 
 	bool determineValidNcaFromSample(const tc::ByteData& raw_data) const;
 	bool determineValidEsCertFromSample(const tc::ByteData& raw_data) const;
