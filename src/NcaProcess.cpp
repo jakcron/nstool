@@ -176,6 +176,15 @@ void nstool::NcaProcess::generateNcaBodyEncryptionKeys()
 		{
 			mContentKey.aes_ctr = mKeyCfg.fallback_content_key.get();
 		}
+		else if (mKeyCfg.external_enc_content_keys.find(mHdr.getRightsId()) != mKeyCfg.external_enc_content_keys.end())
+		{
+			tmp_key = mKeyCfg.external_enc_content_keys[mHdr.getRightsId()];
+			if (mKeyCfg.etik_common_key.find(masterkey_rev) != mKeyCfg.etik_common_key.end())
+			{
+				pie::hac::AesKeygen::generateKey(tmp_key.data(), tmp_key.data(), mKeyCfg.etik_common_key[masterkey_rev].data());
+				mContentKey.aes_ctr = tmp_key;
+			}
+		}
 		else if (mKeyCfg.fallback_enc_content_key.isSet())
 		{
 			tmp_key = mKeyCfg.fallback_enc_content_key.get();

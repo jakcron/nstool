@@ -260,6 +260,40 @@ private:
 	std::vector<std::string> mOptRegex;
 };
 
+class SingleParamPathArrayOptionHandler : public tc::cli::OptionParser::IOptionHandler
+{
+public:
+	SingleParamPathArrayOptionHandler(std::vector<tc::io::Path>& param, const std::vector<std::string>& opts) : 
+		mParam(param),
+		mOptStrings(opts),
+		mOptRegex()
+	{}
+
+	const std::vector<std::string>& getOptionStrings() const
+	{
+		return mOptStrings;
+	}
+
+	const std::vector<std::string>& getOptionRegexPatterns() const
+	{
+		return mOptRegex;
+	}
+
+	void processOption(const std::string& option, const std::vector<std::string>& params)
+	{
+		if (params.size() != 1)
+		{
+			throw tc::ArgumentOutOfRangeException(fmt::format("Option \"{:s}\" requires a parameter.", option));
+		}
+
+		mParam.push_back(params[0]);
+	}
+private:
+	std::vector<tc::io::Path>& mParam;
+	std::vector<std::string> mOptStrings;
+	std::vector<std::string> mOptRegex;
+};
+
 class FileTypeOptionHandler : public tc::cli::OptionParser::IOptionHandler
 {
 public:
@@ -504,7 +538,7 @@ nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>&
 	mVerbose(false),
 	mNcaEncryptedContentKey(),
 	mNcaContentKey(),
-	mTikPath(),
+	mTikPathList(),
 	mCertPath()
 {
 	// parse input arguments
@@ -532,29 +566,16 @@ nstool::SettingsInitializer::SettingsInitializer(const std::vector<std::string>&
 	// locate key file, if not specfied
 	if (mKeysetPath.isNull())
 	{
-		std::string home_path_str;
-		if (tc::os::getEnvVar("HOME", home_path_str) || tc::os::getEnvVar("USERPROFILE", home_path_str))
-		{
-			tc::io::Path keyfile_path = tc::io::Path(home_path_str);
-			keyfile_path.push_back(".switch");
-			keyfile_path.push_back(opt.is_dev ? "dev.keys" : "prod.keys");
-
-			try {
-				tc::io::FileStream test = tc::io::FileStream(keyfile_path, tc::io::FileMode::Open, tc::io::FileAccess::Read);
-				
-				mKeysetPath = keyfile_path;
-			}
-			catch (tc::io::FileNotFoundException&) {
-				fmt::print("[WARNING] Failed to load \"{}\" keyfile. Maybe specify it with \"-k <path>\"?\n", opt.is_dev ? "dev.keys" : "prod.keys");
-			}
-		}
-		else {
-			fmt::print("[WARNING] Failed to located \"{}\" keyfile. Maybe specify it with \"-k <path>\"?\n", opt.is_dev ? "dev.keys" : "prod.keys");
-		}
+		loadKeyFile(mKeysetPath, opt.is_dev ? "dev.keys" : "prod.keys", "Maybe specify it with \"-k <path>\"?\n");
+	}
+	// locate title key file, if not specfied
+	if (mTitleKeysetPath.isNull())
+	{
+		loadKeyFile(mTitleKeysetPath, "title.keys", "");
 	}
 
 	// generate keybag
-	opt.keybag = KeyBagInitializer(opt.is_dev, mKeysetPath, mTikPath, mCertPath);
+	opt.keybag = KeyBagInitializer(opt.is_dev, mKeysetPath, mTitleKeysetPath, mTikPathList, mCertPath);
 	opt.keybag.fallback_enc_content_key = mNcaEncryptedContentKey;
 	opt.keybag.fallback_content_key = mNcaContentKey;
 
@@ -618,9 +639,10 @@ void nstool::SettingsInitializer::parse_args(const std::vector<std::string>& arg
 
 	// get user-provided keydata
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(mKeysetPath, {"-k", "--keyset"})));
+	//opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(mTitleKeysetPath, {"--titlekeyset"})));
 	opts.registerOptionHandler(std::shared_ptr<SingleParamAesKeyOptionHandler>(new SingleParamAesKeyOptionHandler(mNcaEncryptedContentKey, {"--titlekey"})));
 	opts.registerOptionHandler(std::shared_ptr<SingleParamAesKeyOptionHandler>(new SingleParamAesKeyOptionHandler(mNcaContentKey, {"--contentkey", "--bodykey"})));
-	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(mTikPath, {"--tik"})));
+	opts.registerOptionHandler(std::shared_ptr<SingleParamPathArrayOptionHandler>(new SingleParamPathArrayOptionHandler(mTikPathList, {"--tik"})));
 	opts.registerOptionHandler(std::shared_ptr<SingleParamPathOptionHandler>(new SingleParamPathOptionHandler(mCertPath, {"--cert"})));
 
 	// code options
@@ -965,6 +987,30 @@ void nstool::SettingsInitializer::dump_rsa_key(const KeyBag::rsa_key_t& key, con
 			fmt::print("{:s}  Private Exponent: {:s}\n", indent_str, getTruncatedBytesString(key.d.data(), key.d.size()));
 		}
 	}
+}
+
+void nstool::SettingsInitializer::loadKeyFile(tc::Optional<tc::io::Path>& keyfile_path, const std::string& keyfile_name, const std::string& cli_hint)
+{
+	std::string home_path_str;
+	if (tc::os::getEnvVar("HOME", home_path_str) || tc::os::getEnvVar("USERPROFILE", home_path_str))
+	{
+		tc::io::Path tmp_path = tc::io::Path(home_path_str);
+		tmp_path.push_back(".switch");
+		tmp_path.push_back(keyfile_name);
+
+		try {
+			tc::io::FileStream test = tc::io::FileStream(tmp_path, tc::io::FileMode::Open, tc::io::FileAccess::Read);
+			
+			keyfile_path = tmp_path;
+		}
+		catch (tc::io::FileNotFoundException&) {
+			fmt::print("[WARNING] Failed to load \"{}\" keyfile.{}\n", keyfile_name, cli_hint);
+		}
+	}
+	else {
+		fmt::print("[WARNING] Failed to locate \"{}\" keyfile.{}\n", keyfile_name, cli_hint);
+	}
+	
 }
 
 
