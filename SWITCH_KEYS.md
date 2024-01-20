@@ -207,7 +207,7 @@ If the ticket is personalised (encrypted with console unique RSA key), NSTool wi
 In order for NSTool to decrypt NCA files that use external content keys, the ticket or key data be provided to NSTool. For convience NSTool supports the hactool `title.keys` format. This file can store a dictionary of title keys, so that specifying a ticket or key data manually is not required, provided it is present in `title.keys`. This file must be present in: ___$HOME/.switch/___ .
 
 ## Format
-* This file is in the format of (rights_id, title_key) pairs, each on their own line. 
+* This file is in the format of (rights_id = title_key) pairs, each on their own line. 
 * There is no limit on the number of pairs. 
 * The `;` is the comment indicator. When parsing a file, it is treated as a new line character.
 * The format is case insensitive
