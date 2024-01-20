@@ -203,4 +203,18 @@ nstool <32 char rightsid>.tik
 ##### Personalised Tickets
 If the ticket is personalised (encrypted with console unique RSA key), NSTool will not support it. You will need to use extract the title key with another tool and pass the encrypted title key directly with the `--titlekey` option.
 
-# Title
+# Title Keys (title.keys)
+In order for NSTool to decrypt NCA files that use external content keys, the ticket or key data be provided to NSTool. For convience NSTool supports the hactool `title.keys` format. This file can store a dictionary of title keys, so that specifying a ticket or key data manually is not required, provided it is present in `title.keys`. This file must be present in: ___$HOME/.switch/___ .
+
+## Format
+* This file is in the format of (rights_id, title_key) pairs, each on their own line. 
+* There is no limit on the number of pairs. 
+* The `;` is the comment indicator. When parsing a file, it is treated as a new line character.
+* The format is case insensitive
+
+
+### Example
+For example if rights id `010003000e1468000000000000000008` had a title key `8fa820b219781d331cca08968e6e5b52`, the row would look like this:
+```
+010003000e1468000000000000000008 = 8fa820b219781d331cca08968e6e5b52
+```
