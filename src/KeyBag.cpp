@@ -470,7 +470,8 @@ void nstool::KeyBagInitializer::importTitleKeyFile(const tc::io::Path& keyfile_p
 		tmp = tc::cli::FormatUtil::hexStringToBytes(itr->first);
 		if (tmp.size() != rights_id_tmp.size())
 		{
-			throw tc::ArgumentException("nstool::KeyBagInitializer", "RightsID: \"" + itr->first + "\" has incorrect length");
+			fmt::print("[nstool::KeyBagInitializer WARNING] RightsID: \"{}\" has incorrect length. Skipping...\n", itr->first);
+			continue;
 		}
 		memcpy(rights_id_tmp.data(), tmp.data(), rights_id_tmp.size());
 
@@ -478,7 +479,8 @@ void nstool::KeyBagInitializer::importTitleKeyFile(const tc::io::Path& keyfile_p
 		tmp = tc::cli::FormatUtil::hexStringToBytes(itr->second);
 		if (tmp.size() != title_key_tmp.size())
 		{
-			throw tc::ArgumentException("nstool::KeyBagInitializer", "TitleKey for \""+ itr->first + "\": \"" + itr->second + "\" has incorrect length");
+			fmt::print("[nstool::KeyBagInitializer WARNING] TitleKey for \"{}\": \"{}\" has incorrect length. Skipping...\n", itr->first, itr->second);
+			continue;
 		}
 		memcpy(title_key_tmp.data(), tmp.data(), title_key_tmp.size());
 
