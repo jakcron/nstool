@@ -421,7 +421,7 @@ void nstool::KeyBagInitializer::importBaseKeyFile(const tc::io::Path& keyfile_pa
 
 			for (size_t keak_idx = 0; keak_idx < pie::hac::nca::kKeyAreaEncryptionKeyNum; keak_idx++)
 			{
-				if (key_area_key_source[keak_idx].isSet() && nca_key_area_encryption_key[keak_idx].find(itr->first) != nca_key_area_encryption_key[keak_idx].end())
+				if (key_area_key_source[keak_idx].isSet() && nca_key_area_encryption_key[keak_idx].find(itr->first) == nca_key_area_encryption_key[keak_idx].end())
 				{
 					aes128_key_t nca_key_area_encryption_key_tmp;
 					pie::hac::AesKeygen::generateKey(nca_key_area_encryption_key_tmp.data(), aes_kek_generation_source.get().data(), key_area_key_source[keak_idx].get().data(), aes_key_generation_source.get().data(), itr->second.data());
